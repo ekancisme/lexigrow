@@ -1,0 +1,252 @@
+/* ============================================
+   LexiGrow Global Styles
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import './tokens.css';
+
+/* ── Reset & Base ── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-family);
+  font-size: var(--text-body-md-size);
+  line-height: var(--text-body-md-height);
+  font-weight: var(--text-body-md-weight);
+  color: var(--color-on-surface);
+  background-color: var(--color-surface);
+  min-height: 100vh;
+}
+
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-size: inherit;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: inherit;
+  border: none;
+  outline: none;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+/* ── Material Symbols ── */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  vertical-align: middle;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface-variant);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-outline-variant);
+}
+
+/* ── Typography Utility Classes ── */
+.text-display {
+  font-size: var(--text-display-size);
+  line-height: var(--text-display-height);
+  font-weight: var(--text-display-weight);
+  letter-spacing: var(--text-display-spacing);
+}
+
+.text-headline-lg {
+  font-size: var(--text-headline-lg-size);
+  line-height: var(--text-headline-lg-height);
+  font-weight: var(--text-headline-lg-weight);
+  letter-spacing: var(--text-headline-lg-spacing);
+}
+
+.text-headline-lg-mobile {
+  font-size: var(--text-headline-lg-mobile-size);
+  line-height: var(--text-headline-lg-mobile-height);
+  font-weight: var(--text-headline-lg-mobile-weight);
+}
+
+.text-headline-md {
+  font-size: var(--text-headline-md-size);
+  line-height: var(--text-headline-md-height);
+  font-weight: var(--text-headline-md-weight);
+}
+
+.text-title-lg {
+  font-size: var(--text-title-lg-size);
+  line-height: var(--text-title-lg-height);
+  font-weight: var(--text-title-lg-weight);
+}
+
+.text-body-lg {
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-height);
+  font-weight: var(--text-body-lg-weight);
+}
+
+.text-body-md {
+  font-size: var(--text-body-md-size);
+  line-height: var(--text-body-md-height);
+  font-weight: var(--text-body-md-weight);
+}
+
+.text-label-md {
+  font-size: var(--text-label-md-size);
+  line-height: var(--text-label-md-height);
+  font-weight: var(--text-label-md-weight);
+}
+
+.text-label-sm {
+  font-size: var(--text-label-sm-size);
+  line-height: var(--text-label-sm-height);
+  font-weight: var(--text-label-sm-weight);
+  letter-spacing: var(--text-label-sm-spacing);
+}
+
+.text-data-mono {
+  font-size: var(--text-data-mono-size);
+  line-height: var(--text-data-mono-height);
+  font-weight: var(--text-data-mono-weight);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Utility Classes ── */
+.soft-shadow {
+  box-shadow: var(--shadow-md);
+}
+
+.card-base {
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md);
+  padding: var(--spacing-lg);
+}
+
+.focus-ring:focus {
+  outline: none;
+  border-color: var(--color-primary-container);
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Animations ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.3s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.2s ease-out forwards;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}

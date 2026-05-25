@@ -1,0 +1,42 @@
+.circular-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-lg);
+}
+
+.circular-progress__ring {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.circular-progress__svg {
+  transform: rotate(-90deg);
+}
+
+.circular-progress__fill {
+  transition: stroke-dashoffset 0.8s ease-in-out;
+}
+
+.circular-progress__fill--primary { stroke: var(--color-primary); }
+.circular-progress__fill--secondary { stroke: var(--color-secondary); }
+.circular-progress__fill--tertiary { stroke: var(--color-tertiary); }
+.circular-progress__fill--success { stroke: var(--color-success); }
+.circular-progress__fill--error { stroke: var(--color-error); }
+
+.circular-progress__percentage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.circular-progress__label {
+  color: var(--color-on-surface);
+}
+
+.circular-progress__sublabel {
+  color: var(--color-outline);
+}

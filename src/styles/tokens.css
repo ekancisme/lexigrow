@@ -1,0 +1,170 @@
+/* ============================================
+   LexiGrow Design System Tokens
+   Based on Stitch "Linguistic Progress Engine"
+   ============================================ */
+
+:root {
+  /* ── Color Palette (Material Design 3 - Blue) ── */
+  --color-primary: #005BBF;
+  --color-primary-container: #1A73E8;
+  --color-primary-fixed: #D8E2FF;
+  --color-primary-fixed-dim: #ADC7FF;
+  --color-on-primary: #FFFFFF;
+  --color-on-primary-container: #FFFFFF;
+  --color-on-primary-fixed: #001A41;
+  --color-on-primary-fixed-variant: #004493;
+  --color-inverse-primary: #ADC7FF;
+
+  --color-secondary: #3D608E;
+  --color-secondary-container: #A9CBFF;
+  --color-secondary-fixed: #D4E3FF;
+  --color-secondary-fixed-dim: #A6C8FD;
+  --color-on-secondary: #FFFFFF;
+  --color-on-secondary-container: #325683;
+  --color-on-secondary-fixed: #001C3A;
+  --color-on-secondary-fixed-variant: #234875;
+
+  --color-tertiary: #525F70;
+  --color-tertiary-container: #6A7889;
+  --color-tertiary-fixed: #D6E4F8;
+  --color-tertiary-fixed-dim: #BAC8DB;
+  --color-on-tertiary: #FFFFFF;
+  --color-on-tertiary-container: #FFFFFF;
+  --color-on-tertiary-fixed: #0F1D2B;
+  --color-on-tertiary-fixed-variant: #3B4858;
+
+  --color-error: #BA1A1A;
+  --color-error-container: #FFDAD6;
+  --color-on-error: #FFFFFF;
+  --color-on-error-container: #93000A;
+
+  --color-surface: #F8F9FF;
+  --color-surface-dim: #CBDBF5;
+  --color-surface-bright: #F8F9FF;
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-container-low: #EFF4FF;
+  --color-surface-container: #E5EEFF;
+  --color-surface-container-high: #DCE9FF;
+  --color-surface-container-highest: #D3E4FE;
+  --color-surface-variant: #D3E4FE;
+  --color-surface-tint: #005BC0;
+
+  --color-on-surface: #0B1C30;
+  --color-on-surface-variant: #414754;
+  --color-on-background: #0B1C30;
+  --color-background: #F8F9FF;
+
+  --color-outline: #727785;
+  --color-outline-variant: #C1C6D6;
+
+  --color-inverse-surface: #213145;
+  --color-inverse-on-surface: #EAF1FF;
+
+  /* ── Semantic Colors ── */
+  --color-success: #16A34A;
+  --color-success-bg: rgba(22, 163, 74, 0.1);
+  --color-warning: #D97706;
+  --color-warning-bg: rgba(217, 119, 6, 0.1);
+  --color-danger: #BA1A1A;
+  --color-danger-bg: rgba(186, 26, 26, 0.1);
+
+  /* ── Typography ── */
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* Display */
+  --text-display-size: 48px;
+  --text-display-height: 56px;
+  --text-display-weight: 700;
+  --text-display-spacing: -0.02em;
+
+  /* Headline Large */
+  --text-headline-lg-size: 32px;
+  --text-headline-lg-height: 40px;
+  --text-headline-lg-weight: 600;
+  --text-headline-lg-spacing: -0.01em;
+
+  /* Headline Large Mobile */
+  --text-headline-lg-mobile-size: 24px;
+  --text-headline-lg-mobile-height: 32px;
+  --text-headline-lg-mobile-weight: 600;
+
+  /* Headline Medium */
+  --text-headline-md-size: 24px;
+  --text-headline-md-height: 32px;
+  --text-headline-md-weight: 600;
+
+  /* Title Large */
+  --text-title-lg-size: 20px;
+  --text-title-lg-height: 28px;
+  --text-title-lg-weight: 600;
+
+  /* Body Large */
+  --text-body-lg-size: 18px;
+  --text-body-lg-height: 28px;
+  --text-body-lg-weight: 400;
+
+  /* Body Medium */
+  --text-body-md-size: 16px;
+  --text-body-md-height: 24px;
+  --text-body-md-weight: 400;
+
+  /* Label Medium */
+  --text-label-md-size: 14px;
+  --text-label-md-height: 20px;
+  --text-label-md-weight: 500;
+
+  /* Label Small */
+  --text-label-sm-size: 12px;
+  --text-label-sm-height: 16px;
+  --text-label-sm-weight: 500;
+  --text-label-sm-spacing: 0.05em;
+
+  /* Data Mono */
+  --text-data-mono-size: 14px;
+  --text-data-mono-height: 20px;
+  --text-data-mono-weight: 600;
+
+  /* ── Spacing ── */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-gutter: 24px;
+
+  /* ── Layout ── */
+  --sidebar-width: 280px;
+  --topnav-height: 64px;
+  --container-max-width: 1440px;
+  --margin-mobile: 16px;
+  --margin-desktop: 32px;
+
+  /* ── Border Radius ── */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* ── Shadows ── */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  /* ── Transitions ── */
+  --transition-fast: 150ms ease;
+  --transition-normal: 200ms ease;
+  --transition-slow: 300ms ease;
+
+  /* ── Z-Index Scale ── */
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+  --z-sidebar: 50;
+  --z-topnav: 40;
+}

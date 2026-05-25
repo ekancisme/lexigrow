@@ -1,0 +1,16 @@
+.manual-feedback__back { display: flex; align-items: center; gap: 4px; color: var(--color-primary); font-size: var(--text-label-md-size); margin-bottom: var(--spacing-md); }
+.manual-feedback__header { margin-bottom: var(--spacing-lg); }
+.manual-feedback__layout { display: grid; grid-template-columns: 1fr 380px; gap: var(--spacing-gutter); }
+.manual-feedback__essay-text { color: var(--color-on-surface); line-height: 1.8; }
+.manual-feedback__panel { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.manual-feedback__score-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: var(--spacing-md); }
+.manual-feedback__score-control { display: flex; align-items: center; gap: 12px; }
+.manual-feedback__slider { flex: 1; height: 4px; appearance: none; background: var(--color-surface-container); border-radius: var(--radius-full); }
+.manual-feedback__slider::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--color-primary); cursor: pointer; }
+.manual-feedback__textarea { width: 100%; padding: 12px; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-md); font-size: var(--text-body-md-size); line-height: 1.6; resize: vertical; background: var(--color-surface); color: var(--color-on-surface); }
+.manual-feedback__textarea:focus { border-color: var(--color-primary); outline: none; }
+.manual-feedback__save-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-md); font-size: var(--text-label-md-size); font-weight: 500; }
+.manual-feedback__save-btn:hover { background: var(--color-surface-container-low); }
+.manual-feedback__submit-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; background: var(--color-primary); color: var(--color-on-primary); border-radius: var(--radius-md); font-size: var(--text-label-md-size); font-weight: 500; }
+.manual-feedback__submit-btn:hover { opacity: 0.9; }
+@media (max-width: 1024px) { .manual-feedback__layout { grid-template-columns: 1fr; } }

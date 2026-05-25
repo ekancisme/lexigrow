@@ -1,0 +1,112 @@
+.stat-card {
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.stat-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.stat-card__label {
+  color: var(--color-outline);
+}
+
+.stat-card__icon {
+  padding: 8px;
+  border-radius: var(--radius-md);
+}
+
+.stat-card__icon--primary {
+  color: var(--color-primary);
+  background: rgba(0, 91, 191, 0.08);
+}
+
+.stat-card__icon--secondary {
+  color: var(--color-secondary);
+  background: rgba(61, 96, 142, 0.08);
+}
+
+.stat-card__icon--tertiary {
+  color: var(--color-tertiary);
+  background: rgba(82, 95, 112, 0.08);
+}
+
+.stat-card__icon--error {
+  color: var(--color-error);
+  background: rgba(186, 26, 26, 0.08);
+}
+
+.stat-card__icon--success {
+  color: var(--color-success);
+  background: rgba(22, 163, 74, 0.08);
+}
+
+.stat-card__value-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.stat-card__value {
+  color: var(--color-on-surface);
+}
+
+.stat-card__trend {
+  font-size: var(--text-label-sm-size);
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+.stat-card__trend--primary {
+  color: var(--color-primary);
+  background: rgba(0, 91, 191, 0.1);
+}
+
+.stat-card__trend--success {
+  color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.stat-card__trend--error {
+  color: var(--color-error);
+  background: var(--color-danger-bg);
+}
+
+.stat-card__subtitle {
+  color: var(--color-outline);
+  margin-top: 4px;
+}
+
+.stat-card__progress {
+  width: 100%;
+  height: 4px;
+  background: var(--color-surface-container);
+  border-radius: var(--radius-full);
+  margin-top: 12px;
+  overflow: hidden;
+}
+
+.stat-card__progress-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.8s ease-in-out;
+}
+
+.stat-card__progress-fill--primary { background: var(--color-primary); }
+.stat-card__progress-fill--secondary { background: var(--color-secondary); }
+.stat-card__progress-fill--tertiary { background: var(--color-tertiary); }
+.stat-card__progress-fill--error { background: var(--color-error); }
+.stat-card__progress-fill--success { background: var(--color-success); }

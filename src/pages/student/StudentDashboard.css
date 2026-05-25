@@ -1,0 +1,112 @@
+.student-dash__welcome {
+  margin-bottom: var(--spacing-lg);
+}
+
+.student-dash__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--spacing-gutter);
+  margin-bottom: var(--spacing-lg);
+}
+
+.student-dash__charts {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-gutter);
+  margin-bottom: var(--spacing-lg);
+}
+
+.student-dash__goals-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* Table */
+.student-dash__table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-lg);
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.student-dash__view-all {
+  color: var(--color-primary);
+  font-size: var(--text-label-md-size);
+  font-weight: var(--text-label-md-weight);
+}
+
+.student-dash__view-all:hover {
+  text-decoration: underline;
+}
+
+.student-dash__table-wrap {
+  overflow-x: auto;
+}
+
+.student-dash__submissions {
+  width: 100%;
+  text-align: left;
+  border-collapse: collapse;
+}
+
+.student-dash__submissions th {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--color-surface-container-low);
+  color: var(--color-outline);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--color-outline-variant);
+  white-space: nowrap;
+}
+
+.student-dash__submissions td {
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.student-dash__submissions tr:hover {
+  background: var(--color-surface-container);
+  cursor: pointer;
+}
+
+.student-dash__essay-title {
+  font-weight: 700;
+  color: var(--color-on-surface);
+  transition: color var(--transition-fast);
+}
+
+.student-dash__submissions tr:hover .student-dash__essay-title {
+  color: var(--color-primary);
+}
+
+.student-dash__complexity-badge {
+  background: var(--color-surface-container-highest);
+  color: var(--color-on-surface);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-label-sm-size);
+  font-weight: var(--text-label-sm-weight);
+}
+
+.student-dash__status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-label-sm-size);
+  font-weight: var(--text-label-sm-weight);
+  background: rgba(0, 91, 191, 0.1);
+  color: var(--color-primary);
+}
+
+.student-dash__status-badge--draft {
+  background: var(--color-surface-variant);
+  color: var(--color-on-surface-variant);
+}
+
+@media (max-width: 1024px) {
+  .student-dash__charts {
+    grid-template-columns: 1fr;
+  }
+}
