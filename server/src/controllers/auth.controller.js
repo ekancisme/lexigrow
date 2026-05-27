@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken'
+import { OAuth2Client } from 'google-auth-library'
 import User from '../models/User.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
@@ -100,37 +101,75 @@ export const getMe = asyncHandler(async (req, res) => {
 })
 
 /**
- * @desc    Google OAuth login/register
+ * @desc    Google OAuth login/register (real Google OAuth code exchange)
  * @route   POST /api/auth/google
  * @access  Public
  */
 export const googleAuth = asyncHandler(async (req, res) => {
-  const { googleId, email, name, avatar, role, englishLevel, institution } = req.body
+  const { code } = req.body
 
-  if (!googleId || !email) {
-    throw new ErrorResponse('Google authentication data required', 400)
+  if (!code) {
+    throw new ErrorResponse('Google authorization code is required', 400)
+  }
+
+  const clientId = process.env.GOOGLE_CLIENT_ID
+  const clientSecret = process.env.GOOGLE_CLIENT_SECRET
+
+  if (!clientId || !clientSecret) {
+    throw new ErrorResponse('Google OAuth is not configured on the server', 500)
+  }
+
+  const oAuth2Client = new OAuth2Client(clientId, clientSecret, 'postmessage')
+
+  // Exchange authorization code for tokens
+  let tokens
+  try {
+    const tokenResponse = await oAuth2Client.getToken(code)
+    tokens = tokenResponse.tokens
+  } catch (err) {
+    console.error('Google token exchange error:', err.message)
+    throw new ErrorResponse('Failed to exchange Google authorization code', 400)
+  }
+
+  // Verify the id_token to get user info
+  let payload
+  try {
+    const ticket = await oAuth2Client.verifyIdToken({
+      idToken: tokens.id_token,
+      audience: clientId,
+    })
+    payload = ticket.getPayload()
+  } catch (err) {
+    console.error('Google token verification error:', err.message)
+    throw new ErrorResponse('Invalid Google token', 400)
+  }
+
+  const { sub: googleId, email, name, picture } = payload
+
+  if (!email) {
+    throw new ErrorResponse('Google account does not have an email', 400)
   }
 
   // Find existing user by googleId or email
   let user = await User.findOne({ $or: [{ googleId }, { email }] })
 
   if (user) {
-    // Update googleId if not set
+    // Link Google account if not already linked
     if (!user.googleId) {
       user.googleId = googleId
-      if (avatar) user.avatar = avatar
+      if (picture) user.avatar = picture
       await user.save()
     }
   } else {
-    // Create new user (no password for Google users)
+    // Create new user with Google profile
     user = await User.create({
-      name,
+      name: name || email.split('@')[0],
       email,
       googleId,
-      avatar: avatar || '',
-      role: role || 'student',
-      englishLevel: role === 'student' ? englishLevel : '',
-      institution: role === 'teacher' ? institution : '',
+      avatar: picture || '',
+      role: 'student', // Default role for new Google sign-ups
+      englishLevel: '',
+      institution: '',
       password: googleId + process.env.JWT_SECRET, // Placeholder password
     })
   }
