@@ -24,8 +24,11 @@ app.get('/api/health', (req, res) => {
   res.json({ success: true, message: 'LexiGrow API is running', timestamp: new Date().toISOString() })
 })
 
-// TODO: Mount route files here (will be added in subsequent commits)
-// app.use('/api/auth', authRoutes)
+// Route files
+import authRoutes from './routes/auth.routes.js'
+
+app.use('/api/auth', authRoutes)
+// TODO: Mount remaining route files (will be added in subsequent commits)
 // app.use('/api/essays', essayRoutes)
 // app.use('/api/vocabulary', vocabularyRoutes)
 // app.use('/api/progress', progressRoutes)
