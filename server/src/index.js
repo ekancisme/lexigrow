@@ -28,9 +28,11 @@ app.get('/api/health', (req, res) => {
 import authRoutes from './routes/auth.routes.js'
 
 import essayRoutes from './routes/essay.routes.js'
+import analysisRoutes from './routes/analysis.routes.js'
 
 app.use('/api/auth', authRoutes)
 app.use('/api/essays', essayRoutes)
+app.use('/api/essays', analysisRoutes)
 // TODO: Mount remaining route files (will be added in subsequent commits)
 // app.use('/api/vocabulary', vocabularyRoutes)
 // app.use('/api/progress', progressRoutes)

@@ -1,4 +1,5 @@
 import Essay from '../models/Essay.js'
+import { processEssayAnalysis } from '../services/ai.service.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 
@@ -126,7 +127,10 @@ export const submitEssay = asyncHandler(async (req, res) => {
   essay.submittedAt = new Date()
   await essay.save()
 
-  // TODO: Trigger AI analysis (will be implemented in Commit 5)
+  // Trigger AI analysis asynchronously (non-blocking)
+  processEssayAnalysis(essay._id, req.user._id, essay.content).catch(err => {
+    console.error('Background AI analysis failed:', err.message)
+  })
 
   res.status(200).json({ success: true, data: essay, message: 'Essay submitted successfully' })
 })
