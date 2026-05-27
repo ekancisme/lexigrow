@@ -1,16 +1,89 @@
-# React + Vite
+# LexiGrow — AI-Driven English Vocabulary & Writing Growth Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+LexiGrow is a web application designed to help English learners enhance their writing skills and vocabulary through AI-powered feedback. It includes a comprehensive backend REST API and a highly interactive, responsive frontend dashboard for both students and teachers.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Quick Start Guide
 
-## React Compiler
+### Prerequisites
+Make sure you have [Node.js](https://nodejs.org/) (v16 or higher) and npm installed.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 1. Installation
+Clone the repository and install dependencies for both the frontend (root directory) and the backend (`server` directory).
 
-## Expanding the ESLint configuration
+```bash
+# Install frontend dependencies
+npm install
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+# Install backend dependencies
+cd server
+npm install
+```
+
+### 2. Configuration
+Create a `.env` file inside the `server/` directory. You can copy the contents of `.env.example` as a template:
+
+```bash
+cd server
+cp .env.example .env
+```
+
+Configure your environment variables:
+```env
+PORT=5000
+NODE_ENV=development
+MONGO_URI=mongodb://admin:123@36.50.54.246:27017/lexigrow?authSource=admin
+JWT_SECRET=your_jwt_secret_here
+GEMINI_API_KEY=your_gemini_api_key_here
+```
+
+### 3. Running the Project
+
+To run both the frontend and backend concurrently in development mode:
+
+**Terminal 1 (Backend Server):**
+```bash
+cd server
+npm run dev
+# Server will run on http://localhost:5000
+```
+
+**Terminal 2 (Frontend App):**
+```bash
+# In the root directory
+npm run dev
+# Frontend will run on http://localhost:5173
+```
+Vite is preconfigured to proxy API requests from the frontend to the backend (`/api` -> `http://localhost:5000`).
+
+---
+
+## 📝 Project Description & Features
+
+LexiGrow is a Capstone Project built to help students systematically grow their active vocabulary through writing. The platform automatically extracts vocabulary, evaluates complexity, and identifies areas of growth using AI.
+
+### Key Features
+
+#### 🎓 For Students
+*   **AI Writing Assistant**: Write and submit essays for detailed AI evaluations.
+*   **Dynamic Vocabulary Library**: Auto-detects and categorizes newly used words into Academic, Scientific, Business, and Daily categories.
+*   **Goal Tracking**: Set and measure weekly metrics like word count targets, essay counts, and complexity score goals.
+*   **Detailed Analytics**: View progress charts, vocabulary growth charts, and earn milestone achievements.
+
+#### 🏫 For Teachers
+*   **Classroom Management**: Create classes, invite students, and view student lists.
+*   **Roster Metrics & Insights**: Real-time evaluation of each student's TTR (Type-Token Ratio), growth trajectories, and submission states.
+*   **Early Warning Alert System**: Automatically flags declining scores, student inactivity (e.g. no essays in 5 days), or low vocabulary diversity.
+*   **Custom Prompting Templates**: Edit system prompts used by the AI engine to evaluate essays.
+*   **Manual Grading & Feedback**: Override or supplement AI scores with direct manual comments.
+
+---
+
+## 🛠️ Technology Stack
+
+*   **Frontend**: React.js (Vite), Vanilla CSS, React Router, HSL Custom Variables.
+*   **Backend**: Node.js, Express.js.
+*   **Database**: MongoDB, Mongoose (indexing and aggregations).
+*   **Authentication**: JWT (JSON Web Tokens), Google OAuth (integrated flow).
+*   **AI Engine**: Google Gemini AI (using `@google/generative-ai` SDK).
