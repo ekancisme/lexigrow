@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext.jsx'
 import './Sidebar.css'
 
 const studentNavItems = [
@@ -23,6 +24,7 @@ const bottomItems = [
 
 export default function Sidebar({ role = 'student' }) {
   const navigate = useNavigate()
+  const { logout } = useAuth()
   const navItems = role === 'teacher' ? teacherNavItems : studentNavItems
 
   return (
@@ -83,7 +85,7 @@ export default function Sidebar({ role = 'student' }) {
             <span>{item.label}</span>
           </NavLink>
         ))}
-        <button className="sidebar__link sidebar__logout" onClick={() => navigate('/login')}>
+        <button className="sidebar__link sidebar__logout" onClick={() => { logout(); navigate('/login'); }}>
           <span className="material-symbols-outlined">logout</span>
           <span>Logout</span>
         </button>
