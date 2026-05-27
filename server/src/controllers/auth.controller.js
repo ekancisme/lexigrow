@@ -232,3 +232,16 @@ export const resetPassword = asyncHandler(async (req, res) => {
   })
 })
 
+/**
+ * @desc    Get auth configuration (e.g., Google Client ID)
+ * @route   GET /api/auth/config
+ * @access  Public
+ */
+export const getAuthConfig = asyncHandler(async (req, res) => {
+  res.status(200).json({
+    success: true,
+    googleClientId: process.env.GOOGLE_CLIENT_ID || '',
+  })
+})
+
+
