@@ -1,14 +1,22 @@
 import { useState, useEffect, useRef } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import './Login.css'
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
+  const [infoMessage, setInfoMessage] = useState('')
   const { login, loading, isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const particleRef = useRef(null)
+
+  useEffect(() => {
+    if (location.state?.infoMessage) {
+      setInfoMessage(location.state.infoMessage)
+    }
+  }, [location.state])
 
   useEffect(() => {
     if (isAuthenticated && user) {
@@ -81,6 +89,11 @@ export default function Login() {
               {error}
             </div>
           )}
+          {infoMessage && (
+            <div style={{ background: 'var(--color-primary-container, #e8f0fe)', color: 'var(--color-primary, #1a73e8)', padding: '12px 16px', borderRadius: 12, marginBottom: 16, fontSize: 14 }}>
+              {infoMessage}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="login__form">
             {/* Email */}
             <div className="login__field">
@@ -127,7 +140,7 @@ export default function Login() {
                 <input type="checkbox" className="login__checkbox" />
                 <span className="text-label-md">Remember me</span>
               </label>
-              <a href="#" className="login__forgot text-label-md">Forgot password?</a>
+              <Link to="/forgot-password" className="login__forgot text-label-md">Forgot password?</Link>
             </div>
 
             {/* Submit */}
