@@ -43,10 +43,24 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
+  const loginWithGoogle = async (googlePayload) => {
+    setLoading(true)
+    try {
+      const data = await api.post('/auth/google', googlePayload)
+      api.setToken(data.token)
+      api.setUser(data.user)
+      setToken(data.token)
+      setUser(data.user)
+      return data.user
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const isAuthenticated = !!token && !!user
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, loginWithGoogle, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   )
