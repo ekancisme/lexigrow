@@ -11,6 +11,11 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--margin-desktop);
+  transition: background var(--transition-normal), border-color var(--transition-normal);
+}
+
+[data-theme='dark'] .topnav {
+  background: rgba(14, 20, 32, 0.8);
 }
 
 /* Search */

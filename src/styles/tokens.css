@@ -168,3 +168,68 @@
   --z-sidebar: 50;
   --z-topnav: 40;
 }
+
+[data-theme='dark'] {
+  --color-primary: #789DFF;
+  --color-primary-container: #1A73E8;
+  --color-primary-fixed: #004493;
+  --color-primary-fixed-dim: #00306E;
+  --color-on-primary: #002D65;
+  --color-on-primary-container: #D8E2FF;
+  --color-on-primary-fixed: #D8E2FF;
+  --color-on-primary-fixed-variant: #ADC7FF;
+  --color-inverse-primary: #005BBF;
+
+  --color-secondary: #ADC7FF;
+  --color-secondary-container: #234875;
+  --color-secondary-fixed: #001C3A;
+  --color-secondary-fixed-dim: #002D58;
+  --color-on-secondary: #002F5D;
+  --color-on-secondary-container: #D4E3FF;
+  --color-on-secondary-fixed: #D4E3FF;
+  --color-on-secondary-fixed-variant: #A6C8FD;
+
+  --color-tertiary: #BAC8DB;
+  --color-tertiary-container: #3B4858;
+  --color-tertiary-fixed: #0F1D2B;
+  --color-tertiary-fixed-dim: #1D2A38;
+  --color-on-tertiary: #243140;
+  --color-on-tertiary-container: #D6E4F8;
+  --color-on-tertiary-fixed: #D6E4F8;
+  --color-on-tertiary-fixed-variant: #BAC8DB;
+
+  --color-error: #FFB4AB;
+  --color-error-container: #93000A;
+  --color-on-error: #690005;
+  --color-on-error-container: #FFDAD6;
+
+  --color-surface: #0E1420;
+  --color-surface-dim: #0B0F19;
+  --color-surface-bright: #1E293B;
+  --color-surface-container-lowest: #0B0E14;
+  --color-surface-container-low: #131A26;
+  --color-surface-container: #1B2433;
+  --color-surface-container-high: #242F42;
+  --color-surface-container-highest: #2D3A50;
+  --color-surface-variant: #2A3649;
+  --color-surface-tint: #789DFF;
+
+  --color-on-surface: #E2E8F0;
+  --color-on-surface-variant: #94A3B8;
+  --color-on-background: #E2E8F0;
+  --color-background: #0E1420;
+
+  --color-outline: #64748B;
+  --color-outline-variant: #334155;
+
+  --color-inverse-surface: #F8F9FF;
+  --color-inverse-on-surface: #0B1C30;
+
+  /* ── Semantic Colors for Dark Theme ── */
+  --color-success: #22C55E;
+  --color-success-bg: rgba(34, 197, 94, 0.15);
+  --color-warning: #F59E0B;
+  --color-warning-bg: rgba(245, 158, 11, 0.15);
+  --color-danger: #EF4444;
+  --color-danger-bg: rgba(239, 68, 68, 0.15);
+}
