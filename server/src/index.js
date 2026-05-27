@@ -46,8 +46,11 @@ import classRoutes from './routes/class.routes.js'
 
 app.use('/api/classes', classRoutes)
 
+import teacherRoutes from './routes/teacher.routes.js'
+
+app.use('/api/teacher', teacherRoutes)
+
 // TODO: Mount remaining route files
-// app.use('/api/teacher', teacherRoutes)
 // app.use('/api/feedback', feedbackRoutes)
 // app.use('/api/alerts', alertRoutes)
 // app.use('/api/prompts', promptRoutes)
