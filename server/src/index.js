@@ -42,8 +42,11 @@ app.use('/api/vocabulary', vocabularyRoutes)
 app.use('/api/progress', progressRoutes)
 app.use('/api/goals', goalsRoutes)
 
-// TODO: Mount remaining route files (will be added in subsequent commits)
-// app.use('/api/classes', classRoutes)
+import classRoutes from './routes/class.routes.js'
+
+app.use('/api/classes', classRoutes)
+
+// TODO: Mount remaining route files
 // app.use('/api/teacher', teacherRoutes)
 // app.use('/api/feedback', feedbackRoutes)
 // app.use('/api/alerts', alertRoutes)
