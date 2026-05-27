@@ -9,7 +9,12 @@ const errorHandler = (err, req, res, next) => {
 
   // Log for dev
   if (process.env.NODE_ENV === 'development') {
-    console.error('❌ Error:', err)
+    const statusCode = err.statusCode || error.statusCode || 500
+    if (statusCode < 500) {
+      console.warn(`⚠️ Client Error (${statusCode}): ${err.message}`)
+    } else {
+      console.error('❌ Server Error:', err)
+    }
   }
 
   // Mongoose bad ObjectId
