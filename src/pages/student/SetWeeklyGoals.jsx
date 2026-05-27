@@ -1,19 +1,59 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import api from '../../services/api.js'
 import CircularProgress from '../../components/common/CircularProgress'
 import './SetWeeklyGoals.css'
 
-const defaultGoals = [
-  { id: 1, label: 'New Words', target: 20, current: 16, icon: 'dictionary', color: 'primary' },
-  { id: 2, label: 'Essays Written', target: 3, current: 2, icon: 'edit_note', color: 'secondary' },
-  { id: 3, label: 'Writing Length (words)', target: 5000, current: 3250, icon: 'text_fields', color: 'tertiary' },
-  { id: 4, label: 'Complexity Score', target: 8, current: 7.5, icon: 'equalizer', color: 'primary' },
-]
-
 export default function SetWeeklyGoals() {
-  const [goals, setGoals] = useState(defaultGoals)
+  const [weeklyGoalDoc, setWeeklyGoalDoc] = useState(null)
+  const [goals, setGoals] = useState([])
+  const [recommendations, setRecommendations] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    async function loadGoalsData() {
+      try {
+        const [goalRes, recRes] = await Promise.all([
+          api.get('/goals'),
+          api.get('/goals/recommendations'),
+        ])
+        setWeeklyGoalDoc(goalRes.data)
+        setGoals(goalRes.data?.goals || [])
+        setRecommendations(recRes.data || [])
+      } catch (err) {
+        console.error('Error loading goals:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadGoalsData()
+  }, [])
 
   function updateTarget(id, value) {
-    setGoals(goals.map(g => g.id === id ? { ...g, target: Number(value) } : g))
+    setGoals(goals.map(g => g._id === id ? { ...g, target: Number(value) } : g))
+  }
+
+  async function handleSave() {
+    if (!weeklyGoalDoc) return
+    setSaving(true)
+    try {
+      await api.put(`/goals/${weeklyGoalDoc._id}`, { goals })
+      alert('Goals updated successfully!')
+    } catch (err) {
+      alert('Error updating goals: ' + err.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="weekly-goals" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
+        <span className="material-symbols-outlined animate-spin" style={{ fontSize: 48, color: 'var(--color-primary)' }}>
+          progress_activity
+        </span>
+      </div>
+    )
   }
 
   return (
@@ -25,19 +65,19 @@ export default function SetWeeklyGoals() {
             Define your targets and track your progress throughout the week
           </p>
         </div>
-        <button className="weekly-goals__save-btn">
+        <button className="weekly-goals__save-btn" onClick={handleSave} disabled={saving}>
           <span className="material-symbols-outlined">check</span>
-          Save Goals
+          {saving ? 'Saving...' : 'Save Goals'}
         </button>
       </section>
 
       {/* Progress Overview */}
       <section className="weekly-goals__progress">
         {goals.map(goal => (
-          <div key={goal.id} className="weekly-goals__progress-card card-base">
+          <div key={goal._id} className="weekly-goals__progress-card card-base">
             <CircularProgress
-              percentage={Math.round((goal.current / goal.target) * 100)}
-              color={goal.color}
+              percentage={Math.min(100, Math.round((goal.current / goal.target) * 100))}
+              color={goal.color || 'primary'}
               size={80}
             />
             <div className="weekly-goals__progress-info">
@@ -53,9 +93,9 @@ export default function SetWeeklyGoals() {
         <h3 className="text-title-lg" style={{ marginBottom: 24 }}>Configure Goals</h3>
         <div className="weekly-goals__config-list">
           {goals.map(goal => (
-            <div key={goal.id} className="weekly-goals__config-item">
+            <div key={goal._id} className="weekly-goals__config-item">
               <div className="weekly-goals__config-label">
-                <span className={`material-symbols-outlined`} style={{ color: `var(--color-${goal.color})`, fontSize: 20 }}>{goal.icon}</span>
+                <span className={`material-symbols-outlined`} style={{ color: `var(--color-${goal.color || 'primary'})`, fontSize: 20 }}>{goal.icon || 'star'}</span>
                 <span className="text-label-md">{goal.label}</span>
               </div>
               <div className="weekly-goals__config-input-row">
@@ -63,21 +103,21 @@ export default function SetWeeklyGoals() {
                   type="range"
                   className="weekly-goals__slider"
                   min={goal.label.includes('Complexity') ? 1 : goal.label.includes('Length') ? 1000 : 1}
-                  max={goal.label.includes('Complexity') ? 10 : goal.label.includes('Length') ? 10000 : 50}
+                  max={goal.label.includes('Complexity') ? 10 : goal.label.includes('Length') ? 10000 : 100}
                   step={goal.label.includes('Length') ? 500 : 1}
                   value={goal.target}
-                  onChange={(e) => updateTarget(goal.id, e.target.value)}
+                  onChange={(e) => updateTarget(goal._id, e.target.value)}
                 />
                 <input
                   type="number"
                   className="weekly-goals__number-input"
                   value={goal.target}
-                  onChange={(e) => updateTarget(goal.id, e.target.value)}
+                  onChange={(e) => updateTarget(goal._id, e.target.value)}
                 />
               </div>
               <div className="weekly-goals__config-bar">
                 <div
-                  className={`weekly-goals__config-fill weekly-goals__config-fill--${goal.color}`}
+                  className={`weekly-goals__config-fill weekly-goals__config-fill--${goal.color || 'primary'}`}
                   style={{ width: `${Math.min(100, (goal.current / goal.target) * 100)}%` }}
                 />
               </div>
@@ -93,18 +133,16 @@ export default function SetWeeklyGoals() {
           AI Recommendations
         </h3>
         <div className="weekly-goals__tips-grid">
-          <div className="weekly-goals__tip">
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', fontSize: 20 }}>trending_up</span>
-            <p className="text-label-md">Based on your growth rate, consider increasing your word target to 25 next week.</p>
-          </div>
-          <div className="weekly-goals__tip">
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-secondary)', fontSize: 20 }}>schedule</span>
-            <p className="text-label-md">Your most productive writing time is between 9-11 AM. Try scheduling essays then.</p>
-          </div>
-          <div className="weekly-goals__tip">
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-tertiary)', fontSize: 20 }}>category</span>
-            <p className="text-label-md">Focus on academic vocabulary this week—your scientific category needs more attention.</p>
-          </div>
+          {recommendations.length > 0 ? (
+            recommendations.map((rec, i) => (
+              <div key={i} className="weekly-goals__tip">
+                <span className="material-symbols-outlined" style={{ color: `var(--color-${rec.color || 'primary'})`, fontSize: 20 }}>{rec.icon || 'star'}</span>
+                <p className="text-label-md">{rec.text}</p>
+              </div>
+            ))
+          ) : (
+            <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>No recommendations available yet.</p>
+          )}
         </div>
       </section>
     </div>
