@@ -30,25 +30,6 @@ export default function Login() {
     return () => clearInterval(interval)
   }, [])
 
-  // Listen to Google OAuth Mock Popup messages
-  useEffect(() => {
-    const handleMessage = async (event) => {
-      if (event.origin !== window.location.origin) return
-      if (event.data?.type === 'GOOGLE_PROFILE_SELECTED') {
-        const { profile } = event.data
-        setError('')
-        try {
-          const loggedInUser = await loginWithGoogle(profile)
-          navigate(loggedInUser.role === 'teacher' ? '/teacher/dashboard' : '/student/dashboard')
-        } catch (err) {
-          setError(err.message || 'Google authentication failed')
-        }
-      }
-    }
-    window.addEventListener('message', handleMessage)
-    return () => window.removeEventListener('message', handleMessage)
-  }, [loginWithGoogle, navigate])
-
   function createParticles() {
     const container = particleRef.current
     if (!container) return
@@ -83,15 +64,47 @@ export default function Login() {
     }
   }
 
-  function handleGoogleSignIn() {
-    const width = 500
-    const height = 650
-    const left = window.screenX + (window.outerWidth - width) / 2
-    const top = window.screenY + (window.outerHeight - height) / 2
+  // Google Sign-In using Google Identity Services (real OAuth)
+  async function handleGoogleSignIn() {
+    setError('')
 
-    const oauthUrl = `${window.location.origin}/v3/signin/accountchooser?access_type=offline&client_id=1062961139910-l2m55cb9h51u5cuc9c56eb3fevouidh9.apps.googleusercontent.com&display=popup&enable_granular_consent=true&gis_params=GBMqK2dZcUJ1U2ZvSjFJRXFERWVzcEswNVY2RHk3VVpTRkw0dlpWNldhdDNPMmM4AUIKYXV0aDQ3NDk3MWgB&gsiwebsdk=gis_attributes&include_granted_scopes=true&origin=${encodeURIComponent(window.location.origin)}&prompt=consent&redirect_uri=gis_transform&response_mode=form_post&response_type=code&scope=openid+profile+email&flowName=GeneralOAuthFlow`
+    if (!window.google?.accounts?.oauth2) {
+      setError('Google Sign-In is not available. Please refresh and try again.')
+      return
+    }
 
-    window.open(oauthUrl, 'GoogleSignIn', `width=${width},height=${height},left=${left},top=${top}`)
+    try {
+      // Fetch the Google Client ID from server config
+      const response = await fetch('/api/auth/config')
+      const config = await response.json()
+
+      if (!config.googleClientId) {
+        setError('Google Sign-In is not configured on the server.')
+        return
+      }
+
+      const client = window.google.accounts.oauth2.initCodeClient({
+        client_id: config.googleClientId,
+        scope: 'openid email profile',
+        ux_mode: 'popup',
+        callback: async (response) => {
+          if (response.error) {
+            setError('Google Sign-In was cancelled or failed.')
+            return
+          }
+          try {
+            const loggedInUser = await loginWithGoogle({ code: response.code })
+            navigate(loggedInUser.role === 'teacher' ? '/teacher/dashboard' : '/student/dashboard')
+          } catch (err) {
+            setError(err.message || 'Google authentication failed')
+          }
+        },
+      })
+
+      client.requestCode()
+    } catch (err) {
+      setError('Failed to initialize Google Sign-In.')
+    }
   }
 
   return (
@@ -247,5 +260,6 @@ export default function Login() {
           </p>
         </div>
       </div>
+    </div>
   )
 }
