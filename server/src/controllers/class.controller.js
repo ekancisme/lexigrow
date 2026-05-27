@@ -29,7 +29,11 @@ export const createClass = asyncHandler(async (req, res) => {
  * @access  Private (teacher)
  */
 export const getClasses = asyncHandler(async (req, res) => {
-  const classes = await Class.find({ teacher: req.user._id })
+  const query = req.user.role === 'teacher'
+    ? { teacher: req.user._id }
+    : { students: req.user._id }
+
+  const classes = await Class.find(query)
     .populate('students', 'name email englishLevel')
     .sort({ createdAt: -1 })
 

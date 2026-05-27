@@ -8,18 +8,17 @@ import { protect, authorize } from '../middleware/auth.middleware.js'
 const router = Router()
 
 router.use(protect)
-router.use(authorize('teacher'))
 
 router.route('/')
-  .post(createClass)
-  .get(getClasses)
+  .post(authorize('teacher'), createClass)
+  .get(authorize('teacher', 'student'), getClasses)
 
 router.route('/:id')
-  .get(getClassDetail)
-  .put(updateClass)
-  .delete(deleteClass)
+  .get(authorize('teacher'), getClassDetail)
+  .put(authorize('teacher'), updateClass)
+  .delete(authorize('teacher'), deleteClass)
 
-router.post('/:id/students', addStudent)
-router.delete('/:id/students/:studentId', removeStudent)
+router.post('/:id/students', authorize('teacher'), addStudent)
+router.delete('/:id/students/:studentId', authorize('teacher'), removeStudent)
 
 export default router
