@@ -140,6 +140,10 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
     await Vocabulary.bulkWrite(vocabOps)
   }
 
+  // Update essay status to reviewed so the client stops polling and displays the analysis
+  const Essay = (await import('../models/Essay.js')).default
+  await Essay.findByIdAndUpdate(essayId, { status: 'reviewed' })
+
   return analysis
 }
 
