@@ -29,8 +29,8 @@ export default function SetWeeklyGoals() {
     loadGoalsData()
   }, [])
 
-  function updateTarget(id, value) {
-    setGoals(goals.map(g => g._id === id ? { ...g, target: Number(value) } : g))
+  function updateTarget(label, value) {
+    setGoals(goals.map(g => g.label === label ? { ...g, target: Number(value) } : g))
   }
 
   async function handleSave() {
@@ -74,7 +74,7 @@ export default function SetWeeklyGoals() {
       {/* Progress Overview */}
       <section className="weekly-goals__progress">
         {goals.map(goal => (
-          <div key={goal._id} className="weekly-goals__progress-card card-base">
+          <div key={goal.label} className="weekly-goals__progress-card card-base">
             <CircularProgress
               percentage={Math.min(100, Math.round((goal.current / goal.target) * 100))}
               color={goal.color || 'primary'}
@@ -93,7 +93,7 @@ export default function SetWeeklyGoals() {
         <h3 className="text-title-lg" style={{ marginBottom: 24 }}>Configure Goals</h3>
         <div className="weekly-goals__config-list">
           {goals.map(goal => (
-            <div key={goal._id} className="weekly-goals__config-item">
+            <div key={goal.label} className="weekly-goals__config-item">
               <div className="weekly-goals__config-label">
                 <span className={`material-symbols-outlined`} style={{ color: `var(--color-${goal.color || 'primary'})`, fontSize: 20 }}>{goal.icon || 'star'}</span>
                 <span className="text-label-md">{goal.label}</span>
@@ -106,13 +106,13 @@ export default function SetWeeklyGoals() {
                   max={goal.label.includes('Complexity') ? 10 : goal.label.includes('Length') ? 10000 : 100}
                   step={goal.label.includes('Length') ? 500 : 1}
                   value={goal.target}
-                  onChange={(e) => updateTarget(goal._id, e.target.value)}
+                  onChange={(e) => updateTarget(goal.label, e.target.value)}
                 />
                 <input
                   type="number"
                   className="weekly-goals__number-input"
                   value={goal.target}
-                  onChange={(e) => updateTarget(goal._id, e.target.value)}
+                  onChange={(e) => updateTarget(goal.label, e.target.value)}
                 />
               </div>
               <div className="weekly-goals__config-bar">
