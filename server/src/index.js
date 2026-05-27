@@ -50,9 +50,13 @@ import teacherRoutes from './routes/teacher.routes.js'
 
 app.use('/api/teacher', teacherRoutes)
 
+import feedbackRoutes from './routes/feedback.routes.js'
+import alertRoutes from './routes/alert.routes.js'
+
+app.use('/api/feedback', feedbackRoutes)
+app.use('/api/alerts', alertRoutes)
+
 // TODO: Mount remaining route files
-// app.use('/api/feedback', feedbackRoutes)
-// app.use('/api/alerts', alertRoutes)
 // app.use('/api/prompts', promptRoutes)
 // app.use('/api/profile', profileRoutes)
 
