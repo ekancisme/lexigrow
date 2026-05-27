@@ -57,10 +57,19 @@ export function AuthProvider({ children }) {
     }
   }
 
+  const checkEmail = async (email) => {
+    try {
+      const data = await api.post('/auth/check-email', { email })
+      return data.exists
+    } catch (err) {
+      return false
+    }
+  }
+
   const isAuthenticated = !!token && !!user
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, logout, loginWithGoogle, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, token, loading, login, register, logout, loginWithGoogle, checkEmail, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   )

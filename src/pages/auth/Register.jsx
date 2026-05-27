@@ -8,7 +8,10 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [showGoogleMock, setShowGoogleMock] = useState(false)
-  const { register, loading, loginWithGoogle } = useAuth()
+  const [googleEmail, setGoogleEmail] = useState('')
+  const [googleStep, setGoogleStep] = useState(1) // 1: choose email, 2: fill profile details
+  const [googleRole, setGoogleRole] = useState('student')
+  const { register, loading, loginWithGoogle, checkEmail } = useAuth()
   const navigate = useNavigate()
 
   async function handleSubmit(e) {
@@ -32,14 +35,48 @@ export default function Register() {
     }
   }
 
-  async function handleMockSelect(googlePayload) {
-    setShowGoogleMock(false)
+  async function handleGoogleEmailSubmit(email, defaultName = '', defaultRole = 'student') {
     setError('')
     try {
-      const user = await loginWithGoogle(googlePayload)
+      const exists = await checkEmail(email)
+      if (exists) {
+        setShowGoogleMock(false)
+        setGoogleStep(1)
+        const user = await loginWithGoogle({
+          googleId: 'google_' + email.replace(/[@.]/g, '_'),
+          email,
+          name: defaultName || email.split('@')[0],
+          avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${email}`,
+          role: defaultRole
+        })
+        navigate(user.role === 'teacher' ? '/teacher/dashboard' : '/student/dashboard')
+      } else {
+        setGoogleEmail(email)
+        setGoogleRole(defaultRole)
+        setGoogleStep(2)
+      }
+    } catch (err) {
+      setError(err.message || 'Error checking email')
+    }
+  }
+
+  async function handleGoogleRegisterSubmit(formData) {
+    setShowGoogleMock(false)
+    setGoogleStep(1)
+    setError('')
+    try {
+      const user = await loginWithGoogle({
+        googleId: 'google_' + googleEmail.replace(/[@.]/g, '_'),
+        email: googleEmail,
+        name: formData.name,
+        avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${formData.name}`,
+        role: formData.role,
+        englishLevel: formData.role === 'student' ? formData.englishLevel : '',
+        institution: formData.role === 'teacher' ? formData.institution : ''
+      })
       navigate(user.role === 'teacher' ? '/teacher/dashboard' : '/student/dashboard')
     } catch (err) {
-      setError(err.message || 'Google authentication failed')
+      setError(err.message || 'Google registration failed')
     }
   }
 
@@ -201,7 +238,7 @@ export default function Register() {
       </main>
 
       {showGoogleMock && (
-        <div className="google-mock-modal-overlay" onClick={() => setShowGoogleMock(false)}>
+        <div className="google-mock-modal-overlay" onClick={() => { setShowGoogleMock(false); setGoogleStep(1); }}>
           <div className="google-mock-modal" onClick={e => e.stopPropagation()}>
             <div className="google-mock-modal__header">
               <svg width="20" height="20" viewBox="0 0 24 24" style={{ marginRight: 8 }}>
@@ -210,73 +247,129 @@ export default function Register() {
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
               </svg>
-              <h3>Sign up with Google</h3>
-              <button type="button" className="google-mock-modal__close" onClick={() => setShowGoogleMock(false)}>&times;</button>
+              <h3>{googleStep === 1 ? 'Sign up with Google' : 'Complete Google Registration'}</h3>
+              <button type="button" className="google-mock-modal__close" onClick={() => { setShowGoogleMock(false); setGoogleStep(1); }}>&times;</button>
             </div>
             <div className="google-mock-modal__body">
-              <p className="google-mock-modal__sub">Choose an account to continue to LexiGrow</p>
-              
-              <div className="google-mock-accounts">
-                <div className="google-mock-account" onClick={() => handleMockSelect({
-                  googleId: 'google_student_123',
-                  email: 'student.demo@gmail.com',
-                  name: 'Nguyễn Văn A',
-                  avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=A',
-                  role: 'student'
-                })}>
-                  <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=A" alt="A" className="google-mock-avatar" />
-                  <div className="google-mock-info">
-                    <span className="google-mock-name">Nguyễn Văn A (Student)</span>
-                    <span className="google-mock-email">student.demo@gmail.com</span>
+              {googleStep === 1 ? (
+                <>
+                  <p className="google-mock-modal__sub">Choose an account to continue to LexiGrow</p>
+                  
+                  <div className="google-mock-accounts">
+                    <div className="google-mock-account" onClick={() => handleGoogleEmailSubmit('student.demo@gmail.com', 'Nguyễn Văn A', 'student')}>
+                      <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=A" alt="A" className="google-mock-avatar" />
+                      <div className="google-mock-info">
+                        <span className="google-mock-name">Nguyễn Văn A (Student)</span>
+                        <span className="google-mock-email">student.demo@gmail.com</span>
+                      </div>
+                    </div>
+
+                    <div className="google-mock-account" onClick={() => handleGoogleEmailSubmit('teacher.demo@gmail.com', 'Trần Thị B', 'teacher')}>
+                      <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=B" alt="B" className="google-mock-avatar" />
+                      <div className="google-mock-info">
+                        <span className="google-mock-name">Trần Thị B (Teacher)</span>
+                        <span className="google-mock-email">teacher.demo@gmail.com</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="google-mock-custom">
+                    <p>Or use a custom email:</p>
+                    <input type="email" placeholder="Email Address" id="mock-google-email-input" className="google-mock-input" />
+                    <div className="google-mock-role-select" style={{ marginTop: 8 }}>
+                      <label>
+                        <input type="radio" name="mock-google-initial-role" value="student" defaultChecked /> Sign in as Student
+                      </label>
+                      <label style={{ marginLeft: 16 }}>
+                        <input type="radio" name="mock-google-initial-role" value="teacher" /> Sign in as Teacher
+                      </label>
+                    </div>
+                    <button type="button" className="google-mock-custom-btn" style={{ marginTop: 8 }} onClick={() => {
+                      const emailInput = document.getElementById('mock-google-email-input')?.value
+                      const roleInput = document.querySelector('input[name="mock-google-initial-role"]:checked')?.value
+                      if (!emailInput) {
+                        alert('Please enter email')
+                        return
+                      }
+                      handleGoogleEmailSubmit(emailInput, '', roleInput)
+                    }}>
+                      Continue
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <div className="google-mock-custom" style={{ borderTop: 'none', paddingTop: 0 }}>
+                  <p className="google-mock-modal__sub">Enter your details to create a new account associated with <strong>{googleEmail}</strong>.</p>
+                  
+                  <div style={{ marginBottom: 12 }}>
+                    <label style={{ display: 'block', fontSize: 12, marginBottom: 4, fontWeight: 'bold' }}>Full Name</label>
+                    <input type="text" placeholder="Full Name" id="mock-google-reg-name" className="google-mock-input" />
+                  </div>
+                  
+                  <div style={{ marginBottom: 12 }}>
+                    <label style={{ display: 'block', fontSize: 12, marginBottom: 4, fontWeight: 'bold' }}>Role</label>
+                    <div className="google-mock-role-select">
+                      <label>
+                        <input 
+                          type="radio" 
+                          name="mock-google-reg-role" 
+                          value="student" 
+                          checked={googleRole === 'student'} 
+                          onChange={() => setGoogleRole('student')}
+                        /> Student
+                      </label>
+                      <label style={{ marginLeft: 16 }}>
+                        <input 
+                          type="radio" 
+                          name="mock-google-reg-role" 
+                          value="teacher" 
+                          checked={googleRole === 'teacher'} 
+                          onChange={() => setGoogleRole('teacher')}
+                        /> Teacher
+                      </label>
+                    </div>
+                  </div>
+                  
+                  {googleRole === 'student' ? (
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ display: 'block', fontSize: 12, marginBottom: 4, fontWeight: 'bold' }}>English Level</label>
+                      <select id="mock-google-reg-level" className="google-mock-input" style={{ appearance: 'auto' }}>
+                        <option value="Beginner (A1/A2)">Beginner (A1/A2)</option>
+                        <option value="Intermediate (B1/B2)">Intermediate (B1/B2)</option>
+                        <option value="Advanced (C1/C2)">Advanced (C1/C2)</option>
+                      </select>
+                    </div>
+                  ) : (
+                    <div style={{ marginBottom: 16 }}>
+                      <label style={{ display: 'block', fontSize: 12, marginBottom: 4, fontWeight: 'bold' }}>Institution</label>
+                      <input type="text" placeholder="School/University" id="mock-google-reg-institution" className="google-mock-input" />
+                    </div>
+                  )}
+                  
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button type="button" className="google-mock-custom-btn" style={{ background: '#f1f3f4', color: '#5f6368' }} onClick={() => setGoogleStep(1)}>
+                      Back
+                    </button>
+                    <button type="button" className="google-mock-custom-btn" onClick={() => {
+                      const name = document.getElementById('mock-google-reg-name')?.value
+                      if (!name) {
+                        alert('Please enter your full name')
+                        return
+                      }
+                      const englishLevel = document.getElementById('mock-google-reg-level')?.value || ''
+                      const institution = document.getElementById('mock-google-reg-institution')?.value || ''
+                      handleGoogleRegisterSubmit({
+                        name,
+                        role: googleRole,
+                        englishLevel,
+                        institution
+                      })
+                    }}>
+                      Register & Login
+                    </button>
                   </div>
                 </div>
-
-                <div className="google-mock-account" onClick={() => handleMockSelect({
-                  googleId: 'google_teacher_456',
-                  email: 'teacher.demo@gmail.com',
-                  name: 'Trần Thị B',
-                  avatar: 'https://api.dicebear.com/7.x/adventurer/svg?seed=B',
-                  role: 'teacher'
-                })}>
-                  <img src="https://api.dicebear.com/7.x/adventurer/svg?seed=B" alt="B" className="google-mock-avatar" />
-                  <div className="google-mock-info">
-                    <span className="google-mock-name">Trần Thị B (Teacher)</span>
-                    <span className="google-mock-email">teacher.demo@gmail.com</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="google-mock-custom">
-                <p>Or use a custom account:</p>
-                <input type="text" placeholder="Full Name" id="mock-google-name" className="google-mock-input" />
-                <input type="email" placeholder="Email Address" id="mock-google-email" className="google-mock-input" />
-                <div className="google-mock-role-select">
-                  <label>
-                    <input type="radio" name="mock-google-role" value="student" defaultChecked /> Student
-                  </label>
-                  <label style={{ marginLeft: 16 }}>
-                    <input type="radio" name="mock-google-role" value="teacher" /> Teacher
-                  </label>
-                </div>
-                <button type="button" className="google-mock-custom-btn" onClick={() => {
-                  const nameInput = document.getElementById('mock-google-name')?.value
-                  const emailInput = document.getElementById('mock-google-email')?.value
-                  const roleInput = document.querySelector('input[name="mock-google-role"]:checked')?.value
-                  if (!nameInput || !emailInput) {
-                    alert('Please enter name and email')
-                    return
-                  }
-                  handleMockSelect({
-                    googleId: 'google_custom_' + Date.now(),
-                    email: emailInput,
-                    name: nameInput,
-                    avatar: `https://api.dicebear.com/7.x/adventurer/svg?seed=${nameInput}`,
-                    role: roleInput
-                  })
-                }}>
-                  Use Custom Google Account
-                </button>
-              </div>
+              )}
             </div>
           </div>
         </div>

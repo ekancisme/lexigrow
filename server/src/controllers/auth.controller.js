@@ -105,7 +105,7 @@ export const getMe = asyncHandler(async (req, res) => {
  * @access  Public
  */
 export const googleAuth = asyncHandler(async (req, res) => {
-  const { googleId, email, name, avatar, role } = req.body
+  const { googleId, email, name, avatar, role, englishLevel, institution } = req.body
 
   if (!googleId || !email) {
     throw new ErrorResponse('Google authentication data required', 400)
@@ -129,6 +129,8 @@ export const googleAuth = asyncHandler(async (req, res) => {
       googleId,
       avatar: avatar || '',
       role: role || 'student',
+      englishLevel: role === 'student' ? englishLevel : '',
+      institution: role === 'teacher' ? institution : '',
       password: googleId + process.env.JWT_SECRET, // Placeholder password
     })
   }
@@ -243,5 +245,26 @@ export const getAuthConfig = asyncHandler(async (req, res) => {
     googleClientId: process.env.GOOGLE_CLIENT_ID || '',
   })
 })
+
+/**
+ * @desc    Check if email exists
+ * @route   POST /api/auth/check-email
+ * @access  Public
+ */
+export const checkEmail = asyncHandler(async (req, res) => {
+  const { email } = req.body
+
+  if (!email) {
+    throw new ErrorResponse('Please provide an email', 400)
+  }
+
+  const user = await User.findOne({ email })
+
+  res.status(200).json({
+    success: true,
+    exists: !!user,
+  })
+})
+
 
 
