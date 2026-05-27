@@ -1,20 +1,34 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext.jsx'
 import './Register.css'
 
 export default function Register() {
   const [role, setRole] = useState('student')
-  const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
+  const { register, loading } = useAuth()
   const navigate = useNavigate()
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
-    setIsLoading(true)
-    setTimeout(() => {
-      setIsLoading(false)
-      navigate(role === 'student' ? '/student/dashboard' : '/teacher/dashboard')
-    }, 1500)
+    setError('')
+
+    const formData = {
+      name: e.target['reg-name'].value,
+      email: e.target['reg-email'].value,
+      password: e.target['reg-password'].value,
+      role,
+      englishLevel: role === 'student' ? (e.target['reg-level']?.value || '') : '',
+      institution: role === 'teacher' ? (e.target['reg-institution']?.value || '') : '',
+    }
+
+    try {
+      const user = await register(formData)
+      navigate(user.role === 'student' ? '/student/dashboard' : '/teacher/dashboard')
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
   return (
@@ -35,6 +49,12 @@ export default function Register() {
 
         {/* Register Card */}
         <div className="register__card">
+          {error && (
+            <div style={{ background: 'var(--color-error-container, #fce4ec)', color: 'var(--color-error, #c62828)', padding: '12px 16px', borderRadius: 12, marginBottom: 16, fontSize: 14 }}>
+              {error}
+            </div>
+          )}
+
           {/* Role Selection */}
           <div className="register__roles">
             <button
@@ -85,6 +105,7 @@ export default function Register() {
                   className="register__input register__input--password"
                   placeholder="Create a password"
                   required
+                  minLength={6}
                 />
                 <button type="button" className="register__toggle-pw" onClick={() => setShowPassword(!showPassword)}>
                   <span className="material-symbols-outlined">{showPassword ? 'visibility_off' : 'visibility'}</span>
@@ -129,8 +150,8 @@ export default function Register() {
             </label>
 
             {/* Submit */}
-            <button type="submit" className="register__submit" disabled={isLoading}>
-              {isLoading ? (
+            <button type="submit" className="register__submit" disabled={loading}>
+              {loading ? (
                 <span className="material-symbols-outlined animate-spin">progress_activity</span>
               ) : (
                 <>

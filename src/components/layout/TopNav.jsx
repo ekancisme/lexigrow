@@ -1,14 +1,16 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext.jsx'
 import './TopNav.css'
 
 export default function TopNav({ role = 'student' }) {
   const [searchFocused, setSearchFocused] = useState(false)
   const navigate = useNavigate()
+  const { user: authUser, logout } = useAuth()
 
-  const user = role === 'teacher'
-    ? { name: 'Prof. Elena', subtitle: 'Senior Educator', avatar: null }
-    : { name: 'Alex Rivera', subtitle: 'Student (C1 Level)', avatar: null }
+  const user = authUser
+    ? { name: authUser.name, subtitle: authUser.role === 'teacher' ? authUser.institution || 'Educator' : `Student (${authUser.englishLevel || 'N/A'})` }
+    : { name: role === 'teacher' ? 'Prof. Elena' : 'Alex Rivera', subtitle: role === 'teacher' ? 'Senior Educator' : 'Student (C1 Level)' }
 
   return (
     <header className="topnav">

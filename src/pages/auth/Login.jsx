@@ -1,12 +1,20 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext.jsx'
 import './Login.css'
 
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState('')
+  const { login, loading, isAuthenticated, user } = useAuth()
   const navigate = useNavigate()
   const particleRef = useRef(null)
+
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      navigate(user.role === 'teacher' ? '/teacher/dashboard' : '/student/dashboard')
+    }
+  }, [isAuthenticated, user])
 
   useEffect(() => {
     createParticles()
@@ -34,13 +42,18 @@ export default function Login() {
     }
   }
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
-    setIsLoading(true)
-    setTimeout(() => {
-      setIsLoading(false)
-      navigate('/student/dashboard')
-    }, 1500)
+    setError('')
+    const email = e.target['login-email'].value
+    const password = e.target['login-password'].value
+
+    try {
+      const user = await login(email, password)
+      navigate(user.role === 'teacher' ? '/teacher/dashboard' : '/student/dashboard')
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
   return (
@@ -63,6 +76,11 @@ export default function Login() {
 
         {/* Login Card */}
         <div className="login__card">
+          {error && (
+            <div style={{ background: 'var(--color-error-container, #fce4ec)', color: 'var(--color-error, #c62828)', padding: '12px 16px', borderRadius: 12, marginBottom: 16, fontSize: 14 }}>
+              {error}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="login__form">
             {/* Email */}
             <div className="login__field">
@@ -113,8 +131,8 @@ export default function Login() {
             </div>
 
             {/* Submit */}
-            <button type="submit" className="login__submit" disabled={isLoading}>
-              {isLoading ? (
+            <button type="submit" className="login__submit" disabled={loading}>
+              {loading ? (
                 <span className="material-symbols-outlined animate-spin">progress_activity</span>
               ) : (
                 <>
