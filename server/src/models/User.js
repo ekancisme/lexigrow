@@ -47,14 +47,21 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
-  notifications: {
-    email: { type: Boolean, default: true },
-    push: { type: Boolean, default: true },
-    weekly: { type: Boolean, default: false },
-  },
-}, {
-  timestamps: true,
-})
+    notifications: {
+      email: { type: Boolean, default: true },
+      push: { type: Boolean, default: true },
+      weekly: { type: Boolean, default: false },
+    },
+    resetPasswordCode: {
+      type: String,
+      default: '',
+    },
+    resetPasswordExpire: {
+      type: Date,
+    },
+  }, {
+    timestamps: true,
+  })
 
 // Hash password before saving
 userSchema.pre('save', async function (next) {

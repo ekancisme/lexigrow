@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
+import sendEmail from '../utils/sendEmail.js'
 
 /**
  * Generate JWT token
@@ -134,3 +135,100 @@ export const googleAuth = asyncHandler(async (req, res) => {
 
   sendTokenResponse(user, 200, res)
 })
+
+/**
+ * @desc    Forgot password - send 6-digit OTP email
+ * @route   POST /api/auth/forgot-password
+ * @access  Public
+ */
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body
+
+  if (!email) {
+    throw new ErrorResponse('Please provide an email address', 400)
+  }
+
+  const user = await User.findOne({ email })
+  if (!user) {
+    throw new ErrorResponse('There is no user registered with this email', 404)
+  }
+
+  // Generate 6-digit verification code
+  const code = Math.floor(100000 + Math.random() * 900000).toString()
+
+  user.resetPasswordCode = code
+  user.resetPasswordExpire = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+  await user.save()
+
+  const message = `Hello,\n\nYou requested a password reset. Please use the following 6-digit verification code to reset your password:\n\n${code}\n\nThis code will expire in 10 minutes.\n\nIf you did not request this, please ignore this email.\n\nBest regards,\nLexiGrow Team`
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
+      <h2 style="color: #1a73e8; text-align: center;">LexiGrow Password Reset</h2>
+      <p>Hello,</p>
+      <p>You requested a password reset. Please use the following 6-digit verification code to reset your password:</p>
+      <div style="background-color: #f8f9fa; border: 1px dashed #1a73e8; border-radius: 4px; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #1a73e8; margin: 20px 0;">
+        ${code}
+      </div>
+      <p style="color: #666; font-size: 14px;">This code will expire in 10 minutes.</p>
+      <p>If you did not request this, please ignore this email.</p>
+      <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+      <p style="color: #999; font-size: 12px; text-align: center;">&copy; ${new Date().getFullYear()} LexiGrow. All rights reserved.</p>
+    </div>
+  `
+
+  try {
+    await sendEmail({
+      email: user.email,
+      subject: 'LexiGrow - Password Reset Verification Code',
+      message,
+      html,
+    })
+
+    res.status(200).json({
+      success: true,
+      message: 'Verification code sent to email',
+    })
+  } catch (err) {
+    user.resetPasswordCode = ''
+    user.resetPasswordExpire = undefined
+    await user.save()
+    console.error('Email send error:', err)
+    throw new ErrorResponse('Email could not be sent', 500)
+  }
+})
+
+/**
+ * @desc    Reset password using verification code
+ * @route   POST /api/auth/reset-password
+ * @access  Public
+ */
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { email, code, newPassword } = req.body
+
+  if (!email || !code || !newPassword) {
+    throw new ErrorResponse('Please provide email, verification code, and new password', 400)
+  }
+
+  const user = await User.findOne({
+    email,
+    resetPasswordCode: code,
+    resetPasswordExpire: { $gt: Date.now() },
+  })
+
+  if (!user) {
+    throw new ErrorResponse('Invalid or expired verification code', 400)
+  }
+
+  // Set new password (will be hashed automatically on save)
+  user.password = newPassword
+  user.resetPasswordCode = ''
+  user.resetPasswordExpire = undefined
+  await user.save()
+
+  res.status(200).json({
+    success: true,
+    message: 'Password reset successful. You can now login with your new password.',
+  })
+})
+
