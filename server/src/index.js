@@ -33,10 +33,16 @@ import analysisRoutes from './routes/analysis.routes.js'
 app.use('/api/auth', authRoutes)
 app.use('/api/essays', essayRoutes)
 app.use('/api/essays', analysisRoutes)
+
+import vocabularyRoutes from './routes/vocabulary.routes.js'
+import progressRoutes from './routes/progress.routes.js'
+import goalsRoutes from './routes/goals.routes.js'
+
+app.use('/api/vocabulary', vocabularyRoutes)
+app.use('/api/progress', progressRoutes)
+app.use('/api/goals', goalsRoutes)
+
 // TODO: Mount remaining route files (will be added in subsequent commits)
-// app.use('/api/vocabulary', vocabularyRoutes)
-// app.use('/api/progress', progressRoutes)
-// app.use('/api/goals', goalsRoutes)
 // app.use('/api/classes', classRoutes)
 // app.use('/api/teacher', teacherRoutes)
 // app.use('/api/feedback', feedbackRoutes)
