@@ -1,0 +1,18 @@
+.class-overview__header { margin-bottom: var(--spacing-lg); }
+.class-overview__back { display: flex; align-items: center; gap: 4px; color: var(--color-primary); font-size: var(--text-label-md-size); font-weight: 500; }
+.class-overview__back:hover { text-decoration: underline; }
+.class-overview__metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--spacing-md); margin-bottom: var(--spacing-lg); }
+.class-overview__table-header { display: flex; justify-content: space-between; align-items: center; padding: var(--spacing-lg); border-bottom: 1px solid var(--color-outline-variant); }
+.class-overview__search { padding: 8px 16px; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-full); width: 240px; font-size: var(--text-label-md-size); background: var(--color-surface); color: var(--color-on-surface); }
+.class-overview__search:focus { border-color: var(--color-primary); outline: none; }
+.class-overview__table { width: 100%; text-align: left; border-collapse: collapse; }
+.class-overview__table th { padding: var(--spacing-md) var(--spacing-lg); background: var(--color-surface-container-low); color: var(--color-outline); text-transform: uppercase; letter-spacing: 0.05em; }
+.class-overview__table td { padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--color-outline-variant); }
+.class-overview__table tr:hover { background: var(--color-surface-container); cursor: pointer; }
+.class-overview__status { padding: 4px 12px; border-radius: var(--radius-full); font-size: var(--text-label-sm-size); font-weight: 500; text-transform: capitalize; }
+.class-overview__status--growing { background: var(--color-success-bg); color: var(--color-success); }
+.class-overview__status--declining { background: var(--color-danger-bg); color: var(--color-error); }
+.class-overview__status--stagnating { background: var(--color-surface-variant); color: var(--color-on-surface-variant); }
+.class-overview__action-btn { padding: 6px 16px; border: 1px solid var(--color-primary); color: var(--color-primary); border-radius: var(--radius-md); font-size: var(--text-label-sm-size); font-weight: 500; transition: all var(--transition-fast); }
+.class-overview__action-btn:hover { background: var(--color-primary); color: var(--color-on-primary); }
+@media (max-width: 768px) { .class-overview__metrics { grid-template-columns: repeat(2, 1fr); } }
