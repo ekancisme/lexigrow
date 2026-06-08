@@ -1,7 +1,7 @@
 const API_BASE = '/api'
 
 /**
- * API client tích hợp tự động xử lý token JWT và localStorage
+ * API client with JWT token handling
  */
 class ApiClient {
   constructor() {
@@ -30,7 +30,6 @@ class ApiClient {
     localStorage.setItem('lexigrow_user', JSON.stringify(user))
   }
 
-  // Hàm core thực thi HTTP request dùng fetch API
   async request(endpoint, options = {}) {
     const url = `${this.baseUrl}${endpoint}`
     const token = this.getToken()
@@ -38,13 +37,12 @@ class ApiClient {
     const config = {
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}), // Đính kèm JWT token
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers,
       },
       ...options,
     }
 
-    // Tự động convert body sang JSON string nếu body là object thông thường
     if (config.body && typeof config.body === 'object' && !(config.body instanceof FormData)) {
       config.body = JSON.stringify(config.body)
     }
@@ -53,7 +51,6 @@ class ApiClient {
     const data = await response.json()
 
     if (!response.ok) {
-      // Nếu token hết hạn hoặc không hợp lệ -> logout và đá về trang login
       if (response.status === 401) {
         this.removeToken()
         window.location.href = '/login'

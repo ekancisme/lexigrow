@@ -1,0 +1,55 @@
+.my-progress__header { margin-bottom: var(--spacing-lg); }
+.my-progress__overview {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--spacing-gutter); margin-bottom: var(--spacing-lg);
+}
+.my-progress__stat-card {
+  display: flex; align-items: center; gap: var(--spacing-md);
+  transition: transform var(--transition-normal);
+}
+.my-progress__stat-card:hover { transform: translateY(-2px); }
+.my-progress__stat-icon {
+  width: 48px; height: 48px; border-radius: var(--radius-lg);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.my-progress__grid {
+  display: grid; grid-template-columns: 2fr 1fr;
+  gap: var(--spacing-gutter); margin-bottom: var(--spacing-lg);
+}
+.my-progress__chart-visual { position: relative; }
+.my-progress__svg { width: 100%; height: 250px; }
+.my-progress__chart-labels {
+  display: flex; justify-content: space-between;
+  margin-top: var(--spacing-sm);
+  font-size: var(--text-label-sm-size); color: var(--color-outline);
+}
+.my-progress__categories { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.my-progress__category-info {
+  display: flex; justify-content: space-between; margin-bottom: 6px;
+}
+.my-progress__category-bar {
+  height: 8px; background: var(--color-surface-container);
+  border-radius: var(--radius-full); overflow: hidden;
+}
+.my-progress__category-fill {
+  height: 100%; border-radius: var(--radius-full);
+  transition: width 0.8s ease-in-out;
+}
+.my-progress__category-fill--primary { background: var(--color-primary); }
+.my-progress__category-fill--secondary { background: var(--color-secondary); }
+.my-progress__category-fill--tertiary { background: var(--color-tertiary); }
+.my-progress__category-fill--success { background: var(--color-success); }
+
+.my-progress__milestone-list { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.my-progress__milestone {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; border-radius: var(--radius-md);
+  border: 1px solid var(--color-outline-variant);
+  transition: background var(--transition-fast);
+}
+.my-progress__milestone:hover { background: var(--color-surface-container-low); }
+.my-progress__milestone--achieved { border-color: rgba(22, 163, 74, 0.3); background: rgba(22, 163, 74, 0.04); }
+
+@media (max-width: 1024px) {
+  .my-progress__grid { grid-template-columns: 1fr; }
+}
