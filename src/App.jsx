@@ -1,121 +1,71 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { Routes, Route, Navigate } from 'react-router-dom'
+
+/* Auth Pages */
+import Login from './pages/auth/Login'
+import Register from './pages/auth/Register'
+import ForgotPassword from './pages/auth/ForgotPassword'
+
+
+/* Layout */
+import AppLayout from './components/layout/AppLayout'
+
+/* Student Pages */
+import StudentDashboard from './pages/student/StudentDashboard'
+import WriteEssay from './pages/student/WriteEssay'
+import MyProgress from './pages/student/MyProgress'
+import SetWeeklyGoals from './pages/student/SetWeeklyGoals'
+import AIFeedbackReview from './pages/student/AIFeedbackReview'
+
+/* Teacher Pages */
+import TeacherDashboard from './pages/teacher/TeacherDashboard'
+import ClassOverview from './pages/teacher/ClassOverview'
+import ClassManagement from './pages/teacher/ClassManagement'
+import StudentAnalyticsDetail from './pages/teacher/StudentAnalyticsDetail'
+import ManualFeedbackReview from './pages/teacher/ManualFeedbackReview'
+import EarlyWarningAlerts from './pages/teacher/EarlyWarningAlerts'
+import SystemPromptsManagement from './pages/teacher/SystemPromptsManagement'
+import ProfileSettings from './pages/teacher/ProfileSettings'
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <Routes>
+      {/* Auth routes (no sidebar) */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
 
-      <div className="ticks"></div>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      {/* Student routes */}
+      <Route path="/student" element={<AppLayout role="student" />}>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<StudentDashboard />} />
+        <Route path="write-essay" element={<WriteEssay />} />
+        <Route path="progress" element={<MyProgress />} />
+        <Route path="goals" element={<SetWeeklyGoals />} />
+        <Route path="feedback" element={<AIFeedbackReview />} />
+      </Route>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      {/* Teacher routes */}
+      <Route path="/teacher" element={<AppLayout role="teacher" />}>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<TeacherDashboard />} />
+        <Route path="class/:id" element={<ClassOverview />} />
+        <Route path="classes" element={<ClassManagement />} />
+        <Route path="student/:id" element={<StudentAnalyticsDetail />} />
+        <Route path="feedback/:id" element={<ManualFeedbackReview />} />
+        <Route path="alerts" element={<EarlyWarningAlerts />} />
+        <Route path="prompts" element={<SystemPromptsManagement />} />
+      </Route>
+
+      {/* Shared routes */}
+      <Route path="/settings" element={<AppLayout role="teacher" />}>
+        <Route index element={<ProfileSettings />} />
+      </Route>
+
+      {/* Default redirect */}
+      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="*" element={<Navigate to="/login" replace />} />
+    </Routes>
   )
 }
 

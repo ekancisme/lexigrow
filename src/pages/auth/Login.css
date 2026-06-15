@@ -278,11 +278,8 @@
 /* Side Illustration */
 .login__illustration {
   display: none;
-  position: fixed;
-  right: var(--margin-desktop);
-  top: 50%;
-  transform: translateY(-50%);
-  width: 320px;
+  width: 100%;
+  max-width: 320px;
   background: var(--color-surface-container);
   border: 1px solid var(--color-outline-variant);
   border-radius: var(--radius-2xl);
@@ -290,12 +287,19 @@
   box-shadow: var(--shadow-md);
   flex-direction: column;
   overflow: hidden;
-  animation: slideInRight 0.6s ease-out;
+  flex-shrink: 0;
 }
 
 @media (min-width: 1200px) {
+  .login-page {
+    flex-direction: row;
+    gap: var(--spacing-2xl);
+    padding: var(--margin-desktop);
+  }
+
   .login__illustration {
     display: flex;
+    animation: slideInRight 0.6s ease-out;
   }
 }
 
