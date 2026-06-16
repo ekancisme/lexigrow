@@ -122,8 +122,8 @@ export default function TeacherDashboard() {
                 <p className="text-body-md" style={{ color: 'var(--color-outline)', padding: 16, textAlign: 'center' }}>No recent alerts.</p>
               ) : (
                 recentAlerts.map((a, i) => {
-                  const alertType = a.severity === 'critical' ? 'error' : a.severity === 'warning' ? 'warning' : 'info'
-                  const alertIcon = a.severity === 'critical' ? 'warning' : a.severity === 'warning' ? 'assignment_late' : 'info'
+                  const alertType = a.type === 'critical' ? 'error' : a.type === 'warning' ? 'warning' : 'info'
+                  const alertIcon = a.type === 'critical' ? 'warning' : a.type === 'warning' ? 'assignment_late' : 'info'
                   return (
                     <div key={a._id} className={`teacher-dash__alert teacher-dash__alert--${alertType}`}>
                       <div className="teacher-dash__alert-top">
@@ -131,7 +131,7 @@ export default function TeacherDashboard() {
                         <div>
                           <p className="text-label-md" style={{ fontWeight: 700 }}>{a.student?.name || 'Unknown Student'}</p>
                           <p className="text-label-sm" style={{ color: alertType === 'error' ? 'var(--color-error)' : alertType === 'info' ? 'var(--color-primary)' : 'var(--color-secondary)' }}>
-                            {a.message}
+                            {a.detail}
                           </p>
                         </div>
                       </div>

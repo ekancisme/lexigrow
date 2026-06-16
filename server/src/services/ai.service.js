@@ -1,5 +1,50 @@
+/* global process */
+import { spawn } from 'child_process'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import AIAnalysis from '../models/AIAnalysis.js'
 import Vocabulary from '../models/Vocabulary.js'
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+/**
+ * Run spaCy Python NLP script on text
+ */
+export const runNLPAnalysis = (text) => {
+  return new Promise((resolve) => {
+    const scriptPath = path.resolve(__dirname, '../utils/nlp_processor.py')
+    const pythonProcess = spawn('python', [scriptPath])
+    
+    let stdoutData = ''
+    let stderrData = ''
+    
+    pythonProcess.stdout.on('data', (data) => {
+      stdoutData += data.toString()
+    })
+    
+    pythonProcess.stderr.on('data', (data) => {
+      stderrData += data.toString()
+    })
+    
+    pythonProcess.on('close', (code) => {
+      if (code !== 0) {
+        console.error(`Python NLP script failed with code ${code}. Stderr: ${stderrData}`)
+        return resolve(null)
+      }
+      try {
+        const result = JSON.parse(stdoutData.trim())
+        resolve(result)
+      } catch (err) {
+        console.error('Failed to parse Python script output:', err.message, 'Output was:', stdoutData)
+        resolve(null)
+      }
+    })
+    
+    pythonProcess.stdin.write(text)
+    pythonProcess.stdin.end()
+  })
+}
 
 /**
  * Default system prompt for essay analysis
@@ -39,21 +84,27 @@ export const analyzeEssay = async (essayContent, customPrompt) => {
   const prompt = customPrompt || DEFAULT_ANALYSIS_PROMPT
 
   try {
-    // Dynamic import to avoid issues if API key is not set
-    const { GoogleGenerativeAI } = await import('@google/generative-ai')
+    const Groq = (await import('groq-sdk')).default
+    const apiKey = process.env.GROQ_API_KEY
+    if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
+      throw new Error('Groq API key is not configured or is the default placeholder')
+    }
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' })
+    const groq = new Groq({ apiKey })
 
-    const result = await model.generateContent([
-      { text: prompt },
-      { text: `\n\nESSAY TO ANALYZE:\n\n${essayContent}` },
-    ])
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        { role: 'system', content: prompt },
+        { role: 'user', content: `ESSAY TO ANALYZE:\n\n${essayContent}` }
+      ],
+      model: 'llama-3.3-70b-versatile',
+      response_format: { type: 'json_object' }
+    })
 
-    const responseText = result.response.text()
+    const responseText = chatCompletion.choices[0].message.content
 
-    // Extract JSON from response (handle markdown code blocks)
-    let jsonStr = responseText
+    // Extract JSON from response (handle markdown code blocks if any)
+    let jsonStr = responseText.trim()
     const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
     if (jsonMatch) {
       jsonStr = jsonMatch[1].trim()
@@ -62,7 +113,7 @@ export const analyzeEssay = async (essayContent, customPrompt) => {
     const analysis = JSON.parse(jsonStr)
     return analysis
   } catch (error) {
-    console.error('AI Analysis Error:', error.message)
+    console.error('AI Analysis Error (Groq):', error.message)
 
     // Return fallback analysis if AI fails
     return generateFallbackAnalysis(essayContent)
@@ -79,6 +130,22 @@ function generateFallbackAnalysis(content) {
   const sentences = content.split(/[.!?]+/).filter(Boolean)
   const ttr = Math.round((uniqueWords.size / totalWords) * 100) / 100
 
+  const commonWords = new Set([
+    'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 
+    'do', 'at', 'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she', 'or', 'an', 'will', 'my', 
+    'one', 'all', 'would', 'there', 'their', 'what', 'so', 'up', 'out', 'if', 'about', 'who', 'get', 'which', 
+    'go', 'me', 'when', 'make', 'can', 'like', 'time', 'no', 'just', 'him', 'know', 'take', 'people', 'into', 
+    'year', 'your', 'good', 'some', 'could', 'them', 'see', 'other', 'than', 'then', 'now', 'look', 'only', 
+    'come', 'its', 'over', 'think', 'also', 'back', 'after', 'use', 'two', 'how', 'our', 'work', 'first', 
+    'well', 'way', 'even', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us', 'is', 
+    'am', 'are', 'was', 'were', 'been', 'has', 'had', 'did', 'does', 'done', 'went', 'gone', 'here', 'very', 
+    'many', 'much', 'some', 'any', 'every', 'each', 'other', 'another', 'such', 'same', 'both', 'few', 'little',
+    'more', 'most', 'all', 'both', 'either', 'neither', 'own', 'other', 'another', 'such', 'platforms', 'allows',
+    'provide', 'browse'
+  ])
+
+  const newWords = Array.from(uniqueWords).filter(w => w.length >= 6 && !commonWords.has(w)).slice(0, 10)
+
   return {
     overallScore: Math.min(10, Math.round(ttr * 10 + 2)),
     scores: {
@@ -87,7 +154,7 @@ function generateFallbackAnalysis(content) {
       coherence: 5.5,
       complexityIndex: Math.min(10, Math.round(totalWords / 100)),
     },
-    newWordsDetected: [],
+    newWordsDetected: newWords,
     suggestions: [
       { type: 'strength', text: 'Essay was submitted and analyzed.' },
       { type: 'improvement', text: 'AI analysis was unavailable. Please configure GEMINI_API_KEY for full analysis.' },
@@ -99,11 +166,22 @@ function generateFallbackAnalysis(content) {
   }
 }
 
-/**
- * Process and save AI analysis results for an essay
- */
 export const processEssayAnalysis = async (essayId, studentId, essayContent, customPrompt) => {
-  const analysisData = await analyzeEssay(essayContent, customPrompt)
+  const Essay = (await import('../models/Essay.js')).default
+  const essayDoc = await Essay.findById(essayId)
+  const essayTheme = essayDoc?.theme || 'General'
+
+  // Run both Gemini AI and spaCy Python NLP analysis concurrently
+  const [analysisData, nlpData] = await Promise.all([
+    analyzeEssay(essayContent, customPrompt),
+    runNLPAnalysis(essayContent)
+  ])
+
+  const nlpStats = nlpData ? {
+    passiveVoiceCount: nlpData.passiveVoiceCount || 0,
+    subordinateClausesCount: nlpData.subordinateClausesCount || 0,
+    repeatedWords: nlpData.repeatedWords || []
+  } : undefined
 
   // Save or update AIAnalysis document
   const analysis = await AIAnalysis.findOneAndUpdate(
@@ -114,7 +192,11 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
       scores: analysisData.scores,
       newWordsDetected: analysisData.newWordsDetected || [],
       suggestions: analysisData.suggestions || [],
-      writingStats: analysisData.writingStats || {},
+      writingStats: {
+        ...analysisData.writingStats,
+        uniqueWords: nlpData ? nlpData.uniqueWordCount : (analysisData.writingStats?.uniqueWords || 0)
+      },
+      nlpStats
     },
     { upsert: true, new: true, runValidators: true }
   )
@@ -130,6 +212,7 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
             student: studentId,
             detectedInEssay: essayId,
             category: categorizeWord(word),
+            theme: essayTheme,
             masteryLevel: 'new',
           },
         },
@@ -141,8 +224,10 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
   }
 
   // Update essay status to reviewed so the client stops polling and displays the analysis
-  const Essay = (await import('../models/Essay.js')).default
-  await Essay.findByIdAndUpdate(essayId, { status: 'reviewed' })
+  if (essayDoc) {
+    essayDoc.status = 'reviewed'
+    await essayDoc.save()
+  }
 
   return analysis
 }
@@ -160,4 +245,58 @@ function categorizeWord(word) {
   if (scientific.some(w => lower.includes(w))) return 'scientific'
   if (business.some(w => lower.includes(w))) return 'business'
   return 'daily'
+}
+
+/**
+ * Generate 4 essay topics by theme using Gemini AI
+ */
+export const generateTopicsByTheme = async (theme) => {
+  try {
+    const Groq = (await import('groq-sdk')).default
+    const apiKey = process.env.GROQ_API_KEY
+    if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
+      throw new Error('Groq API key is not configured or is the default placeholder')
+    }
+
+    const groq = new Groq({ apiKey })
+
+    const prompt = `You are an English writing tutor. Suggest exactly 4 interesting, specific essay topics/prompts for the theme/subject area: "${theme}". 
+Return a JSON object with a key "topics" containing the list of 4 topics, for example:
+{
+  "topics": ["Topic 1", "Topic 2", "Topic 3", "Topic 4"]
+}`
+
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        { role: 'user', content: prompt }
+      ],
+      model: 'llama-3.3-70b-versatile',
+      response_format: { type: 'json_object' }
+    })
+
+    const responseText = chatCompletion.choices[0].message.content
+    let jsonStr = responseText.trim()
+    const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
+    if (jsonMatch) {
+      jsonStr = jsonMatch[1].trim()
+    }
+    
+    const responseObj = JSON.parse(jsonStr)
+    if (responseObj && Array.isArray(responseObj.topics)) {
+      return responseObj.topics
+    }
+    if (Array.isArray(responseObj)) {
+      return responseObj
+    }
+    return Object.values(responseObj)[0] || []
+  } catch (error) {
+    console.error('AI Topic Generation Error (Groq):', error.message)
+    // Fallback topics if AI fails
+    return [
+      `The role of ${theme} in modern society`,
+      `How ${theme} is changing the way we live`,
+      `The future prospects of ${theme}`,
+      `Key challenges and opportunities in ${theme}`
+    ]
+  }
 }

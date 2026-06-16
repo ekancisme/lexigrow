@@ -41,12 +41,17 @@ const aiAnalysisSchema = new mongoose.Schema({
     avgSentenceLength: { type: Number, default: 0 },
     uniqueWords: { type: Number, default: 0 },
   },
+  nlpStats: {
+    passiveVoiceCount: { type: Number, default: 0 },
+    subordinateClausesCount: { type: Number, default: 0 },
+    repeatedWords: [{
+      word: { type: String, trim: true },
+      count: { type: Number, default: 0 }
+    }]
+  },
 }, {
   timestamps: true,
 })
-
-// Index for fast lookup by essay
-aiAnalysisSchema.index({ essay: 1 })
 
 const AIAnalysis = mongoose.model('AIAnalysis', aiAnalysisSchema)
 export default AIAnalysis

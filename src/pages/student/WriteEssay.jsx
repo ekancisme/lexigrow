@@ -3,11 +3,13 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
 import './WriteEssay.css'
 
-const topicSuggestions = [
-  'The Impact of Social Media on Education',
-  'Climate Change and Urban Planning',
-  'Artificial Intelligence in Healthcare',
-  'The Future of Remote Work',
+const themesList = [
+  { value: 'General', label: 'General (Chung)' },
+  { value: 'Technology', label: 'Technology (Công nghệ)' },
+  { value: 'Education', label: 'Education (Giáo dục)' },
+  { value: 'Environment', label: 'Environment (Môi trường)' },
+  { value: 'Business', label: 'Business / Economy (Kinh tế)' },
+  { value: 'Science', label: 'Science / Healthcare (Y tế & Khoa học)' }
 ]
 
 export default function WriteEssay() {
@@ -19,19 +21,20 @@ export default function WriteEssay() {
   const [selectedTopic, setSelectedTopic] = useState('')
   const [title, setTitle] = useState('')
   const [saving, setSaving] = useState(false)
-  const [loading, setLoading] = useState(false)
   const [classes, setClasses] = useState([])
   const [selectedClass, setSelectedClass] = useState('')
+  const [selectedTheme, setSelectedTheme] = useState('General')
+  const [topicSuggestions, setTopicSuggestions] = useState([])
+  const [topicsLoading, setTopicsLoading] = useState(false)
 
   const wordCount = essayText.trim() ? essayText.trim().split(/\s+/).length : 0
 
   // Load classes student might be enrolled in (or just list student classes)
   useEffect(() => {
     async function loadStudentData() {
-      setLoading(true)
       try {
         // Find if student is in any classes
-        const classesRes = await api.get('/auth/me')
+        await api.get('/auth/me')
         // In this architecture, let's load all classes the student belongs to
         // But for simplicity, we can also query classes endpoint
         // Let's get active classes
@@ -39,8 +42,6 @@ export default function WriteEssay() {
         setClasses(clsRes.data || [])
       } catch (err) {
         console.error('Error loading writing settings:', err)
-      } finally {
-        setLoading(false)
       }
     }
     loadStudentData()
@@ -56,12 +57,36 @@ export default function WriteEssay() {
         setTitle(essay.title)
         setEssayText(essay.content)
         if (essay.class) setSelectedClass(essay.class)
+        if (essay.theme) setSelectedTheme(essay.theme)
       } catch (err) {
         console.error('Error loading essay draft:', err)
       }
     }
     loadEssay()
   }, [essayId])
+
+  // Load AI suggested topics when theme changes
+  useEffect(() => {
+    async function fetchTopics() {
+      setTopicsLoading(true)
+      try {
+        const res = await api.get(`/essays/suggest-topics?theme=${selectedTheme}`)
+        setTopicSuggestions(res.data || [])
+      } catch (err) {
+        console.error('Error fetching AI topics:', err)
+        // Fallback default suggestions
+        setTopicSuggestions([
+          `The role of ${selectedTheme} in modern society`,
+          `How ${selectedTheme} is changing the way we live`,
+          `The future prospects of ${selectedTheme}`,
+          `Key challenges and opportunities in ${selectedTheme}`
+        ])
+      } finally {
+        setTopicsLoading(false)
+      }
+    }
+    fetchTopics()
+  }, [selectedTheme])
 
   async function handleSaveDraft() {
     if (!title.trim() || !essayText.trim()) return
@@ -71,6 +96,7 @@ export default function WriteEssay() {
         title,
         content: essayText,
         classId: selectedClass || undefined,
+        theme: selectedTheme,
       }
 
       if (essayId) {
@@ -99,6 +125,7 @@ export default function WriteEssay() {
         title,
         content: essayText,
         classId: selectedClass || undefined,
+        theme: selectedTheme,
       }
 
       if (essayId) {
@@ -215,24 +242,66 @@ export default function WriteEssay() {
 
         {/* Side Panel */}
         <div className="write-essay__side">
-          {/* Topic Suggestions */}
+          {/* Topic Themes Selection */}
           <div className="card-base">
-            <h3 className="text-title-lg" style={{ marginBottom: 16 }}>Topic Suggestions</h3>
-            <div className="write-essay__topics">
-              {topicSuggestions.map((topic, i) => (
-                <button
-                  key={i}
-                  className={`write-essay__topic ${selectedTopic === topic ? 'write-essay__topic--active' : ''}`}
-                  onClick={() => {
-                    setSelectedTopic(topic)
-                    setTitle(topic)
-                  }}
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>lightbulb</span>
-                  <span>{topic}</span>
-                </button>
+            <h3 className="text-title-lg" style={{ marginBottom: 16 }}>Select Theme</h3>
+            <select
+              value={selectedTheme}
+              onChange={(e) => setSelectedTheme(e.target.value)}
+              className="write-essay__theme-select"
+              style={{
+                width: '100%',
+                height: '48px',
+                padding: '0 16px',
+                borderRadius: '12px',
+                border: '1px solid var(--color-outline)',
+                backgroundColor: 'var(--color-surface)',
+                color: 'var(--color-on-surface)',
+                marginBottom: 16,
+                fontWeight: 500,
+                cursor: 'pointer'
+              }}
+            >
+              {themesList.map((t) => (
+                <option key={t.value} value={t.value}>{t.label}</option>
               ))}
+            </select>
+
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <h4 className="text-label-md" style={{ margin: 0, fontWeight: 700 }}>AI Suggested Topics</h4>
+              {topicsLoading && (
+                <span className="material-symbols-outlined animate-spin" style={{ fontSize: 18, color: 'var(--color-primary)' }}>
+                  sync
+                </span>
+              )}
             </div>
+
+            {topicsLoading ? (
+              <div style={{ padding: '24px 0', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
+                <span className="material-symbols-outlined animate-spin" style={{ color: 'var(--color-primary)' }}>progress_activity</span>
+                <p className="text-body-sm" style={{ color: 'var(--color-outline)', margin: 0 }}>AI is generating topics...</p>
+              </div>
+            ) : (
+              <div className="write-essay__topics">
+                {topicSuggestions.length === 0 ? (
+                  <p className="text-body-sm" style={{ color: 'var(--color-outline)', textAlign: 'center', padding: '16px 0' }}>No topics found.</p>
+                ) : (
+                  topicSuggestions.map((topic, i) => (
+                    <button
+                      key={i}
+                      className={`write-essay__topic ${selectedTopic === topic ? 'write-essay__topic--active' : ''}`}
+                      onClick={() => {
+                        setSelectedTopic(topic)
+                        setTitle(topic)
+                      }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: 18 }}>lightbulb</span>
+                      <span>{topic}</span>
+                    </button>
+                  ))
+                )}
+              </div>
+            )}
           </div>
 
           {/* Writing Stats */}

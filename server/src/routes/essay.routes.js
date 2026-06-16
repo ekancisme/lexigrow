@@ -2,7 +2,7 @@ import { Router } from 'express'
 import {
   createEssay, getEssays, getEssay,
   updateEssay, submitEssay, deleteEssay,
-  getEssaysByStudent,
+  getEssaysByStudent, getSuggestedTopics,
 } from '../controllers/essay.controller.js'
 import { protect, authorize } from '../middleware/auth.middleware.js'
 
@@ -13,6 +13,8 @@ router.use(protect) // All essay routes require authentication
 router.route('/')
   .post(authorize('student'), createEssay)
   .get(authorize('student'), getEssays)
+
+router.get('/suggest-topics', authorize('student'), getSuggestedTopics)
 
 router.route('/:id')
   .get(getEssay)

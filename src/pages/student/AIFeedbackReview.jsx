@@ -184,6 +184,59 @@ export default function AIFeedbackReview() {
               )) || <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>No suggestions generated.</p>}
             </div>
           </div>
+
+          {/* Sentence Structure & Repetitive Words Analysis */}
+          {analysis?.nlpStats && (
+            <div className="card-base ai-feedback__nlp-analysis" style={{ marginTop: 24 }}>
+              <h3 className="text-title-lg" style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>analytics</span>
+                Sentence Structure & Word Repetitions
+              </h3>
+              
+              <div className="ai-feedback__nlp-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
+                <div className="ai-feedback__nlp-card" style={{ padding: 16, borderRadius: 12, backgroundColor: 'var(--color-surface-variant)', border: '1px solid var(--color-outline-variant)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-secondary)' }}>swap_calls</span>
+                    <span className="text-label-md" style={{ fontWeight: 700 }}>Passive Voice Constructions</span>
+                  </div>
+                  <p className="text-headline-md" style={{ margin: 0 }}>{analysis.nlpStats.passiveVoiceCount}</p>
+                  <p className="text-body-sm" style={{ color: 'var(--color-outline)', marginTop: 4 }}>
+                    {analysis.nlpStats.passiveVoiceCount > 3 ? 'Try to use active voice more often to make writing punchy.' : 'Good balance of active/passive structures.'}
+                  </p>
+                </div>
+
+                <div className="ai-feedback__nlp-card" style={{ padding: 16, borderRadius: 12, backgroundColor: 'var(--color-surface-variant)', border: '1px solid var(--color-outline-variant)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-tertiary)' }}>schema</span>
+                    <span className="text-label-md" style={{ fontWeight: 700 }}>Subordinate Clauses</span>
+                  </div>
+                  <p className="text-headline-md" style={{ margin: 0 }}>{analysis.nlpStats.subordinateClausesCount}</p>
+                  <p className="text-body-sm" style={{ color: 'var(--color-outline)', marginTop: 4 }}>
+                    {analysis.nlpStats.subordinateClausesCount > 0 ? 'Indicates usage of complex sentences and connectors.' : 'Try using conjunctions (because, since, although) to connect clauses.'}
+                  </p>
+                </div>
+              </div>
+
+              {analysis.nlpStats.repeatedWords && analysis.nlpStats.repeatedWords.length > 0 && (
+                <div className="ai-feedback__repeated-words" style={{ borderTop: '1px solid var(--color-outline-variant)', paddingTop: 16 }}>
+                  <h4 className="text-title-md" style={{ marginBottom: 12, color: 'var(--color-error)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span className="material-symbols-outlined">warning</span>
+                    Overused Words Alert
+                  </h4>
+                  <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 12 }}>
+                    These words are repeated frequently. Consider using synonyms to improve your lexical diversity:
+                  </p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {analysis.nlpStats.repeatedWords.map((item, idx) => (
+                      <span key={idx} className="ai-feedback__repeated-word-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 20, backgroundColor: 'var(--color-error-container)', color: 'var(--color-error)', fontSize: 13, fontWeight: 700 }}>
+                        <strong>{item.word}</strong> ({item.count} times)
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Side: New Words */}

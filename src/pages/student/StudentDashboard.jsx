@@ -130,9 +130,9 @@ export default function StudentDashboard() {
                     </td>
                     <td>
                       {essay.status === 'draft' ? (
-                        <Link to={`/student/write?id=${essay._id}`} className="text-label-md" style={{ color: 'var(--color-primary)' }}>Edit Draft</Link>
+                        <Link to={`/student/write-essay?id=${essay._id}`} className="text-label-md" style={{ color: 'var(--color-primary)' }}>Edit Draft</Link>
                       ) : (
-                        <Link to={`/student/analysis/${essay._id}`} className="text-label-md" style={{ color: 'var(--color-primary)' }}>View Feedback</Link>
+                        <Link to={`/student/feedback?id=${essay._id}`} className="text-label-md" style={{ color: 'var(--color-primary)' }}>View Feedback</Link>
                       )}
                     </td>
                   </tr>

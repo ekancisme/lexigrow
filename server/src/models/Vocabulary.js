@@ -12,6 +12,11 @@ const vocabularySchema = new mongoose.Schema({
     enum: ['academic', 'business', 'scientific', 'daily'],
     default: 'daily',
   },
+  theme: {
+    type: String,
+    default: 'General',
+    trim: true,
+  },
   student: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

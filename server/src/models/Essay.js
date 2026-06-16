@@ -16,6 +16,11 @@ const essaySchema = new mongoose.Schema({
     enum: ['draft', 'submitted', 'reviewed'],
     default: 'draft',
   },
+  theme: {
+    type: String,
+    default: 'General',
+    trim: true,
+  },
   student: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -50,7 +55,7 @@ const essaySchema = new mongoose.Schema({
 })
 
 // Calculate text stats before saving
-essaySchema.pre('save', function (next) {
+essaySchema.pre('save', function () {
   if (this.isModified('content') && this.content) {
     const text = this.content.trim()
     this.wordCount = text ? text.split(/\s+/).length : 0
@@ -58,7 +63,6 @@ essaySchema.pre('save', function (next) {
     this.sentenceCount = text ? text.split(/[.!?]+/).filter(Boolean).length : 0
     this.readingTime = Math.max(1, Math.ceil(this.wordCount / 200))
   }
-  next()
 })
 
 // Index for querying essays by student

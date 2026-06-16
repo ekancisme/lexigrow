@@ -86,8 +86,8 @@ export default function EarlyWarningAlerts() {
             </div>
           ) : (
             alerts.map((a) => {
-              const alertType = a.severity === 'critical' ? 'critical' : a.severity === 'warning' ? 'warning' : a.severity === 'info' ? 'info' : 'success'
-              const alertIcon = a.severity === 'critical' ? 'warning' : a.severity === 'warning' ? 'assignment_late' : 'info'
+              const alertType = a.type === 'critical' ? 'critical' : a.type === 'warning' ? 'warning' : a.type === 'info' ? 'info' : 'success'
+              const alertIcon = a.type === 'critical' ? 'warning' : a.type === 'warning' ? 'assignment_late' : 'info'
               return (
                 <div key={a._id} className={`early-warnings__card card-base early-warnings__card--${alertType}`}>
                   <div className="early-warnings__card-top">
@@ -103,7 +103,7 @@ export default function EarlyWarningAlerts() {
                       <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>{new Date(a.createdAt).toLocaleDateString()}</span>
                     </div>
                   </div>
-                  <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', margin: '12px 0' }}>{a.message}</p>
+                  <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', margin: '12px 0' }}>{a.detail}</p>
                   <div className="early-warnings__card-actions">
                     <button className="early-warnings__action-btn" onClick={() => navigate(`/teacher/student/${a.student?._id}`)}>
                       View Profile

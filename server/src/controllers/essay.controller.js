@@ -1,5 +1,5 @@
 import Essay from '../models/Essay.js'
-import { processEssayAnalysis } from '../services/ai.service.js'
+import { processEssayAnalysis, generateTopicsByTheme } from '../services/ai.service.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 
@@ -9,13 +9,14 @@ import asyncHandler from '../utils/asyncHandler.js'
  * @access  Private (student)
  */
 export const createEssay = asyncHandler(async (req, res) => {
-  const { title, content, classId } = req.body
+  const { title, content, classId, theme } = req.body
 
   const essay = await Essay.create({
     title,
     content: content || '',
     student: req.user._id,
     class: classId || undefined,
+    theme: theme || 'General',
     status: 'draft',
   })
 
@@ -90,9 +91,10 @@ export const updateEssay = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Cannot edit a submitted essay', 400)
   }
 
-  const { title, content } = req.body
+  const { title, content, theme } = req.body
   if (title !== undefined) essay.title = title
   if (content !== undefined) essay.content = content
+  if (theme !== undefined) essay.theme = theme
 
   await essay.save()
 
@@ -170,4 +172,20 @@ export const getEssaysByStudent = asyncHandler(async (req, res) => {
     .sort({ createdAt: -1 })
 
   res.status(200).json({ success: true, count: essays.length, data: essays })
+})
+
+/**
+ * @desc    Get AI suggested topics based on a theme
+ * @route   GET /api/essays/suggest-topics
+ * @access  Private (student)
+ */
+export const getSuggestedTopics = asyncHandler(async (req, res) => {
+  const { theme } = req.query
+
+  if (!theme) {
+    throw new ErrorResponse('Please provide a theme in the query parameters', 400)
+  }
+
+  const topics = await generateTopicsByTheme(theme)
+  res.status(200).json({ success: true, data: topics })
 })

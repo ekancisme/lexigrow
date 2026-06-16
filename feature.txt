@@ -1,0 +1,102 @@
+I. Chức năng của CON NGƯỜI
+1. Học sinh
+1.1. Viết bài định kỳ
++ Viết 1 đoạn văn mỗi tuần
++ Chọn chủ đề tự do hoặc theo gợi ý
++ Có thể chỉnh sửa trước khi nộp
+1.2. Xem phản hồi AI
++ Xem số từ mới học được
++ Xem độ đa dạng từ vựng
++ Xem mức độ phức tạp câu
++ Nhận gợi ý cải thiện
+1.3. Theo dõi tiến bộ cá nhân
++ Biểu đồ tăng trưởng vốn từ
++ Lịch sử bài viết
++ Danh sách từ mới đã học
++ So sánh tuần này với tuần trước
+1.4. Tự đặt mục tiêu
++ Mục tiêu số từ mới mỗi tuần
++ Mục tiêu độ dài bài viết
++ Mục tiêu độ phức tạp câu
+2. Giáo viên
+2.1. Quản lý lớp
++ Tạo lớp học
++ Thêm/xóa học sinh
++ Theo dõi tiến độ toàn lớp
+2.2. Xem Dashboard tổng hợp
+Biểu đồ tăng trưởng vốn từ từng học sinh
+Phân loại học sinh:
++ Tiến bộ tốt
++ Chững lại
++ Có dấu hiệu giảm
+2.3. Xem phân tích chi tiết
++ Số từ mới theo tuần
++ Grammar trend
++ Sentence complexity trend
++ Lexical diversity trend
+2.4. Can thiệp thủ công
++ Nhận xét thêm bằng tay
++ Điều chỉnh mục tiêu
++ Đánh dấu bài cần hỗ trợ
+
+II. Chức năng của AI
+1. NLP Processing Engine (Công cụ xử lý NLP)
+AI tự động:
++ Tách câu
++ Tách từ
++ Chuẩn hóa từ (lemmatization)
++ Gán loại từ (POS tagging)
++ Nhận diện cấu trúc câu
+Công cụ: spaCy / transformer nhẹ.
+
+2. Vocabulary Tracking System (Hệ thống theo dõi từ vựng)
+AI:
++ Lưu toàn bộ lịch sử từ từng học sinh
++So sánh bài hiện tại với quá khứ
++ Phát hiện:
++ Từ mới
++ Từ bị lặp quá nhiều
++ Vốn từ không tăng
+
+3. Lexical Diversity Analyzer (Phân tích đa dạng từ vựng)
+AI tính:
+TTR (Type–Token Ratio) = unique_words / total_words
+Ngoài ra có thể nâng cấp:
+=> đo mức độ đa dạng thật sự.
+
+4. Sentence Complexity Analyzer (Phân tích độ phức tạp của câu)
+AI phân tích:
++ Số mệnh đề
++ Liên từ phụ thuộc
++ Độ dài câu
++ Passive voice
++ Subordinate clauses
++ Tính điểm complexity 0–10.
+
+5. Learning Pattern Detection (Phát hiện mẫu học tập)
+AI phát hiện:
+Học sinh đang:
++ Mở rộng từ vựng thật hay chỉ kéo dài câu
++ Hay lặp lại từ quen thuộc
++ Đạo văn, chép bài bạn, …
++ Phát hiện plateau (chững lại)
++ Phát hiện regression (tụt lùi)
+7. Recommendation Engine (Công cụ đề xuất)
+AI đề xuất:
++ Từ nối nên dùng thêm
++ Loại câu nên thử
++ Nhóm từ vựng theo chủ đề
+
+Ví dụ:
+
+Bạn thường dùng “very”. Hãy thử dùng:
+extremely, highly, remarkably.
+
+8. Early Warning System (Hệ thống cảnh báo sớm)
+AI tự động cảnh báo:
++ Vocabulary growth = 0 trong 4 tuần
++ Grammar accuracy giảm liên tục
++ TTR (Type–Token Ratio) giảm mạnh
+Thông báo cho:
++ Giáo viên
++ hoặc Phụ huynh
