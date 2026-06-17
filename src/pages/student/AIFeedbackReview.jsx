@@ -12,6 +12,16 @@ export default function AIFeedbackReview() {
   const [analysis, setAnalysis] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [isEssayExpanded, setIsEssayExpanded] = useState(true)
+  const [copied, setCopied] = useState(false)
+
+  function handleCopyEssay(e) {
+    e.stopPropagation()
+    if (!essay?.content) return
+    navigator.clipboard.writeText(essay.content)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
 
   useEffect(() => {
     if (!essayId) {
@@ -150,6 +160,87 @@ export default function AIFeedbackReview() {
                 {overallScore >= 8 ? 'Excellent Work!' : overallScore >= 6 ? 'Good job, keep it up!' : 'Keep practicing to improve.'}
               </p>
             </div>
+          </div>
+
+          {/* Original Essay Content */}
+          <div className="card-base" style={{ padding: '20px 24px' }}>
+            <div 
+              onClick={() => setIsEssayExpanded(!isEssayExpanded)} 
+              style={{ 
+                cursor: 'pointer', 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                userSelect: 'none'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', fontSize: 24 }}>description</span>
+                <h3 className="text-title-lg" style={{ margin: 0 }}>Your Written Essay</h3>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <button 
+                  onClick={handleCopyEssay} 
+                  title="Copy essay to clipboard"
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    border: '1px solid var(--color-outline-variant)',
+                    background: 'transparent',
+                    color: copied ? 'var(--color-success)' : 'var(--color-outline)',
+                    cursor: 'pointer',
+                    padding: '6px',
+                    borderRadius: 'var(--radius-md)',
+                    transition: 'all var(--transition-fast)',
+                    outline: 'none'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--color-surface-container-low)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+                    {copied ? 'check' : 'content_copy'}
+                  </span>
+                </button>
+                <span 
+                  className="material-symbols-outlined" 
+                  style={{ 
+                    transform: isEssayExpanded ? 'rotate(180deg)' : 'rotate(0deg)', 
+                    transition: 'transform var(--transition-normal)',
+                    color: 'var(--color-outline)'
+                  }}
+                >
+                  expand_more
+                </span>
+              </div>
+            </div>
+            {isEssayExpanded && (
+              <div style={{ 
+                marginTop: 20, 
+                maxHeight: '400px', 
+                overflowY: 'auto',
+                paddingRight: '8px'
+              }}>
+                <div style={{ 
+                  whiteSpace: 'pre-wrap', 
+                  fontFamily: 'var(--font-family)',
+                  lineHeight: '1.8',
+                  padding: '20px',
+                  borderRadius: 'var(--radius-lg)',
+                  backgroundColor: 'var(--color-surface-container-low)',
+                  borderLeft: '4px solid var(--color-primary)',
+                  color: 'var(--color-on-surface)',
+                  fontSize: 'var(--text-body-md-size)',
+                  textAlign: 'left'
+                }}>
+                  {essay?.content}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Detailed Scores */}
