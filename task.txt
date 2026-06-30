@@ -10,7 +10,7 @@ NGƯỜI 1: CHỨC NĂNG THƯ VIỆN TỪ VỰNG & AI ENRICHMENT (HỌC SINH)
 - [+] Thiết kế Modal chi tiết từ vựng hiển thị đầy đủ thông tin: IPA, loại từ, nghĩa tiếng Anh, từ đồng/trái nghĩa, câu ví dụ thực tế và cho phép đổi mức độ thành thạo thủ công.
 - [+] Phát triển luồng Thêm từ vựng thủ công (Add New Word): giao diện form nhập từ mới và viết API POST /api/vocabulary để lưu từ.
 - [+] Phát triển lõi AI Enrichment (Groq/Llama API ở backend): Khi thêm từ mới thủ công hoặc chấm bài viết, AI tự động điền IPA, định nghĩa, từ đồng/trái nghĩa, câu ví dụ từ ngữ cảnh thực tế.
-
+...
 ================================================================================
 NGƯỜI 2: CHỨC NĂNG ÔN TẬP CHỦ ĐỘNG & THỐNG KÊ MASTERÝ & LỊCH SỬ BÀI VIẾT
 (Đảm nhận hệ thống học Flashcards, lưu trữ và hiển thị lịch sử bài viết của học sinh)
