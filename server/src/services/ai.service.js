@@ -203,24 +203,58 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
 
   // Save new words to vocabulary
   if (analysisData.newWordsDetected && analysisData.newWordsDetected.length > 0) {
-    const vocabOps = analysisData.newWordsDetected.map(word => ({
-      updateOne: {
-        filter: { student: studentId, word: word.toLowerCase() },
-        update: {
-          $setOnInsert: {
-            word: word.toLowerCase(),
-            student: studentId,
-            detectedInEssay: essayId,
-            category: categorizeWord(word),
-            theme: essayTheme,
-            masteryLevel: 'new',
-          },
-        },
-        upsert: true,
-      },
-    }))
+    const lowerWords = analysisData.newWordsDetected.map(word => word.toLowerCase())
+    
+    try {
+      // Find existing vocabulary words to avoid duplicate AI requests
+      const existingVocab = await Vocabulary.find({
+        student: studentId,
+        word: { $in: lowerWords }
+      }).select('word')
+      
+      const existingWordsSet = new Set(existingVocab.map(v => v.word))
+      const wordsToEnrich = lowerWords.filter(w => !existingWordsSet.has(w))
 
-    await Vocabulary.bulkWrite(vocabOps)
+      let enrichedMap = new Map()
+      if (wordsToEnrich.length > 0) {
+        const enrichedList = await enrichWordsList(wordsToEnrich, essayContent)
+        enrichedList.forEach(item => {
+          if (item && item.word) {
+            enrichedMap.set(item.word.toLowerCase(), item)
+          }
+        })
+      }
+
+      const vocabOps = lowerWords.map(word => {
+        const enriched = enrichedMap.get(word) || {}
+        return {
+          updateOne: {
+            filter: { student: studentId, word: word },
+            update: {
+              $setOnInsert: {
+                word: word,
+                student: studentId,
+                detectedInEssay: essayId,
+                category: categorizeWord(word),
+                theme: essayTheme,
+                masteryLevel: 'new',
+                ipa: enriched.ipa || '',
+                partOfSpeech: enriched.partOfSpeech || '',
+                definition: enriched.definition || '',
+                exampleSentence: enriched.exampleSentence || '',
+                synonyms: enriched.synonyms || [],
+                antonyms: enriched.antonyms || [],
+              },
+            },
+            upsert: true,
+          },
+        }
+      })
+
+      await Vocabulary.bulkWrite(vocabOps)
+    } catch (err) {
+      console.error('Error enriching words in processEssayAnalysis:', err)
+    }
   }
 
   // Update essay status to reviewed so the client stops polling and displays the analysis
@@ -300,3 +334,74 @@ Return a JSON object with a key "topics" containing the list of 4 topics, for ex
     ]
   }
 }
+
+/**
+ * Enrich a list of vocabulary words using Groq/Llama AI.
+ * Returns an array of objects containing ipa, partOfSpeech, definition, exampleSentence, synonyms, antonyms.
+ */
+export const enrichWordsList = async (words, contextText = '') => {
+  if (!words || words.length === 0) return []
+
+  try {
+    const Groq = (await import('groq-sdk')).default
+    const apiKey = process.env.GROQ_API_KEY
+    if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
+      throw new Error('Groq API key is not configured or is the default placeholder')
+    }
+
+    const groq = new Groq({ apiKey })
+
+    const prompt = `You are a professional lexicographer and English dictionary AI. 
+For each word in the list below, generate its phonetic pronunciation in IPA format, grammatical part of speech, a clear definition in English, an example sentence, a list of up to 4 synonyms, and a list of up to 4 antonyms.
+
+If the user provides context, try to adapt the example sentence so that it fits or refers to the provided context.
+
+Return a JSON object containing a single key "enrichedWords" which is an array of objects. Each object must have EXACTLY this structure:
+{
+  "word": "<the word, lowercase>",
+  "ipa": "<IPA phonetic spelling, e.g. /hʌɪˈpɒθɪsɪs/>",
+  "partOfSpeech": "<Noun | Verb | Adjective | Adverb | etc.>",
+  "definition": "<simple English definition>",
+  "exampleSentence": "<example sentence using the word>",
+  "synonyms": ["<synonym1>", "<synonym2>", ...],
+  "antonyms": ["<antonym1>", "<antonym2>", ...]
+}
+
+Return ONLY valid JSON, no markdown formatting.
+
+Word List:
+${words.join(', ')}
+${contextText ? `\nContext (from essay):\n"${contextText}"` : ''}`
+
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        { role: 'user', content: prompt }
+      ],
+      model: 'llama-3.3-70b-versatile',
+      response_format: { type: 'json_object' }
+    })
+
+    const responseText = chatCompletion.choices[0].message.content
+    let jsonStr = responseText.trim()
+    const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
+    if (jsonMatch) {
+      jsonStr = jsonMatch[1].trim()
+    }
+
+    const result = JSON.parse(jsonStr)
+    return result.enrichedWords || []
+  } catch (error) {
+    console.error('AI Vocab Enrichment Error (Groq):', error.message)
+    // Fallback dictionary values if AI fails
+    return words.map(w => ({
+      word: w.toLowerCase(),
+      ipa: '',
+      partOfSpeech: 'Unknown',
+      definition: 'AI lookup was unavailable. Please try again later.',
+      exampleSentence: '',
+      synonyms: [],
+      antonyms: []
+    }))
+  }
+}
+

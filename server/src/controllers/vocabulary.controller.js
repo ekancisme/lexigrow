@@ -7,11 +7,13 @@ import asyncHandler from '../utils/asyncHandler.js'
  * @access  Private (student)
  */
 export const getVocabulary = asyncHandler(async (req, res) => {
-  const { category, mastery, page = 1, limit = 50 } = req.query
+  const { category, mastery, theme, search, page = 1, limit = 50 } = req.query
   const query = { student: req.user._id }
 
   if (category) query.category = category
   if (mastery) query.masteryLevel = mastery
+  if (theme) query.theme = { $regex: theme, $options: 'i' }
+  if (search) query.word = { $regex: search, $options: 'i' }
 
   const words = await Vocabulary.find(query)
     .sort({ createdAt: -1 })
@@ -28,6 +30,68 @@ export const getVocabulary = asyncHandler(async (req, res) => {
     pages: Math.ceil(total / limit),
     data: words,
   })
+})
+
+/**
+ * @desc    Add new vocabulary manually
+ * @route   POST /api/vocabulary
+ * @access  Private (student)
+ */
+export const createVocabulary = asyncHandler(async (req, res) => {
+  const { word, category, theme, masteryLevel } = req.body
+
+  if (!word) {
+    throw new (await import('../utils/ErrorResponse.js')).default('Please provide a word', 400)
+  }
+
+  const normalizedWord = word.trim().toLowerCase()
+
+  // Check if word already exists for this student
+  let existing = await Vocabulary.findOne({ student: req.user._id, word: normalizedWord })
+  if (existing) {
+    throw new (await import('../utils/ErrorResponse.js')).default('Word already exists in your library', 400)
+  }
+
+  // Check if this word was already enriched by ANY student in the system to save AI tokens
+  const existingEnriched = await Vocabulary.findOne({
+    word: normalizedWord,
+    definition: { $ne: '' }
+  }).select('ipa partOfSpeech definition exampleSentence synonyms antonyms')
+
+  let enriched = {}
+  if (existingEnriched) {
+    enriched = {
+      ipa: existingEnriched.ipa,
+      partOfSpeech: existingEnriched.partOfSpeech,
+      definition: existingEnriched.definition,
+      exampleSentence: existingEnriched.exampleSentence,
+      synonyms: existingEnriched.synonyms,
+      antonyms: existingEnriched.antonyms,
+    }
+  } else {
+    // Call Groq Llama to enrich
+    const { enrichWordsList } = await import('../services/ai.service.js')
+    const enrichedList = await enrichWordsList([normalizedWord])
+    if (enrichedList && enrichedList.length > 0) {
+      enriched = enrichedList[0]
+    }
+  }
+
+  const newWord = await Vocabulary.create({
+    word: normalizedWord,
+    student: req.user._id,
+    category: category || 'daily',
+    theme: theme || 'General',
+    masteryLevel: masteryLevel || 'new',
+    ipa: enriched.ipa || '',
+    partOfSpeech: enriched.partOfSpeech || '',
+    definition: enriched.definition || '',
+    exampleSentence: enriched.exampleSentence || '',
+    synonyms: enriched.synonyms || [],
+    antonyms: enriched.antonyms || [],
+  })
+
+  res.status(201).json({ success: true, data: newWord })
 })
 
 /**

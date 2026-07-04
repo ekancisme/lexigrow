@@ -5,6 +5,7 @@ import './Sidebar.css'
 const studentNavItems = [
   { icon: 'dashboard', label: 'Dashboard', path: '/student/dashboard' },
   { icon: 'edit_note', label: 'Write Essay', path: '/student/write-essay' },
+  { icon: 'menu_book', label: 'Vocabulary', path: '/student/vocabulary' },
   { icon: 'trending_up', label: 'My Progress', path: '/student/progress' },
   { icon: 'flag', label: 'Weekly Goals', path: '/student/goals' },
   { icon: 'psychology', label: 'AI Feedback', path: '/student/feedback' },

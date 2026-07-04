@@ -31,6 +31,34 @@ const vocabularySchema = new mongoose.Schema({
     enum: ['new', 'learning', 'mastered'],
     default: 'new',
   },
+  ipa: {
+    type: String,
+    default: '',
+    trim: true,
+  },
+  partOfSpeech: {
+    type: String,
+    default: '',
+    trim: true,
+  },
+  definition: {
+    type: String,
+    default: '',
+    trim: true,
+  },
+  exampleSentence: {
+    type: String,
+    default: '',
+    trim: true,
+  },
+  synonyms: {
+    type: [String],
+    default: [],
+  },
+  antonyms: {
+    type: [String],
+    default: [],
+  },
 }, {
   timestamps: true,
 })
