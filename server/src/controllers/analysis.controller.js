@@ -1,6 +1,6 @@
 import AIAnalysis from '../models/AIAnalysis.js'
 import Essay from '../models/Essay.js'
-import { processEssayAnalysis } from '../services/ai.service.js'
+import { processEssayAnalysis, translateTextToVietnamese } from '../services/ai.service.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 
@@ -43,4 +43,20 @@ export const reanalyze = asyncHandler(async (req, res) => {
   await essay.save()
 
   res.status(200).json({ success: true, data: analysis })
+})
+
+/**
+ * @desc    Translate selected text to Vietnamese
+ * @route   POST /api/analysis/translate
+ * @access  Private
+ */
+export const translateText = asyncHandler(async (req, res) => {
+  const { text } = req.body
+
+  if (!text) {
+    throw new ErrorResponse('Please provide text to translate', 400)
+  }
+
+  const translation = await translateTextToVietnamese(text)
+  res.status(200).json({ success: true, translation })
 })

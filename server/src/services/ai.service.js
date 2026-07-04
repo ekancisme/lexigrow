@@ -411,3 +411,54 @@ ${contextText ? `\nContext (from essay):\n"${contextText}"` : ''}`
   }
 }
 
+/**
+ * Translate a block of text into Vietnamese using Groq
+ */
+export const translateTextToVietnamese = async (text) => {
+  if (!text || !text.trim()) return ''
+
+  try {
+    const Groq = (await import('groq-sdk')).default
+    const apiKey = process.env.GROQ_API_KEY
+    if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
+      throw new Error('Groq API key is not configured or is the default placeholder')
+    }
+
+    const groq = new Groq({ apiKey })
+
+    const prompt = `You are a professional English to Vietnamese translator. 
+Translate the following English text to natural, accurate Vietnamese. 
+Return a JSON object containing a single key "translation", for example:
+{
+  "translation": "<Vietnamese translation here>"
+}
+
+Return ONLY valid JSON, no markdown formatting.
+
+Text to translate:
+"${text}"`
+
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        { role: 'user', content: prompt }
+      ],
+      model: 'llama-3.3-70b-versatile',
+      response_format: { type: 'json_object' }
+    })
+
+    const responseText = chatCompletion.choices[0].message.content
+    let jsonStr = responseText.trim()
+    const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
+    if (jsonMatch) {
+      jsonStr = jsonMatch[1].trim()
+    }
+
+    const responseObj = JSON.parse(jsonStr)
+    return responseObj.translation || ''
+  } catch (error) {
+    console.error('AI Translation Error:', error.message)
+    return `[Lỗi dịch: ${error.message}]`
+  }
+}
+
+

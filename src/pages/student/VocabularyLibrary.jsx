@@ -96,6 +96,13 @@ export default function VocabularyLibrary() {
     }
   }
 
+  const handleCloseDetail = () => {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel()
+    }
+    setSelectedWord(null)
+  }
+
   // Filtered words to display
   const filteredWords = words.filter(item => {
     const matchesSearch = item.word.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -231,9 +238,9 @@ export default function VocabularyLibrary() {
 
       {/* Word Detail Modal */}
       {selectedWord && (
-        <div className="vocab-modal-overlay" onClick={() => setSelectedWord(null)}>
+        <div className="vocab-modal-overlay" onClick={handleCloseDetail}>
           <div className="vocab-modal vocab-modal--detail animate-scale-in" onClick={(e) => e.stopPropagation()}>
-            <button className="vocab-modal__close" onClick={() => setSelectedWord(null)}>
+            <button className="vocab-modal__close" onClick={handleCloseDetail}>
               <span className="material-symbols-outlined">close</span>
             </button>
             

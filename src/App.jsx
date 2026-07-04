@@ -27,9 +27,12 @@ import EarlyWarningAlerts from './pages/teacher/EarlyWarningAlerts'
 import SystemPromptsManagement from './pages/teacher/SystemPromptsManagement'
 import ProfileSettings from './pages/teacher/ProfileSettings'
 
+import TextTranslator from './components/common/TextTranslator'
+
 function App() {
   return (
-    <Routes>
+    <>
+      <Routes>
       {/* Auth routes (no sidebar) */}
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
@@ -68,6 +71,8 @@ function App() {
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
+      <TextTranslator />
+    </>
   )
 }
 
