@@ -284,7 +284,7 @@ function categorizeWord(word) {
 /**
  * Generate 4 essay topics by theme using Gemini AI
  */
-export const generateTopicsByTheme = async (theme) => {
+export const generateTopicsByTheme = async (theme, excludeTopics = []) => {
   try {
     const Groq = (await import('groq-sdk')).default
     const apiKey = process.env.GROQ_API_KEY
@@ -294,7 +294,11 @@ export const generateTopicsByTheme = async (theme) => {
 
     const groq = new Groq({ apiKey })
 
-    const prompt = `You are an English writing tutor. Suggest exactly 4 interesting, specific essay topics/prompts for the theme/subject area: "${theme}". 
+    const exclusionInstruction = excludeTopics && excludeTopics.length > 0
+      ? `\nCRITICAL: Do NOT suggest any topics that are identical or highly similar to these existing topics already written by the student: ${JSON.stringify(excludeTopics)}.`
+      : ''
+
+    const prompt = `You are an English writing tutor. Suggest exactly 4 interesting, specific essay topics/prompts for the theme/subject area: "${theme}".${exclusionInstruction}
 Return a JSON object with a key "topics" containing the list of 4 topics, for example:
 {
   "topics": ["Topic 1", "Topic 2", "Topic 3", "Topic 4"]
@@ -326,12 +330,14 @@ Return a JSON object with a key "topics" containing the list of 4 topics, for ex
   } catch (error) {
     console.error('AI Topic Generation Error (Groq):', error.message)
     // Fallback topics if AI fails
-    return [
+    const defaultTopics = [
       `The role of ${theme} in modern society`,
       `How ${theme} is changing the way we live`,
       `The future prospects of ${theme}`,
       `Key challenges and opportunities in ${theme}`
     ]
+    // Filter fallback topics if any matches exclusions
+    return defaultTopics.filter(t => !excludeTopics.some(e => e.toLowerCase() === t.toLowerCase()))
   }
 }
 

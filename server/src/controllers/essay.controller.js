@@ -186,6 +186,13 @@ export const getSuggestedTopics = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Please provide a theme in the query parameters', 400)
   }
 
-  const topics = await generateTopicsByTheme(theme)
+  // Find all existing essay titles of this student to exclude them from AI suggestion
+  const existingEssays = await Essay.find({ student: req.user._id })
+    .select('title')
+    .sort({ createdAt: -1 })
+    .limit(50) // limit to avoid prompt context bloat
+  const existingTitles = existingEssays.map(e => e.title).filter(Boolean)
+
+  const topics = await generateTopicsByTheme(theme, existingTitles)
   res.status(200).json({ success: true, data: topics })
 })
