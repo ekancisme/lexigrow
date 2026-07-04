@@ -60,7 +60,7 @@ function App() {
       </Route>
 
       {/* Shared routes */}
-      <Route path="/settings" element={<AppLayout role="teacher" />}>
+      <Route path="/settings" element={<AppLayout />}>
         <Route index element={<ProfileSettings />} />
       </Route>
 
