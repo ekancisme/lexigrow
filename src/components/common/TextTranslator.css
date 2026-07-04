@@ -38,6 +38,7 @@
 .text-trans__modal {
   width: 320px;
   max-width: 90vw;
+  max-height: 320px; /* Limit maximum height of translator card */
   padding: var(--spacing-md) !important;
   background-color: var(--color-surface-container-lowest);
   border: 1px solid var(--color-outline-variant);
@@ -102,11 +103,12 @@
   background-color: var(--color-error-container);
 }
 
-/* Modal Body */
 .text-trans__modal-body {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-sm);
+  overflow-y: auto; /* Enable scroll for long paragraphs */
+  padding-right: 4px; /* Space for scrollbar */
 }
 
 .text-trans__text-block {
