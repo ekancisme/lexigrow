@@ -134,37 +134,67 @@ export const getVocabStats = asyncHandler(async (req, res) => {
  * @access  Private (student)
  */
 export const getVocabGrowth = asyncHandler(async (req, res) => {
-  const { months = 6 } = req.query
-  const startDate = new Date()
-  startDate.setMonth(startDate.getMonth() - Number(months))
-
-  const growth = await Vocabulary.aggregate([
-    {
-      $match: {
-        student: req.user._id,
-        createdAt: { $gte: startDate },
-      },
-    },
-    {
-      $group: {
-        _id: {
-          year: { $year: '$createdAt' },
-          month: { $month: '$createdAt' },
-        },
-        count: { $sum: 1 },
-      },
-    },
-    { $sort: { '_id.year': 1, '_id.month': 1 } },
-  ])
-
-  // Format for chart
+  const { period = 'weekly' } = req.query
+  const now = new Date()
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  const data = growth.map(g => ({
-    label: `${monthNames[g._id.month - 1]} ${g._id.year}`,
-    count: g.count,
-  }))
 
-  res.status(200).json({ success: true, data })
+  if (period === 'monthly') {
+    // Last 6 months
+    const dates = []
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now)
+      d.setMonth(now.getMonth() - i)
+      // Set to end of the month
+      d.setDate(new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate())
+      d.setHours(23, 59, 59, 999)
+      dates.push({
+        date: d,
+        label: `${monthNames[d.getMonth()]} ${d.getFullYear()}`
+      })
+    }
+
+    const data = await Promise.all(
+      dates.map(async (item) => {
+        const count = await Vocabulary.countDocuments({
+          student: req.user._id,
+          createdAt: { $lte: item.date }
+        })
+        return {
+          label: item.label,
+          count
+        }
+      })
+    )
+
+    res.status(200).json({ success: true, data })
+  } else {
+    // Weekly (default): last 4 weeks
+    const dates = []
+    for (let i = 3; i >= 0; i--) {
+      const d = new Date(now)
+      d.setDate(now.getDate() - i * 7)
+      d.setHours(23, 59, 59, 999)
+      dates.push({
+        date: d,
+        label: i === 0 ? `${monthNames[d.getMonth()]} ${d.getDate()} (Today)` : `${monthNames[d.getMonth()]} ${d.getDate()}`
+      })
+    }
+
+    const data = await Promise.all(
+      dates.map(async (item) => {
+        const count = await Vocabulary.countDocuments({
+          student: req.user._id,
+          createdAt: { $lte: item.date }
+        })
+        return {
+          label: item.label,
+          count
+        }
+      })
+    )
+
+    res.status(200).json({ success: true, data })
+  }
 })
 
 /**
