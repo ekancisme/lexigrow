@@ -15,6 +15,10 @@ export default function AIFeedbackReview() {
   const [isEssayExpanded, setIsEssayExpanded] = useState(true)
   const [copied, setCopied] = useState(false)
 
+  // Portal states when no id is present in URL
+  const [essayList, setEssayList] = useState([])
+  const [isLoadingList, setIsLoadingList] = useState(false)
+
   function handleCopyEssay(e) {
     e.stopPropagation()
     if (!essay?.content) return
@@ -25,8 +29,25 @@ export default function AIFeedbackReview() {
 
   useEffect(() => {
     if (!essayId) {
-      setError('No essay selected')
+      setError('')
       setLoading(false)
+      
+      async function fetchEssayList() {
+        try {
+          setIsLoadingList(true)
+          const res = await api.get('/essays')
+          if (res.success) {
+            // Filter only submitted/reviewed essays
+            const filtered = (res.data || []).filter(e => e.status !== 'draft')
+            setEssayList(filtered)
+          }
+        } catch (err) {
+          console.error('Error fetching essays:', err)
+        } finally {
+          setIsLoadingList(false)
+        }
+      }
+      fetchEssayList()
       return
     }
 
@@ -74,7 +95,7 @@ export default function AIFeedbackReview() {
     }
   }
 
-  if (loading && !essay) {
+  if (loading && !essay && essayId) {
     return (
       <div className="ai-feedback" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', gap: 16 }}>
         <span className="material-symbols-outlined animate-spin" style={{ fontSize: 48, color: 'var(--color-primary)' }}>
@@ -93,6 +114,97 @@ export default function AIFeedbackReview() {
         </span>
         <h3 className="text-title-lg">AI is reading and analyzing your writing...</h3>
         <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>This usually takes 10-15 seconds. Please wait.</p>
+      </div>
+    )
+  }
+
+  if (!essayId) {
+    return (
+      <div className="ai-feedback" style={{ padding: 24 }}>
+        <h2 className="text-headline-lg" style={{ marginBottom: 8 }}>AI Feedback Portal</h2>
+        <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 24 }}>
+          Select an essay below to review the AI suggestions, scores, and custom writing analytics.
+        </p>
+
+        {isLoadingList ? (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px', color: 'var(--color-outline)' }}>
+            <span className="material-symbols-outlined animate-spin" style={{ marginRight: 8, color: 'var(--color-primary)' }}>progress_activity</span>
+            <span>Loading your essays...</span>
+          </div>
+        ) : essayList.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '40px 24px', background: 'var(--color-surface-container-lowest)', borderRadius: 16, border: '1px solid var(--color-outline-variant)' }} className="card-base">
+            <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-outline)', marginBottom: 16 }}>edit_note</span>
+            <h3 className="text-title-lg" style={{ marginBottom: 8 }}>No Essays Submitted Yet</h3>
+            <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 24, maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
+              Submit your first essay to let our AI analyze your writing patterns and provide custom vocabulary recommendations.
+            </p>
+            <button onClick={() => navigate('/student/write-essay')} className="ai-feedback__btn-primary">
+              Write New Essay
+            </button>
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
+            {essayList.map((e) => (
+              <div 
+                key={e._id} 
+                onClick={() => navigate(`/student/feedback?id=${e._id}`)}
+                className="card-base"
+                style={{ 
+                  padding: 20, 
+                  cursor: 'pointer', 
+                  transition: 'transform 0.2s, box-shadow 0.2s', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  justifyContent: 'space-between',
+                  minHeight: '140px'
+                }}
+                onMouseEnter={(el) => {
+                  el.currentTarget.style.transform = 'translateY(-2px)'
+                  el.currentTarget.style.boxShadow = 'var(--shadow-md)'
+                }}
+                onMouseLeave={(el) => {
+                  el.currentTarget.style.transform = 'translateY(0)'
+                  el.currentTarget.style.boxShadow = 'var(--shadow-sm)'
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                    <h3 className="text-title-md" style={{ fontWeight: 600, color: 'var(--color-on-surface)', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', textAlign: 'left', margin: 0 }}>
+                      {e.title}
+                    </h3>
+                    <span 
+                      style={{ 
+                        fontSize: '11px', 
+                        fontWeight: 'bold', 
+                        padding: '2px 8px', 
+                        borderRadius: 12, 
+                        textTransform: 'uppercase',
+                        backgroundColor: e.status === 'reviewed' ? 'rgba(52, 168, 83, 0.1)' : 'rgba(26, 115, 232, 0.1)',
+                        color: e.status === 'reviewed' ? 'var(--color-success, #34a853)' : 'var(--color-primary, #1a73e8)',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {e.status}
+                    </span>
+                  </div>
+                  <p className="text-body-sm" style={{ color: 'var(--color-outline)', marginBottom: 12, textAlign: 'left' }}>
+                    Submitted on {new Date(e.submittedAt || e.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--color-outline-variant)', paddingTop: 12 }}>
+                  <span className="text-label-md" style={{ color: 'var(--color-on-surface-variant)' }}>
+                    Word Count: {e.content?.split(/\s+/).filter(Boolean).length || 0}
+                  </span>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontWeight: 'bold', color: 'var(--color-primary)' }}>
+                    <span>View Analysis</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_forward</span>
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     )
   }
