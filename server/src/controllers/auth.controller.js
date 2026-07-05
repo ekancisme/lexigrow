@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken'
 import { OAuth2Client } from 'google-auth-library'
 import User from '../models/User.js'
+import PendingUser from '../models/PendingUser.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import sendEmail from '../utils/sendEmail.js'
@@ -39,23 +40,70 @@ const sendTokenResponse = (user, statusCode, res) => {
 export const register = asyncHandler(async (req, res) => {
   const { name, email, password, role, englishLevel, institution } = req.body
 
-  // Check if user exists
+  // Check if user exists in final DB
   const existingUser = await User.findOne({ email })
   if (existingUser) {
     throw new ErrorResponse('Email already registered', 400)
   }
 
-  // Create user
-  const user = await User.create({
+  // Clear any existing pending registrations for this email
+  await PendingUser.findOneAndDelete({ email })
+
+  // Generate verification code
+  const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
+  const verificationCodeExpire = Date.now() + 15 * 60 * 1000 // 15 mins
+
+  // Create pending registration user
+  const pendingUser = await PendingUser.create({
     name,
     email,
-    password,
+    password, // Store plain temporary password; User schema pre-save hook will hash it on activation
     role: role || 'student',
     englishLevel: role === 'student' ? englishLevel : '',
     institution: role === 'teacher' ? institution : '',
+    verificationCode,
+    verificationCodeExpire,
   })
 
-  sendTokenResponse(user, 201, res)
+  console.log(`[EMAIL VERIFICATION] User: ${pendingUser.email} | Code: ${verificationCode}`)
+
+  // Send email
+  try {
+    const message = `Chào mừng bạn đến với LexiGrow! Mã xác thực tài khoản của bạn là: ${verificationCode}. Mã này có hiệu lực trong vòng 15 phút.`
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e1e4e6; border-radius: 8px;">
+        <h2 style="color: #005bbf; text-align: center;">Xác thực tài khoản LexiGrow</h2>
+        <p>Xin chào <strong>${name}</strong>,</p>
+        <p>Cảm ơn bạn đã đăng ký tài khoản tại LexiGrow. Dưới đây là mã xác thực tài khoản của bạn:</p>
+        <div style="background-color: #f5f7f8; border: 1px dashed #005bbf; padding: 15px; border-radius: 6px; font-size: 24px; font-weight: bold; text-align: center; color: #005bbf; letter-spacing: 4px; margin: 20px 0;">
+          ${verificationCode}
+        </div>
+        <p style="color: #666; font-size: 13px;">Mã xác thực này sẽ hết hạn trong vòng 15 phút. Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email.</p>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+        <p style="text-align: center; color: #999; font-size: 12px;">LexiGrow © 2026 - Measured Writing Growth</p>
+      </div>
+    `
+    await sendEmail({
+      email: pendingUser.email,
+      subject: 'Xác thực tài khoản LexiGrow',
+      message,
+      html,
+    })
+
+    res.status(201).json({
+      success: true,
+      message: 'Mã xác thực đã được gửi tới email của bạn.',
+      email: pendingUser.email,
+    })
+  } catch (err) {
+    console.error('Lỗi gửi email xác thực:', err.message)
+    res.status(201).json({
+      success: true,
+      message: 'Đăng ký thành công. Lỗi gửi email, sử dụng mã xác thực kiểm thử.',
+      email: pendingUser.email,
+      devCode: verificationCode, // Fallback for local testing
+    })
+  }
 })
 
 /**
@@ -81,6 +129,11 @@ export const login = asyncHandler(async (req, res) => {
   const isMatch = await user.matchPassword(password)
   if (!isMatch) {
     throw new ErrorResponse('Invalid credentials', 401)
+  }
+
+  // Check if verified
+  if (user.isVerified === false) {
+    throw new ErrorResponse('Email chưa được xác thực. Vui lòng xác thực trước.', 401)
   }
 
   sendTokenResponse(user, 200, res)
@@ -171,6 +224,7 @@ export const googleAuth = asyncHandler(async (req, res) => {
       englishLevel: '',
       institution: '',
       password: googleId + process.env.JWT_SECRET, // Placeholder password
+      isVerified: true,
     })
   }
 
@@ -303,6 +357,121 @@ export const checkEmail = asyncHandler(async (req, res) => {
     success: true,
     exists: !!user,
   })
+})
+
+/**
+ * @desc    Verify email with 6-digit code
+ * @route   POST /api/auth/verify-email
+ * @access  Public
+ */
+export const verifyEmail = asyncHandler(async (req, res) => {
+  const { email, code } = req.body
+
+  if (!email || !code) {
+    throw new ErrorResponse('Vui lòng cung cấp email và mã xác thực', 400)
+  }
+
+  // Check if user is already verified and in final collection
+  const existingUser = await User.findOne({ email })
+  if (existingUser) {
+    return res.status(200).json({
+      success: true,
+      message: 'Email đã được xác thực trước đó.'
+    })
+  }
+
+  // Find pending user
+  const pending = await PendingUser.findOne({ email, verificationCode: code })
+  if (!pending) {
+    throw new ErrorResponse('Mã xác thực không chính xác', 400)
+  }
+
+  if (pending.verificationCodeExpire < new Date()) {
+    throw new ErrorResponse('Mã xác thực đã hết hạn', 400)
+  }
+
+  // Save to primary User collection (will hash password on pre-save hook)
+  const user = await User.create({
+    name: pending.name,
+    email: pending.email,
+    password: pending.password, // Plain text password from register form
+    role: pending.role,
+    englishLevel: pending.englishLevel,
+    institution: pending.institution,
+    isVerified: true
+  })
+
+  // Delete pending document
+  await PendingUser.deleteOne({ _id: pending._id })
+
+  sendTokenResponse(user, 200, res)
+})
+
+/**
+ * @desc    Resend verification code
+ * @route   POST /api/auth/resend-verify
+ * @access  Public
+ */
+export const resendVerification = asyncHandler(async (req, res) => {
+  const { email } = req.body
+
+  if (!email) {
+    throw new ErrorResponse('Vui lòng cung cấp email', 400)
+  }
+
+  // Check if verified in final DB
+  const existingUser = await User.findOne({ email })
+  if (existingUser) {
+    throw new ErrorResponse('Email đã được xác thực', 400)
+  }
+
+  // Find in pending users
+  const pending = await PendingUser.findOne({ email })
+  if (!pending) {
+    throw new ErrorResponse('Không tìm thấy thông tin đăng ký tạm cho email này', 404)
+  }
+
+  const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
+  pending.verificationCode = verificationCode
+  pending.verificationCodeExpire = Date.now() + 15 * 60 * 1000
+  await pending.save()
+
+  console.log(`[EMAIL VERIFICATION RESEND] User: ${pending.email} | Code: ${verificationCode}`)
+
+  try {
+    const message = `Mã xác thực mới của bạn là: ${verificationCode}. Mã này có hiệu lực trong vòng 15 phút.`
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e1e4e6; border-radius: 8px;">
+        <h2 style="color: #005bbf; text-align: center;">Xác thực tài khoản LexiGrow</h2>
+        <p>Xin chào <strong>${pending.name}</strong>,</p>
+        <p>Dưới đây là mã xác thực tài khoản mới của bạn:</p>
+        <div style="background-color: #f5f7f8; border: 1px dashed #005bbf; padding: 15px; border-radius: 6px; font-size: 24px; font-weight: bold; text-align: center; color: #005bbf; letter-spacing: 4px; margin: 20px 0;">
+          ${verificationCode}
+        </div>
+        <p style="color: #666; font-size: 13px;">Mã xác thực này sẽ hết hạn trong vòng 15 phút. Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email.</p>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+        <p style="text-align: center; color: #999; font-size: 12px;">LexiGrow © 2026 - Measured Writing Growth</p>
+      </div>
+    `
+    await sendEmail({
+      email: pending.email,
+      subject: 'Xác thực tài khoản LexiGrow (Gửi lại)',
+      message,
+      html,
+    })
+
+    res.status(200).json({
+      success: true,
+      message: 'Mã xác thực đã được gửi lại tới email của bạn.'
+    })
+  } catch (err) {
+    console.error('Lỗi gửi lại email xác thực:', err.message)
+    res.status(200).json({
+      success: true,
+      message: 'Gửi lại mã thành công. Sử dụng mã xác thực kiểm thử.',
+      devCode: verificationCode
+    })
+  }
 })
 
 
