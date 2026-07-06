@@ -94,6 +94,7 @@ export default function AIFeedbackReview() {
   async function handleReanalyze() {
     try {
       setLoading(true)
+      setEssay(prev => prev ? { ...prev, status: 'submitted' } : null)
       setError('')
       const res = await api.post(`/essays/${essayId}/reanalyze`)
       if (res.success) {
