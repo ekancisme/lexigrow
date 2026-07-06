@@ -17,8 +17,12 @@ const generateToken = (id) => {
 /**
  * Send token response with user data
  */
-const sendTokenResponse = (user, statusCode, res) => {
+const sendTokenResponse = async (user, statusCode, res) => {
   const token = generateToken(user._id)
+
+  if (user.role === 'parent') {
+    await user.populate('children', 'name email avatar englishLevel')
+  }
 
   // Remove password from output
   const userData = user.toObject()
@@ -78,7 +82,7 @@ export const register = asyncHandler(async (req, res) => {
     }
   }
 
-  sendTokenResponse(user, 201, res)
+  await sendTokenResponse(user, 201, res)
 })
 
 /**
@@ -106,7 +110,7 @@ export const login = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Invalid credentials', 401)
   }
 
-  sendTokenResponse(user, 200, res)
+  await sendTokenResponse(user, 200, res)
 })
 
 /**
@@ -116,6 +120,9 @@ export const login = asyncHandler(async (req, res) => {
  */
 export const getMe = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id)
+  if (user && user.role === 'parent') {
+    await user.populate('children', 'name email avatar englishLevel')
+  }
 
   res.status(200).json({
     success: true,
