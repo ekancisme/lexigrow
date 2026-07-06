@@ -29,22 +29,30 @@ export default function VocabGrowthChart({ title = 'Vocabulary Growth', activeTa
 
   // Calculate SVG paths based on chartData
   const maxVal = Math.max(...chartData.map(d => d.count), 1)
-  const points = chartData.map((d, index) => {
-    const x = chartData.length > 1 ? (index / (chartData.length - 1)) * 800 : 400
-    const y = 170 - (d.count / maxVal) * 130
-    return { x, y }
-  })
+  
+  let linePath = ''
+  let areaPath = ''
+  let endPoint = { x: 800, y: 150 }
 
-  // Generate cubic/quadratic curve or straight line paths
-  const linePath = points.length > 0
-    ? points.map((p, i) => (i === 0 ? `M ${p.x},${p.y}` : `L ${p.x},${p.y}`)).join(' ')
-    : 'M 0,150 L 800,150'
-
-  const areaPath = points.length > 0
-    ? `${linePath} L ${points[points.length - 1].x},200 L ${points[0].x},200 Z`
-    : 'M 0,150 L 800,150 L 800,200 L 0,200 Z'
-
-  const endPoint = points.length > 0 ? points[points.length - 1] : { x: 800, y: 150 }
+  if (chartData.length === 1) {
+    const y = 170 - (chartData[0].count / maxVal) * 130
+    linePath = `M 0,${y} L 800,${y}`
+    areaPath = `M 0,200 L 0,${y} L 800,${y} L 800,200 Z`
+    endPoint = { x: 800, y }
+  } else if (chartData.length > 1) {
+    const points = chartData.map((d, index) => {
+      const x = (index / (chartData.length - 1)) * 800
+      const y = 170 - (d.count / maxVal) * 130
+      return { x, y }
+    })
+    linePath = points.map((p, i) => (i === 0 ? `M ${p.x},${p.y}` : `L ${p.x},${p.y}`)).join(' ')
+    areaPath = `${linePath} L ${points[points.length - 1].x},200 L ${points[0].x},200 Z`
+    endPoint = points[points.length - 1]
+  } else {
+    linePath = 'M 0,150 L 800,150'
+    areaPath = 'M 0,150 L 800,150 L 800,200 L 0,200 Z'
+    endPoint = { x: 800, y: 150 }
+  }
 
   return (
     <div className="vocab-chart card-base">

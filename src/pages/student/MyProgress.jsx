@@ -56,14 +56,26 @@ export default function MyProgress() {
 
   // Draw chart based on real growthData
   const maxCumulative = growthData.length > 0 ? Math.max(...growthData.map(d => d.cumulative)) : 100
-  const points = growthData.map((d, index) => {
-    const x = (index / Math.max(1, growthData.length - 1)) * 800
-    const y = 220 - ((d.cumulative / maxCumulative) * 200)
-    return `${x},${y}`
-  }).join(' ')
+  
+  let lineD = ''
+  let pathD = ''
 
-  const pathD = points ? `M 0,220 L ${points} L 800,220` : ''
-  const lineD = points ? `M ${points}` : 'M 0,220 L 800,220'
+  if (growthData.length === 1) {
+    const y = 220 - ((growthData[0].cumulative / maxCumulative) * 200)
+    lineD = `M 0,${y} L 800,${y}`
+    pathD = `M 0,220 L 0,${y} L 800,${y} L 800,220`
+  } else if (growthData.length > 1) {
+    const points = growthData.map((d, index) => {
+      const x = (index / (growthData.length - 1)) * 800
+      const y = 220 - ((d.cumulative / maxCumulative) * 200)
+      return `${x},${y}`
+    }).join(' ')
+    lineD = `M ${points}`
+    pathD = `M 0,220 L ${points} L 800,220`
+  } else {
+    lineD = 'M 0,220 L 800,220'
+    pathD = ''
+  }
 
   return (
     <div className="my-progress">
