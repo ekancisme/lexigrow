@@ -73,7 +73,7 @@ Analyze the student's essay and return a JSON response with EXACTLY this structu
     "paddedSentences": <true | false>,
     "plagiarismDetected": <true | false>,
     "learningStatus": "progressing" | "plateau" | "regression" | "stable",
-    "feedback": "<detailed Vietnamese feedback explaining word padding, copy-paste flags, and learning status trajectory compared to past history>"
+    "feedback": "<detailed English feedback explaining word padding, copy-paste flags, and learning status trajectory compared to past history>"
   }
 }
 
@@ -85,7 +85,7 @@ Rules:
   * paddedSentences: set to true if the student repeats synonyms or writes long, repetitive, meaningless sentences to inflate word count.
   * plagiarismDetected: set to true if there is a high likelihood of plagiarism or copy-pasting (unnatural flow transitions, vocabulary far exceeding typical student level, or rigid structures).
   * learningStatus: Compare current essay performance with the student's past performance history (if provided in the user request). Choose "progressing" if scores/vocabulary have improved, "plateau" if there is no significant change over time, "regression" if there is a decrease, or "stable" if they remain consistent at a high level.
-  * feedback: Write a detailed summary in Vietnamese explaining the findings for these patterns.
+  * feedback: Write a detailed summary in English explaining the findings for these patterns.
 - Return ONLY valid JSON, no markdown formatting`
 
 /**
@@ -182,7 +182,7 @@ function generateFallbackAnalysis(content) {
       paddedSentences: false,
       plagiarismDetected: false,
       learningStatus: 'stable',
-      feedback: 'Hệ thống phân tích mẫu học tập đang chạy ở chế độ dự phòng. Các chỉ số được đánh giá là ổn định.'
+      feedback: 'The learning pattern detection system is running in fallback mode. The learning patterns are evaluated as stable.'
     }
   }
 }
@@ -393,7 +393,7 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
         paddedSentences: false,
         plagiarismDetected: false,
         learningStatus: 'stable',
-        feedback: 'Chưa có đủ dữ liệu lịch sử để đánh giá mẫu tiến trình chi tiết.'
+        feedback: 'Insufficient historical data to analyze detailed progress trajectory.'
       }
     },
     { upsert: true, new: true, runValidators: true }

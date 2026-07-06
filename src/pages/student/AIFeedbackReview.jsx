@@ -450,10 +450,10 @@ export default function AIFeedbackReview() {
             <div className="card-base" style={{ marginTop: 24 }}>
               <h3 className="text-title-lg" style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>psychology</span>
-                Phân tích Tiến trình & Mẫu Học tập (AI Learning Patterns)
+                Learning Patterns & Progress Analysis (AI)
               </h3>
               <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 20, textAlign: 'left' }}>
-                Hệ thống AI phân tích thói quen hành văn của bài viết này và so sánh với lịch sử viết bài của học sinh để đưa ra các nhận định chuyên sâu:
+                The AI system analyzes the writing habits of this essay and compares them with the student's historical writing performance to provide in-depth feedback:
               </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
@@ -467,7 +467,7 @@ export default function AIFeedbackReview() {
                   backgroundColor: 'var(--color-surface-container-low)', 
                   border: '1px solid var(--color-outline-variant)' 
                 }}>
-                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>Viết kéo dài câu vô nghĩa</span>
+                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>Word Padding Detection</span>
                   {analysis.learningPatterns.paddedSentences ? (
                     <span style={{ 
                       display: 'inline-flex', 
@@ -482,7 +482,7 @@ export default function AIFeedbackReview() {
                       alignSelf: 'flex-start'
                     }}>
                       <span className="material-symbols-outlined" style={{ fontSize: 16 }}>warning</span>
-                      Phát hiện câu rỗng nghĩa
+                      Word padding detected
                     </span>
                   ) : (
                     <span style={{ 
@@ -498,7 +498,7 @@ export default function AIFeedbackReview() {
                       alignSelf: 'flex-start'
                     }}>
                       <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check_circle</span>
-                      Hành văn súc tích
+                      Concise writing
                     </span>
                   )}
                 </div>
@@ -513,7 +513,7 @@ export default function AIFeedbackReview() {
                   backgroundColor: 'var(--color-surface-container-low)', 
                   border: '1px solid var(--color-outline-variant)' 
                 }}>
-                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>Kiểm tra sao chép / Đạo văn</span>
+                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>Plagiarism / Copy-Paste Check</span>
                   {analysis.learningPatterns.plagiarismDetected ? (
                     <span style={{ 
                       display: 'inline-flex', 
@@ -528,7 +528,7 @@ export default function AIFeedbackReview() {
                       alignSelf: 'flex-start'
                     }}>
                       <span className="material-symbols-outlined" style={{ fontSize: 16 }}>gavel</span>
-                      Có dấu hiệu sao chép
+                      Potential copy-paste detected
                     </span>
                   ) : (
                     <span style={{ 
@@ -544,7 +544,7 @@ export default function AIFeedbackReview() {
                       alignSelf: 'flex-start'
                     }}>
                       <span className="material-symbols-outlined" style={{ fontSize: 16 }}>verified</span>
-                      Bài tự viết (Độc lập)
+                      Original essay
                     </span>
                   )}
                 </div>
@@ -559,32 +559,32 @@ export default function AIFeedbackReview() {
                   backgroundColor: 'var(--color-surface-container-low)', 
                   border: '1px solid var(--color-outline-variant)' 
                 }}>
-                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>Quỹ đạo tiến trình học tập</span>
+                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>Learning Trajectory</span>
                   {(() => {
                     const status = analysis.learningPatterns.learningStatus || 'stable';
                     let config = {
-                      label: 'Ổn định (Stable)',
+                      label: 'Stable',
                       color: 'var(--color-primary)',
                       bg: 'rgba(0, 91, 191, 0.1)',
                       icon: 'sync'
                     };
                     if (status === 'progressing') {
                       config = {
-                        label: 'Tiến bộ tốt (Progressing)',
+                        label: 'Progressing',
                         color: 'var(--color-success)',
                         bg: 'rgba(22, 163, 74, 0.1)',
                         icon: 'trending_up'
                       };
                     } else if (status === 'plateau') {
                       config = {
-                        label: 'Chững lại (Plateau)',
+                        label: 'Plateau',
                         color: 'var(--color-tertiary)',
                         bg: 'rgba(234, 88, 12, 0.1)',
                         icon: 'trending_flat'
                       };
                     } else if (status === 'regression') {
                       config = {
-                        label: 'Tụt lùi (Regression)',
+                        label: 'Regression',
                         color: 'var(--color-error)',
                         bg: 'var(--color-error-container)',
                         icon: 'trending_down'
@@ -623,7 +623,7 @@ export default function AIFeedbackReview() {
                   color: 'var(--color-on-surface-variant)',
                   fontSize: '14px'
                 }}>
-                  <strong>Nhận xét chuyên sâu của AI:</strong>
+                  <strong>Detailed AI Analysis Feedback:</strong>
                   <p style={{ margin: '8px 0 0 0' }}>{analysis.learningPatterns.feedback}</p>
                 </div>
               )}
