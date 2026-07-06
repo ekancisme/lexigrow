@@ -43,6 +43,47 @@
   transform: translateY(0);
 }
 
+/* Review button */
+.vocab-lib__review-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  background-color: var(--color-surface-container-lowest);
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+  padding: 10px 20px;
+  border-radius: var(--radius-lg);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+}
+
+.vocab-lib__review-btn:hover {
+  background-color: rgba(0, 91, 191, 0.06);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.vocab-lib__review-btn:active {
+  transform: translateY(0);
+}
+
+.vocab-lib__review-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: var(--radius-full);
+  line-height: 1;
+}
+
 /* Search and Filters */
 .vocab-lib__search {
   display: grid;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import api from '../../services/api.js'
 import WeeklyComparisonWidget from '../../components/common/WeeklyComparisonWidget.jsx'
+import MasteryDonutChart from '../../components/charts/MasteryDonutChart.jsx'
 import './MyProgress.css'
 
 export default function MyProgress() {
@@ -8,6 +9,7 @@ export default function MyProgress() {
   const [categories, setCategories] = useState([])
   const [milestones, setMilestones] = useState([])
   const [growthData, setGrowthData] = useState([])
+  const [masteryDist, setMasteryDist] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -22,14 +24,15 @@ export default function MyProgress() {
         setOverview(overviewRes.data)
         
         // Map category stats to array format
-        const stats = categoriesRes.data || {}
+        const statsArray = categoriesRes.data || []
         const mappedCats = [
-          { name: 'Academic', count: stats.academic || 0, color: 'primary' },
-          { name: 'Business', count: stats.business || 0, color: 'secondary' },
-          { name: 'Scientific', count: stats.scientific || 0, color: 'tertiary' },
-          { name: 'Daily Use', count: stats.daily || 0, color: 'success' },
+          { name: 'Academic', count: statsArray.find(s => s.category === 'academic')?.count || 0, color: 'primary' },
+          { name: 'Business', count: statsArray.find(s => s.category === 'business')?.count || 0, color: 'secondary' },
+          { name: 'Scientific', count: statsArray.find(s => s.category === 'scientific')?.count || 0, color: 'tertiary' },
+          { name: 'Daily Use', count: statsArray.find(s => s.category === 'daily')?.count || 0, color: 'success' },
         ]
         setCategories(mappedCats)
+        setMasteryDist(categoriesRes.masteryDistribution)
         setMilestones(milestonesRes.data || [])
         setGrowthData(growthRes.data || [])
       } catch (err) {
@@ -53,14 +56,26 @@ export default function MyProgress() {
 
   // Draw chart based on real growthData
   const maxCumulative = growthData.length > 0 ? Math.max(...growthData.map(d => d.cumulative)) : 100
-  const points = growthData.map((d, index) => {
-    const x = (index / Math.max(1, growthData.length - 1)) * 800
-    const y = 220 - ((d.cumulative / maxCumulative) * 200)
-    return `${x},${y}`
-  }).join(' ')
+  
+  let lineD = ''
+  let pathD = ''
 
-  const pathD = points ? `M 0,220 L ${points} L 800,220` : ''
-  const lineD = points ? `M ${points}` : 'M 0,220 L 800,220'
+  if (growthData.length === 1) {
+    const y = 220 - ((growthData[0].cumulative / maxCumulative) * 200)
+    lineD = `M 0,${y} L 800,${y}`
+    pathD = `M 0,220 L 0,${y} L 800,${y} L 800,220`
+  } else if (growthData.length > 1) {
+    const points = growthData.map((d, index) => {
+      const x = (index / (growthData.length - 1)) * 800
+      const y = 220 - ((d.cumulative / maxCumulative) * 200)
+      return `${x},${y}`
+    }).join(' ')
+    lineD = `M ${points}`
+    pathD = `M 0,220 L ${points} L 800,220`
+  } else {
+    lineD = 'M 0,220 L 800,220'
+    pathD = ''
+  }
 
   return (
     <div className="my-progress">
@@ -150,28 +165,33 @@ export default function MyProgress() {
           </div>
         </div>
 
-        {/* Vocabulary Categories */}
-        <div className="card-base">
-          <h3 className="text-title-lg" style={{ marginBottom: 24 }}>Vocabulary Categories</h3>
-          <div className="my-progress__categories">
-            {categories.map((cat, i) => {
-              const maxCount = overview?.totalVocab || 1
-              const percentage = Math.round((cat.count / maxCount) * 100)
-              return (
-                <div key={i} className="my-progress__category">
-                  <div className="my-progress__category-info">
-                    <span className="text-label-md">{cat.name}</span>
-                    <span className="text-data-mono">{cat.count} words</span>
+        {/* Right side stack */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-gutter)' }}>
+          <MasteryDonutChart distribution={masteryDist} />
+          
+          {/* Vocabulary Categories */}
+          <div className="card-base">
+            <h3 className="text-title-lg" style={{ marginBottom: 24 }}>Vocabulary Categories</h3>
+            <div className="my-progress__categories">
+              {categories.map((cat, i) => {
+                const maxCount = overview?.totalVocab || 1
+                const percentage = Math.round((cat.count / maxCount) * 100)
+                return (
+                  <div key={i} className="my-progress__category">
+                    <div className="my-progress__category-info">
+                      <span className="text-label-md">{cat.name}</span>
+                      <span className="text-data-mono">{cat.count} words</span>
+                    </div>
+                    <div className="my-progress__category-bar">
+                      <div
+                        className={`my-progress__category-fill my-progress__category-fill--${cat.color}`}
+                        style={{ width: `${percentage}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="my-progress__category-bar">
-                    <div
-                      className={`my-progress__category-fill my-progress__category-fill--${cat.color}`}
-                      style={{ width: `${percentage}%` }}
-                    />
-                  </div>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
           </div>
         </div>
       </div>

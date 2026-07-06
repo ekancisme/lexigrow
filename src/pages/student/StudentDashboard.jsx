@@ -5,6 +5,7 @@ import api from '../../services/api.js'
 import StatCard from '../../components/common/StatCard'
 import CircularProgress from '../../components/common/CircularProgress'
 import VocabGrowthChart from '../../components/charts/VocabGrowthChart'
+import MasteryDonutChart from '../../components/charts/MasteryDonutChart'
 import './StudentDashboard.css'
 
 export default function StudentDashboard() {
@@ -13,19 +14,23 @@ export default function StudentDashboard() {
   const [overview, setOverview] = useState(null)
   const [weeklyGoal, setWeeklyGoal] = useState(null)
   const [recentEssays, setRecentEssays] = useState([])
+  const [vocabStats, setVocabStats] = useState(null)
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [overviewRes, goalRes, essaysRes] = await Promise.all([
+        setLoading(true)
+        const [overviewRes, goalRes, essaysRes, vocabStatsRes] = await Promise.all([
           api.get('/progress/overview'),
           api.get('/goals'),
           api.get('/essays'),
+          api.get('/vocabulary/stats'),
         ])
         setOverview(overviewRes.data)
         setWeeklyGoal(goalRes.data)
         // Show only first 5 recent essays
         setRecentEssays(essaysRes.data.slice(0, 5))
+        setVocabStats(vocabStatsRes)
       } catch (err) {
         console.error('Error fetching dashboard data:', err)
       } finally {
@@ -82,16 +87,19 @@ export default function StudentDashboard() {
         <div className="student-dash__chart-main">
           <VocabGrowthChart />
         </div>
-        <div className="student-dash__goals card-base">
-          <div className="flex justify-between items-center" style={{ marginBottom: 24 }}>
-            <h3 className="text-title-lg">Weekly Goals</h3>
-            <Link to="/student/goals" className="text-label-md" style={{ color: 'var(--color-primary)', textDecoration: 'none' }}>Set Targets</Link>
+        <div className="student-dash__side-cards">
+          <div className="student-dash__goals card-base" style={{ height: 'auto' }}>
+            <div className="flex justify-between items-center" style={{ marginBottom: 24 }}>
+              <h3 className="text-title-lg">Weekly Goals</h3>
+              <Link to="/student/goals" className="text-label-md" style={{ color: 'var(--color-primary)', textDecoration: 'none' }}>Set Targets</Link>
+            </div>
+            <div className="student-dash__goals-list">
+              <CircularProgress percentage={wordsPercentage} color="primary" label="New Words" sublabel={`${wordsGoal?.current || 0} of ${wordsGoal?.target || 20} target`} />
+              <CircularProgress percentage={lengthPercentage} color="secondary" label="Writing Length" sublabel={`${lengthGoal?.current || 0} of ${lengthGoal?.target || 5000} words`} />
+              <CircularProgress percentage={complexityPercentage} color="tertiary" label="Complexity Rank" sublabel={`Tier: ${overview?.rank || 'A1'}`} />
+            </div>
           </div>
-          <div className="student-dash__goals-list">
-            <CircularProgress percentage={wordsPercentage} color="primary" label="New Words" sublabel={`${wordsGoal?.current || 0} of ${wordsGoal?.target || 20} target`} />
-            <CircularProgress percentage={lengthPercentage} color="secondary" label="Writing Length" sublabel={`${lengthGoal?.current || 0} of ${lengthGoal?.target || 5000} words`} />
-            <CircularProgress percentage={complexityPercentage} color="tertiary" label="Complexity Rank" sublabel={`Tier: ${overview?.rank || 'A1'}`} />
-          </div>
+          <MasteryDonutChart distribution={vocabStats?.masteryDistribution} />
         </div>
       </section>
 
@@ -99,7 +107,7 @@ export default function StudentDashboard() {
       <section className="student-dash__table card-base" style={{ padding: 0 }}>
         <div className="student-dash__table-header">
           <h3 className="text-title-lg">Recent Submissions</h3>
-          <Link to="/student/progress" className="student-dash__view-all" style={{ textDecoration: 'none' }}>View All</Link>
+          <Link to="/student/essays" className="student-dash__view-all" style={{ textDecoration: 'none' }}>View All</Link>
         </div>
         <div className="student-dash__table-wrap">
           {recentEssays.length === 0 ? (

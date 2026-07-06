@@ -14,6 +14,13 @@
   grid-template-columns: 2fr 1fr;
   gap: var(--spacing-gutter);
   margin-bottom: var(--spacing-lg);
+  align-items: start;
+}
+
+.student-dash__side-cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-gutter);
 }
 
 .student-dash__goals-list {

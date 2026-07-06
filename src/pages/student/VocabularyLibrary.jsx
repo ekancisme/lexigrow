@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
+import { useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
 import './VocabularyLibrary.css'
 
 export default function VocabularyLibrary() {
+  const navigate = useNavigate()
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
   
@@ -113,6 +116,18 @@ export default function VocabularyLibrary() {
     return matchesSearch && matchesCategory && matchesMastery && matchesTheme
   })
 
+  // Đếm số từ cần ôn (new + learning) theo Category đang chọn
+  const reviewCount = words.filter(w => {
+    const matchesCategory = !selectedCategory || w.category === selectedCategory
+    const matchesMastery = w.masteryLevel === 'new' || w.masteryLevel === 'learning'
+    return matchesCategory && matchesMastery
+  }).length
+
+  const getCategoryLabel = (cat) => {
+    if (!cat) return 'All'
+    return cat.charAt(0).toUpperCase() + cat.slice(1)
+  }
+
   return (
     <div className="vocab-lib animate-fade-in">
       {/* Header */}
@@ -123,13 +138,29 @@ export default function VocabularyLibrary() {
             Expand your lexicon. Add words manually or write essays to discover new vocabulary.
           </p>
         </div>
-        <button 
-          className="vocab-lib__add-btn" 
-          onClick={() => setIsAddModalOpen(true)}
-        >
-          <span className="material-symbols-outlined">add</span>
-          <span>Add New Word</span>
-        </button>
+        <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center', flexWrap: 'wrap' }}>
+          {/* Start Review Button */}
+          {reviewCount > 0 && (
+            <button
+              className="vocab-lib__review-btn"
+              onClick={() => {
+                const targetQuery = selectedCategory ? `?category=${selectedCategory}` : ''
+                navigate(`/student/vocabulary/review${targetQuery}`)
+              }}
+            >
+              <span className="material-symbols-outlined">style</span>
+              <span>Review {selectedCategory ? getCategoryLabel(selectedCategory) : 'All'}</span>
+              <span className="vocab-lib__review-badge">{reviewCount}</span>
+            </button>
+          )}
+          <button 
+            className="vocab-lib__add-btn" 
+            onClick={() => setIsAddModalOpen(true)}
+          >
+            <span className="material-symbols-outlined">add</span>
+            <span>Add New Word</span>
+          </button>
+        </div>
       </section>
 
       {/* Filter and Search Section */}
@@ -237,7 +268,7 @@ export default function VocabularyLibrary() {
       )}
 
       {/* Word Detail Modal */}
-      {selectedWord && (
+      {selectedWord && createPortal(
         <div className="vocab-modal-overlay" onClick={handleCloseDetail}>
           <div className="vocab-modal vocab-modal--detail animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <button className="vocab-modal__close" onClick={handleCloseDetail}>
@@ -326,11 +357,12 @@ export default function VocabularyLibrary() {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Add New Word Modal */}
-      {isAddModalOpen && (
+      {isAddModalOpen && createPortal(
         <div className="vocab-modal-overlay" onClick={() => !isAdding && setIsAddModalOpen(false)}>
           <div className="vocab-modal vocab-modal--add animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <button className="vocab-modal__close" onClick={() => !isAdding && setIsAddModalOpen(false)} disabled={isAdding}>
@@ -403,7 +435,8 @@ export default function VocabularyLibrary() {
               </button>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )

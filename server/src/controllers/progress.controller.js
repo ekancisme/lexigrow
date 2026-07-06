@@ -106,11 +106,32 @@ export const getOverview = asyncHandler(async (req, res) => {
  */
 export const getGrowthChart = asyncHandler(async (req, res) => {
   const studentId = await resolveStudentId(req)
-  const { months = 6 } = req.query
-  const startDate = new Date()
-  startDate.setMonth(startDate.getMonth() - Number(months))
+  const months = Number(req.query.months) || 6
+  
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const now = new Date()
+  
+  // 1. Generate the last N months timeline
+  const periodMonths = []
+  for (let i = months - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1)
+    periodMonths.push({
+      year: d.getFullYear(),
+      month: d.getMonth() + 1, // 1-based month for MongoDB $month
+      label: monthNames[d.getMonth()]
+    })
+  }
 
-  // Cumulative vocab over time
+  // Calculate start date of the first month in the timeline
+  const firstMonthStart = new Date(periodMonths[0].year, periodMonths[0].month - 1, 1)
+
+  // 2. Count all vocabulary words created prior to this timeline start
+  const initialCumulative = await Vocabulary.countDocuments({
+    student: new mongoose.Types.ObjectId(studentId),
+    createdAt: { $lt: firstMonthStart }
+  })
+
+  // 3. Aggregate vocab counts by month within the student's history
   const vocabByMonth = await Vocabulary.aggregate([
     { $match: { student: new mongoose.Types.ObjectId(studentId) } },
     {
@@ -121,19 +142,19 @@ export const getGrowthChart = asyncHandler(async (req, res) => {
         },
         newWords: { $sum: 1 },
       },
-    },
-    { $sort: { '_id.year': 1, '_id.month': 1 } },
+    }
   ])
 
-  // Convert to cumulative
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-  let cumulative = 0
-  const data = vocabByMonth.map(m => {
-    cumulative += m.newWords
+  // 4. Map the aggregated data to our timeline with cumulative tracking
+  let cumulative = initialCumulative
+  const data = periodMonths.map(pm => {
+    const found = vocabByMonth.find(v => v._id.year === pm.year && v._id.month === pm.month)
+    const newWords = found ? found.newWords : 0
+    cumulative += newWords
     return {
-      label: `${monthNames[m._id.month - 1]}`,
-      newWords: m.newWords,
-      cumulative,
+      label: pm.label,
+      newWords,
+      cumulative
     }
   })
 
