@@ -94,10 +94,16 @@ export default function AIFeedbackReview() {
   async function handleReanalyze() {
     try {
       setLoading(true)
-      await api.post(`/essays/${essayId}/reanalyze`)
-      // Will auto-poll since status changes to submitted
+      setError('')
+      const res = await api.post(`/essays/${essayId}/reanalyze`)
+      if (res.success) {
+        setAnalysis(res.data)
+        const essayRes = await api.get(`/essays/${essayId}`)
+        setEssay(essayRes.data)
+      }
     } catch (err) {
-      setError(err.message)
+      setError(err.message || 'Failed to reanalyze essay')
+    } finally {
       setLoading(false)
     }
   }
