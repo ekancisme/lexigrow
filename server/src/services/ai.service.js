@@ -128,7 +128,7 @@ function generateFallbackAnalysis(content) {
   const totalWords = words.length
   const uniqueWords = new Set(words.map(w => w.toLowerCase().replace(/[^a-z]/g, '')).filter(Boolean))
   const sentences = content.split(/[.!?]+/).filter(Boolean)
-  const ttr = Math.round((uniqueWords.size / totalWords) * 100) / 100
+  const divStats = calculateLexicalDiversity(content)
 
   const commonWords = new Set([
     'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 
@@ -147,9 +147,11 @@ function generateFallbackAnalysis(content) {
   const newWords = Array.from(uniqueWords).filter(w => w.length >= 6 && !commonWords.has(w)).slice(0, 10)
 
   return {
-    overallScore: Math.min(10, Math.round(ttr * 10 + 2)),
+    overallScore: Math.min(10, Math.round(divStats.ttr * 10 + 2)),
     scores: {
-      vocabularyDiversity: ttr,
+      vocabularyDiversity: divStats.ttr,
+      lexicalDiversityHdd: divStats.hdd,
+      lexicalDiversityMtld: divStats.mtld,
       grammarAccuracy: 6.0,
       coherence: 5.5,
       complexityIndex: Math.min(10, Math.round(totalWords / 100)),
@@ -327,13 +329,22 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
     }
   }
 
+  const lexicalDiversity = (nlpData && nlpData.lexicalDiversity)
+    ? nlpData.lexicalDiversity
+    : calculateLexicalDiversity(essayContent)
+
   // Save or update AIAnalysis document
   const analysis = await AIAnalysis.findOneAndUpdate(
     { essay: essayId },
     {
       essay: essayId,
       overallScore: analysisData.overallScore,
-      scores: analysisData.scores,
+      scores: {
+        ...analysisData.scores,
+        vocabularyDiversity: lexicalDiversity.ttr,
+        lexicalDiversityHdd: lexicalDiversity.hdd,
+        lexicalDiversityMtld: lexicalDiversity.mtld
+      },
       newWordsDetected: analysisData.newWordsDetected || [],
       suggestions: analysisData.suggestions || [],
       writingStats: {
@@ -602,6 +613,92 @@ Text to translate:
   } catch (error) {
     console.error('AI Translation Error:', error.message)
     return `[Lỗi dịch: ${error.message}]`
+  }
+}
+
+/**
+ * Calculate vocabulary and lexical diversity metrics (TTR, HD-D, MTLD) programmatically
+ */
+export const calculateLexicalDiversity = (text) => {
+  const tokens = (text || '').toLowerCase().match(/[a-z']+/g) || []
+  const tokenCount = tokens.length
+
+  if (tokenCount < 10) {
+    const ttr = tokenCount > 0 ? new Set(tokens).size / tokenCount : 0
+    return { ttr: Math.round(ttr * 100) / 100, hdd: Math.round(ttr * 100) / 100, mtld: 0 }
+  }
+
+  // 1. TTR
+  const uniqueTypes = new Set(tokens)
+  const ttr = uniqueTypes.size / tokenCount
+
+  // 2. MTLD (Measure of Textual Lexical Diversity)
+  const mtldThreshold = 0.72
+
+  const computeMtldDirectional = (tokenList) => {
+    let factorCount = 0
+    let startIndex = 0
+    let uniqueInSegment = new Set()
+    
+    for (let i = 0; i < tokenList.length; i++) {
+      uniqueInSegment.add(tokenList[i])
+      const segmentLength = i - startIndex + 1
+      const currentTtr = uniqueInSegment.size / segmentLength
+      
+      if (currentTtr < mtldThreshold && segmentLength > 1) {
+        factorCount++
+        uniqueInSegment.clear()
+        startIndex = i + 1
+      }
+    }
+    
+    // Incomplete final factor
+    const finalSegmentLength = tokenList.length - startIndex
+    if (finalSegmentLength > 0) {
+      const finalUnique = new Set(tokenList.slice(startIndex))
+      const finalTtr = finalUnique.size / finalSegmentLength
+      if (finalTtr < 1.0) {
+        const fraction = (1.0 - finalTtr) / (1.0 - mtldThreshold)
+        factorCount += fraction
+      }
+    }
+    
+    return factorCount > 0 ? tokenList.length / factorCount : tokenList.length
+  }
+
+  const mtldForward = computeMtldDirectional(tokens)
+  const mtldBackward = computeMtldDirectional([...tokens].reverse())
+  const mtld = (mtldForward + mtldBackward) / 2
+
+  // 3. HD-D index (N = 42 draws)
+  const sampleSize = 42
+  let hdd = 0
+
+  if (tokenCount >= sampleSize) {
+    const frequencies = {}
+    tokens.forEach(t => {
+      frequencies[t] = (frequencies[t] || 0) + 1
+    })
+
+    let expectedUnique = 0
+    Object.keys(frequencies).forEach(type => {
+      const c = frequencies[type]
+      let combinationRatio = 1.0
+      for (let i = 0; i < sampleSize; i++) {
+        combinationRatio *= (tokenCount - c - i) / (tokenCount - i)
+      }
+      expectedUnique += (1.0 - combinationRatio)
+    })
+    
+    hdd = expectedUnique / sampleSize
+  } else {
+    hdd = ttr
+  }
+
+  return {
+    ttr: Math.round(ttr * 100) / 100,
+    hdd: Math.round(hdd * 100) / 100,
+    mtld: Math.round(mtld * 10) / 10
   }
 }
 

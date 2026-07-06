@@ -30,6 +30,8 @@ const aiAnalysisSchema = new mongoose.Schema({
     grammarAccuracy: { type: Number, min: 0, max: 10, default: 0 },
     coherence: { type: Number, min: 0, max: 10, default: 0 },
     complexityIndex: { type: Number, min: 0, max: 10, default: 0 },
+    lexicalDiversityHdd: { type: Number, default: 0 },                    // HD-D (0-1)
+    lexicalDiversityMtld: { type: Number, default: 0 }                    // MTLD (0-120+)
   },
   newWordsDetected: [{
     type: String,

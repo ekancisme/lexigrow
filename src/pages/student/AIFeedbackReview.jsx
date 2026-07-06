@@ -235,7 +235,24 @@ export default function AIFeedbackReview() {
 
   const overallScore = analysis?.overallScore || 0
   const scoresList = [
-    { label: 'Vocabulary Diversity (TTR)', score: analysis?.scores?.vocabularyDiversity || 0, max: 1 },
+    { 
+      label: 'Vocabulary Diversity (TTR)', 
+      score: analysis?.scores?.vocabularyDiversity || 0, 
+      max: 1,
+      description: 'Type-Token Ratio. The ratio of unique words to total words. Sensitive to essay length.'
+    },
+    { 
+      label: 'Lexical Diversity (HD-D)', 
+      score: analysis?.scores?.lexicalDiversityHdd || 0, 
+      max: 1,
+      description: 'Hypergeometric Distribution D. Measures variety by sampling 42-word segments. Highly reliable & length-independent.'
+    },
+    { 
+      label: 'Lexical Diversity (MTLD)', 
+      score: analysis?.scores?.lexicalDiversityMtld || 0, 
+      max: 120,
+      description: 'Measure of Textual Lexical Diversity. Calculates average word run length before TTR drops below 0.72. Target: 50+ (higher is better).'
+    },
     { label: 'Grammar Accuracy', score: analysis?.scores?.grammarAccuracy || 0, max: 10 },
     { label: 'Coherence & Flow', score: analysis?.scores?.coherence || 0, max: 10 },
     { label: 'Complexity Index', score: analysis?.scores?.complexityIndex || 0, max: 10 },
@@ -374,13 +391,22 @@ export default function AIFeedbackReview() {
             <h3 className="text-title-lg" style={{ marginBottom: 20 }}>Detailed Analysis</h3>
             <div className="ai-feedback__scores">
               {scoresList.map((s, i) => (
-                <div key={i} className="ai-feedback__score-item">
-                  <div className="ai-feedback__score-label">
-                    <span className="text-label-md">{s.label}</span>
-                    <span className="text-data-mono">{s.score}/{s.max}</span>
+                <div key={i} className="ai-feedback__score-item" style={{ marginBottom: 16 }}>
+                  <div className="ai-feedback__score-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
+                      <span className="text-label-md" style={{ fontWeight: 600 }}>{s.label}</span>
+                      {s.description && (
+                        <span style={{ fontSize: '11px', color: 'var(--color-outline)', fontWeight: 400, lineHeight: '1.4' }}>
+                          {s.description}
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-data-mono" style={{ fontWeight: 700, whiteSpace: 'nowrap' }}>
+                      {s.max === 1 ? Number(s.score).toFixed(2) : Number(s.score).toFixed(1)}/{s.max}
+                    </span>
                   </div>
-                  <div className="ai-feedback__score-bar">
-                    <div className="ai-feedback__score-fill" style={{ width: `${(s.score / s.max) * 100}%` }} />
+                  <div className="ai-feedback__score-bar" style={{ marginTop: 8 }}>
+                    <div className="ai-feedback__score-fill" style={{ width: `${Math.min(100, (s.score / s.max) * 100)}%` }} />
                   </div>
                 </div>
               ))}
