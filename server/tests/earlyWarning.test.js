@@ -1,5 +1,9 @@
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 
+// Declare mocks with 'mock' prefix so they are accessible inside vi.mock (hoisting-safe)
+const mockSave = vi.fn().mockResolvedValue(true)
+const mockFindOne = vi.fn().mockResolvedValue(null)
+
 // Mock db connection
 vi.mock('../src/config/db.js', () => ({
   default: vi.fn().mockImplementation(() => Promise.resolve())
@@ -40,20 +44,20 @@ vi.mock('../src/models/AIAnalysis.js', () => ({
   }
 }))
 
-const saveMock = vi.fn().mockResolvedValue(true)
-class MockAlert {
-  constructor(data) {
-    Object.assign(this, data)
+vi.mock('../src/models/Alert.js', () => {
+  class MockAlert {
+    constructor(data) {
+      Object.assign(this, data)
+    }
+    save() {
+      return mockSave()
+    }
+    static findOne = mockFindOne
   }
-  save() {
-    return saveMock()
+  return {
+    default: MockAlert
   }
-  static findOne = vi.fn()
-}
-
-vi.mock('../src/models/Alert.js', () => ({
-  default: MockAlert
-}))
+})
 
 vi.mock('../src/models/Class.js', () => ({
   default: {
@@ -66,14 +70,13 @@ import Vocabulary from '../src/models/Vocabulary.js'
 import Essay from '../src/models/Essay.js'
 import AIAnalysis from '../src/models/AIAnalysis.js'
 import User from '../src/models/User.js'
-import Alert from '../src/models/Alert.js'
 import sendEmail from '../src/utils/sendEmail.js'
 
 describe('Early Warning System Service', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    saveMock.mockClear()
-    MockAlert.findOne.mockClear()
+    mockSave.mockClear()
+    mockFindOne.mockClear()
   })
 
   describe('checkVocabularyStagnation', () => {
@@ -174,13 +177,13 @@ describe('Early Warning System Service', () => {
       })
 
       // Alert mock setup
-      MockAlert.findOne.mockResolvedValue(null) // no existing duplicate alert
+      mockFindOne.mockResolvedValue(null) // no existing duplicate alert
       User.findOne.mockResolvedValueOnce({ _id: 'teacher_123', role: 'teacher' }) // fallback teacher
       User.find.mockResolvedValueOnce([{ _id: 'parent_123', email: 'parent@example.com', name: 'Parent Doe', role: 'parent' }]) // parent
 
       await runEarlyWarningScan()
 
-      expect(saveMock).toHaveBeenCalled()
+      expect(mockSave).toHaveBeenCalled()
       expect(sendEmail).toHaveBeenCalledWith(expect.objectContaining({
         email: 'parent@example.com',
         subject: expect.stringContaining('John Doe')
