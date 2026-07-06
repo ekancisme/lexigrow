@@ -21,11 +21,20 @@ export default function Register() {
       role,
       englishLevel: role === 'student' ? (e.target['reg-level']?.value || '') : '',
       institution: role === 'teacher' ? (e.target['reg-institution']?.value || '') : '',
+      childEmail: role === 'parent' ? (e.target['reg-child-email']?.value || '') : '',
     }
 
     try {
       const user = await register(formData)
-      navigate(user.role === 'student' ? '/student/dashboard' : '/teacher/dashboard')
+      if (user.role === 'student') {
+        navigate('/student/dashboard')
+      } else if (user.role === 'teacher') {
+        navigate('/teacher/dashboard')
+      } else if (user.role === 'parent') {
+        navigate('/parent/dashboard')
+      } else {
+        navigate('/student/dashboard')
+      }
     } catch (err) {
       setError(err.message)
     }
@@ -115,6 +124,14 @@ export default function Register() {
               <span className="material-symbols-outlined">cast_for_education</span>
               <span>Teacher</span>
             </button>
+            <button
+              type="button"
+              className={`register__role-btn ${role === 'parent' ? 'register__role-btn--active' : ''}`}
+              onClick={() => setRole('parent')}
+            >
+              <span className="material-symbols-outlined">family_restroom</span>
+              <span>Parent</span>
+            </button>
           </div>
 
           <form onSubmit={handleSubmit} className="register__form">
@@ -179,6 +196,16 @@ export default function Register() {
                 <div className="register__input-wrap">
                   <span className="material-symbols-outlined register__input-icon">apartment</span>
                   <input id="reg-institution" type="text" className="register__input" placeholder="Your school or institution" />
+                </div>
+              </div>
+            )}
+
+            {role === 'parent' && (
+              <div className="register__field">
+                <label htmlFor="reg-child-email" className="register__label text-label-md">Child's Email Address</label>
+                <div className="register__input-wrap">
+                  <span className="material-symbols-outlined register__input-icon">mail</span>
+                  <input id="reg-child-email" type="email" className="register__input" placeholder="child@example.com" required />
                 </div>
               </div>
             )}
