@@ -17,10 +17,10 @@ export default function MasteryDonutChart({ distribution, title = 'Vocabulary Ma
   const circ = 2 * Math.PI * radius // ~314.159
   const strokeWidth = 14
 
-  // Calculate stroke-dasharray offsets
+  // Calculate stroke-dasharray offsets (each segment should only draw its own percentage)
   const masteredOffset = circ - (masteredPct / 100) * circ
-  const learningOffset = circ - ((masteredPct + learningPct) / 100) * circ
-  const newOffset = circ - ((masteredPct + learningPct + newPct) / 100) * circ // Should be 0 if total is 100%
+  const learningOffset = circ - (learningPct / 100) * circ
+  const newOffset = circ - (newPct / 100) * circ
 
   return (
     <div className="mastery-donut card-base">
@@ -56,7 +56,6 @@ export default function MasteryDonutChart({ distribution, title = 'Vocabulary Ma
                     strokeWidth={strokeWidth}
                     strokeDasharray={circ}
                     strokeDashoffset={masteredOffset}
-                    strokeLinecap="round"
                     transform="rotate(-90 70 70)"
                     style={{ transition: 'stroke-dashoffset 0.8s ease' }}
                   />
@@ -72,7 +71,6 @@ export default function MasteryDonutChart({ distribution, title = 'Vocabulary Ma
                     strokeWidth={strokeWidth}
                     strokeDasharray={circ}
                     strokeDashoffset={learningOffset}
-                    strokeLinecap="round"
                     transform={`rotate(${((masteredPct / 100) * 360) - 90} 70 70)`}
                     style={{ transition: 'stroke-dashoffset 0.8s ease' }}
                   />
@@ -88,8 +86,7 @@ export default function MasteryDonutChart({ distribution, title = 'Vocabulary Ma
                     strokeWidth={strokeWidth}
                     strokeDasharray={circ}
                     strokeDashoffset={newOffset}
-                    strokeLinecap="round"
-                    transform={`rotate(${(((masteredPct + learningPct) / 100) * 360) - 90} 70 70)`}
+                    transform={`rotate(${((masteredPct + learningPct) / 100) * 360 - 90} 70 70)`}
                     style={{ transition: 'stroke-dashoffset 0.8s ease' }}
                   />
                 )}
