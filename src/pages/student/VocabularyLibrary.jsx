@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
 import './VocabularyLibrary.css'
@@ -267,7 +268,7 @@ export default function VocabularyLibrary() {
       )}
 
       {/* Word Detail Modal */}
-      {selectedWord && (
+      {selectedWord && createPortal(
         <div className="vocab-modal-overlay" onClick={handleCloseDetail}>
           <div className="vocab-modal vocab-modal--detail animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <button className="vocab-modal__close" onClick={handleCloseDetail}>
@@ -356,11 +357,12 @@ export default function VocabularyLibrary() {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Add New Word Modal */}
-      {isAddModalOpen && (
+      {isAddModalOpen && createPortal(
         <div className="vocab-modal-overlay" onClick={() => !isAdding && setIsAddModalOpen(false)}>
           <div className="vocab-modal vocab-modal--add animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <button className="vocab-modal__close" onClick={() => !isAdding && setIsAddModalOpen(false)} disabled={isAdding}>
@@ -433,7 +435,8 @@ export default function VocabularyLibrary() {
               </button>
             </form>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
