@@ -16,6 +16,7 @@ import MyProgress from './pages/student/MyProgress'
 import SetWeeklyGoals from './pages/student/SetWeeklyGoals'
 import AIFeedbackReview from './pages/student/AIFeedbackReview'
 import VocabularyLibrary from './pages/student/VocabularyLibrary'
+import FlashcardReview from './pages/student/FlashcardReview'
 
 /* Teacher Pages */
 import TeacherDashboard from './pages/teacher/TeacherDashboard'
@@ -45,6 +46,7 @@ function App() {
         <Route path="dashboard" element={<StudentDashboard />} />
         <Route path="write-essay" element={<WriteEssay />} />
         <Route path="vocabulary" element={<VocabularyLibrary />} />
+        <Route path="vocabulary/review" element={<FlashcardReview />} />
         <Route path="progress" element={<MyProgress />} />
         <Route path="goals" element={<SetWeeklyGoals />} />
         <Route path="feedback" element={<AIFeedbackReview />} />

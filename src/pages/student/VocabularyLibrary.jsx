@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
 import './VocabularyLibrary.css'
 
 export default function VocabularyLibrary() {
+  const navigate = useNavigate()
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
   
@@ -113,6 +115,9 @@ export default function VocabularyLibrary() {
     return matchesSearch && matchesCategory && matchesMastery && matchesTheme
   })
 
+  // Đếm số từ cần ôn (new + learning)
+  const reviewCount = words.filter(w => w.masteryLevel === 'new' || w.masteryLevel === 'learning').length
+
   return (
     <div className="vocab-lib animate-fade-in">
       {/* Header */}
@@ -123,13 +128,26 @@ export default function VocabularyLibrary() {
             Expand your lexicon. Add words manually or write essays to discover new vocabulary.
           </p>
         </div>
-        <button 
-          className="vocab-lib__add-btn" 
-          onClick={() => setIsAddModalOpen(true)}
-        >
-          <span className="material-symbols-outlined">add</span>
-          <span>Add New Word</span>
-        </button>
+        <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center', flexWrap: 'wrap' }}>
+          {/* Start Review Button */}
+          {reviewCount > 0 && (
+            <button
+              className="vocab-lib__review-btn"
+              onClick={() => navigate('/student/vocabulary/review')}
+            >
+              <span className="material-symbols-outlined">style</span>
+              <span>Review</span>
+              <span className="vocab-lib__review-badge">{reviewCount}</span>
+            </button>
+          )}
+          <button 
+            className="vocab-lib__add-btn" 
+            onClick={() => setIsAddModalOpen(true)}
+          >
+            <span className="material-symbols-outlined">add</span>
+            <span>Add New Word</span>
+          </button>
+        </div>
       </section>
 
       {/* Filter and Search Section */}
