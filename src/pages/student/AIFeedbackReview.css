@@ -25,3 +25,29 @@
 .ai-feedback__writing-stats { display: flex; flex-direction: column; gap: var(--spacing-md); }
 .ai-feedback__wstat { display: flex; justify-content: space-between; }
 @media (max-width: 1024px) { .ai-feedback__layout { grid-template-columns: 1fr; } }
+
+.ai-feedback__repeated-word-row:hover {
+  border-color: var(--color-outline) !important;
+  background-color: var(--color-surface-container) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.ai-feedback__synonym-suggestion:hover {
+  background-color: rgba(22, 163, 74, 0.15) !important;
+  border-color: rgba(22, 163, 74, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+.ai-feedback__synonym-suggestion:active {
+  transform: translateY(1px);
+}
+
+.ai-feedback__synonym-suggestion.copied {
+  animation: pulse-green 0.3s ease-in-out;
+}
+
+@keyframes pulse-green {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}

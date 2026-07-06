@@ -237,29 +237,6 @@ export default function Login() {
         </div>
       </main>
 
-      {/* Side Illustration (Desktop) */}
-      <div className="login__illustration">
-        <div className="login__illustration-visual">
-          <div className="login__illustration-overlay">
-            <div className="login__illustration-icon">
-              <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--color-primary)' }}>trending_up</span>
-            </div>
-            <div>
-              <div className="text-label-sm" style={{ color: 'var(--color-on-surface-variant)' }}>Daily Progress</div>
-              <div className="text-title-lg" style={{ color: 'var(--color-primary)' }}>+24 New Words</div>
-            </div>
-          </div>
-          <div className="login__illustration-bar">
-            <div className="login__illustration-bar-fill" />
-          </div>
-        </div>
-        <div>
-          <h3 className="text-title-lg" style={{ marginBottom: 8 }}>Measured Clarity</h3>
-          <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-            Our AI analyzes your writing patterns to suggest precision vocabulary that elevates your professional communication.
-          </p>
-        </div>
-      </div>
     </div>
   )
 }

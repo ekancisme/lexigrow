@@ -29,6 +29,17 @@ export function AuthProvider({ children }) {
     setLoading(true)
     try {
       const data = await api.post('/auth/register', formData)
+      return data
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Hàm Xác Thực Email
+  const verifyEmail = async (email, code) => {
+    setLoading(true)
+    try {
+      const data = await api.post('/auth/verify-email', { email, code })
       api.setToken(data.token)
       api.setUser(data.user)
       setToken(data.token)
@@ -80,6 +91,7 @@ export function AuthProvider({ children }) {
       loading, 
       login, 
       register, 
+      verifyEmail,
       logout, 
       loginWithGoogle, 
       checkEmail, 

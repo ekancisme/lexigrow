@@ -10,6 +10,14 @@ const connectDB = async () => {
   try {
     const conn = await mongoose.connect(uri)
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`)
+    
+    // Auto verify legacy users
+    try {
+      const User = (await import('../models/User.js')).default
+      await User.updateMany({ isVerified: { $exists: false } }, { $set: { isVerified: true } })
+    } catch (migError) {
+      console.error(`Migration error: ${migError.message}`)
+    }
   } catch (error) {
     console.error(`❌ MongoDB Connection Error: ${error.message}`)
     process.exit(1)

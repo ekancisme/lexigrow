@@ -128,7 +128,7 @@ function generateFallbackAnalysis(content) {
   const totalWords = words.length
   const uniqueWords = new Set(words.map(w => w.toLowerCase().replace(/[^a-z]/g, '')).filter(Boolean))
   const sentences = content.split(/[.!?]+/).filter(Boolean)
-  const ttr = Math.round((uniqueWords.size / totalWords) * 100) / 100
+  const divStats = calculateLexicalDiversity(content)
 
   const commonWords = new Set([
     'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 
@@ -147,9 +147,11 @@ function generateFallbackAnalysis(content) {
   const newWords = Array.from(uniqueWords).filter(w => w.length >= 6 && !commonWords.has(w)).slice(0, 10)
 
   return {
-    overallScore: Math.min(10, Math.round(ttr * 10 + 2)),
+    overallScore: Math.min(10, Math.round(divStats.ttr * 10 + 2)),
     scores: {
-      vocabularyDiversity: ttr,
+      vocabularyDiversity: divStats.ttr,
+      lexicalDiversityHdd: divStats.hdd,
+      lexicalDiversityMtld: divStats.mtld,
       grammarAccuracy: 6.0,
       coherence: 5.5,
       complexityIndex: Math.min(10, Math.round(totalWords / 100)),
@@ -166,6 +168,84 @@ function generateFallbackAnalysis(content) {
   }
 }
 
+/**
+ * Generate advanced synonym suggestions for a list of repeated words using Groq AI
+ */
+export const generateSynonymsForRepeatedWords = async (repeatedWordsList, essayContent) => {
+  if (!repeatedWordsList || repeatedWordsList.length === 0) return {}
+
+  try {
+    const Groq = (await import('groq-sdk')).default
+    const apiKey = process.env.GROQ_API_KEY
+    if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
+      throw new Error('Groq API key is not configured or is the default placeholder')
+    }
+
+    const groq = new Groq({ apiKey })
+
+    const prompt = `You are an expert English writing tutor. The student's essay contains the following overused/repeated words: ${repeatedWordsList.join(', ')}.
+Analyze the essay context:
+"${essayContent}"
+
+For each repeated word, suggest 3-5 advanced, higher-level vocabulary words (synonyms) that can replace it in the context of the essay to improve lexical diversity.
+Return a JSON object where the keys are the original lowercase repeated words, and the values are arrays of advanced replacement suggestions (strings).
+Example format:
+{
+  "very": ["extremely", "exceptionally", "profoundly"],
+  "good": ["superb", "excellent", "exemplary"]
+}
+
+Return ONLY valid JSON, no markdown formatting.`
+
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        { role: 'user', content: prompt }
+      ],
+      model: 'llama-3.3-70b-versatile',
+      response_format: { type: 'json_object' }
+    })
+
+    const responseText = chatCompletion.choices[0].message.content
+    let jsonStr = responseText.trim()
+    const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
+    if (jsonMatch) {
+      jsonStr = jsonMatch[1].trim()
+    }
+
+    return JSON.parse(jsonStr)
+  } catch (error) {
+    console.error('Error generating synonyms for repeated words:', error.message)
+    // Fallback static list of common overused words and synonyms
+    const fallbacks = {
+      'very': ['extremely', 'exceptionally', 'profoundly', 'exceedingly'],
+      'good': ['excellent', 'superb', 'exemplary', 'commendable', 'outstanding'],
+      'bad': ['detrimental', 'adverse', 'deplorable', 'unsatisfactory', 'dreadful'],
+      'happy': ['elated', 'ecstatic', 'jubilant', 'delighted', 'cheerful'],
+      'sad': ['melancholy', 'desolate', 'gloomy', 'dejected', 'sorrowful'],
+      'nice': ['pleasant', 'amiable', 'delightful', 'courteous', 'gracious'],
+      'like': ['appreciate', 'admire', 'favor', 'cherish', 'esteem'],
+      'get': ['obtain', 'acquire', 'procure', 'attain', 'derive'],
+      'make': ['construct', 'create', 'generate', 'formulate', 'establish'],
+      'think': ['believe', 'consider', 'deem', 'postulate', 'deliberate'],
+      'so': ['consequently', 'therefore', 'thus', 'accordingly', 'hence'],
+      'really': ['genuinely', 'indeed', 'veritably', 'undeniably', 'sincerely'],
+      'great': ['magnificent', 'wonderful', 'prominent', 'significant', 'extraordinary'],
+      'many': ['numerous', 'copious', 'abundant', 'myriad', 'plentiful'],
+      'much': ['substantial', 'considerable', 'significant', 'abundant'],
+      'more': ['additional', 'furthermore', 'supplementary'],
+      'always': ['constantly', 'consistently', 'perpetually', 'invariably'],
+      'never': ['at no point', 'by no means', 'under no circumstances']
+    }
+    
+    const result = {}
+    repeatedWordsList.forEach(w => {
+      const lower = w.toLowerCase()
+      result[lower] = fallbacks[lower] || ['alternative_synonym_1', 'alternative_synonym_2']
+    })
+    return result
+  }
+}
+
 export const processEssayAnalysis = async (essayId, studentId, essayContent, customPrompt) => {
   const Essay = (await import('../models/Essay.js')).default
   const essayDoc = await Essay.findById(essayId)
@@ -177,24 +257,80 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
     runNLPAnalysis(essayContent)
   ])
 
-  const nlpStats = nlpData ? {
-    passiveVoiceCount: nlpData.passiveVoiceCount || 0,
-    subordinateClausesCount: nlpData.subordinateClausesCount || 0,
-    repeatedWords: nlpData.repeatedWords || []
-  } : undefined
+  let nlpStats;
+  if (nlpData) {
+    nlpStats = {
+      passiveVoiceCount: nlpData.passiveVoiceCount || 0,
+      subordinateClausesCount: nlpData.subordinateClausesCount || 0,
+      repeatedWords: nlpData.repeatedWords || []
+    }
+  } else {
+    // JavaScript fallback for NLP statistics (especially repeated words) when Python/spaCy is unavailable
+    const words = essayContent.toLowerCase().match(/[a-z']+/g) || []
+    const wordCount = words.length
+    
+    const stopWords = new Set([
+      'the', 'be', 'to', 'of', 'and', 'a', 'in', 'that', 'have', 'it', 'for', 'not', 'on', 'with', 'he', 'as', 'you', 
+      'do', 'at', 'this', 'but', 'his', 'by', 'from', 'they', 'we', 'say', 'her', 'she', 'or', 'an', 'will', 'my', 
+      'one', 'all', 'would', 'there', 'their', 'what', 'so', 'up', 'out', 'if', 'about', 'who', 'get', 'which', 
+      'go', 'me', 'when', 'make', 'can', 'like', 'time', 'no', 'just', 'him', 'know', 'take', 'people', 'into', 
+      'year', 'your', 'some', 'could', 'them', 'see', 'other', 'than', 'then', 'now', 'look', 'only', 
+      'come', 'its', 'over', 'think', 'also', 'back', 'after', 'use', 'two', 'how', 'our', 'work', 'first', 
+      'well', 'way', 'even', 'new', 'want', 'because', 'any', 'these', 'give', 'day', 'most', 'us', 'is', 
+      'am', 'are', 'was', 'were', 'been', 'has', 'had', 'did', 'does', 'done', 'went', 'gone', 'here',
+      'another', 'such', 'same', 'both', 'either', 'neither', 'own'
+    ])
+    
+    const allowedStops = new Set([
+      'very', 'really', 'so', 'good', 'great', 'many', 'much', 'more', 'most', 'always', 'never', 'often', 'sometimes'
+    ])
+    
+    const wordFreqs = {}
+    words.forEach(w => {
+      if (w.length >= 3 && (!stopWords.has(w) || allowedStops.has(w))) {
+        wordFreqs[w] = (wordFreqs[w] || 0) + 1
+      }
+    })
+    
+    const repeatedWords = []
+    Object.keys(wordFreqs).forEach(w => {
+      const count = wordFreqs[w]
+      const percentage = (count / wordCount) * 100
+      if (count >= 4 && percentage >= 1.5) {
+        repeatedWords.push({ word: w, count })
+      }
+    })
+    
+    repeatedWords.sort((a, b) => b.count - a.count)
+    
+    nlpStats = {
+      passiveVoiceCount: 0,
+      subordinateClausesCount: 0,
+      repeatedWords
+    }
+  }
 
-  // Suggest synonyms for repeated words
+  const lexicalDiversity = (nlpData && nlpData.lexicalDiversity)
+    ? nlpData.lexicalDiversity
+    : calculateLexicalDiversity(essayContent)
+
+  // Generate advanced suggestions and synonyms for repeated words if any exist
   if (nlpStats && nlpStats.repeatedWords && nlpStats.repeatedWords.length > 0) {
-    const repeatedWordsList = nlpStats.repeatedWords.map(rw => rw.word)
     try {
+      const repeatedWordsList = nlpStats.repeatedWords.map(item => item.word)
       const synonymsMap = await getSynonymsForRepeatedWords(repeatedWordsList, essayContent)
-      nlpStats.repeatedWords = nlpStats.repeatedWords.map(rw => ({
-        word: rw.word,
-        count: rw.count,
-        synonyms: synonymsMap[rw.word.toLowerCase()] || synonymsMap[rw.word] || []
-      }))
+      nlpStats.repeatedWords = nlpStats.repeatedWords.map(item => {
+        const lowerWord = item.word.toLowerCase()
+        const wordSynonyms = synonymsMap[lowerWord] || synonymsMap[item.word] || []
+        return {
+          word: item.word,
+          count: item.count,
+          suggestions: wordSynonyms,
+          synonyms: wordSynonyms
+        }
+      })
     } catch (err) {
-      console.error('Failed to get synonyms for repeated words:', err)
+      console.error('Failed to populate synonym suggestions for repeated words:', err.message)
     }
   }
 
@@ -204,7 +340,12 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
     {
       essay: essayId,
       overallScore: analysisData.overallScore,
-      scores: analysisData.scores,
+      scores: {
+        ...analysisData.scores,
+        vocabularyDiversity: lexicalDiversity.ttr,
+        lexicalDiversityHdd: lexicalDiversity.hdd,
+        lexicalDiversityMtld: lexicalDiversity.mtld
+      },
       newWordsDetected: analysisData.newWordsDetected || [],
       suggestions: analysisData.suggestions || [],
       writingStats: {
@@ -552,5 +693,89 @@ Essay context:
   }
 }
 
+/**
+ * Calculate vocabulary and lexical diversity metrics (TTR, HD-D, MTLD) programmatically
+ */
+export const calculateLexicalDiversity = (text) => {
+  const tokens = (text || '').toLowerCase().match(/[a-z']+/g) || []
+  const tokenCount = tokens.length
 
+  if (tokenCount < 10) {
+    const ttr = tokenCount > 0 ? new Set(tokens).size / tokenCount : 0
+    return { ttr: Math.round(ttr * 100) / 100, hdd: Math.round(ttr * 100) / 100, mtld: 0 }
+  }
+
+  // 1. TTR
+  const uniqueTypes = new Set(tokens)
+  const ttr = uniqueTypes.size / tokenCount
+
+  // 2. MTLD (Measure of Textual Lexical Diversity)
+  const mtldThreshold = 0.72
+
+  const computeMtldDirectional = (tokenList) => {
+    let factorCount = 0
+    let startIndex = 0
+    let uniqueInSegment = new Set()
+    
+    for (let i = 0; i < tokenList.length; i++) {
+      uniqueInSegment.add(tokenList[i])
+      const segmentLength = i - startIndex + 1
+      const currentTtr = uniqueInSegment.size / segmentLength
+      
+      if (currentTtr < mtldThreshold && segmentLength > 1) {
+        factorCount++
+        uniqueInSegment.clear()
+        startIndex = i + 1
+      }
+    }
+    
+    // Incomplete final factor
+    const finalSegmentLength = tokenList.length - startIndex
+    if (finalSegmentLength > 0) {
+      const finalUnique = new Set(tokenList.slice(startIndex))
+      const finalTtr = finalUnique.size / finalSegmentLength
+      if (finalTtr < 1.0) {
+        const fraction = (1.0 - finalTtr) / (1.0 - mtldThreshold)
+        factorCount += fraction
+      }
+    }
+    
+    return factorCount > 0 ? tokenList.length / factorCount : tokenList.length
+  }
+
+  const mtldForward = computeMtldDirectional(tokens)
+  const mtldBackward = computeMtldDirectional([...tokens].reverse())
+  const mtld = (mtldForward + mtldBackward) / 2
+
+  // 3. HD-D index (N = 42 draws)
+  const sampleSize = 42
+  let hdd = 0
+
+  if (tokenCount >= sampleSize) {
+    const frequencies = {}
+    tokens.forEach(t => {
+      frequencies[t] = (frequencies[t] || 0) + 1
+    })
+
+    let expectedUnique = 0
+    Object.keys(frequencies).forEach(type => {
+      const c = frequencies[type]
+      let combinationRatio = 1.0
+      for (let i = 0; i < sampleSize; i++) {
+        combinationRatio *= (tokenCount - c - i) / (tokenCount - i)
+      }
+      expectedUnique += (1.0 - combinationRatio)
+    })
+    
+    hdd = expectedUnique / sampleSize
+  } else {
+    hdd = ttr
+  }
+
+  return {
+    ttr: Math.round(ttr * 100) / 100,
+    hdd: Math.round(hdd * 100) / 100,
+    mtld: Math.round(mtld * 10) / 10
+  }
+}
 
