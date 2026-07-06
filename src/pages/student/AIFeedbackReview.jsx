@@ -631,9 +631,6 @@ export default function AIFeedbackReview() {
                       )
                     })}
                   </div>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               )}
             </div>
