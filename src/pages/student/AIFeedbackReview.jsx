@@ -14,6 +14,23 @@ export default function AIFeedbackReview() {
   const [error, setError] = useState('')
   const [isEssayExpanded, setIsEssayExpanded] = useState(true)
   const [copied, setCopied] = useState(false)
+  const [addedWords, setAddedWords] = useState({})
+
+  async function handleAddWord(word) {
+    if (addedWords[word] === 'added' || addedWords[word] === 'loading') return
+    try {
+      setAddedWords(prev => ({ ...prev, [word]: 'loading' }))
+      await api.post('/vocabulary', { word })
+      setAddedWords(prev => ({ ...prev, [word]: 'added' }))
+    } catch (err) {
+      console.error('Error adding word to study list:', err)
+      if (err.message && err.message.toLowerCase().includes('already exists')) {
+        setAddedWords(prev => ({ ...prev, [word]: 'added' }))
+      } else {
+        setAddedWords(prev => ({ ...prev, [word]: 'error' }))
+      }
+    }
+  }
 
   function handleCopyEssay(e) {
     e.stopPropagation()
@@ -314,14 +331,74 @@ export default function AIFeedbackReview() {
                     <span className="material-symbols-outlined">warning</span>
                     Overused Words Alert
                   </h4>
-                  <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 12 }}>
-                    These words are repeated frequently. Consider using synonyms to improve your lexical diversity:
+                  <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 16 }}>
+                    These words are repeated frequently. Click the plus button next to any context-aware synonym to add it to your study list:
                   </p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     {analysis.nlpStats.repeatedWords.map((item, idx) => (
-                      <span key={idx} className="ai-feedback__repeated-word-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 20, backgroundColor: 'var(--color-error-container)', color: 'var(--color-error)', fontSize: 13, fontWeight: 700 }}>
-                        <strong>{item.word}</strong> ({item.count} times)
-                      </span>
+                      <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 8, padding: 12, borderRadius: 12, backgroundColor: 'var(--color-surface-container-low)', border: '1px solid var(--color-outline-variant)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--color-error)' }}>
+                            {item.word}
+                          </span>
+                          <span style={{ fontSize: 12, color: 'var(--color-outline)' }}>
+                            Used {item.count} times
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
+                          <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Synonyms:</span>
+                          {item.synonyms && item.synonyms.length > 0 ? (
+                            item.synonyms.map((syn, sIdx) => {
+                              const status = addedWords[syn]
+                              return (
+                                <div
+                                  key={sIdx}
+                                  style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: 6,
+                                    padding: '4px 10px',
+                                    borderRadius: 16,
+                                    backgroundColor: status === 'added' ? 'rgba(22, 163, 74, 0.08)' : 'var(--color-surface-container-high)',
+                                    border: `1px solid ${status === 'added' ? 'var(--color-success)' : 'var(--color-outline-variant)'}`,
+                                    fontSize: 12,
+                                    color: status === 'added' ? 'var(--color-success)' : 'var(--color-on-surface)',
+                                    transition: 'all var(--transition-normal)'
+                                  }}
+                                >
+                                  <span style={{ fontWeight: 600 }}>{syn}</span>
+                                  {status === 'loading' ? (
+                                    <span className="material-symbols-outlined animate-spin" style={{ fontSize: 14 }}>progress_activity</span>
+                                  ) : status === 'added' ? (
+                                    <span className="material-symbols-outlined" style={{ fontSize: 14, color: 'var(--color-success)' }}>check_circle</span>
+                                  ) : (
+                                    <button
+                                      onClick={() => handleAddWord(syn)}
+                                      style={{
+                                        border: 'none',
+                                        background: 'none',
+                                        padding: 0,
+                                        margin: 0,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        cursor: 'pointer',
+                                        color: 'var(--color-primary)'
+                                      }}
+                                      title="Add to study list"
+                                    >
+                                      <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add_circle</span>
+                                    </button>
+                                  )}
+                                </div>
+                              )
+                            })
+                          ) : (
+                            <span className="text-body-sm" style={{ color: 'var(--color-outline)', fontStyle: 'italic' }}>
+                              No suggested synonyms found.
+                            </span>
+                          )}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </div>
