@@ -183,6 +183,21 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
     repeatedWords: nlpData.repeatedWords || []
   } : undefined
 
+  // Suggest synonyms for repeated words
+  if (nlpStats && nlpStats.repeatedWords && nlpStats.repeatedWords.length > 0) {
+    const repeatedWordsList = nlpStats.repeatedWords.map(rw => rw.word)
+    try {
+      const synonymsMap = await getSynonymsForRepeatedWords(repeatedWordsList, essayContent)
+      nlpStats.repeatedWords = nlpStats.repeatedWords.map(rw => ({
+        word: rw.word,
+        count: rw.count,
+        synonyms: synonymsMap[rw.word.toLowerCase()] || synonymsMap[rw.word] || []
+      }))
+    } catch (err) {
+      console.error('Failed to get synonyms for repeated words:', err)
+    }
+  }
+
   // Save or update AIAnalysis document
   const analysis = await AIAnalysis.findOneAndUpdate(
     { essay: essayId },
@@ -460,5 +475,82 @@ Text to translate:
     return `[Lỗi dịch: ${error.message}]`
   }
 }
+
+/**
+ * Get synonyms for repeated words in context using Groq AI
+ */
+export const getSynonymsForRepeatedWords = async (words, essayContent) => {
+  if (!words || words.length === 0) return {}
+
+  try {
+    const Groq = (await import('groq-sdk')).default
+    const apiKey = process.env.GROQ_API_KEY
+    if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
+      throw new Error('Groq API key is not configured or is the default placeholder')
+    }
+
+    const groq = new Groq({ apiKey })
+
+    const prompt = `You are an English writing tutor. The student's essay contains some overused/repeated words.
+For each repeated word in the list, provide 3 to 4 advanced/alternative synonyms that fit the context of the essay.
+Return a JSON object containing a key "synonymsMap" where keys are the repeated words (lowercase) and values are arrays of strings (the suggested synonyms).
+
+Example structure:
+{
+  "synonymsMap": {
+    "very": ["extremely", "highly", "exceptionally"],
+    "good": ["beneficial", "advantageous", "excellent"]
+  }
+}
+
+Return ONLY valid JSON, no markdown formatting.
+
+Repeated words list:
+${words.join(', ')}
+
+Essay context:
+"${essayContent}"`
+
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        { role: 'user', content: prompt }
+      ],
+      model: 'llama-3.3-70b-versatile',
+      response_format: { type: 'json_object' }
+    })
+
+    const responseText = chatCompletion.choices[0].message.content
+    let jsonStr = responseText.trim()
+    const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
+    if (jsonMatch) {
+      jsonStr = jsonMatch[1].trim()
+    }
+
+    const result = JSON.parse(jsonStr)
+    return result.synonymsMap || {}
+  } catch (error) {
+    console.error('AI Synonym Recommendation Error:', error.message)
+    // Fallback synonyms
+    const fallbacks = {
+      'very': ['extremely', 'exceptionally', 'remarkably', 'highly'],
+      'good': ['excellent', 'beneficial', 'superb', 'splendid'],
+      'bad': ['detrimental', 'unfavorable', 'adverse', 'harmful'],
+      'happy': ['delighted', 'elated', 'joyful', 'content'],
+      'sad': ['gloomy', 'melancholy', 'sorrowful', 'dejected'],
+      'many': ['numerous', 'abundant', 'myriad', 'plentiful'],
+      'people': ['individuals', 'citizens', 'the public', 'society'],
+      'make': ['create', 'generate', 'construct', 'produce'],
+      'think': ['believe', 'deem', 'consider', 'maintain'],
+      'say': ['state', 'assert', 'claim', 'declare'],
+      'important': ['crucial', 'essential', 'vital', 'significant']
+    }
+    const map = {}
+    words.forEach(w => {
+      map[w] = fallbacks[w.toLowerCase()] || []
+    })
+    return map
+  }
+}
+
 
 
