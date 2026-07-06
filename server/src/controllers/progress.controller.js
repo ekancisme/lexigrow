@@ -1,15 +1,50 @@
+import mongoose from 'mongoose'
 import Vocabulary from '../models/Vocabulary.js'
 import Essay from '../models/Essay.js'
 import AIAnalysis from '../models/AIAnalysis.js'
+import User from '../models/User.js'
+import Class from '../models/Class.js'
 import asyncHandler from '../utils/asyncHandler.js'
+import ErrorResponse from '../utils/ErrorResponse.js'
+
+/**
+ * Resolve studentId based on caller's role and authorization
+ */
+const resolveStudentId = async (req) => {
+  if (req.user.role === 'student') {
+    return req.user._id
+  }
+
+  const studentId = req.query.studentId
+  if (!studentId) {
+    throw new ErrorResponse('Student ID is required in query parameters', 400)
+  }
+
+  if (req.user.role === 'parent') {
+    const parent = await User.findById(req.user._id)
+    const isMyChild = parent.children.some(id => id.toString() === studentId)
+    if (!isMyChild) {
+      throw new ErrorResponse('Not authorized to view this student\'s progress', 403)
+    }
+  } else if (req.user.role === 'teacher') {
+    // Teachers can view students in their classes
+    const teacherClasses = await Class.find({ teacher: req.user._id })
+    const isMyStudent = teacherClasses.some(c => c.students.some(s => s.toString() === studentId))
+    if (!isMyStudent) {
+      throw new ErrorResponse('Not authorized to view this student\'s progress', 403)
+    }
+  }
+
+  return studentId
+}
 
 /**
  * @desc    Get progress overview stats
  * @route   GET /api/progress/overview
- * @access  Private (student)
+ * @access  Private (student, teacher, parent)
  */
 export const getOverview = asyncHandler(async (req, res) => {
-  const studentId = req.user._id
+  const studentId = await resolveStudentId(req)
 
   // Total vocabulary
   const totalVocab = await Vocabulary.countDocuments({ student: studentId })
@@ -67,16 +102,17 @@ export const getOverview = asyncHandler(async (req, res) => {
 /**
  * @desc    Get growth chart data
  * @route   GET /api/progress/growth-chart
- * @access  Private (student)
+ * @access  Private (student, teacher, parent)
  */
 export const getGrowthChart = asyncHandler(async (req, res) => {
+  const studentId = await resolveStudentId(req)
   const { months = 6 } = req.query
   const startDate = new Date()
   startDate.setMonth(startDate.getMonth() - Number(months))
 
   // Cumulative vocab over time
   const vocabByMonth = await Vocabulary.aggregate([
-    { $match: { student: req.user._id } },
+    { $match: { student: new mongoose.Types.ObjectId(studentId) } },
     {
       $group: {
         _id: {
@@ -107,10 +143,10 @@ export const getGrowthChart = asyncHandler(async (req, res) => {
 /**
  * @desc    Get milestones
  * @route   GET /api/progress/milestones
- * @access  Private (student)
+ * @access  Private (student, teacher, parent)
  */
 export const getMilestones = asyncHandler(async (req, res) => {
-  const studentId = req.user._id
+  const studentId = await resolveStudentId(req)
   const totalVocab = await Vocabulary.countDocuments({ student: studentId })
   const totalEssays = await Essay.countDocuments({ student: studentId, status: { $ne: 'draft' } })
 
@@ -134,4 +170,103 @@ export const getMilestones = asyncHandler(async (req, res) => {
   ]
 
   res.status(200).json({ success: true, data: milestones })
+})
+
+/**
+ * @desc    Get weekly comparison (this week vs last week)
+ * @route   GET /api/progress/weekly-comparison
+ * @access  Private (student, teacher, parent)
+ */
+export const getWeeklyComparison = asyncHandler(async (req, res) => {
+  const studentId = await resolveStudentId(req)
+
+  const now = new Date()
+  const oneDay = 24 * 60 * 60 * 1000
+
+  const week1End = now
+  const week1Start = new Date(now.getTime() - 7 * oneDay)
+
+  const week2End = week1Start
+  const week2Start = new Date(now.getTime() - 14 * oneDay)
+
+  // 1. Vocabulary count
+  const thisWeekVocabCount = await Vocabulary.countDocuments({
+    student: studentId,
+    createdAt: { $gte: week1Start, $lte: week1End }
+  })
+
+  const lastWeekVocabCount = await Vocabulary.countDocuments({
+    student: studentId,
+    createdAt: { $gte: week2Start, $lt: week2End }
+  })
+
+  // 2. Essays & AI Analysis
+  const thisWeekEssays = await Essay.find({
+    student: studentId,
+    status: 'reviewed',
+    createdAt: { $gte: week1Start, $lte: week1End }
+  }).distinct('_id')
+
+  const lastWeekEssays = await Essay.find({
+    student: studentId,
+    status: 'reviewed',
+    createdAt: { $gte: week2Start, $lt: week2End }
+  }).distinct('_id')
+
+  const thisWeekAnalyses = await AIAnalysis.find({ essay: { $in: thisWeekEssays } })
+  const lastWeekAnalyses = await AIAnalysis.find({ essay: { $in: lastWeekEssays } })
+
+  const thisWeekTTRs = thisWeekAnalyses.map(a => a.scores?.vocabularyDiversity || 0)
+  const thisWeekComplexities = thisWeekAnalyses.map(a => a.scores?.complexityIndex || 0)
+
+  const thisWeekAvgTTR = thisWeekTTRs.length > 0
+    ? thisWeekTTRs.reduce((sum, v) => sum + v, 0) / thisWeekTTRs.length
+    : 0
+
+  const thisWeekAvgComplexity = thisWeekComplexities.length > 0
+    ? thisWeekComplexities.reduce((sum, v) => sum + v, 0) / thisWeekComplexities.length
+    : 0
+
+  const lastWeekTTRs = lastWeekAnalyses.map(a => a.scores?.vocabularyDiversity || 0)
+  const lastWeekComplexities = lastWeekAnalyses.map(a => a.scores?.complexityIndex || 0)
+
+  const lastWeekAvgTTR = lastWeekTTRs.length > 0
+    ? lastWeekTTRs.reduce((sum, v) => sum + v, 0) / lastWeekTTRs.length
+    : 0
+
+  const lastWeekAvgComplexity = lastWeekComplexities.length > 0
+    ? lastWeekComplexities.reduce((sum, v) => sum + v, 0) / lastWeekComplexities.length
+    : 0
+
+  const calculateChange = (thisVal, lastVal) => {
+    if (lastVal === 0) {
+      return thisVal > 0 ? 100 : 0
+    }
+    return Math.round(((thisVal - lastVal) / lastVal) * 100)
+  }
+
+  const ttrChange = calculateChange(thisWeekAvgTTR, lastWeekAvgTTR)
+  const vocabChange = calculateChange(thisWeekVocabCount, lastWeekVocabCount)
+  const complexityChange = calculateChange(thisWeekAvgComplexity, lastWeekAvgComplexity)
+
+  res.status(200).json({
+    success: true,
+    data: {
+      ttr: {
+        thisWeek: Math.round(thisWeekAvgTTR * 100) / 100,
+        lastWeek: Math.round(lastWeekAvgTTR * 100) / 100,
+        change: ttrChange
+      },
+      newWords: {
+        thisWeek: thisWeekVocabCount,
+        lastWeek: lastWeekVocabCount,
+        change: vocabChange
+      },
+      complexity: {
+        thisWeek: Math.round(thisWeekAvgComplexity * 100) / 100,
+        lastWeek: Math.round(lastWeekAvgComplexity * 100) / 100,
+        change: complexityChange
+      }
+    }
+  })
 })
