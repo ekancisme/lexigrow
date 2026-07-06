@@ -94,7 +94,13 @@ export default function Login() {
           }
           try {
             const loggedInUser = await loginWithGoogle({ code: response.code })
-            navigate(loggedInUser.role === 'teacher' ? '/teacher/dashboard' : '/student/dashboard')
+            if (loggedInUser.role === 'teacher') {
+              navigate('/teacher/dashboard')
+            } else if (loggedInUser.role === 'parent') {
+              navigate('/parent/dashboard')
+            } else {
+              navigate('/student/dashboard')
+            }
           } catch (err) {
             setError(err.message || 'Google authentication failed')
           }

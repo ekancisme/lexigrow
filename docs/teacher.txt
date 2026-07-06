@@ -1,0 +1,76 @@
+DANH SÁCH CHI TIẾT CÁC CHỨC NĂNG CỦA VAI TRÒ GIÁO VIÊN (TEACHER)
+
+I. CÁC CHỨC NĂNG ĐÃ TRIỂN KHAI VÀ ĐANG HOẠT ĐỘNG
+1. Giao diện Dashboard giáo viên (TeacherDashboard.jsx):
+   - Thống kê tổng quan: Tổng số lớp học đang phụ trách, tổng số học sinh.
+   - Thống kê phân loại học sinh: Trực quan hóa số lượng và tỷ lệ học sinh theo các nhóm (Growing - Tiến bộ, Stagnating - Chững lại, Declining - Tụt lùi).
+   - Danh sách Cảnh báo gần đây (Recent Alerts): Hiển thị cảnh báo sớm về học tập (chững từ vựng hoặc sụt giảm ngữ pháp của học sinh) kèm nút "Review Profile" để truy cập nhanh.
+
+2. Quản lý lớp học (ClassManagement.jsx & ClassOverview.jsx):
+   - Quản lý danh sách lớp học hiện có của giáo viên.
+   - Tạo lớp học mới và thêm học sinh vào lớp.
+   - Chi tiết lớp học: Xem danh sách học sinh thuộc lớp đó cùng điểm TTR (Type-Token Ratio) trung bình của từng em.
+
+3. Chi tiết phân tích học sinh (StudentAnalyticsDetail.jsx):
+   - Xem thông tin hồ sơ của học sinh (Họ tên, Trình độ Tiếng Anh, Ngày tham gia).
+   - Thống kê chỉ số học tập chung: Tổng số bài viết, Kích thước vốn từ đã học, TTR trung bình, Tỷ lệ phần trăm tăng trưởng.
+   - Biểu đồ xu hướng tăng trưởng (Growth Trend Chart): Đồ thị đường SVG mô tả sự thay đổi chỉ số TTR qua các bài viết.
+   - Widget So sánh tuần này với tuần trước (WeeklyComparisonWidget.jsx): Hiển thị biến động chi tiết của học sinh (TTR, từ mới tích lũy, số câu phức, câu bị động).
+   - Lịch sử bài viết (Essay History): Liệt kê danh sách các bài viết học sinh đã nộp cùng thông tin số từ, TTR, điểm số overall của AI.
+
+4. Quản lý Cảnh báo sớm (EarlyWarningAlerts.jsx):
+   - Xem toàn bộ danh sách cảnh báo học tập của các học sinh trong hệ thống.
+
+5. Nhận xét/Chấm điểm thủ công (ManualFeedbackReview.jsx):
+   - Đọc nội dung bài luận học sinh đã nộp, nhập điểm đánh giá tổng quát và viết phản hồi chi tiết để gửi cho học sinh.
+
+6. Quản lý prompt hệ thống (SystemPromptsManagement.jsx):
+   - Xem và chỉnh sửa các prompt hệ thống của AI để tùy biến cách AI phân tích, chấm điểm bài luận.
+
+
+II. CHỨC NĂNG CHƯA TRIỂN KHAI (GHI TRONG TASK.TXT LÀ ĐÃ XONG NHƯNG THỰC TẾ CHƯA LÀM)
+- Chi tiết thư viện từ vựng đã học và tỷ lệ thành thạo của học sinh:
+  - Task.txt dòng 28: "[+] Tích hợp tab hiển thị chi tiết thư viện từ vựng đã học và tỷ lệ thành thạo của từng học sinh trên trang phân tích của giáo viên (StudentAnalyticsDetail.jsx)"
+  - Hiện trạng thực tế: Cả backend API (teacher.controller.js) và giao diện frontend (StudentAnalyticsDetail.jsx) đều chưa triển khai chức năng này. Giáo viên chỉ có thể thấy tổng số từ vựng chứ chưa thể xem chi tiết danh sách từ và mức độ thành thạo (New / Learning / Mastered) của từng học sinh.
+
+
+III. CÁC TASK BỔ SUNG - PHÂN CHIA NHIỆM VỤ CHO 5 NGƯỜI (SAU KHI THÊM THÔNG BÁO & REALTIME)
+
+================================================================================
+NGƯỜI 1: HẠ TẦNG REALTIME & HỆ THỐNG THÔNG BÁO (REALTIME INFRA & NOTIFICATIONS)
+(Thiết lập nền tảng Socket.io và hệ thống chuông thông báo chung của ứng dụng)
+- Backend: Cài đặt Socket.io, cấu hình WebSocket server, quản lý kết nối và room theo user/class.
+- DB & API: Thiết kế Collection Notification (người gửi, người nhận, nội dung, loại thông báo, trạng thái đã đọc) và các API lấy/đọc thông báo.
+- UI (Notification Bell): Thiết kế widget Chuông thông báo trên TopNav cho tất cả các role, hiển thị số lượng chưa đọc, hiển thị toast thông báo realtime khi nhận tin mới.
+
+================================================================================
+NGƯỜI 2: CHỨC NĂNG THẢO LUẬN REALTIME & SỬA BÀI (REALTIME COMMENTS & REVISIONS)
+(Đảm nhận luồng bình luận trực tiếp dưới bài viết và quy trình viết lại bài)
+- DB & API: Thiết kế Collection Comment lưu trữ tin nhắn thảo luận theo bài viết.
+- Realtime Comments: Kết nối Socket.io ở frontend và backend để đẩy tin nhắn bình luận tức thì lên giao diện của học sinh và giáo viên mà không cần load lại trang.
+- UI Thảo luận: Khung chat thảo luận tích hợp ngay dưới giao diện phản hồi bài luận.
+- Luồng Sửa bài (Request Revision): API chuyển trạng thái bài luận thành "Needs Revision", giao diện cho phép học sinh sửa và nộp lại bản mới của bài viết đã chấm.
+
+================================================================================
+NGƯỜI 3: CHỨC NĂNG GIAO BÀI TẬP VÀ NHẬN BÀI (ASSIGNMENT FLOW)
+(Đảm nhận trọn gói luồng bài tập về nhà của lớp học)
+- DB & API: Thiết kế Collection Assignment (tiêu đề, mô tả, hạn nộp, bộ từ khóa cần sử dụng, classId).
+- UI Giáo viên: Giao diện tạo và quản lý danh sách bài tập đã giao tại trang chi tiết lớp học.
+- UI Học sinh (Assignment Inbox): Trang hiển thị danh sách bài tập được giao, hạn nộp. Nhấn vào bài tập để chuyển sang màn hình viết bài (WriteEssay.jsx) có điền sẵn đề bài và yêu cầu.
+
+================================================================================
+NGƯỜI 4: KHO TỪ VỰNG MỤC TIÊU & TỪ VỰNG LỚP HỌC (CLASS VOCABULARY)
+(Đảm nhận các tính năng xây dựng vốn từ chung cho cả lớp)
+- Từ vựng mục tiêu (Target Vocabulary): Giáo viên định nghĩa bộ từ mục tiêu cho lớp học. API gợi ý từ và hiển thị đề xuất từ khóa khi học sinh soạn thảo bài luận của lớp đó.
+- Kho từ vựng chung (Class Word Bank): Trang tổng hợp các từ vựng học thuật xuất sắc của lớp (do giáo viên ghim hoặc chọn lọc từ bài luận điểm cao). Học sinh có thể nhấn lưu nhanh từ đó vào thư viện từ vựng cá nhân.
+
+================================================================================
+NGƯỜI 5: PHÂN TÍCH HIỆU SUẤT LỚP HỌC & GIA NHẬP LỚP (CLASS ANALYTICS & ACCESS)
+(Đảm nhận thống kê tiến trình lớp học và kiểm soát thành viên)
+- Phân tích tổng hợp cả lớp: API thống kê hiệu suất trung bình lớp học (TTR, Grammar trung bình). Vẽ biểu đồ xu hướng phát triển chung của cả lớp học trên Dashboard lớp.
+- Thuật toán thống kê: Phân tích và lọc ra danh sách các từ bị lặp/lỗi ngữ pháp phổ biến nhất lớp để cảnh báo giáo viên.
+- Vào lớp bằng mã code (Class Code Access): API tạo Class Code ngẫu nhiên cho lớp học. Học sinh nhập mã code lớp học để gửi yêu cầu gia nhập. Giáo viên duyệt thành viên tại trang quản lý lớp học.
+- Bảng vinh danh lớp học ẩn danh (Class Leaderboard): Thiết kế bảng xếp hạng học sinh trong lớp dựa trên tổng số từ vựng mới tích lũy, số bài luận đã hoàn thành trong tuần (hiển thị dưới dạng biệt danh ẩn danh).
+
+
+
