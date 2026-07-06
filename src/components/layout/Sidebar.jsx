@@ -18,6 +18,10 @@ const teacherNavItems = [
   { icon: 'smart_toy', label: 'System Prompts', path: '/teacher/prompts' },
 ]
 
+const parentNavItems = [
+  { icon: 'dashboard', label: 'Dashboard', path: '/parent/dashboard' },
+]
+
 const bottomItems = [
   { icon: 'settings', label: 'Settings', path: '/settings' },
   { icon: 'help', label: 'Help Center', path: '#' },
@@ -26,7 +30,7 @@ const bottomItems = [
 export default function Sidebar({ role = 'student' }) {
   const navigate = useNavigate()
   const { logout } = useAuth()
-  const navItems = role === 'teacher' ? teacherNavItems : studentNavItems
+  const navItems = role === 'teacher' ? teacherNavItems : (role === 'parent' ? parentNavItems : studentNavItems)
 
   return (
     <aside className="sidebar">
@@ -60,17 +64,19 @@ export default function Sidebar({ role = 'student' }) {
       </nav>
 
       {/* CTA Button */}
-      <div className="sidebar__cta">
-        <button
-          className="sidebar__cta-btn"
-          onClick={() =>
-            navigate(role === 'student' ? '/student/write-essay' : '/teacher/classes')
-          }
-        >
-          <span className="material-symbols-outlined">add</span>
-          <span>{role === 'student' ? 'New Entry' : 'New Class'}</span>
-        </button>
-      </div>
+      {role !== 'parent' && (
+        <div className="sidebar__cta">
+          <button
+            className="sidebar__cta-btn"
+            onClick={() =>
+              navigate(role === 'student' ? '/student/write-essay' : '/teacher/classes')
+            }
+          >
+            <span className="material-symbols-outlined">add</span>
+            <span>{role === 'student' ? 'New Entry' : 'New Class'}</span>
+          </button>
+        </div>
+      )}
 
       {/* Bottom Nav */}
       <div className="sidebar__bottom">
