@@ -53,6 +53,16 @@ const aiAnalysisSchema = new mongoose.Schema({
       suggestions: [{ type: String, trim: true }]
     }]
   },
+  learningPatterns: {
+    paddedSentences: { type: Boolean, default: false },
+    plagiarismDetected: { type: Boolean, default: false },
+    learningStatus: {
+      type: String,
+      enum: ['progressing', 'plateau', 'regression', 'stable', 'unknown'],
+      default: 'unknown'
+    },
+    feedback: { type: String, default: '' }
+  }
 }, {
   timestamps: true,
 })
