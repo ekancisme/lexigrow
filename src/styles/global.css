@@ -24,6 +24,7 @@ html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scrollbar-gutter: stable; /* Ngăn giật layout khi thanh cuộn xuất hiện/biến mất */
 }
 
 body {

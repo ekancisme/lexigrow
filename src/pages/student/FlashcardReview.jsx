@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import api from '../../services/api.js'
 import './FlashcardReview.css'
 
 export default function FlashcardReview() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const categoryFilter = searchParams.get('category')
 
   // Cards state
   const [cards, setCards] = useState([])
@@ -21,14 +23,15 @@ export default function FlashcardReview() {
   const [masteredThisSession, setMasteredThisSession] = useState(0)
   const [stillLearningThisSession, setStillLearningThisSession] = useState(0)
 
-  // Load cards: tất cả từ có mastery = new hoặc learning
+  // Load cards: tất cả từ có mastery = new hoặc learning, lọc theo category nếu có
   useEffect(() => {
     async function loadCards() {
       try {
         setLoading(true)
+        const categoryParam = categoryFilter ? `&category=${categoryFilter}` : ''
         const [newRes, learningRes] = await Promise.all([
-          api.get('/vocabulary?mastery=new&limit=200'),
-          api.get('/vocabulary?mastery=learning&limit=200'),
+          api.get(`/vocabulary?mastery=new&limit=200${categoryParam}`),
+          api.get(`/vocabulary?mastery=learning&limit=200${categoryParam}`),
         ])
         const newWords      = (newRes.data      || []).map(w => ({ ...w, _originalMastery: 'new' }))
         const learningWords = (learningRes.data || []).map(w => ({ ...w, _originalMastery: 'learning' }))
@@ -49,7 +52,7 @@ export default function FlashcardReview() {
       if ('speechSynthesis' in window) window.speechSynthesis.cancel()
       if (animTimeout.current) clearTimeout(animTimeout.current)
     }
-  }, [])
+  }, [categoryFilter])
 
   const currentCard = cards[currentIndex]
   const totalCards  = cards.length
@@ -315,6 +318,7 @@ export default function FlashcardReview() {
             cardAnim === 'exiting'  ? 'flashcard-scene--exiting'  :
             cardAnim === 'entering' ? 'flashcard-scene--entering' : ''
           }`}
+          style={{ height: '480px', minHeight: '480px' }}
           onClick={handleFlip}
           role="button"
           aria-label="Click to flip card"
@@ -358,48 +362,30 @@ export default function FlashcardReview() {
                 <span className="material-symbols-outlined" style={{ fontSize: 14 }}>touch_app</span>
                 Tap card to reveal definition
               </p>
-
-              {/* Flip button */}
-              <button
-                className="flashcard-flip-btn"
-                onClick={handleFlip}
-                title="Flip card"
-                aria-label="Flip card"
-              >
-                <span className="material-symbols-outlined">flip_camera_android</span>
-              </button>
             </div>
 
-            {/* ═══ BACK ═══ */}
-            <div className="flashcard-face flashcard-face--back" onClick={(e) => e.stopPropagation()}>
-              {/* Mastery badge */}
-              <span className={`flashcard-mastery-badge flashcard-mastery-badge--${currentCard._originalMastery}`}>
-                {getMasteryLabel(currentCard._originalMastery)}
-              </span>
+            {/* ═══ BACK ═══ - click vào thẻ sẽ lật lại mặt trước */}
+            <div className="flashcard-face flashcard-face--back">
 
-              {/* Back header: small word + voice + flip back */}
+              {/* Back header: badge + word + voice + flip back */}
               <div className="flashcard-back-header">
                 <div className="flashcard-back-word-row">
+                  <span className={`flashcard-mastery-badge flashcard-mastery-badge--${currentCard._originalMastery}`}
+                    style={{ position: 'static', marginRight: 'var(--spacing-sm)' }}>
+                    {getMasteryLabel(currentCard._originalMastery)}
+                  </span>
                   <span className="flashcard-back-word">{currentCard.word}</span>
                   <button
                     className="flashcard-voice-btn"
-                    onClick={handleSpeak}
+                    onClick={(e) => { e.stopPropagation(); handleSpeak(); }}
                     title="Pronounce word"
-                    style={{ width: 28, height: 28 }}
+                    style={{ width: 28, height: 28, flexShrink: 0 }}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: 15, fontVariationSettings: "'FILL' 1" }}>
                       volume_up
                     </span>
                   </button>
                 </div>
-                <button
-                  className="flashcard-flip-btn"
-                  onClick={handleFlip}
-                  style={{ position: 'static', width: 34, height: 34 }}
-                  title="Flip back"
-                >
-                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>flip_camera_android</span>
-                </button>
               </div>
 
               {currentCard.ipa && (
@@ -457,7 +443,7 @@ export default function FlashcardReview() {
               </div>
             </div>
           </div>
-        </div>
+          </div>{/* end flashcard-scene */}
 
         {/* ── Action Buttons (chỉ hiện khi đã lật) ── */}
         {isFlipped ? (

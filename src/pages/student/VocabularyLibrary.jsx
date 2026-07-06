@@ -115,8 +115,17 @@ export default function VocabularyLibrary() {
     return matchesSearch && matchesCategory && matchesMastery && matchesTheme
   })
 
-  // Đếm số từ cần ôn (new + learning)
-  const reviewCount = words.filter(w => w.masteryLevel === 'new' || w.masteryLevel === 'learning').length
+  // Đếm số từ cần ôn (new + learning) theo Category đang chọn
+  const reviewCount = words.filter(w => {
+    const matchesCategory = !selectedCategory || w.category === selectedCategory
+    const matchesMastery = w.masteryLevel === 'new' || w.masteryLevel === 'learning'
+    return matchesCategory && matchesMastery
+  }).length
+
+  const getCategoryLabel = (cat) => {
+    if (!cat) return 'All'
+    return cat.charAt(0).toUpperCase() + cat.slice(1)
+  }
 
   return (
     <div className="vocab-lib animate-fade-in">
@@ -133,10 +142,13 @@ export default function VocabularyLibrary() {
           {reviewCount > 0 && (
             <button
               className="vocab-lib__review-btn"
-              onClick={() => navigate('/student/vocabulary/review')}
+              onClick={() => {
+                const targetQuery = selectedCategory ? `?category=${selectedCategory}` : ''
+                navigate(`/student/vocabulary/review${targetQuery}`)
+              }}
             >
               <span className="material-symbols-outlined">style</span>
-              <span>Review</span>
+              <span>Review {selectedCategory ? getCategoryLabel(selectedCategory) : 'All'}</span>
               <span className="vocab-lib__review-badge">{reviewCount}</span>
             </button>
           )}
