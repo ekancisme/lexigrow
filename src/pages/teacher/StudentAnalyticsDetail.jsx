@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import api from '../../services/api.js'
+import WeeklyComparisonWidget from '../../components/common/WeeklyComparisonWidget.jsx'
 import './StudentAnalyticsDetail.css'
 
 export default function StudentAnalyticsDetail() {
@@ -102,6 +103,10 @@ export default function StudentAnalyticsDetail() {
             {metrics?.growth || '0%'}
           </p>
         </div>
+      </section>
+
+      <section style={{ marginBottom: 32 }}>
+        <WeeklyComparisonWidget studentId={id} />
       </section>
 
       <section className="student-analytics__chart card-base">
