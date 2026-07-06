@@ -178,7 +178,7 @@ export const getMe = asyncHandler(async (req, res) => {
  * @access  Public
  */
 export const googleAuth = asyncHandler(async (req, res) => {
-  const { code } = req.body
+  const { code, role, childEmail } = req.body
 
   if (!code) {
     throw new ErrorResponse('Google authorization code is required', 400)
@@ -233,18 +233,48 @@ export const googleAuth = asyncHandler(async (req, res) => {
       await user.save()
     }
   } else {
+    // Validate role
+    const userRole = role && ['student', 'teacher', 'parent'].includes(role) ? role : 'student'
+
+    // If registering as parent, validate child exists first
+    let child = null
+    if (userRole === 'parent') {
+      if (!childEmail) {
+        throw new ErrorResponse('Please provide your child\'s email address', 400)
+      }
+      child = await User.findOne({ email: childEmail.toLowerCase(), role: 'student' })
+      if (!child) {
+        throw new ErrorResponse('No student found with the provided email address', 404)
+      }
+    }
+
     // Create new user with Google profile
-    user = await User.create({
+    const userFields = {
       name: name || email.split('@')[0],
       email,
       googleId,
       avatar: picture || '',
-      role: 'student', // Default role for new Google sign-ups
+      role: userRole,
       englishLevel: '',
       institution: '',
       password: googleId + process.env.JWT_SECRET, // Placeholder password
       isVerified: true,
-    })
+    }
+
+    if (userRole === 'parent' && child) {
+      userFields.children = [child._id]
+    }
+
+    user = await User.create(userFields)
+
+    // Link child back to parent
+    if (userRole === 'parent' && child) {
+      child.parents = child.parents || []
+      if (!child.parents.includes(user._id)) {
+        child.parents.push(user._id)
+        await child.save()
+      }
+    }
   }
 
   sendTokenResponse(user, 200, res)

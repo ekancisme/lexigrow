@@ -112,8 +112,19 @@ export default function Register() {
             return
           }
           try {
-            const loggedInUser = await loginWithGoogle({ code: response.code })
-            navigate(loggedInUser.role === 'teacher' ? '/teacher/dashboard' : '/student/dashboard')
+            const childEmailVal = role === 'parent' ? (document.getElementById('reg-child-email')?.value || '') : ''
+            const loggedInUser = await loginWithGoogle({
+              code: response.code,
+              role,
+              childEmail: childEmailVal
+            })
+            if (loggedInUser.role === 'teacher') {
+              navigate('/teacher/dashboard')
+            } else if (loggedInUser.role === 'parent') {
+              navigate('/parent/dashboard')
+            } else {
+              navigate('/student/dashboard')
+            }
           } catch (err) {
             setError(err.message || 'Google authentication failed')
           }
