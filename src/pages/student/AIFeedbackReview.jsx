@@ -14,6 +14,7 @@ export default function AIFeedbackReview() {
   const [error, setError] = useState('')
   const [isEssayExpanded, setIsEssayExpanded] = useState(true)
   const [copied, setCopied] = useState(false)
+  const [copiedSynonym, setCopiedSynonym] = useState('')
 
   // Portal states when no id is present in URL
   const [essayList, setEssayList] = useState([])
@@ -25,6 +26,12 @@ export default function AIFeedbackReview() {
     navigator.clipboard.writeText(essay.content)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  function handleCopySynonym(synonym) {
+    navigator.clipboard.writeText(synonym)
+    setCopiedSynonym(synonym)
+    setTimeout(() => setCopiedSynonym(''), 1500)
   }
 
   useEffect(() => {
@@ -426,14 +433,85 @@ export default function AIFeedbackReview() {
                     <span className="material-symbols-outlined">warning</span>
                     Overused Words Alert
                   </h4>
-                  <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 12 }}>
-                    These words are repeated frequently. Consider using synonyms to improve your lexical diversity:
+                  <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 16 }}>
+                    These words are repeated frequently. Click on any recommended synonym to copy it:
                   </p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     {analysis.nlpStats.repeatedWords.map((item, idx) => (
-                      <span key={idx} className="ai-feedback__repeated-word-chip" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 20, backgroundColor: 'var(--color-error-container)', color: 'var(--color-error)', fontSize: 13, fontWeight: 700 }}>
-                        <strong>{item.word}</strong> ({item.count} times)
-                      </span>
+                      <div key={idx} className="ai-feedback__repeated-word-row" style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'space-between', 
+                        padding: '12px 16px', 
+                        borderRadius: '12px', 
+                        backgroundColor: 'var(--color-surface-container-low)', 
+                        border: '1px solid var(--color-outline-variant)',
+                        flexWrap: 'wrap',
+                        gap: 12,
+                        transition: 'all 0.2s ease'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <span className="ai-feedback__repeated-word-badge" style={{ 
+                            display: 'inline-flex', 
+                            alignItems: 'center', 
+                            padding: '6px 12px', 
+                            borderRadius: '20px', 
+                            backgroundColor: 'var(--color-error-container)', 
+                            color: 'var(--color-error)', 
+                            fontSize: '13px', 
+                            fontWeight: 700 
+                          }}>
+                            <strong>{item.word}</strong>
+                          </span>
+                          <span style={{ fontSize: '13px', color: 'var(--color-outline)' }}>
+                            repeated <strong>{item.count}</strong> times
+                          </span>
+                        </div>
+                        
+                        {item.suggestions && item.suggestions.length > 0 ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                            <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-success)' }}>trending_flat</span>
+                            <span style={{ fontSize: '13px', color: 'var(--color-on-surface-variant)', marginRight: 4, fontWeight: 500 }}>Try instead:</span>
+                            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                              {item.suggestions.map((sug, sIdx) => {
+                                const isCopied = copiedSynonym === sug;
+                                return (
+                                  <button 
+                                    key={sIdx} 
+                                    className={`ai-feedback__synonym-suggestion ${isCopied ? 'copied' : ''}`}
+                                    onClick={() => handleCopySynonym(sug)}
+                                    title="Click to copy synonym"
+                                    style={{ 
+                                      cursor: 'pointer',
+                                      border: 'none',
+                                      padding: '6px 12px', 
+                                      borderRadius: '8px', 
+                                      backgroundColor: isCopied ? 'var(--color-success-container)' : 'rgba(22, 163, 74, 0.08)', 
+                                      color: isCopied ? 'var(--color-on-success-container)' : 'var(--color-success)', 
+                                      border: '1px solid ' + (isCopied ? 'var(--color-success)' : 'rgba(22, 163, 74, 0.2)'),
+                                      fontSize: '13px', 
+                                      fontWeight: 500,
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: 4,
+                                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                    }}
+                                  >
+                                    {sug}
+                                    {isCopied && (
+                                      <span className="material-symbols-outlined" style={{ fontSize: 14 }}>check</span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ) : (
+                          <div style={{ fontSize: '13px', color: 'var(--color-outline)' }}>
+                            No recommendations available. Try reanalyzing this essay.
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>
