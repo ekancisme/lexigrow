@@ -11,8 +11,20 @@ export default function TopNav({ role = 'student' }) {
   const { theme, toggleTheme } = useTheme()
 
   const user = authUser
-    ? { name: authUser.name, subtitle: authUser.role === 'teacher' ? authUser.institution || 'Educator' : `Student (${authUser.englishLevel || 'N/A'})` }
-    : { name: role === 'teacher' ? 'Prof. Elena' : 'Alex Rivera', subtitle: role === 'teacher' ? 'Senior Educator' : 'Student (C1 Level)' }
+    ? {
+        name: authUser.name,
+        subtitle: authUser.role === 'teacher'
+          ? authUser.institution || 'Educator'
+          : authUser.role === 'parent'
+            ? authUser.children && authUser.children.length > 0
+              ? `Parent of ${authUser.children.map(c => c.name).filter(Boolean).join(', ')}`
+              : 'Parent'
+            : `Student (${authUser.englishLevel || 'N/A'})`
+      }
+    : {
+        name: role === 'teacher' ? 'Prof. Elena' : (role === 'parent' ? 'Parent User' : 'Alex Rivera'),
+        subtitle: role === 'teacher' ? 'Senior Educator' : (role === 'parent' ? 'Parent' : 'Student (C1 Level)')
+      }
 
   return (
     <header className="topnav">
