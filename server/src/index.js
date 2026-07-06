@@ -8,6 +8,7 @@ import express from 'express'
 import cors from 'cors'
 import connectDB from './config/db.js'
 import errorHandler from './middleware/error.middleware.js'
+import { runEarlyWarningScan } from './services/earlyWarning.service.js'
 
 // Connect to database
 connectDB()
@@ -63,9 +64,11 @@ app.use('/api/alerts', alertRoutes)
 
 import promptRoutes from './routes/prompt.routes.js'
 import profileRoutes from './routes/profile.routes.js'
+import parentRoutes from './routes/parent.routes.js'
 
 app.use('/api/prompts', promptRoutes)
 app.use('/api/profile', profileRoutes)
+app.use('/api/parent', parentRoutes)
 
 // Error handler (must be after routes)
 app.use(errorHandler)
@@ -75,5 +78,9 @@ const PORT = process.env.PORT || 5000
 app.listen(PORT, () => {
   console.log(`🚀 LexiGrow Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 })
+
+// Early Warning Scan Scheduler: runs every 24 hours, and starts a test run 10 seconds after server startup.
+setInterval(runEarlyWarningScan, 24 * 60 * 60 * 1000)
+setTimeout(runEarlyWarningScan, 10000)
 
 export default app
