@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../../services/api.js'
+import WeeklyComparisonWidget from '../../components/common/WeeklyComparisonWidget.jsx'
 import './MyProgress.css'
 
 export default function MyProgress() {
@@ -112,6 +113,10 @@ export default function MyProgress() {
             <p className="text-label-sm" style={{ color: 'var(--color-tertiary)' }}>English Level Rank</p>
           </div>
         </div>
+      </section>
+
+      <section style={{ marginBottom: 32 }}>
+        <WeeklyComparisonWidget />
       </section>
 
       <div className="my-progress__grid">
