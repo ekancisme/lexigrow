@@ -68,6 +68,12 @@ Analyze the student's essay and return a JSON response with EXACTLY this structu
   "writingStats": {
     "avgSentenceLength": <number>,
     "uniqueWords": <number>
+  },
+  "learningPatterns": {
+    "paddedSentences": <true | false>,
+    "plagiarismDetected": <true | false>,
+    "learningStatus": "progressing" | "plateau" | "regression" | "stable",
+    "feedback": "<detailed Vietnamese feedback explaining word padding, copy-paste flags, and learning status trajectory compared to past history>"
   }
 }
 
@@ -75,12 +81,17 @@ Rules:
 - vocabularyDiversity (TTR) = unique words / total words, rounded to 2 decimal places
 - newWordsDetected should include academic, technical, or B2+ level words
 - Provide at least 2 strengths and 2 improvements in suggestions
+- For learningPatterns:
+  * paddedSentences: set to true if the student repeats synonyms or writes long, repetitive, meaningless sentences to inflate word count.
+  * plagiarismDetected: set to true if there is a high likelihood of plagiarism or copy-pasting (unnatural flow transitions, vocabulary far exceeding typical student level, or rigid structures).
+  * learningStatus: Compare current essay performance with the student's past performance history (if provided in the user request). Choose "progressing" if scores/vocabulary have improved, "plateau" if there is no significant change over time, "regression" if there is a decrease, or "stable" if they remain consistent at a high level.
+  * feedback: Write a detailed summary in Vietnamese explaining the findings for these patterns.
 - Return ONLY valid JSON, no markdown formatting`
 
 /**
  * Analyze essay using Gemini AI
  */
-export const analyzeEssay = async (essayContent, customPrompt) => {
+export const analyzeEssay = async (essayContent, customPrompt, pastScoresSummary = '') => {
   const prompt = customPrompt || DEFAULT_ANALYSIS_PROMPT
 
   try {
@@ -92,10 +103,12 @@ export const analyzeEssay = async (essayContent, customPrompt) => {
 
     const groq = new Groq({ apiKey })
 
+    const userMessageContent = `ESSAY TO ANALYZE:\n\n${essayContent}${pastScoresSummary ? `\n\nSTUDENT'S HISTORICAL PERFORMANCE SCORES:\n${pastScoresSummary}` : ''}`
+
     const chatCompletion = await groq.chat.completions.create({
       messages: [
         { role: 'system', content: prompt },
-        { role: 'user', content: `ESSAY TO ANALYZE:\n\n${essayContent}` }
+        { role: 'user', content: userMessageContent }
       ],
       model: 'llama-3.3-70b-versatile',
       response_format: { type: 'json_object' }
@@ -165,6 +178,12 @@ function generateFallbackAnalysis(content) {
       avgSentenceLength: sentences.length > 0 ? Math.round(totalWords / sentences.length) : 0,
       uniqueWords: uniqueWords.size,
     },
+    learningPatterns: {
+      paddedSentences: false,
+      plagiarismDetected: false,
+      learningStatus: 'stable',
+      feedback: 'Hệ thống phân tích mẫu học tập đang chạy ở chế độ dự phòng. Các chỉ số được đánh giá là ổn định.'
+    }
   }
 }
 
@@ -251,9 +270,26 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
   const essayDoc = await Essay.findById(essayId)
   const essayTheme = essayDoc?.theme || 'General'
 
+  // Fetch student's past reviewed essay analyses to detect learning patterns/trajectories
+  let pastScoresSummary = ''
+  try {
+    const studentEssays = await Essay.find({ student: studentId, _id: { $ne: essayId } }).select('_id')
+    const pastAnalyses = await AIAnalysis.find({ essay: { $in: studentEssays } })
+      .sort({ createdAt: -1 })
+      .limit(4)
+    
+    if (pastAnalyses.length > 0) {
+      pastScoresSummary = pastAnalyses.map((a, idx) => 
+        `Essay #${idx + 1}: Overall Score ${a.overallScore}/10, Grammar Accuracy ${a.scores?.grammarAccuracy || 'N/A'}/10, Vocabulary Diversity TTR ${a.scores?.vocabularyDiversity || 'N/A'}/1.0`
+      ).join('\n')
+    }
+  } catch (err) {
+    console.error('Error fetching past analyses for pattern detection:', err.message)
+  }
+
   // Run both Gemini AI and spaCy Python NLP analysis concurrently
   const [analysisData, nlpData] = await Promise.all([
-    analyzeEssay(essayContent, customPrompt),
+    analyzeEssay(essayContent, customPrompt, pastScoresSummary),
     runNLPAnalysis(essayContent)
   ])
 
@@ -352,7 +388,13 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
         ...analysisData.writingStats,
         uniqueWords: nlpData ? nlpData.uniqueWordCount : (analysisData.writingStats?.uniqueWords || 0)
       },
-      nlpStats
+      nlpStats,
+      learningPatterns: analysisData.learningPatterns || {
+        paddedSentences: false,
+        plagiarismDetected: false,
+        learningStatus: 'stable',
+        feedback: 'Chưa có đủ dữ liệu lịch sử để đánh giá mẫu tiến trình chi tiết.'
+      }
     },
     { upsert: true, new: true, runValidators: true }
   )

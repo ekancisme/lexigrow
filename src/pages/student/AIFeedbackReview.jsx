@@ -445,6 +445,191 @@ export default function AIFeedbackReview() {
             </div>
           </div>
 
+          {/* Learning Pattern Detection Card */}
+          {analysis?.learningPatterns && (
+            <div className="card-base" style={{ marginTop: 24 }}>
+              <h3 className="text-title-lg" style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>psychology</span>
+                Phân tích Tiến trình & Mẫu Học tập (AI Learning Patterns)
+              </h3>
+              <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 20, textAlign: 'left' }}>
+                Hệ thống AI phân tích thói quen hành văn của bài viết này và so sánh với lịch sử viết bài của học sinh để đưa ra các nhận định chuyên sâu:
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
+                {/* Word Padding Status */}
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: 8, 
+                  padding: '16px', 
+                  borderRadius: '12px', 
+                  backgroundColor: 'var(--color-surface-container-low)', 
+                  border: '1px solid var(--color-outline-variant)' 
+                }}>
+                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>Viết kéo dài câu vô nghĩa</span>
+                  {analysis.learningPatterns.paddedSentences ? (
+                    <span style={{ 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      gap: 6, 
+                      padding: '6px 12px', 
+                      borderRadius: '20px', 
+                      backgroundColor: 'var(--color-error-container)', 
+                      color: 'var(--color-error)', 
+                      fontSize: '13px', 
+                      fontWeight: 700,
+                      alignSelf: 'flex-start'
+                    }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: 16 }}>warning</span>
+                      Phát hiện câu rỗng nghĩa
+                    </span>
+                  ) : (
+                    <span style={{ 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      gap: 6, 
+                      padding: '6px 12px', 
+                      borderRadius: '20px', 
+                      backgroundColor: 'rgba(22, 163, 74, 0.1)', 
+                      color: 'var(--color-success)', 
+                      fontSize: '13px', 
+                      fontWeight: 700,
+                      alignSelf: 'flex-start'
+                    }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check_circle</span>
+                      Hành văn súc tích
+                    </span>
+                  )}
+                </div>
+
+                {/* Plagiarism Status */}
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: 8, 
+                  padding: '16px', 
+                  borderRadius: '12px', 
+                  backgroundColor: 'var(--color-surface-container-low)', 
+                  border: '1px solid var(--color-outline-variant)' 
+                }}>
+                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>Kiểm tra sao chép / Đạo văn</span>
+                  {analysis.learningPatterns.plagiarismDetected ? (
+                    <span style={{ 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      gap: 6, 
+                      padding: '6px 12px', 
+                      borderRadius: '20px', 
+                      backgroundColor: 'var(--color-error-container)', 
+                      color: 'var(--color-error)', 
+                      fontSize: '13px', 
+                      fontWeight: 700,
+                      alignSelf: 'flex-start'
+                    }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: 16 }}>gavel</span>
+                      Có dấu hiệu sao chép
+                    </span>
+                  ) : (
+                    <span style={{ 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      gap: 6, 
+                      padding: '6px 12px', 
+                      borderRadius: '20px', 
+                      backgroundColor: 'rgba(22, 163, 74, 0.1)', 
+                      color: 'var(--color-success)', 
+                      fontSize: '13px', 
+                      fontWeight: 700,
+                      alignSelf: 'flex-start'
+                    }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: 16 }}>verified</span>
+                      Bài tự viết (Độc lập)
+                    </span>
+                  )}
+                </div>
+
+                {/* Learning Trajectory Status */}
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: 8, 
+                  padding: '16px', 
+                  borderRadius: '12px', 
+                  backgroundColor: 'var(--color-surface-container-low)', 
+                  border: '1px solid var(--color-outline-variant)' 
+                }}>
+                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>Quỹ đạo tiến trình học tập</span>
+                  {(() => {
+                    const status = analysis.learningPatterns.learningStatus || 'stable';
+                    let config = {
+                      label: 'Ổn định (Stable)',
+                      color: 'var(--color-primary)',
+                      bg: 'rgba(0, 91, 191, 0.1)',
+                      icon: 'sync'
+                    };
+                    if (status === 'progressing') {
+                      config = {
+                        label: 'Tiến bộ tốt (Progressing)',
+                        color: 'var(--color-success)',
+                        bg: 'rgba(22, 163, 74, 0.1)',
+                        icon: 'trending_up'
+                      };
+                    } else if (status === 'plateau') {
+                      config = {
+                        label: 'Chững lại (Plateau)',
+                        color: 'var(--color-tertiary)',
+                        bg: 'rgba(234, 88, 12, 0.1)',
+                        icon: 'trending_flat'
+                      };
+                    } else if (status === 'regression') {
+                      config = {
+                        label: 'Tụt lùi (Regression)',
+                        color: 'var(--color-error)',
+                        bg: 'var(--color-error-container)',
+                        icon: 'trending_down'
+                      };
+                    }
+                    return (
+                      <span style={{ 
+                        display: 'inline-flex', 
+                        alignItems: 'center', 
+                        gap: 6, 
+                        padding: '6px 12px', 
+                        borderRadius: '20px', 
+                        backgroundColor: config.bg, 
+                        color: config.color, 
+                        fontSize: '13px', 
+                        fontWeight: 700,
+                        alignSelf: 'flex-start'
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{config.icon}</span>
+                        {config.label}
+                      </span>
+                    );
+                  })()}
+                </div>
+              </div>
+
+              {/* Detailed AI Patterns Feedback Text */}
+              {analysis.learningPatterns.feedback && (
+                <div style={{ 
+                  padding: '16px', 
+                  borderRadius: '12px', 
+                  backgroundColor: 'var(--color-surface-variant)', 
+                  borderLeft: '4px solid var(--color-secondary)',
+                  textAlign: 'left',
+                  lineHeight: '1.6',
+                  color: 'var(--color-on-surface-variant)',
+                  fontSize: '14px'
+                }}>
+                  <strong>Nhận xét chuyên sâu của AI:</strong>
+                  <p style={{ margin: '8px 0 0 0' }}>{analysis.learningPatterns.feedback}</p>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Sentence Structure & Repetitive Words Analysis */}
           {analysis?.nlpStats && (
             <div className="card-base ai-feedback__nlp-analysis" style={{ marginTop: 24 }}>
