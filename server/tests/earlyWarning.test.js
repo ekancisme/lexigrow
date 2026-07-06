@@ -52,7 +52,9 @@ vi.mock('../src/models/Alert.js', () => {
     save() {
       return mockSave()
     }
-    static findOne = mockFindOne
+    static findOne(...args) {
+      return mockFindOne(...args)
+    }
   }
   return {
     default: MockAlert
