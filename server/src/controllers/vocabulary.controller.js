@@ -125,7 +125,29 @@ export const getVocabStats = asyncHandler(async (req, res) => {
     }
   })
 
-  res.status(200).json({ success: true, total, data: categories })
+  // Aggregate mastery distribution stats
+  const masteryStats = await Vocabulary.aggregate([
+    { $match: { student: req.user._id } },
+    {
+      $group: {
+        _id: '$masteryLevel',
+        count: { $sum: 1 }
+      }
+    }
+  ])
+
+  const masteryDistribution = {
+    new: 0,
+    learning: 0,
+    mastered: 0
+  }
+  masteryStats.forEach(s => {
+    if (s._id && ['new', 'learning', 'mastered'].includes(s._id)) {
+      masteryDistribution[s._id] = s.count
+    }
+  })
+
+  res.status(200).json({ success: true, total, data: categories, masteryDistribution })
 })
 
 /**
