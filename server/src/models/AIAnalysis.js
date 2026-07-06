@@ -46,7 +46,8 @@ const aiAnalysisSchema = new mongoose.Schema({
     subordinateClausesCount: { type: Number, default: 0 },
     repeatedWords: [{
       word: { type: String, trim: true },
-      count: { type: Number, default: 0 }
+      count: { type: Number, default: 0 },
+      synonyms: [{ type: String }]
     }]
   },
 }, {

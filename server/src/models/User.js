@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['student', 'teacher'],
+    enum: ['student', 'teacher', 'parent'],
     default: 'student',
   },
   // Student-specific fields
@@ -38,6 +38,15 @@ const userSchema = new mongoose.Schema({
     trim: true,
     default: '',
   },
+  // Parent & Child relationships
+  children: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
+  parents: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  }],
   // Shared fields
   avatar: {
     type: String,
@@ -47,21 +56,21 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: '',
   },
-    notifications: {
-      email: { type: Boolean, default: true },
-      push: { type: Boolean, default: true },
-      weekly: { type: Boolean, default: false },
-    },
-    resetPasswordCode: {
-      type: String,
-      default: '',
-    },
-    resetPasswordExpire: {
-      type: Date,
-    },
-  }, {
-    timestamps: true,
-  })
+  notifications: {
+    email: { type: Boolean, default: true },
+    push: { type: Boolean, default: true },
+    weekly: { type: Boolean, default: false },
+  },
+  resetPasswordCode: {
+    type: String,
+    default: '',
+  },
+  resetPasswordExpire: {
+    type: Date,
+  },
+}, {
+  timestamps: true,
+})
 
 // Hash password before saving
 userSchema.pre('save', async function () {
