@@ -37,7 +37,7 @@ const sendTokenResponse = (user, statusCode, res) => {
  * @access  Public
  */
 export const register = asyncHandler(async (req, res) => {
-  const { name, email, password, role, englishLevel, institution } = req.body
+  const { name, email, password, role, englishLevel, institution, childEmail } = req.body
 
   // Check if user exists
   const existingUser = await User.findOne({ email })
@@ -45,15 +45,38 @@ export const register = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Email already registered', 400)
   }
 
-  // Create user
-  const user = await User.create({
+  const userFields = {
     name,
     email,
     password,
     role: role || 'student',
     englishLevel: role === 'student' ? englishLevel : '',
     institution: role === 'teacher' ? institution : '',
-  })
+  }
+
+  let child = null
+  if (role === 'parent') {
+    if (!childEmail) {
+      throw new ErrorResponse('Please provide your child\'s email address', 400)
+    }
+    child = await User.findOne({ email: childEmail.toLowerCase(), role: 'student' })
+    if (!child) {
+      throw new ErrorResponse('No student found with the provided email address', 404)
+    }
+    userFields.children = [child._id]
+  }
+
+  // Create user
+  const user = await User.create(userFields)
+
+  // Link child back to parent
+  if (role === 'parent' && child) {
+    child.parents = child.parents || []
+    if (!child.parents.includes(user._id)) {
+      child.parents.push(user._id)
+      await child.save()
+    }
+  }
 
   sendTokenResponse(user, 201, res)
 })
