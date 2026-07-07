@@ -166,3 +166,90 @@ export const getStudentEssays = asyncHandler(async (req, res) => {
     data: essays,
   })
 })
+
+/**
+ * @desc    Get vocabulary details of a student (for teacher)
+ * @route   GET /api/teacher/students/:id/vocabulary
+ * @access  Private (teacher)
+ * @query   page, limit, category, mastery, sort (createdAt|word|masteryLevel)
+ */
+export const getStudentVocabulary = asyncHandler(async (req, res) => {
+  const studentId = req.params.id
+  const { page = 1, limit = 20, category, mastery, sort = 'createdAt' } = req.query
+
+  // Verify teacher has this student in one of their classes
+  const teacherClasses = await Class.find({ teacher: req.user._id, students: studentId })
+  if (teacherClasses.length === 0) {
+    throw new ErrorResponse('Student not in any of your classes', 403)
+  }
+
+  // Build query
+  const query = { student: studentId }
+  if (category && category !== 'all') query.category = category
+  if (mastery && mastery !== 'all') query.masteryLevel = mastery
+
+  // Sort mapping
+  const sortMap = {
+    createdAt: { createdAt: -1 },
+    word: { word: 1 },
+    masteryLevel: { masteryLevel: 1 },
+  }
+  const sortObj = sortMap[sort] || { createdAt: -1 }
+
+  const pageNum = Math.max(1, Number(page))
+  const limitNum = Math.min(50, Math.max(1, Number(limit)))
+
+  const [words, total] = await Promise.all([
+    Vocabulary.find(query)
+      .sort(sortObj)
+      .skip((pageNum - 1) * limitNum)
+      .limit(limitNum)
+      .lean(),
+    Vocabulary.countDocuments(query),
+  ])
+
+  // ── Stats (always on full student collection, not filtered) ──
+  const allWords = await Vocabulary.find({ student: studentId }).lean()
+
+  const masteryDistribution = { new: 0, learning: 0, mastered: 0 }
+  const categoryMap = {}
+
+  allWords.forEach(w => {
+    // mastery tally
+    masteryDistribution[w.masteryLevel] = (masteryDistribution[w.masteryLevel] || 0) + 1
+
+    // category tally
+    if (!categoryMap[w.category]) categoryMap[w.category] = { total: 0, mastered: 0 }
+    categoryMap[w.category].total++
+    if (w.masteryLevel === 'mastered') categoryMap[w.category].mastered++
+  })
+
+  const categoryStats = Object.entries(categoryMap).map(([name, stats]) => ({
+    name: name.charAt(0).toUpperCase() + name.slice(1),
+    key: name,
+    total: stats.total,
+    mastered: stats.mastered,
+    progress: stats.total > 0 ? Math.round((stats.mastered / stats.total) * 100) : 0,
+  }))
+
+  const totalVocabulary = allWords.length
+  const masteredCount = masteryDistribution.mastered
+  const masteryRate = totalVocabulary > 0 ? Math.round((masteredCount / totalVocabulary) * 100) : 0
+
+  res.status(200).json({
+    success: true,
+    data: {
+      words,
+      masteryDistribution,
+      categoryStats,
+      totalVocabulary,
+      masteredCount,
+      masteryRate,
+    },
+    total,
+    pages: Math.ceil(total / limitNum),
+    page: pageNum,
+    count: words.length,
+  })
+})
+
