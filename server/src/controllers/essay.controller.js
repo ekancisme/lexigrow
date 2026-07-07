@@ -87,8 +87,9 @@ export const updateEssay = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Not authorized to update this essay', 403)
   }
 
+  // If the essay was already submitted or reviewed, modifying it resets its status to 'draft'
   if (essay.status !== 'draft') {
-    throw new ErrorResponse('Cannot edit a submitted essay', 400)
+    essay.status = 'draft'
   }
 
   const { title, content, theme } = req.body
