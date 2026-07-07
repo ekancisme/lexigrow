@@ -65,10 +65,12 @@ app.use('/api/alerts', alertRoutes)
 import promptRoutes from './routes/prompt.routes.js'
 import profileRoutes from './routes/profile.routes.js'
 import parentRoutes from './routes/parent.routes.js'
+import notificationRoutes from './routes/notification.routes.js'
 
 app.use('/api/prompts', promptRoutes)
 app.use('/api/profile', profileRoutes)
 app.use('/api/parent', parentRoutes)
+app.use('/api/notifications', notificationRoutes)
 
 // Error handler (must be after routes)
 app.use(errorHandler)
