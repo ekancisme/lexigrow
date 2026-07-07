@@ -80,15 +80,7 @@
   background: var(--color-surface-container-low);
 }
 
-.topnav__badge {
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 8px;
-  height: 8px;
-  background: var(--color-error);
-  border-radius: var(--radius-full);
-}
+/* Notification badge is now managed by NotificationBell component */
 
 /* Profile */
 .topnav__profile {

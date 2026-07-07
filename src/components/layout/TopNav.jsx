@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useTheme } from '../../contexts/ThemeContext.jsx'
+import NotificationBell from '../common/NotificationBell.jsx'
 import './TopNav.css'
 
 export default function TopNav({ role = 'student' }) {
@@ -50,10 +51,7 @@ export default function TopNav({ role = 'student' }) {
         </button>
 
         {/* Notifications */}
-        <button className="topnav__icon-btn" aria-label="Notifications">
-          <span className="material-symbols-outlined">notifications</span>
-          <span className="topnav__badge"></span>
-        </button>
+        <NotificationBell />
 
         {/* User Profile */}
         <div className="topnav__profile" onClick={() => navigate('/settings')}>
