@@ -4,7 +4,8 @@ import {
   getChildren,
   getChildProgress,
   getChildAlerts,
-  getChildEssays
+  getChildEssays,
+  getChildVocabulary,
 } from '../controllers/parent.controller.js'
 import { protect, authorize } from '../middleware/auth.middleware.js'
 
@@ -18,5 +19,6 @@ router.get('/children', getChildren)
 router.get('/children/:id/progress', getChildProgress)
 router.get('/children/:id/alerts', getChildAlerts)
 router.get('/children/:id/essays', getChildEssays)
+router.get('/children/:id/vocabulary', getChildVocabulary)
 
 export default router

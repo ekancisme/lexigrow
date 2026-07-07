@@ -148,3 +148,74 @@ export const getChildEssays = asyncHandler(async (req, res) => {
     data: essays
   })
 })
+
+/**
+ * @desc    Get vocabulary details of a child
+ * @route   GET /api/parent/children/:id/vocabulary
+ * @access  Private (parent)
+ * @query   page, limit, category, mastery, sort
+ */
+export const getChildVocabulary = asyncHandler(async (req, res) => {
+  const childId = req.params.id
+  const parent = await User.findById(req.user._id)
+
+  const isMyChild = parent.children.some(id => id.toString() === childId)
+  if (!isMyChild) {
+    throw new ErrorResponse('Not authorized to view this child\'s vocabulary', 403)
+  }
+
+  const { page = 1, limit = 20, category, mastery, sort = 'createdAt' } = req.query
+
+  const query = { student: childId }
+  if (category && category !== 'all') query.category = category
+  if (mastery && mastery !== 'all') query.masteryLevel = mastery
+
+  const sortMap = {
+    createdAt: { createdAt: -1 },
+    word: { word: 1 },
+    masteryLevel: { masteryLevel: 1 },
+  }
+  const sortObj = sortMap[sort] || { createdAt: -1 }
+
+  const pageNum = Math.max(1, Number(page))
+  const limitNum = Math.min(50, Math.max(1, Number(limit)))
+
+  const [words, total] = await Promise.all([
+    Vocabulary.find(query).sort(sortObj).skip((pageNum - 1) * limitNum).limit(limitNum).lean(),
+    Vocabulary.countDocuments(query),
+  ])
+
+  const allWords = await Vocabulary.find({ student: childId }).lean()
+
+  const masteryDistribution = { new: 0, learning: 0, mastered: 0 }
+  const categoryMap = {}
+
+  allWords.forEach(w => {
+    masteryDistribution[w.masteryLevel] = (masteryDistribution[w.masteryLevel] || 0) + 1
+    if (!categoryMap[w.category]) categoryMap[w.category] = { total: 0, mastered: 0 }
+    categoryMap[w.category].total++
+    if (w.masteryLevel === 'mastered') categoryMap[w.category].mastered++
+  })
+
+  const categoryStats = Object.entries(categoryMap).map(([name, stats]) => ({
+    name: name.charAt(0).toUpperCase() + name.slice(1),
+    key: name,
+    total: stats.total,
+    mastered: stats.mastered,
+    progress: stats.total > 0 ? Math.round((stats.mastered / stats.total) * 100) : 0,
+  }))
+
+  const totalVocabulary = allWords.length
+  const masteredCount = masteryDistribution.mastered
+  const masteryRate = totalVocabulary > 0 ? Math.round((masteredCount / totalVocabulary) * 100) : 0
+
+  res.status(200).json({
+    success: true,
+    data: { words, masteryDistribution, categoryStats, totalVocabulary, masteredCount, masteryRate },
+    total,
+    pages: Math.ceil(total / limitNum),
+    page: pageNum,
+    count: words.length,
+  })
+})
+
