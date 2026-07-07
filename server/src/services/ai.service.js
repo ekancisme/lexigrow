@@ -74,6 +74,11 @@ Analyze the student's essay and return a JSON response with EXACTLY this structu
     "plagiarismDetected": <true | false>,
     "learningStatus": "progressing" | "plateau" | "regression" | "stable",
     "feedback": "<detailed English feedback explaining word padding, copy-paste flags, and learning status trajectory compared to past history>"
+  },
+  "nextEssaySuggestions": {
+    "transitionWords": [<array of 3-5 advanced transition words/phrases recommended to connect ideas in their next essay, e.g. "On the other hand", "Furthermore", "Consequently">],
+    "sentenceStructures": [<array of 2-3 sentence structures/patterns they should try next, e.g. "Relative clauses", "Conditional sentences (Type 3)", "Inversion">],
+    "generalTips": "<detailed English tips/advice on how they can improve cohesive flow and grammatical variety in their next essay>"
   }
 }
 
@@ -183,6 +188,11 @@ function generateFallbackAnalysis(content) {
       plagiarismDetected: false,
       learningStatus: 'stable',
       feedback: 'The learning pattern detection system is running in fallback mode. The learning patterns are evaluated as stable.'
+    },
+    nextEssaySuggestions: {
+      transitionWords: ['Therefore', 'Moreover', 'In addition', 'However'],
+      sentenceStructures: ['Relative clauses', 'Conditional sentence (Type 2)', 'Passive voice variation'],
+      generalTips: 'Practice connecting your ideas with diverse transition words and experimenting with complex sentence structures.'
     }
   }
 }
@@ -394,6 +404,11 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
         plagiarismDetected: false,
         learningStatus: 'stable',
         feedback: 'Insufficient historical data to analyze detailed progress trajectory.'
+      },
+      nextEssaySuggestions: analysisData.nextEssaySuggestions || {
+        transitionWords: ['Therefore', 'Moreover', 'In addition', 'However'],
+        sentenceStructures: ['Relative clauses', 'Conditional sentence (Type 2)', 'Passive voice variation'],
+        generalTips: 'Practice connecting your ideas with diverse transition words and experimenting with complex sentence structures.'
       }
     },
     { upsert: true, new: true, runValidators: true }

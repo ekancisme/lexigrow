@@ -1,6 +1,7 @@
 import sys
 import json
 import collections
+# pyrefly: ignore [missing-import]
 import spacy
 
 def analyze_text(text):

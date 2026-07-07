@@ -630,6 +630,98 @@ export default function AIFeedbackReview() {
             </div>
           )}
 
+          {/* Next Essay Suggestions Card */}
+          {analysis?.nextEssaySuggestions && (
+            <div className="card-base" style={{ marginTop: 24 }}>
+              <h3 className="text-title-lg" style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>tips_and_updates</span>
+                AI Recommendations for Your Next Essay
+              </h3>
+              <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 20, textAlign: 'left' }}>
+                To level up your writing, try incorporating these specific transition words and sentence structures in your next draft:
+              </p>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20, marginBottom: 20 }}>
+                {/* Transition Words Section */}
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: 12, 
+                  padding: '16px', 
+                  borderRadius: '12px', 
+                  backgroundColor: 'var(--color-surface-container-low)', 
+                  border: '1px solid var(--color-outline-variant)' 
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', fontSize: 20 }}>link</span>
+                    <span className="text-label-md" style={{ fontWeight: 700 }}>Advanced Transition Words</span>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {analysis.nextEssaySuggestions.transitionWords?.map((word, i) => (
+                      <span key={i} style={{ 
+                        padding: '6px 12px', 
+                        borderRadius: '16px', 
+                        backgroundColor: 'rgba(0, 91, 191, 0.08)', 
+                        color: 'var(--color-primary)', 
+                        fontSize: '13px', 
+                        fontWeight: 600 
+                      }}>
+                        {word}
+                      </span>
+                    )) || <span style={{ color: 'var(--color-outline)' }}>None recommended</span>}
+                  </div>
+                </div>
+
+                {/* Sentence Structures Section */}
+                <div style={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: 12, 
+                  padding: '16px', 
+                  borderRadius: '12px', 
+                  backgroundColor: 'var(--color-surface-container-low)', 
+                  border: '1px solid var(--color-outline-variant)' 
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span className="material-symbols-outlined" style={{ color: 'var(--color-secondary)', fontSize: 20 }}>segment</span>
+                    <span className="text-label-md" style={{ fontWeight: 700 }}>Sentence Structures to Try</span>
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {analysis.nextEssaySuggestions.sentenceStructures?.map((struct, i) => (
+                      <span key={i} style={{ 
+                        padding: '6px 12px', 
+                        borderRadius: '16px', 
+                        backgroundColor: 'rgba(107, 33, 168, 0.08)', 
+                        color: 'var(--color-secondary)', 
+                        fontSize: '13px', 
+                        fontWeight: 600 
+                      }}>
+                        {struct}
+                      </span>
+                    )) || <span style={{ color: 'var(--color-outline)' }}>None recommended</span>}
+                  </div>
+                </div>
+              </div>
+
+              {/* General Tips Section */}
+              {analysis.nextEssaySuggestions.generalTips && (
+                <div style={{ 
+                  padding: '16px', 
+                  borderRadius: '12px', 
+                  backgroundColor: 'var(--color-surface-variant)', 
+                  borderLeft: '4px solid var(--color-primary)',
+                  textAlign: 'left',
+                  lineHeight: '1.6',
+                  color: 'var(--color-on-surface-variant)',
+                  fontSize: '14px'
+                }}>
+                  <strong>Tips & Advice:</strong>
+                  <p style={{ margin: '8px 0 0 0' }}>{analysis.nextEssaySuggestions.generalTips}</p>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Sentence Structure & Repetitive Words Analysis */}
           {analysis?.nlpStats && (
             <div className="card-base ai-feedback__nlp-analysis" style={{ marginTop: 24 }}>

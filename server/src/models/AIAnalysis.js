@@ -62,6 +62,11 @@ const aiAnalysisSchema = new mongoose.Schema({
       default: 'unknown'
     },
     feedback: { type: String, default: '' }
+  },
+  nextEssaySuggestions: {
+    transitionWords: [{ type: String, trim: true }],
+    sentenceStructures: [{ type: String, trim: true }],
+    generalTips: { type: String, default: '' }
   }
 }, {
   timestamps: true,
