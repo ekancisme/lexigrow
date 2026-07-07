@@ -2,13 +2,20 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import api from '../../services/api.js'
 import WeeklyComparisonWidget from '../../components/common/WeeklyComparisonWidget.jsx'
+import VocabularyTab from '../../components/common/VocabularyTab.jsx'
 import './StudentAnalyticsDetail.css'
 
+const TABS = [
+  { key: 'overview',    label: 'Overview',    icon: 'overview'       },
+  { key: 'vocabulary',  label: 'Vocabulary',  icon: 'library_books'  },
+]
+
 export default function StudentAnalyticsDetail() {
-  const navigate = useNavigate()
-  const { id } = useParams()
-  const [data, setData] = useState(null)
+  const navigate   = useNavigate()
+  const { id }     = useParams()
+  const [data, setData]       = useState(null)
   const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('overview')
 
   useEffect(() => {
     async function loadStudentDetail() {
@@ -46,19 +53,15 @@ export default function StudentAnalyticsDetail() {
   }
 
   const { student, class: className, metrics, essayHistory } = data
-
-  // Find if we have any pending reviews to link to
-  // If not, we can navigate to manual feedback review using essay history ID
   const latestEssay = essayHistory?.[0]
 
-  // Calculate points for the growth SVG trend line
+  // SVG Growth Trend
   const maxVal = essayHistory.length > 0 ? Math.max(...essayHistory.map(e => e.ttr)) : 1
   const points = essayHistory.length > 0 ? [...essayHistory].reverse().map((e, index) => {
     const x = (index / Math.max(1, essayHistory.length - 1)) * 800
     const y = 180 - ((e.ttr / maxVal) * 150)
     return `${x},${y}`
   }).join(' ') : ''
-
   const pathD = points ? `M 0,180 L ${points} L 800,180` : ''
   const lineD = points ? `M ${points}` : 'M 0,180 L 800,180'
 
@@ -67,6 +70,8 @@ export default function StudentAnalyticsDetail() {
       <button className="student-analytics__back" onClick={() => navigate(-1)}>
         <span className="material-symbols-outlined">arrow_back</span> Back
       </button>
+
+      {/* ── PROFILE ── */}
       <section className="student-analytics__profile card-base">
         <div className="student-analytics__avatar">
           <span className="material-symbols-outlined" style={{ fontSize: 40, color: 'var(--color-primary)' }}>person</span>
@@ -84,6 +89,7 @@ export default function StudentAnalyticsDetail() {
         )}
       </section>
 
+      {/* ── METRICS ── */}
       <section className="student-analytics__metrics">
         <div className="card-base">
           <p className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Total Essays</p>
@@ -105,68 +111,96 @@ export default function StudentAnalyticsDetail() {
         </div>
       </section>
 
-      <section style={{ marginBottom: 32 }}>
-        <WeeklyComparisonWidget studentId={id} />
-      </section>
+      {/* ── TAB NAV ── */}
+      <div className="student-analytics__tabs" role="tablist">
+        {TABS.map(tab => (
+          <button
+            key={tab.key}
+            id={`tab-${tab.key}`}
+            role="tab"
+            aria-selected={activeTab === tab.key}
+            className={`student-analytics__tab ${activeTab === tab.key ? 'student-analytics__tab--active' : ''}`}
+            onClick={() => setActiveTab(tab.key)}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{tab.icon}</span>
+            {tab.label}
+          </button>
+        ))}
+      </div>
 
-      <section className="student-analytics__chart card-base">
-        <h3 className="text-title-lg" style={{ marginBottom: 20 }}>Growth Trend</h3>
-        <div style={{ position: 'relative', width: '100%', height: 200 }}>
-          <svg viewBox="0 0 800 200" style={{ width: '100%', height: 200 }} preserveAspectRatio="none">
-            <defs>
-              <linearGradient id="saGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#005bbf" stopOpacity="0.15"/>
-                <stop offset="100%" stopColor="#005bbf" stopOpacity="0"/>
-              </linearGradient>
-            </defs>
-            <line x1="0" y1="50" x2="800" y2="50" stroke="#e5eeff" strokeWidth="1"/>
-            <line x1="0" y1="100" x2="800" y2="100" stroke="#e5eeff" strokeWidth="1"/>
-            <line x1="0" y1="150" x2="800" y2="150" stroke="#e5eeff" strokeWidth="1"/>
-            {essayHistory.length > 0 && (
-              <>
-                <path d={lineD} fill="none" stroke="#005bbf" strokeWidth="3"/>
-                <path d={pathD} fill="url(#saGrad)"/>
-              </>
+      {/* ── TAB CONTENT ── */}
+      {activeTab === 'overview' && (
+        <div className="animate-fade-in">
+          <section style={{ marginBottom: 32 }}>
+            <WeeklyComparisonWidget studentId={id} />
+          </section>
+
+          <section className="student-analytics__chart card-base">
+            <h3 className="text-title-lg" style={{ marginBottom: 20 }}>Growth Trend</h3>
+            <div style={{ position: 'relative', width: '100%', height: 200 }}>
+              <svg viewBox="0 0 800 200" style={{ width: '100%', height: 200 }} preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="saGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#005bbf" stopOpacity="0.15"/>
+                    <stop offset="100%" stopColor="#005bbf" stopOpacity="0"/>
+                  </linearGradient>
+                </defs>
+                <line x1="0" y1="50"  x2="800" y2="50"  stroke="#e5eeff" strokeWidth="1"/>
+                <line x1="0" y1="100" x2="800" y2="100" stroke="#e5eeff" strokeWidth="1"/>
+                <line x1="0" y1="150" x2="800" y2="150" stroke="#e5eeff" strokeWidth="1"/>
+                {essayHistory.length > 0 && (
+                  <>
+                    <path d={lineD} fill="none" stroke="#005bbf" strokeWidth="3"/>
+                    <path d={pathD} fill="url(#saGrad)"/>
+                  </>
+                )}
+              </svg>
+            </div>
+          </section>
+
+          <section className="card-base" style={{ padding: 0 }}>
+            <div style={{ padding: 'var(--spacing-lg)', borderBottom: '1px solid var(--color-outline-variant)' }}>
+              <h3 className="text-title-lg">Essay History</h3>
+            </div>
+            {essayHistory.length === 0 ? (
+              <div style={{ padding: 32, textAlign: 'center', color: 'var(--color-outline)' }}>
+                No essays written yet.
+              </div>
+            ) : (
+              <table className="student-analytics__table">
+                <thead>
+                  <tr>
+                    <th className="text-label-sm">DATE</th>
+                    <th className="text-label-sm">TITLE</th>
+                    <th className="text-label-sm">WORDS</th>
+                    <th className="text-label-sm">TTR</th>
+                    <th className="text-label-sm">SCORE</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {essayHistory.map((e) => (
+                    <tr key={e._id}>
+                      <td>{new Date(e.date).toLocaleDateString()}</td>
+                      <td style={{ fontWeight: 700 }}>{e.title}</td>
+                      <td>{e.words}</td>
+                      <td>{e.ttr?.toFixed(2) || '0.00'}</td>
+                      <td>
+                        <span className="student-analytics__score-badge">{e.score}/10</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             )}
-          </svg>
+          </section>
         </div>
-      </section>
+      )}
 
-      <section className="card-base" style={{ padding: 0 }}>
-        <div style={{ padding: 'var(--spacing-lg)', borderBottom: '1px solid var(--color-outline-variant)' }}>
-          <h3 className="text-title-lg">Essay History</h3>
+      {activeTab === 'vocabulary' && (
+        <div className="animate-fade-in">
+          <VocabularyTab apiBase={`/teacher/students/${id}/vocabulary`} />
         </div>
-        {essayHistory.length === 0 ? (
-          <div style={{ padding: 32, textAlign: 'center', color: 'var(--color-outline)' }}>
-            No essays written yet.
-          </div>
-        ) : (
-          <table className="student-analytics__table">
-            <thead>
-              <tr>
-                <th className="text-label-sm">DATE</th>
-                <th className="text-label-sm">TITLE</th>
-                <th className="text-label-sm">WORDS</th>
-                <th className="text-label-sm">TTR</th>
-                <th className="text-label-sm">SCORE</th>
-              </tr>
-            </thead>
-            <tbody>
-              {essayHistory.map((e) => (
-                <tr key={e._id}>
-                  <td>{new Date(e.date).toLocaleDateString()}</td>
-                  <td style={{ fontWeight: 700 }}>{e.title}</td>
-                  <td>{e.words}</td>
-                  <td>{e.ttr?.toFixed(2) || '0.00'}</td>
-                  <td>
-                    <span className="student-analytics__score-badge">{e.score}/10</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </section>
+      )}
     </div>
   )
 }

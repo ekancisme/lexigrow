@@ -11,4 +11,44 @@
 .student-analytics__table td { padding: var(--spacing-md) var(--spacing-lg); border-bottom: 1px solid var(--color-outline-variant); }
 .student-analytics__table tr:hover { background: var(--color-surface-container); cursor: pointer; }
 .student-analytics__score-badge { background: var(--color-surface-container-highest); padding: 4px 8px; border-radius: var(--radius-sm); font-size: var(--text-label-sm-size); font-weight: 500; }
-@media (max-width: 768px) { .student-analytics__metrics { grid-template-columns: repeat(2, 1fr); } }
+
+/* ── Tab Navigation ── */
+.student-analytics__tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid var(--color-outline-variant);
+  margin-bottom: var(--spacing-lg);
+}
+.student-analytics__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: var(--text-label-md-size);
+  font-weight: 500;
+  color: var(--color-on-surface-variant);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+  border-radius: 0;
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+}
+.student-analytics__tab:hover {
+  color: var(--color-primary);
+  background: var(--color-surface-container-low);
+}
+.student-analytics__tab--active {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .student-analytics__metrics { grid-template-columns: repeat(2, 1fr); }
+  .student-analytics__tab { padding: 10px 16px; font-size: var(--text-label-sm-size); }
+}
+
