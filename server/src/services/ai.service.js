@@ -349,9 +349,15 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
     
     repeatedWords.sort((a, b) => b.count - a.count)
     
+    const passiveRegex = /\b(am|is|are|was|were|be|been|being)\s+(?:[a-z]+ly\s+)?(written|done|taken|seen|known|made|met|built|chosen|drawn|driven|eaten|fallen|given|grown|held|kept|lost|paid|sent|shown|told|understood|worn|[a-z]+ed)\b/gi
+    const passiveVoiceCount = (essayContent.match(passiveRegex) || []).length
+
+    const subordinateRegex = /\b(although|because|since|unless|while|whereas|if|though)\b/gi
+    const subordinateClausesCount = (essayContent.match(subordinateRegex) || []).length
+
     nlpStats = {
-      passiveVoiceCount: 0,
-      subordinateClausesCount: 0,
+      passiveVoiceCount,
+      subordinateClausesCount,
       repeatedWords
     }
   }
