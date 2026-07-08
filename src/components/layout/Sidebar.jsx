@@ -4,6 +4,7 @@ import './Sidebar.css'
 
 const studentNavItems = [
   { icon: 'dashboard', label: 'Dashboard', path: '/student/dashboard' },
+  { icon: 'assignment', label: 'Assignments', path: '/student/assignments' },
   { icon: 'edit_note', label: 'Write Essay', path: '/student/write-essay' },
   { icon: 'history', label: 'Essay History', path: '/student/essays' },
   { icon: 'menu_book', label: 'Vocabulary', path: '/student/vocabulary' },

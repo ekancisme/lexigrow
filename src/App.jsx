@@ -11,6 +11,7 @@ import AppLayout from './components/layout/AppLayout'
 
 /* Student Pages */
 import StudentDashboard from './pages/student/StudentDashboard'
+import AssignmentInbox from './pages/student/AssignmentInbox'
 import WriteEssay from './pages/student/WriteEssay'
 import MyProgress from './pages/student/MyProgress'
 import SetWeeklyGoals from './pages/student/SetWeeklyGoals'
@@ -75,6 +76,7 @@ function App() {
       <Route path="/student" element={<AppLayout role="student" />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<StudentDashboard />} />
+        <Route path="assignments" element={<AssignmentInbox />} />
         <Route path="write-essay" element={<WriteEssay />} />
         <Route path="vocabulary" element={<VocabularyLibrary />} />
         <Route path="vocabulary/review" element={<FlashcardReview />} />

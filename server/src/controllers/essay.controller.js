@@ -10,7 +10,7 @@ import asyncHandler from '../utils/asyncHandler.js'
  * @access  Private (student)
  */
 export const createEssay = asyncHandler(async (req, res) => {
-  const { title, content, classId, theme } = req.body
+  const { title, content, classId, theme, assignmentId } = req.body
 
   const essay = await Essay.create({
     title,
@@ -18,6 +18,7 @@ export const createEssay = asyncHandler(async (req, res) => {
     student: req.user._id,
     class: classId || undefined,
     theme: theme || 'General',
+    assignment: assignmentId || null,
     status: 'draft',
   })
 

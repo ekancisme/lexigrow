@@ -15,6 +15,7 @@ const themesList = [
 export default function WriteEssay() {
   const [searchParams] = useSearchParams()
   const essayId = searchParams.get('id')
+  const assignmentId = searchParams.get('assignmentId')
   const navigate = useNavigate()
 
   const [essayText, setEssayText] = useState('')
@@ -27,6 +28,8 @@ export default function WriteEssay() {
   const [selectedTheme, setSelectedTheme] = useState('General')
   const [topicSuggestions, setTopicSuggestions] = useState([])
   const [topicsLoading, setTopicsLoading] = useState(false)
+  // Assignment mode state
+  const [assignmentData, setAssignmentData] = useState(null)
 
   const wordCount = essayText.trim() ? essayText.trim().split(/\s+/).length : 0
 
@@ -67,6 +70,27 @@ export default function WriteEssay() {
     loadEssay()
   }, [essayId])
 
+  // Load assignment data if assignmentId is in URL
+  useEffect(() => {
+    if (!assignmentId) return
+    async function loadAssignment() {
+      try {
+        const res = await api.get(`/assignments/${assignmentId}`)
+        const assignment = res.data
+        setAssignmentData(assignment)
+        // Prefill title and lock class to assignment's class
+        if (!essayId) {
+          setTitle(assignment.title)
+          if (assignment.classId?._id) setSelectedClass(assignment.classId._id)
+          else if (assignment.classId) setSelectedClass(assignment.classId)
+        }
+      } catch (err) {
+        console.error('Error loading assignment:', err)
+      }
+    }
+    loadAssignment()
+  }, [assignmentId])
+
   // Load AI suggested topics when theme changes
   useEffect(() => {
     async function fetchTopics() {
@@ -99,6 +123,7 @@ export default function WriteEssay() {
         content: essayText,
         classId: selectedClass || undefined,
         theme: selectedTheme,
+        assignmentId: assignmentId || undefined,
       }
 
       if (essayId) {
@@ -106,7 +131,10 @@ export default function WriteEssay() {
       } else {
         const res = await api.post('/essays', payload)
         // Set query param so subsequent saves are updates
-        navigate(`/student/write-essay?id=${res.data._id}`, { replace: true })
+        const newUrl = assignmentId
+          ? `/student/write-essay?id=${res.data._id}&assignmentId=${assignmentId}`
+          : `/student/write-essay?id=${res.data._id}`
+        navigate(newUrl, { replace: true })
       }
     } catch (err) {
       alert('Error saving draft: ' + err.message)
@@ -128,6 +156,7 @@ export default function WriteEssay() {
         content: essayText,
         classId: selectedClass || undefined,
         theme: selectedTheme,
+        assignmentId: assignmentId || undefined,
       }
 
       if (essayId) {
@@ -152,9 +181,13 @@ export default function WriteEssay() {
       {/* Header */}
       <section className="write-essay__header">
         <div>
-          <h2 className="text-headline-lg">Write Essay</h2>
+          <h2 className="text-headline-lg">
+            {assignmentData ? `Assignment: ${assignmentData.title}` : 'Write Essay'}
+          </h2>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-            Compose your essay and let AI analyze your vocabulary growth
+            {assignmentData
+              ? `Writing for class: ${assignmentData.classId?.name || 'your class'}`
+              : 'Compose your essay and let AI analyze your vocabulary growth'}
           </p>
         </div>
         <div className="write-essay__actions">
@@ -193,17 +226,26 @@ export default function WriteEssay() {
               />
             </div>
             <div style={{ flex: 1 }}>
-              <label className="text-label-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 8, display: 'block' }}>Class (Optional)</label>
-              <select
-                value={selectedClass}
-                onChange={(e) => setSelectedClass(e.target.value)}
-                style={{ width: '100%', height: '48px', padding: '0 16px', borderRadius: '12px', border: '1px solid var(--color-outline)', backgroundColor: 'var(--color-surface)', color: 'var(--color-on-surface)' }}
-              >
-                <option value="">No Class</option>
-                {classes.map((cls) => (
-                  <option key={cls._id} value={cls._id}>{cls.name}</option>
-                ))}
-              </select>
+              <label className="text-label-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 8, display: 'block' }}>
+                Class {assignmentData ? '(Locked by assignment)' : '(Optional)'}
+              </label>
+              {assignmentData ? (
+                <div style={{ height: '48px', padding: '0 16px', borderRadius: '12px', border: '1px solid var(--color-outline)', backgroundColor: 'var(--color-surface-variant)', color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-outline)' }}>lock</span>
+                  {assignmentData.classId?.name || 'Assigned class'}
+                </div>
+              ) : (
+                <select
+                  value={selectedClass}
+                  onChange={(e) => setSelectedClass(e.target.value)}
+                  style={{ width: '100%', height: '48px', padding: '0 16px', borderRadius: '12px', border: '1px solid var(--color-outline)', backgroundColor: 'var(--color-surface)', color: 'var(--color-on-surface)' }}
+                >
+                  <option value="">No Class</option>
+                  {classes.map((cls) => (
+                    <option key={cls._id} value={cls._id}>{cls.name}</option>
+                  ))}
+                </select>
+              )}
             </div>
           </div>
 
@@ -252,6 +294,38 @@ export default function WriteEssay() {
 
         {/* Side Panel */}
         <div className="write-essay__side">
+          {/* Assignment Brief Card — shown only in assignment mode */}
+          {assignmentData && (
+            <div className="card-base" style={{ borderLeft: '4px solid var(--color-primary)' }}>
+              <h3 className="text-title-lg" style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', fontSize: 22 }}>assignment</span>
+                Assignment Brief
+              </h3>
+              {assignmentData.description && (
+                <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 14, lineHeight: 1.6 }}>
+                  {assignmentData.description}
+                </p>
+              )}
+              {assignmentData.dueDate && (
+                <p className="text-label-sm" style={{ color: 'var(--color-outline)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 15 }}>calendar_today</span>
+                  Due: {new Date(assignmentData.dueDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                </p>
+              )}
+              {assignmentData.keywords?.length > 0 && (
+                <div>
+                  <p className="text-label-sm" style={{ color: 'var(--color-outline)', marginBottom: 8, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Required Keywords</p>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                    {assignmentData.keywords.map((kw, i) => (
+                      <span key={i} style={{ background: 'var(--color-primary-container)', color: 'var(--color-on-primary-container)', borderRadius: '999px', padding: '4px 12px', fontSize: '0.8rem', fontWeight: 600 }}>
+                        {kw}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
           {/* Topic Themes Selection */}
           <div className="card-base">
             <h3 className="text-title-lg" style={{ marginBottom: 16 }}>Select Theme</h3>
