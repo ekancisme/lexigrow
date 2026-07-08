@@ -261,8 +261,19 @@ export default function AdminVocabulary() {
     fileInputRef.current.click()
   }
 
-  // Custom high-quality CSV parser
+  // Custom high-quality CSV parser with auto delimiter detection
   const parseCSV = (text) => {
+    let delimiter = ','
+    const firstLine = text.split('\n')[0] || ''
+    if (firstLine.trim().toLowerCase().startsWith('sep=')) {
+      delimiter = firstLine.trim().charAt(4) || ','
+    } else {
+      // Auto-detect based on frequency of commas vs semicolons in the first line
+      const commaCount = (firstLine.match(/,/g) || []).length
+      const semicolonCount = (firstLine.match(/;/g) || []).length
+      delimiter = semicolonCount > commaCount ? ';' : ','
+    }
+
     const lines = []
     let row = []
     let inQuotes = false
@@ -279,7 +290,7 @@ export default function AdminVocabulary() {
         } else {
           inQuotes = !inQuotes
         }
-      } else if (char === ',' && !inQuotes) {
+      } else if (char === delimiter && !inQuotes) {
         row.push(currentVal)
         currentVal = ''
       } else if ((char === '\r' || char === '\n') && !inQuotes) {
