@@ -20,30 +20,7 @@ export default function ClassOverview() {
   const [showAssignmentModal, setShowAssignmentModal] = useState(false)
   const [assignmentForm, setAssignmentForm] = useState({ title: '', description: '', dueDate: '', keywordsInput: '', keywords: [] })
   const [savingAssignment, setSavingAssignment] = useState(false)
-  // State for viewing details of an assignment
-  const [viewingAssignment, setViewingAssignment] = useState(null)
-  const [editForm, setEditForm] = useState({ title: '', description: '', dueDate: '', keywordsInput: '', keywords: [], status: 'active' })
   const [deletingAssignment, setDeletingAssignment] = useState(null)
-
-  useEffect(() => {
-    if (viewingAssignment) {
-      let formattedDate = ''
-      if (viewingAssignment.dueDate) {
-        const date = new Date(viewingAssignment.dueDate)
-        const offset = date.getTimezoneOffset()
-        const localDate = new Date(date.getTime() - offset * 60 * 1000)
-        formattedDate = localDate.toISOString().slice(0, 16)
-      }
-      setEditForm({
-        title: viewingAssignment.title || '',
-        description: viewingAssignment.description || '',
-        dueDate: formattedDate,
-        keywordsInput: '',
-        keywords: viewingAssignment.keywords || [],
-        status: viewingAssignment.status || 'active'
-      })
-    }
-  }, [viewingAssignment])
 
   async function loadClassDetail() {
     try {
@@ -156,41 +133,7 @@ export default function ClassOverview() {
     }
   }
 
-  // ── Edit Assignment handlers ──
-  function handleEditKeywordAdd() {
-    const kw = editForm.keywordsInput.trim()
-    if (kw && !editForm.keywords.includes(kw)) {
-      setEditForm(prev => ({ ...prev, keywords: [...prev.keywords, kw], keywordsInput: '' }))
-    }
-  }
 
-  function handleEditKeywordRemove(kw) {
-    setEditForm(prev => ({ ...prev, keywords: prev.keywords.filter(k => k !== kw) }))
-  }
-
-  async function handleUpdateAssignment(e) {
-    e.preventDefault()
-    if (!editForm.title.trim() || !editForm.dueDate) {
-      alert('Title and due date are required.')
-      return
-    }
-    setSavingAssignment(true)
-    try {
-      await api.put(`/assignments/${viewingAssignment._id}`, {
-        title: editForm.title,
-        description: editForm.description,
-        dueDate: editForm.dueDate,
-        keywords: editForm.keywords,
-        status: editForm.status
-      })
-      setViewingAssignment(null)
-      loadAssignments()
-    } catch (err) {
-      alert('Error updating assignment: ' + err.message)
-    } finally {
-      setSavingAssignment(false)
-    }
-  }
 
   if (loading) {
     return (
@@ -410,7 +353,7 @@ export default function ClassOverview() {
                {assignments.map(a => {
                 const isPast = new Date(a.dueDate) < new Date()
                 return (
-                  <tr key={a._id} onClick={() => setViewingAssignment(a)} style={{ cursor: 'pointer' }}>
+                  <tr key={a._id} onClick={() => navigate(`/teacher/assignment/${a._id}`)} style={{ cursor: 'pointer' }}>
                     <td style={{ fontWeight: 700 }}>{a.title}</td>
                     <td style={{ color: isPast ? 'var(--color-error)' : 'inherit' }}>
                       {new Date(a.dueDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
@@ -528,109 +471,7 @@ export default function ClassOverview() {
         document.body
       )}
 
-      {/* ── EDIT/VIEW ASSIGNMENT DETAIL MODAL ── */}
-      {viewingAssignment && createPortal(
-        <div 
-          onClick={() => setViewingAssignment(null)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            style={{ background: 'var(--color-surface)', borderRadius: 20, padding: 24, width: '90%', maxWidth: 520, maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-              <h3 className="text-title-lg" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>edit_note</span>
-                Edit Assignment
-              </h3>
-              <button onClick={() => setViewingAssignment(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-on-surface-variant)', display: 'flex', alignItems: 'center' }}>
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            
-            <form onSubmit={handleUpdateAssignment} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div>
-                <label className="text-label-md" style={{ display: 'block', marginBottom: 6, color: 'var(--color-on-surface-variant)' }}>Title *</label>
-                <input
-                  type="text"
-                  value={editForm.title}
-                  onChange={e => setEditForm(p => ({ ...p, title: e.target.value }))}
-                  required
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid var(--color-outline)', fontSize: '0.95rem', boxSizing: 'border-box', background: 'var(--color-surface)', color: 'var(--color-on-surface)' }}
-                />
-              </div>
 
-              <div>
-                <label className="text-label-md" style={{ display: 'block', marginBottom: 6, color: 'var(--color-on-surface-variant)' }}>Description</label>
-                <textarea
-                  value={editForm.description}
-                  onChange={e => setEditForm(p => ({ ...p, description: e.target.value }))}
-                  rows={4}
-                  placeholder="Describe assignment..."
-                  style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid var(--color-outline)', fontSize: '0.95rem', resize: 'vertical', boxSizing: 'border-box', background: 'var(--color-surface)', color: 'var(--color-on-surface)' }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: 16 }}>
-                <div style={{ flex: 1 }}>
-                  <label className="text-label-md" style={{ display: 'block', marginBottom: 6, color: 'var(--color-on-surface-variant)' }}>Due Date *</label>
-                  <input
-                    type="datetime-local"
-                    value={editForm.dueDate}
-                    onChange={e => setEditForm(p => ({ ...p, dueDate: e.target.value }))}
-                    required
-                    style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid var(--color-outline)', fontSize: '0.95rem', boxSizing: 'border-box', background: 'var(--color-surface)', color: 'var(--color-on-surface)' }}
-                  />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label className="text-label-md" style={{ display: 'block', marginBottom: 6, color: 'var(--color-on-surface-variant)' }}>Status</label>
-                  <select
-                    value={editForm.status}
-                    onChange={e => setEditForm(p => ({ ...p, status: e.target.value }))}
-                    style={{ width: '100%', height: '42px', padding: '0 12px', borderRadius: 10, border: '1px solid var(--color-outline)', backgroundColor: 'var(--color-surface)', color: 'var(--color-on-surface)', fontSize: '0.95rem' }}
-                  >
-                    <option value="active">Active</option>
-                    <option value="closed">Closed</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-label-md" style={{ display: 'block', marginBottom: 6, color: 'var(--color-on-surface-variant)' }}>Keywords</label>
-                <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
-                  <input
-                    type="text"
-                    value={editForm.keywordsInput}
-                    onChange={e => setEditForm(p => ({ ...p, keywordsInput: e.target.value }))}
-                    onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); handleEditKeywordAdd() } }}
-                    placeholder="Type a keyword and press Enter or Add"
-                    style={{ flex: 1, padding: '10px 14px', borderRadius: 10, border: '1px solid var(--color-outline)', fontSize: '0.9rem', background: 'var(--color-surface)', color: 'var(--color-on-surface)' }}
-                  />
-                  <button type="button" onClick={handleEditKeywordAdd} className="class-overview__action-btn" style={{ padding: '0 14px' }}>Add</button>
-                </div>
-                {editForm.keywords.length > 0 && (
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                    {editForm.keywords.map(kw => (
-                      <span key={kw} style={{ background: 'var(--color-primary-container)', color: 'var(--color-on-primary-container)', borderRadius: '999px', padding: '4px 12px', fontSize: '0.82rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}>
-                        {kw}
-                        <button type="button" onClick={() => handleEditKeywordRemove(kw)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'inherit', lineHeight: 1, padding: 0, fontWeight: 700 }}>×</button>
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 12 }}>
-                <button type="button" onClick={() => setViewingAssignment(null)} className="class-overview__action-btn" style={{ background: 'var(--color-surface-variant)', color: 'var(--color-on-surface-variant)' }}>Cancel</button>
-                <button type="submit" className="class-overview__action-btn" disabled={savingAssignment}>
-                  {savingAssignment ? 'Saving...' : 'Save Changes'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>,
-        document.body
-      )}
 
       {/* ── CUSTOM CONFIRM DELETE MODAL ── */}
       {deletingAssignment && createPortal(

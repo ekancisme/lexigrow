@@ -1,8 +1,9 @@
 import Assignment from '../models/Assignment.js'
 import Class from '../models/Class.js'
+import Essay from '../models/Essay.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
-import { createManyNotifications } from '../services/notification.service.js'
+import { createManyNotifications, createNotification } from '../services/notification.service.js'
 
 /**
  * @desc    Create a new assignment for a class
@@ -144,6 +145,36 @@ export const updateAssignment = asyncHandler(async (req, res) => {
   if (status !== undefined) assignment.status = status
 
   await assignment.save()
+
+  // Send real-time notifications to all students in the class about the update
+  const cls = await Class.findById(assignment.classId)
+  if (cls && cls.students && cls.students.length > 0) {
+    const notifications = cls.students.map(studentId => ({
+      recipient: studentId,
+      sender: req.user._id,
+      title: 'Assignment Updated',
+      message: `Teacher ${req.user.name} has updated the assignment: "${assignment.title}" in class "${cls.name}".`,
+      type: 'assignment',
+      link: '/student/assignments',
+    }))
+
+    createManyNotifications(notifications).catch(err => {
+      console.error('Failed to send assignment update notifications:', err.message)
+    })
+  }
+
+  // Send a self-notification to the teacher to confirm successful update via notification bell toast
+  createNotification({
+    recipient: req.user._id,
+    sender: req.user._id,
+    title: 'Assignment Updated',
+    message: `Assignment "${assignment.title}" has been updated successfully.`,
+    type: 'assignment',
+    link: `/teacher/assignment/${assignment._id}`,
+  }).catch(err => {
+    console.error('Failed to send teacher self update notification:', err.message)
+  })
+
   res.status(200).json({ success: true, data: assignment })
 })
 
@@ -161,4 +192,28 @@ export const deleteAssignment = asyncHandler(async (req, res) => {
 
   await assignment.deleteOne()
   res.status(200).json({ success: true, message: 'Assignment deleted' })
+})
+
+/**
+ * @desc    Get all essays submitted for an assignment
+ * @route   GET /api/assignments/:id/submissions
+ * @access  Private (teacher)
+ */
+export const getAssignmentSubmissions = asyncHandler(async (req, res) => {
+  const assignment = await Assignment.findById(req.params.id)
+  if (!assignment) throw new ErrorResponse('Assignment not found', 404)
+  if (assignment.teacher.toString() !== req.user._id.toString()) {
+    throw new ErrorResponse('Not authorized to access submissions of this assignment', 403)
+  }
+
+  // Find submitted essays linked to this assignment
+  // status: { $ne: 'draft' } -> only show submitted or reviewed essays
+  const submissions = await Essay.find({ 
+    assignment: req.params.id,
+    status: { $ne: 'draft' }
+  })
+    .populate('student', 'name email')
+    .sort({ submittedAt: -1 })
+
+  res.status(200).json({ success: true, count: submissions.length, data: submissions })
 })

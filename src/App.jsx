@@ -29,6 +29,7 @@ import ManualFeedbackReview from './pages/teacher/ManualFeedbackReview'
 import EarlyWarningAlerts from './pages/teacher/EarlyWarningAlerts'
 import SystemPromptsManagement from './pages/teacher/SystemPromptsManagement'
 import ProfileSettings from './pages/teacher/ProfileSettings'
+import AssignmentDetail from './pages/teacher/AssignmentDetail'
 
 /* Admin Pages */
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -94,6 +95,7 @@ function App() {
         <Route path="classes" element={<ClassManagement />} />
         <Route path="student/:id" element={<StudentAnalyticsDetail />} />
         <Route path="feedback/:id" element={<ManualFeedbackReview />} />
+        <Route path="assignment/:id" element={<AssignmentDetail />} />
         <Route path="alerts" element={<EarlyWarningAlerts />} />
         <Route path="prompts" element={<SystemPromptsManagement />} />
       </Route>

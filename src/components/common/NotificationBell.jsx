@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
 import { getSocket } from '../../services/socket.js'
@@ -69,16 +70,7 @@ export default function NotificationBell() {
       // 2. Thêm thông báo mới vào danh sách hiện tại
       setNotifications(prev => [notif, ...prev])
 
-      // 3. Hiển thị Toast thông báo nếu dropdown đang đóng
-      if (!open) {
-        setActiveToast(notif)
-        
-        // Tự động đóng toast sau 5 giây
-        if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
-        toastTimerRef.current = setTimeout(() => {
-          setActiveToast(null)
-        }, 5000)
-      }
+      // 3. Không tự động hiển thị Toast ở góc màn hình nữa, chỉ tăng count và update list thông báo
     }
 
     socket.on('notification', handleNewNotification)
@@ -268,7 +260,7 @@ export default function NotificationBell() {
       </div>
 
       {/* Toast Notification */}
-      {activeToast && (
+      {activeToast && createPortal(
         <div className={`notif-toast notif-toast--${activeToast.type}`} onClick={() => handleToastClick(activeToast)}>
           <div className="notif-toast__icon">
             <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
@@ -282,7 +274,8 @@ export default function NotificationBell() {
           <button className="notif-toast__close" onClick={(e) => { e.stopPropagation(); setActiveToast(null); }}>
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>close</span>
           </button>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   )

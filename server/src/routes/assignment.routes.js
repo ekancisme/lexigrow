@@ -6,6 +6,7 @@ import {
   getAssignmentById,
   updateAssignment,
   deleteAssignment,
+  getAssignmentSubmissions,
 } from '../controllers/assignment.controller.js'
 import { protect, authorize } from '../middleware/auth.middleware.js'
 
@@ -15,6 +16,9 @@ router.use(protect)
 
 // Student: get their assignment inbox
 router.get('/inbox', authorize('student'), getAssignmentInbox)
+
+// Teacher: get submissions for assignment
+router.get('/:id/submissions', authorize('teacher'), getAssignmentSubmissions)
 
 // Teacher: create / list assignments by class
 router.route('/')
