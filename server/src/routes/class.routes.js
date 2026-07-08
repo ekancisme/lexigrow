@@ -2,7 +2,7 @@ import { Router } from 'express'
 import {
   createClass, getClasses, getClassDetail,
   updateClass, deleteClass, addStudent, removeStudent,
-  getAdminClasses
+  getAdminClasses, forceEnrollStudent, forceUnenrollStudent
 } from '../controllers/class.controller.js'
 import { protect, authorize } from '../middleware/auth.middleware.js'
 
@@ -17,6 +17,9 @@ router.route('/')
 // Admin-specific class route (placed before /:id)
 router.route('/admin')
   .get(authorize('admin'), getAdminClasses)
+
+router.post('/admin/:id/enroll', authorize('admin'), forceEnrollStudent)
+router.post('/admin/:id/unenroll', authorize('admin'), forceUnenrollStudent)
 
 router.route('/:id')
   .get(authorize('teacher'), getClassDetail)

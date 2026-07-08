@@ -241,3 +241,42 @@ export const getAdminClasses = asyncHandler(async (req, res) => {
 
   res.status(200).json({ success: true, count: enriched.length, data: enriched })
 })
+
+/**
+ * @desc    Force enroll a student in a class
+ * @route   POST /api/classes/admin/:id/enroll
+ * @access  Private (admin)
+ */
+export const forceEnrollStudent = asyncHandler(async (req, res) => {
+  const cls = await Class.findById(req.params.id)
+  if (!cls) throw new ErrorResponse('Class not found', 404)
+
+  const student = await User.findById(req.body.studentId)
+  if (!student || student.role !== 'student') {
+    throw new ErrorResponse('Student not found', 404)
+  }
+
+  if (cls.students.includes(student._id)) {
+    throw new ErrorResponse('Student already in this class', 400)
+  }
+
+  cls.students.push(student._id)
+  await cls.save()
+
+  res.status(200).json({ success: true, data: cls })
+})
+
+/**
+ * @desc    Force unenroll a student from a class
+ * @route   POST /api/classes/admin/:id/unenroll
+ * @access  Private (admin)
+ */
+export const forceUnenrollStudent = asyncHandler(async (req, res) => {
+  const cls = await Class.findById(req.params.id)
+  if (!cls) throw new ErrorResponse('Class not found', 404)
+
+  cls.students = cls.students.filter(s => s.toString() !== req.body.studentId)
+  await cls.save()
+
+  res.status(200).json({ success: true, data: cls })
+})
