@@ -321,3 +321,31 @@ export const transferStudent = asyncHandler(async (req, res) => {
 
   res.status(200).json({ success: true, message: 'Student transferred successfully' })
 })
+
+/**
+ * @desc    Archive a class
+ * @route   PATCH /api/classes/admin/:id/archive
+ * @access  Private (admin)
+ */
+export const archiveClassByAdmin = asyncHandler(async (req, res) => {
+  const cls = await Class.findById(req.params.id)
+  if (!cls) throw new ErrorResponse('Class not found', 404)
+
+  cls.status = 'archived'
+  await cls.save()
+
+  res.status(200).json({ success: true, data: cls })
+})
+
+/**
+ * @desc    Delete a class by admin
+ * @route   DELETE /api/classes/admin/:id
+ * @access  Private (admin)
+ */
+export const deleteClassByAdmin = asyncHandler(async (req, res) => {
+  const cls = await Class.findById(req.params.id)
+  if (!cls) throw new ErrorResponse('Class not found', 404)
+
+  await cls.deleteOne()
+  res.status(200).json({ success: true, message: 'Class deleted successfully' })
+})

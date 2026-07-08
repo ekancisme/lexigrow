@@ -2,7 +2,8 @@ import { Router } from 'express'
 import {
   createClass, getClasses, getClassDetail,
   updateClass, deleteClass, addStudent, removeStudent,
-  getAdminClasses, forceEnrollStudent, forceUnenrollStudent, transferStudent
+  getAdminClasses, forceEnrollStudent, forceUnenrollStudent, transferStudent,
+  archiveClassByAdmin, deleteClassByAdmin
 } from '../controllers/class.controller.js'
 import { protect, authorize } from '../middleware/auth.middleware.js'
 
@@ -21,6 +22,8 @@ router.route('/admin')
 router.post('/admin/transfer', authorize('admin'), transferStudent)
 router.post('/admin/:id/enroll', authorize('admin'), forceEnrollStudent)
 router.post('/admin/:id/unenroll', authorize('admin'), forceUnenrollStudent)
+router.patch('/admin/:id/archive', authorize('admin'), archiveClassByAdmin)
+router.delete('/admin/:id', authorize('admin'), deleteClassByAdmin)
 
 router.route('/:id')
   .get(authorize('teacher'), getClassDetail)

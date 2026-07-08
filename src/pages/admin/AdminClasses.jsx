@@ -1,5 +1,4 @@
 import './AdminPages.css'
-
 export default function AdminClasses() {
   return (
     <div className="admin-page">
