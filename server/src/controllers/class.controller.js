@@ -4,6 +4,7 @@ import Essay from '../models/Essay.js'
 import AIAnalysis from '../models/AIAnalysis.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
+import { createNotification } from '../services/notification.service.js'
 
 /**
  * @desc    Create a new class
@@ -188,6 +189,20 @@ export const addStudent = asyncHandler(async (req, res) => {
 
   cls.students.push(student._id)
   await cls.save()
+
+  // Gửi thông báo realtime cho học sinh
+  try {
+    await createNotification({
+      recipient: student._id,
+      sender: req.user._id,
+      title: 'Bạn đã được thêm vào lớp học mới',
+      message: `Giáo viên ${req.user.name} đã thêm bạn vào lớp học "${cls.name}".`,
+      type: 'system',
+      link: '/',
+    })
+  } catch (err) {
+    console.error('Failed to send class join notification:', err)
+  }
 
   res.status(200).json({ success: true, data: cls })
 })

@@ -1,5 +1,6 @@
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useState, useEffect } from 'react'
 import api from '../services/api.js'
+import { connectSocket, disconnectSocket } from '../services/socket.js'
 
 const AuthContext = createContext(null)
 
@@ -8,6 +9,18 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(api.getUser())
   const [token, setToken] = useState(api.getToken())
   const [loading, setLoading] = useState(false)
+
+  // Quản lý vòng đời kết nối Socket.io dựa trên token đăng nhập
+  useEffect(() => {
+    if (token) {
+      connectSocket(token)
+    } else {
+      disconnectSocket()
+    }
+    return () => {
+      disconnectSocket()
+    }
+  }, [token])
 
   // 1. Hàm Đăng Nhập
   const login = async (email, password) => {

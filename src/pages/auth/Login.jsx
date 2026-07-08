@@ -20,7 +20,13 @@ export default function Login() {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      navigate(user.role === 'teacher' ? '/teacher/dashboard' : '/student/dashboard')
+      if (user.role === 'admin') {
+        navigate('/admin/dashboard')
+      } else if (user.role === 'teacher') {
+        navigate('/teacher/dashboard')
+      } else {
+        navigate('/student/dashboard')
+      }
     }
   }, [isAuthenticated, user])
 

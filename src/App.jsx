@@ -29,7 +29,37 @@ import EarlyWarningAlerts from './pages/teacher/EarlyWarningAlerts'
 import SystemPromptsManagement from './pages/teacher/SystemPromptsManagement'
 import ProfileSettings from './pages/teacher/ProfileSettings'
 
+/* Admin Pages */
+import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminUsers from './pages/admin/AdminUsers'
+import AdminClasses from './pages/admin/AdminClasses'
+import AdminAIMonitoring from './pages/admin/AdminAIMonitoring'
+import AdminVocabulary from './pages/admin/AdminVocabulary'
+import AdminLogs from './pages/admin/AdminLogs'
+
 import TextTranslator from './components/common/TextTranslator'
+import { useAuth } from './contexts/AuthContext.jsx'
+
+// Route guard for Admins
+function AdminProtectedRoute({ children }) {
+  const { isAuthenticated, user, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <span className="material-symbols-outlined animate-spin" style={{ fontSize: 48, color: 'var(--color-primary)' }}>
+          progress_activity
+        </span>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated || user?.role !== 'admin') {
+    return <Navigate to="/login" replace state={{ infoMessage: 'Bạn không có quyền truy cập trang quản trị.' }} />
+  }
+
+  return children
+}
 
 function App() {
   return (
@@ -64,6 +94,21 @@ function App() {
         <Route path="feedback/:id" element={<ManualFeedbackReview />} />
         <Route path="alerts" element={<EarlyWarningAlerts />} />
         <Route path="prompts" element={<SystemPromptsManagement />} />
+      </Route>
+
+      {/* Admin routes */}
+      <Route path="/admin" element={
+        <AdminProtectedRoute>
+          <AppLayout role="admin" />
+        </AdminProtectedRoute>
+      }>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="classes" element={<AdminClasses />} />
+        <Route path="ai-monitoring" element={<AdminAIMonitoring />} />
+        <Route path="vocabulary" element={<AdminVocabulary />} />
+        <Route path="logs" element={<AdminLogs />} />
       </Route>
 
       {/* Shared routes */}

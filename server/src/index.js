@@ -9,6 +9,7 @@ import cors from 'cors'
 import connectDB from './config/db.js'
 import errorHandler from './middleware/error.middleware.js'
 import { runEarlyWarningScan } from './services/earlyWarning.service.js'
+import { initSocket } from './services/socket.service.js'
 
 // Connect to database
 connectDB()
@@ -77,9 +78,11 @@ app.use(errorHandler)
 
 const PORT = process.env.PORT || 5000
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`🚀 LexiGrow Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
 })
+
+initSocket(server)
 
 // Early Warning Scan Scheduler: runs every 24 hours, and starts a test run 10 seconds after server startup.
 setInterval(runEarlyWarningScan, 24 * 60 * 60 * 1000)
