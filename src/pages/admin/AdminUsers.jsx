@@ -3,21 +3,21 @@ import api from '../../services/api.js'
 import './AdminUsers.css'
 
 /* ── Constants ──────────────────────────────────────────── */
-const ROLES   = ['all', 'student', 'teacher', 'parent', 'admin']
+const ROLES = ['all', 'student', 'teacher', 'parent', 'admin']
 const STATUSES = ['all', 'active', 'suspended', 'pending_approval', 'rejected']
 
 const ROLE_META = {
-  student:  { label: 'Student',  icon: 'school',       cls: 'role--student'  },
-  teacher:  { label: 'Teacher',  icon: 'person_book',  cls: 'role--teacher'  },
-  parent:   { label: 'Parent',   icon: 'family_restroom', cls: 'role--parent'},
-  admin:    { label: 'Admin',    icon: 'text_snippet', cls: 'role--admin'   },
+  student: { label: 'Student', icon: 'school', cls: 'role--student' },
+  teacher: { label: 'Teacher', icon: 'person_book', cls: 'role--teacher' },
+  parent: { label: 'Parent', icon: 'family_restroom', cls: 'role--parent' },
+  admin: { label: 'Admin', icon: 'text_snippet', cls: 'role--admin' },
 }
 
 const STATUS_META = {
-  active:           { label: 'Active',          icon: 'check_circle',   cls: 'status--active'   },
-  suspended:        { label: 'Suspended',       icon: 'block',          cls: 'status--suspended' },
-  pending_approval: { label: 'Pending',         icon: 'pending',        cls: 'status--pending'   },
-  rejected:         { label: 'Rejected',        icon: 'cancel',         cls: 'status--rejected'  },
+  active: { label: 'Active', icon: 'check_circle', cls: 'status--active' },
+  suspended: { label: 'Suspended', icon: 'block', cls: 'status--suspended' },
+  pending_approval: { label: 'Pending', icon: 'pending', cls: 'status--pending' },
+  rejected: { label: 'Rejected', icon: 'cancel', cls: 'status--rejected' },
 }
 
 function RoleBadge({ role }) {
@@ -47,11 +47,11 @@ function formatDate(d) {
 
 /* ── User Detail Modal ───────────────────────────────────── */
 function UserModal({ user, onClose, onAction }) {
-  const [newStatus,   setNewStatus]   = useState(user.accountStatus || 'active')
-  const [newRole,     setNewRole]     = useState(user.role)
+  const [newStatus, setNewStatus] = useState(user.accountStatus || 'active')
+  const [newRole, setNewRole] = useState(user.role)
   const [newPassword, setNewPassword] = useState('')
-  const [statusNote,  setStatusNote]  = useState(user.statusNote || '')
-  const [saving,      setSaving]      = useState(false)
+  const [statusNote, setStatusNote] = useState(user.statusNote || '')
+  const [saving, setSaving] = useState(false)
 
   async function applyStatusChange() {
     if (newStatus === user.accountStatus) return
@@ -109,7 +109,7 @@ function UserModal({ user, onClose, onAction }) {
             <h3 className="au-modal__name">{user.name}</h3>
             <p className="au-modal__email">{user.email}</p>
             <div className="au-modal__badges">
-              <RoleBadge   role={user.role} />
+              <RoleBadge role={user.role} />
               <StatusBadge status={user.accountStatus || 'active'} />
             </div>
           </div>
@@ -241,7 +241,7 @@ function UserModal({ user, onClose, onAction }) {
 /* ── Approval Card ───────────────────────────────────────── */
 function ApprovalCard({ user, onApprove, onReject, processing }) {
   const [rejectReason, setRejectReason] = useState('')
-  const [showReject,   setShowReject]   = useState(false)
+  const [showReject, setShowReject] = useState(false)
 
   return (
     <div className={`au-approval-card card-base ${processing === user._id ? 'au-approval-card--loading' : ''}`}>
@@ -322,20 +322,20 @@ function ApprovalCard({ user, onApprove, onReject, processing }) {
 
 /* ── Main Component ──────────────────────────────────────── */
 export default function AdminUsers() {
-  const [tab,          setTab]          = useState('users')   // 'users' | 'approvals'
-  const [users,        setUsers]        = useState([])
-  const [approvals,    setApprovals]    = useState([])
-  const [summary,      setSummary]      = useState(null)
-  const [loading,      setLoading]      = useState(true)
-  const [error,        setError]        = useState(null)
-  const [search,       setSearch]       = useState('')
-  const [roleFilter,   setRoleFilter]   = useState('all')
+  const [tab, setTab] = useState('users')   // 'users' | 'approvals'
+  const [users, setUsers] = useState([])
+  const [approvals, setApprovals] = useState([])
+  const [summary, setSummary] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [search, setSearch] = useState('')
+  const [roleFilter, setRoleFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [page,         setPage]         = useState(1)
-  const [totalPages,   setTotalPages]   = useState(1)
-  const [total,        setTotal]        = useState(0)
+  const [page, setPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [total, setTotal] = useState(0)
   const [selectedUser, setSelectedUser] = useState(null)
-  const [processing,   setProcessing]   = useState(null)
+  const [processing, setProcessing] = useState(null)
 
   /* ── Load users ── */
   const loadUsers = useCallback(async (p = 1) => {
@@ -343,8 +343,8 @@ export default function AdminUsers() {
     setError(null)
     try {
       const params = new URLSearchParams({ page: p, limit: 15 })
-      if (search)       params.set('search', search)
-      if (roleFilter   !== 'all') params.set('role',   roleFilter)
+      if (search) params.set('search', search)
+      if (roleFilter !== 'all') params.set('role', roleFilter)
       if (statusFilter !== 'all') params.set('status', statusFilter)
 
       const res = await api.get(`/admin/users?${params}`)
@@ -424,11 +424,11 @@ export default function AdminUsers() {
       {summary && (
         <div className="au-summary">
           {[
-            { key: 'student',          label: 'Students',  icon: 'school',        color: 'primary'   },
-            { key: 'teacher',          label: 'Teachers',  icon: 'person_book',   color: 'secondary' },
-            { key: 'parent',           label: 'Parents',   icon: 'family_restroom',color: 'tertiary' },
-            { key: 'pending_approval', label: 'Pending',   icon: 'pending',       color: 'warning'   },
-            { key: 'suspended',        label: 'Suspended', icon: 'block',         color: 'error'     },
+            { key: 'student', label: 'Students', icon: 'school', color: 'primary' },
+            { key: 'teacher', label: 'Teachers', icon: 'person_book', color: 'secondary' },
+            { key: 'parent', label: 'Parents', icon: 'family_restroom', color: 'tertiary' },
+            { key: 'pending_approval', label: 'Pending', icon: 'pending', color: 'warning' },
+            { key: 'suspended', label: 'Suspended', icon: 'block', color: 'error' },
           ].map(s => (
             <div key={s.key} className={`au-summary-card au-summary-card--${s.color}`}>
               <span className="material-symbols-outlined">{s.icon}</span>
@@ -484,7 +484,7 @@ export default function AdminUsers() {
             </div>
 
             <div className="au-filters">
-              <select className="au-select" value={roleFilter}   onChange={e => { setRoleFilter(e.target.value);   setPage(1) }}>
+              <select className="au-select" value={roleFilter} onChange={e => { setRoleFilter(e.target.value); setPage(1) }}>
                 {ROLES.map(r => <option key={r} value={r}>{r === 'all' ? 'All Roles' : ROLE_META[r]?.label || r}</option>)}
               </select>
               <select className="au-select" value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1) }}>
@@ -538,7 +538,7 @@ export default function AdminUsers() {
                             </div>
                           </div>
                         </td>
-                        <td><RoleBadge   role={u.role}          /></td>
+                        <td><RoleBadge role={u.role} /></td>
                         <td><StatusBadge status={u.accountStatus || 'active'} /></td>
                         <td className="au-table__institution">{u.institution || '—'}</td>
                         <td className="au-table__date">{formatDate(u.createdAt)}</td>
