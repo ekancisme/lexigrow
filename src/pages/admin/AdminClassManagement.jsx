@@ -22,7 +22,7 @@ export default function AdminClassManagement() {
       const res = await api.get('/classes/admin')
       setClasses(res.data || [])
     } catch (err) {
-      setError(err.message || 'Không thể tải danh sách lớp học hệ thống.')
+      setError(err.message || 'Unable to load system classes.')
     } finally {
       setLoading(false)
     }
@@ -49,7 +49,7 @@ export default function AdminClassManagement() {
         <span className="material-symbols-outlined animate-spin" style={{ fontSize: 48, color: 'var(--color-primary)' }}>
           progress_activity
         </span>
-        <p style={{ marginTop: 12, color: 'var(--color-on-surface-variant)' }}>Đang tải danh sách lớp học...</p>
+        <p style={{ marginTop: 12, color: 'var(--color-on-surface-variant)' }}>Loading class list...</p>
       </div>
     )
   }
@@ -59,8 +59,8 @@ export default function AdminClassManagement() {
       {/* Header */}
       <div className="admin-page__header">
         <div>
-          <h2 className="admin-page__title">Quản lý Lớp học Hệ thống</h2>
-          <p className="admin-page__subtitle">Xem danh sách toàn bộ các lớp học và lọc thông tin theo giáo viên phụ trách</p>
+          <h2 className="admin-page__title">System Class Management</h2>
+          <p className="admin-page__subtitle">View and manage all system classes, filtered by teacher</p>
         </div>
       </div>
 
@@ -75,7 +75,7 @@ export default function AdminClassManagement() {
       {/* Main Content Card */}
       <div className="admin-card">
         <div className="admin-card__header" style={{ borderBottom: 'none', paddingBottom: 0, marginBottom: 20 }}>
-          <h3 className="admin-card__title">Tất cả lớp học ({filteredClasses.length})</h3>
+          <h3 className="admin-card__title">All Classes ({filteredClasses.length})</h3>
         </div>
 
         {/* Filter Bar */}
@@ -83,7 +83,7 @@ export default function AdminClassManagement() {
           <div className="input-group">
             <input
               type="text"
-              placeholder="Tìm kiếm lớp học theo tên..."
+              placeholder="Search classes by name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
@@ -112,7 +112,7 @@ export default function AdminClassManagement() {
                 color: 'var(--color-on-surface)'
               }}
             >
-              <option value="">Lọc theo Giáo viên</option>
+              <option value="">Filter by Teacher</option>
               {uniqueTeachers.map((t) => (
                 <option key={t._id} value={t._id}>
                   {t.name}
@@ -125,17 +125,17 @@ export default function AdminClassManagement() {
         {/* Table of Classes */}
         {filteredClasses.length === 0 ? (
           <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-outline)' }}>
-            Không tìm thấy lớp học nào.
+            No classes found.
           </div>
         ) : (
           <div className="table-responsive" style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid var(--color-outline-variant)', color: 'var(--color-on-surface)' }}>
-                  <th style={{ padding: '12px 8px', fontWeight: 'bold' }}>Tên Lớp học</th>
-                  <th style={{ padding: '12px 8px', fontWeight: 'bold' }}>Giáo viên Phụ trách</th>
-                  <th style={{ padding: '12px 8px', fontWeight: 'bold', textAlign: 'center' }}>Sĩ số</th>
-                  <th style={{ padding: '12px 8px', fontWeight: 'bold' }}>Trạng thái</th>
+                  <th style={{ padding: '12px 8px', fontWeight: 'bold' }}>Class Name</th>
+                  <th style={{ padding: '12px 8px', fontWeight: 'bold' }}>Teacher in Charge</th>
+                  <th style={{ padding: '12px 8px', fontWeight: 'bold', textAlign: 'center' }}>Students</th>
+                  <th style={{ padding: '12px 8px', fontWeight: 'bold' }}>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -147,7 +147,7 @@ export default function AdminClassManagement() {
                     <td style={{ padding: '14px 8px' }}>
                       <div style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>{cls.name}</div>
                       <div style={{ fontSize: '12px', color: 'var(--color-outline)' }}>
-                        {cls.description || 'Không có mô tả'}
+                        {cls.description || 'No description'}
                       </div>
                     </td>
                     <td style={{ padding: '14px 8px' }}>
