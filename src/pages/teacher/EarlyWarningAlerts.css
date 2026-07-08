@@ -3,6 +3,79 @@
    Follows LexiGrow Design System (tokens.css + global.css)
    ============================================================ */
 
+/* ── Section wrappers ────────────────────────────────────── */
+.ewa__section-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+/* ── Class Group ────────────────────────────────────────── */
+.ewa__class-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-lg);
+    background: var(--color-surface-container-lowest);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-outline-variant);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-normal);
+}
+
+.ewa__class-group:hover {
+    box-shadow: var(--shadow-md);
+}
+
+.ewa__class-group-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--color-on-surface);
+    padding: 10px 16px;
+    background: var(--color-surface-container-low);
+    border-radius: var(--radius-lg);
+    border-left: 4px solid var(--color-primary);
+}
+
+.ewa__class-group-header .material-symbols-outlined {
+    color: var(--color-primary);
+    font-size: 20px;
+}
+
+.ewa__class-group-header--resolved {
+    border-left-color: var(--color-success);
+}
+
+.ewa__class-group-header--resolved .material-symbols-outlined {
+    color: var(--color-success);
+}
+
+.ewa__class-group-count {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-primary);
+    background: rgba(0, 91, 191, 0.1);
+    padding: 2px 10px;
+    border-radius: var(--radius-full);
+    margin-left: auto;
+}
+
+.ewa__class-group-header--resolved .ewa__class-group-count {
+    color: var(--color-success);
+    background: var(--color-success-bg);
+}
+
+.ewa__class-group-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-xs);
+}
+
 /* ── Page wrapper ───────────────────────────────────────── */
 .ewa {
     display: flex;
@@ -617,5 +690,72 @@
 
     .ewa-btn {
         justify-content: center;
+    }
+}
+
+/* ── New badge ───────────────────────────────────────────── */
+.ewa-badge--new {
+    background: rgba(0, 91, 191, 0.12);
+    color: var(--color-primary);
+    animation: pulse-new 2s ease-in-out infinite;
+}
+
+@keyframes pulse-new {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.6;
+    }
+}
+
+/* ── Total stat item ─────────────────────────────────────── */
+.ewa__stat-item--total {
+    border-left: 4px solid var(--color-outline-variant);
+}
+
+.ewa__stat-item--total .material-symbols-outlined {
+    color: var(--color-on-surface-variant);
+}
+
+/* Stats grid: 5 columns when total card is present */
+.ewa__stats {
+    grid-template-columns: repeat(5, 1fr);
+}
+
+/* ── Load more button ────────────────────────────────────── */
+.ewa-btn--load-more {
+    width: 100%;
+    justify-content: center;
+    padding: 14px;
+    border: 1px dashed var(--color-outline-variant);
+    color: var(--color-on-surface-variant);
+    background: var(--color-surface-container-lowest);
+    border-radius: var(--radius-xl);
+    font-size: var(--text-label-md-size);
+    font-weight: 600;
+    transition: all var(--transition-fast);
+    margin-top: 4px;
+}
+
+.ewa-btn--load-more:hover:not(:disabled) {
+    background: var(--color-surface-container-low);
+    border-color: var(--color-outline);
+    color: var(--color-primary);
+}
+
+/* Responsive: collapse to 2-col on medium, adjust for 5-col grid */
+@media (max-width: 1100px) {
+    .ewa__stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .ewa__stats {
+        grid-template-columns: repeat(2, 1fr);
     }
 }

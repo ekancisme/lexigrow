@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
 import './EarlyWarningAlerts.css'
 
-/* ─── helpers ─────────────────────────────────────── */
+/* ─── Helpers ────────────────────────────────────────── */
 function formatRelativeTime(dateStr) {
   const now = Date.now()
   const created = new Date(dateStr).getTime()
@@ -28,14 +28,25 @@ function getAlertMeta(type) {
   }
 }
 
-const FILTERS = [
+function metricLabel(metric) {
+  if (!metric) return null
+  const map = {
+    vocabulary_stagnation: 'Vocabulary Stagnation',
+    grammar_decline: 'Grammar Decline',
+  }
+  return map[metric] || metric.replace(/_/g, ' ')
+}
+
+const TYPE_FILTERS = [
   { key: '', label: 'All', icon: 'filter_list' },
   { key: 'critical', label: 'Critical', icon: 'warning' },
   { key: 'warning', label: 'Warning', icon: 'assignment_late' },
   { key: 'info', label: 'Info', icon: 'info' },
 ]
 
-/* ─── Loading Skeleton ────────────────────────────── */
+const PAGE_SIZE = 15
+
+/* ─── Loading Skeleton ────────────────────────────────── */
 function AlertSkeleton() {
   return (
     <div className="ewa-skeleton card-base">
@@ -56,7 +67,7 @@ function AlertSkeleton() {
   )
 }
 
-/* ─── Alert Card ──────────────────────────────────── */
+/* ─── Alert Card ──────────────────────────────────────── */
 function AlertCard({ alert, onResolve, resolving }) {
   const navigate = useNavigate()
   const meta = getAlertMeta(alert.type)
@@ -93,7 +104,7 @@ function AlertCard({ alert, onResolve, resolving }) {
               {alert.metric && (
                 <span className="ewa-card__meta-chip ewa-card__meta-chip--metric">
                   <span className="material-symbols-outlined" style={{ fontSize: 14 }}>query_stats</span>
-                  {alert.metric}
+                  {metricLabel(alert.metric)}
                 </span>
               )}
             </div>
@@ -104,6 +115,9 @@ function AlertCard({ alert, onResolve, resolving }) {
           <span className={`ewa-badge ewa-badge--${meta.cls}`}>{meta.label}</span>
           {alert.isResolved && (
             <span className="ewa-badge ewa-badge--resolved">Resolved</span>
+          )}
+          {!alert.isRead && !alert.isResolved && (
+            <span className="ewa-badge ewa-badge--new">New</span>
           )}
           <span className="ewa-card__time text-label-sm">
             <span className="material-symbols-outlined" style={{ fontSize: 14 }}>schedule</span>
@@ -116,7 +130,7 @@ function AlertCard({ alert, onResolve, resolving }) {
       <p className="ewa-card__detail text-body-md">{alert.detail}</p>
 
       {/* ACTIONS */}
-      {!alert.isResolved && (
+      {!alert.isResolved ? (
         <div className="ewa-card__actions">
           <button
             id={`view-profile-${alert._id}`}
@@ -146,9 +160,7 @@ function AlertCard({ alert, onResolve, resolving }) {
             )}
           </button>
         </div>
-      )}
-
-      {alert.isResolved && (
+      ) : (
         <div className="ewa-card__resolved-row">
           <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--color-success)' }}>verified</span>
           <span className="text-label-sm" style={{ color: 'var(--color-success)' }}>This alert has been resolved</span>
@@ -158,6 +170,7 @@ function AlertCard({ alert, onResolve, resolving }) {
             onClick={() => navigate(`/teacher/student/${studentId}`)}
             disabled={!studentId}
           >
+            <span className="material-symbols-outlined" style={{ fontSize: 15 }}>open_in_new</span>
             View Profile
           </button>
         </div>
@@ -166,60 +179,101 @@ function AlertCard({ alert, onResolve, resolving }) {
   )
 }
 
-/* ─── Main Component ──────────────────────────────── */
+/* ─── Main Component ──────────────────────────────────── */
 export default function EarlyWarningAlerts() {
   const [alerts, setAlerts] = useState([])
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState(null)
   const [activeFilter, setActiveFilter] = useState('')
-  const [resolving, setResolving] = useState(null)  // id of alert being resolved
   const [showResolved, setShowResolved] = useState(false)
+  const [resolving, setResolving] = useState(null)
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const hasMore = alerts.length < total
 
-  /* ── Fetch alerts ── */
-  const loadAlerts = useCallback(async () => {
-    setLoading(true)
+  // Track which alerts we auto-marked as read on mount
+  const markedReadRef = useRef(new Set())
+
+  /* ── Auto-mark unread alerts as read ─────────────────── */
+  async function markAlertRead(alertId) {
+    if (markedReadRef.current.has(alertId)) return
+    markedReadRef.current.add(alertId)
+    try {
+      await api.patch(`/alerts/${alertId}/read`)
+      setAlerts(prev => prev.map(a => a._id === alertId ? { ...a, isRead: true } : a))
+    } catch {
+      // non-critical, ignore
+    }
+  }
+
+  /* ── Fetch alerts (first page / filter change) ────────── */
+  const loadAlerts = useCallback(async (reset = true) => {
+    if (reset) {
+      setLoading(true)
+      setPage(1)
+      setAlerts([])
+    } else {
+      setLoadingMore(true)
+    }
     setError(null)
+
     try {
       const params = new URLSearchParams()
       if (activeFilter) params.set('type', activeFilter)
-      const url = `/alerts${params.toString() ? `?${params}` : ''}`
-      const res = await api.get(url)
+      params.set('limit', PAGE_SIZE)
+      params.set('page', reset ? 1 : page + 1)
+
+      const res = await api.get(`/alerts?${params}`)
       // res = { success, count, total, page, data: [...] }
-      setAlerts(Array.isArray(res.data) ? res.data : [])
+      const incoming = Array.isArray(res.data) ? res.data : []
+      setTotal(res.total ?? 0)
+
+      if (reset) {
+        setAlerts(incoming)
+      } else {
+        setAlerts(prev => [...prev, ...incoming])
+        setPage(p => p + 1)
+      }
+
+      // Auto-mark newly-loaded unread alerts
+      incoming.filter(a => !a.isRead && !a.isResolved).forEach(a => {
+        setTimeout(() => markAlertRead(a._id), 500)
+      })
     } catch (err) {
       console.error('Error fetching alerts:', err)
       setError(err.message || 'Failed to load alerts. Please try again.')
     } finally {
       setLoading(false)
+      setLoadingMore(false)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeFilter])
 
-  /* ── Fetch stats ── */
+  /* ── Fetch stats ──────────────────────────────────────── */
   const loadStats = useCallback(async () => {
     try {
       const res = await api.get('/alerts/stats')
       setStats(res.data || null)
     } catch {
-      // stats are non-critical, fail silently
+      // non-critical
     }
   }, [])
 
   useEffect(() => {
-    loadAlerts()
+    loadAlerts(true)
     loadStats()
   }, [loadAlerts, loadStats])
 
-  /* ── Resolve handler ── */
+  /* ── Resolve handler ──────────────────────────────────── */
   async function handleResolve(alertId) {
     setResolving(alertId)
     try {
       await api.patch(`/alerts/${alertId}/resolve`)
-      // Optimistic update: mark locally
       setAlerts(prev =>
         prev.map(a => a._id === alertId ? { ...a, isResolved: true, isRead: true } : a)
       )
-      // Refresh stats
       loadStats()
     } catch (err) {
       alert('Could not resolve alert: ' + (err.message || 'Unknown error'))
@@ -228,16 +282,29 @@ export default function EarlyWarningAlerts() {
     }
   }
 
-  /* ── Derived lists ── */
+  /* ── Derived lists ────────────────────────────────────── */
   const unresolved = alerts.filter(a => !a.isResolved)
-  const resolved = alerts.filter(a => a.isResolved)
-  const displayed = showResolved ? alerts : unresolved
+  const resolved   = alerts.filter(a =>  a.isResolved)
+  const displayed  = showResolved ? alerts : unresolved
 
-  /* ─── RENDER ──────────────────────────────────── */
+  /* ── Group alerts by class name ──────────────────────── */
+  const groupByClass = (list) => {
+    const groups = {}
+    list.forEach(a => {
+      const key = a.class?.name || 'Other / No Class'
+      if (!groups[key]) groups[key] = []
+      groups[key].push(a)
+    })
+    return groups
+  }
+  const unresolvedGroups = groupByClass(unresolved)
+  const resolvedGroups   = groupByClass(resolved)
+
+  /* ─── RENDER ──────────────────────────────────────────── */
   return (
     <div className="ewa">
 
-      {/* HEADER */}
+      {/* ── HEADER ── */}
       <section className="ewa__header">
         <div className="ewa__header-text">
           <div className="ewa__title-row">
@@ -252,7 +319,12 @@ export default function EarlyWarningAlerts() {
             </div>
           </div>
         </div>
-        <button className="ewa-btn ewa-btn--refresh" onClick={loadAlerts} disabled={loading} title="Refresh alerts">
+        <button
+          className="ewa-btn ewa-btn--refresh"
+          onClick={() => { loadAlerts(true); loadStats() }}
+          disabled={loading}
+          title="Refresh alerts"
+        >
           <span className={`material-symbols-outlined ${loading ? 'animate-spin' : ''}`} style={{ fontSize: 20 }}>
             refresh
           </span>
@@ -260,7 +332,7 @@ export default function EarlyWarningAlerts() {
         </button>
       </section>
 
-      {/* STATS BAR */}
+      {/* ── STATS BAR ── */}
       {stats && (
         <div className="ewa__stats animate-fade-in">
           <div className="ewa__stat-item ewa__stat-item--critical">
@@ -291,13 +363,20 @@ export default function EarlyWarningAlerts() {
               <span className="ewa__stat-label">Unread</span>
             </div>
           </div>
+          <div className="ewa__stat-item ewa__stat-item--total">
+            <span className="material-symbols-outlined">list_alt</span>
+            <div>
+              <span className="ewa__stat-value">{total}</span>
+              <span className="ewa__stat-label">Total</span>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* FILTER BAR */}
+      {/* ── FILTER BAR ── */}
       <div className="ewa__toolbar">
         <div className="ewa__filters" role="tablist" aria-label="Filter alerts by type">
-          {FILTERS.map(f => (
+          {TYPE_FILTERS.map(f => (
             <button
               key={f.key}
               id={`filter-${f.key || 'all'}`}
@@ -308,7 +387,7 @@ export default function EarlyWarningAlerts() {
             >
               <span className="material-symbols-outlined" style={{ fontSize: 16 }}>{f.icon}</span>
               {f.label}
-              {f.key === '' && alerts.length > 0 && (
+              {f.key === '' && unresolved.length > 0 && (
                 <span className="ewa__filter-count">{unresolved.length}</span>
               )}
             </button>
@@ -328,7 +407,7 @@ export default function EarlyWarningAlerts() {
         )}
       </div>
 
-      {/* CONTENT */}
+      {/* ── CONTENT ── */}
       {loading ? (
         <div className="ewa__list">
           {[1, 2, 3].map(i => <AlertSkeleton key={i} />)}
@@ -338,7 +417,7 @@ export default function EarlyWarningAlerts() {
           <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-error)' }}>error_outline</span>
           <h3 className="text-title-lg">Something went wrong</h3>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>{error}</p>
-          <button className="ewa-btn ewa-btn--primary" onClick={loadAlerts}>
+          <button className="ewa-btn ewa-btn--primary" onClick={() => { loadAlerts(true); loadStats() }}>
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>refresh</span>
             Try Again
           </button>
@@ -364,40 +443,85 @@ export default function EarlyWarningAlerts() {
         </div>
       ) : (
         <div className="ewa__list">
-          {/* Unresolved section */}
+
+          {/* Pending section — grouped by class */}
           {unresolved.length > 0 && (
-            <>
+            <div className="ewa__section-wrapper">
               <div className="ewa__section-label">
                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>pending_actions</span>
-                Pending ({unresolved.length})
+                Pending ({unresolved.length}{hasMore ? '+' : ''})
               </div>
-              {unresolved.map(a => (
-                <AlertCard
-                  key={a._id}
-                  alert={a}
-                  onResolve={handleResolve}
-                  resolving={resolving}
-                />
+              {Object.entries(unresolvedGroups).map(([className, classAlerts]) => (
+                <div key={`pending-${className}`} className="ewa__class-group">
+                  <div className="ewa__class-group-header">
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>class</span>
+                    {className}{' '}
+                    <span className="ewa__class-group-count">{classAlerts.length}</span>
+                  </div>
+                  <div className="ewa__class-group-list">
+                    {classAlerts.map(a => (
+                      <AlertCard
+                        key={a._id}
+                        alert={a}
+                        onResolve={handleResolve}
+                        resolving={resolving}
+                      />
+                    ))}
+                  </div>
+                </div>
               ))}
-            </>
+            </div>
           )}
 
-          {/* Resolved section (only when toggled) */}
+          {/* Resolved section — grouped by class (toggle) */}
           {showResolved && resolved.length > 0 && (
-            <>
+            <div className="ewa__section-wrapper">
               <div className="ewa__section-label ewa__section-label--resolved">
                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>task_alt</span>
                 Resolved ({resolved.length})
               </div>
-              {resolved.map(a => (
-                <AlertCard
-                  key={a._id}
-                  alert={a}
-                  onResolve={handleResolve}
-                  resolving={resolving}
-                />
+              {Object.entries(resolvedGroups).map(([className, classAlerts]) => (
+                <div key={`resolved-${className}`} className="ewa__class-group">
+                  <div className="ewa__class-group-header ewa__class-group-header--resolved">
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>class</span>
+                    {className}{' '}
+                    <span className="ewa__class-group-count">{classAlerts.length}</span>
+                  </div>
+                  <div className="ewa__class-group-list">
+                    {classAlerts.map(a => (
+                      <AlertCard
+                        key={a._id}
+                        alert={a}
+                        onResolve={handleResolve}
+                        resolving={resolving}
+                      />
+                    ))}
+                  </div>
+                </div>
               ))}
-            </>
+            </div>
+          )}
+
+
+          {/* Load More */}
+          {hasMore && (
+            <button
+              className="ewa-btn ewa-btn--load-more"
+              onClick={() => loadAlerts(false)}
+              disabled={loadingMore}
+            >
+              {loadingMore ? (
+                <>
+                  <span className="material-symbols-outlined animate-spin" style={{ fontSize: 18 }}>progress_activity</span>
+                  Loading…
+                </>
+              ) : (
+                <>
+                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>expand_more</span>
+                  Load more ({total - alerts.length} remaining)
+                </>
+              )}
+            </button>
           )}
         </div>
       )}

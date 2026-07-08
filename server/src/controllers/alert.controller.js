@@ -13,15 +13,22 @@ import ErrorResponse from '../utils/ErrorResponse.js'
 export const getAlerts = asyncHandler(async (req, res) => {
   const { type, isRead, page = 1, limit = 20 } = req.query
 
-  // Find all classes taught by this teacher
+  // Find all classes taught by this teacher (with student lists)
   const teacherClasses = await Class.find({ teacher: req.user._id })
   const studentIds = teacherClasses.flatMap(c => c.students)
 
-  const query = { 
-    teacher: req.user._id,
-    student: { $in: studentIds }
+  // Build a quick lookup: studentId → { _id, name } of that teacher's class
+  const studentToClass = {}
+  for (const cls of teacherClasses) {
+    for (const sId of cls.students) {
+      studentToClass[sId.toString()] = { _id: cls._id, name: cls.name }
+    }
   }
 
+  const query = {
+    teacher: req.user._id,
+    student: { $in: studentIds },
+  }
   if (type) query.type = type
   if (isRead !== undefined) query.isRead = isRead === 'true'
 
@@ -34,14 +41,25 @@ export const getAlerts = asyncHandler(async (req, res) => {
 
   const total = await Alert.countDocuments(query)
 
+  // Supplement class field for alerts where class is null or refers to another teacher's class
+  const enriched = alerts.map(alert => {
+    const obj = alert.toObject()
+    const studentId = obj.student?._id?.toString()
+    if (!obj.class && studentId && studentToClass[studentId]) {
+      obj.class = studentToClass[studentId]
+    }
+    return obj
+  })
+
   res.status(200).json({
     success: true,
-    count: alerts.length,
+    count: enriched.length,
     total,
     page: Number(page),
-    data: alerts,
+    data: enriched,
   })
 })
+
 
 /**
  * @desc    Mark alert as read
