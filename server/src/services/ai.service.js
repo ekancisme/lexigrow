@@ -4,6 +4,57 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import AIAnalysis from '../models/AIAnalysis.js'
 import Vocabulary from '../models/Vocabulary.js'
+import Config from '../models/Config.js'
+import AILog from '../models/AILog.js'
+
+/**
+ * Retrieve configuration value from database
+ */
+const getConfigValue = async (key, defaultValue) => {
+  try {
+    const config = await Config.findOne({ key })
+    return config ? config.value : defaultValue
+  } catch (err) {
+    console.error(`Error fetching config key ${key}:`, err.message)
+    return defaultValue
+  }
+}
+
+/**
+ * Log AI service calls
+ */
+const logAICall = async ({ model, action, duration, status, usage, errorMessage }) => {
+  try {
+    const promptTokens = usage?.prompt_tokens || usage?.promptTokens || 0
+    const completionTokens = usage?.completion_tokens || usage?.completionTokens || 0
+    const totalTokens = usage?.total_tokens || usage?.totalTokens || 0
+    
+    let costEstimate = 0
+    if (status === 'success') {
+      if (model && model.includes('70b')) {
+        costEstimate = (promptTokens * 0.59 / 1000000) + (completionTokens * 0.79 / 1000000)
+      } else {
+        costEstimate = (totalTokens * 0.20 / 1000000)
+      }
+    }
+
+    await AILog.create({
+      model: model || 'unknown',
+      action,
+      tokensUsed: {
+        promptTokens,
+        completionTokens,
+        totalTokens,
+      },
+      processingTimeMs: duration,
+      status,
+      errorMessage,
+      costEstimate,
+    })
+  } catch (err) {
+    console.error('Failed to save AI log:', err.message)
+  }
+}
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -49,7 +100,7 @@ export const runNLPAnalysis = (text) => {
 /**
  * Default system prompt for essay analysis
  */
-const DEFAULT_ANALYSIS_PROMPT = `You are an advanced English writing analysis AI for the LexiGrow platform.
+export const DEFAULT_ANALYSIS_PROMPT = `You are an advanced English writing analysis AI for the LexiGrow platform.
 Analyze the student's essay and return a JSON response with EXACTLY this structure:
 
 {
@@ -97,11 +148,16 @@ Rules:
  * Analyze essay using Gemini AI
  */
 export const analyzeEssay = async (essayContent, customPrompt, pastScoresSummary = '') => {
-  const prompt = customPrompt || DEFAULT_ANALYSIS_PROMPT
+  const defaultPrompt = await getConfigValue('SYSTEM_ANALYSIS_PROMPT', DEFAULT_ANALYSIS_PROMPT)
+  const prompt = customPrompt || defaultPrompt
+  const activeModel = await getConfigValue('DEFAULT_AI_MODEL', 'llama-3.3-70b-versatile')
+  const apiKey = await getConfigValue('GROQ_API_KEY', process.env.GROQ_API_KEY)
+
+  const startTime = Date.now()
+  let usage = null
 
   try {
     const Groq = (await import('groq-sdk')).default
-    const apiKey = process.env.GROQ_API_KEY
     if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
       throw new Error('Groq API key is not configured or is the default placeholder')
     }
@@ -115,10 +171,11 @@ export const analyzeEssay = async (essayContent, customPrompt, pastScoresSummary
         { role: 'system', content: prompt },
         { role: 'user', content: userMessageContent }
       ],
-      model: 'llama-3.3-70b-versatile',
+      model: activeModel,
       response_format: { type: 'json_object' }
     })
 
+    usage = chatCompletion.usage
     const responseText = chatCompletion.choices[0].message.content
 
     // Extract JSON from response (handle markdown code blocks if any)
@@ -129,9 +186,26 @@ export const analyzeEssay = async (essayContent, customPrompt, pastScoresSummary
     }
 
     const analysis = JSON.parse(jsonStr)
+
+    await logAICall({
+      model: activeModel,
+      action: 'essay_analysis',
+      duration: Date.now() - startTime,
+      status: 'success',
+      usage
+    })
+
     return analysis
   } catch (error) {
     console.error('AI Analysis Error (Groq):', error.message)
+
+    await logAICall({
+      model: activeModel,
+      action: 'essay_analysis',
+      duration: Date.now() - startTime,
+      status: 'failure',
+      errorMessage: error.message
+    })
 
     // Return fallback analysis if AI fails
     return generateFallbackAnalysis(essayContent)
@@ -203,9 +277,13 @@ function generateFallbackAnalysis(content) {
 export const generateSynonymsForRepeatedWords = async (repeatedWordsList, essayContent) => {
   if (!repeatedWordsList || repeatedWordsList.length === 0) return {}
 
+  const activeModel = await getConfigValue('DEFAULT_AI_MODEL', 'llama-3.3-70b-versatile')
+  const apiKey = await getConfigValue('GROQ_API_KEY', process.env.GROQ_API_KEY)
+  const startTime = Date.now()
+  let usage = null
+
   try {
     const Groq = (await import('groq-sdk')).default
-    const apiKey = process.env.GROQ_API_KEY
     if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
       throw new Error('Groq API key is not configured or is the default placeholder')
     }
@@ -230,10 +308,11 @@ Return ONLY valid JSON, no markdown formatting.`
       messages: [
         { role: 'user', content: prompt }
       ],
-      model: 'llama-3.3-70b-versatile',
+      model: activeModel,
       response_format: { type: 'json_object' }
     })
 
+    usage = chatCompletion.usage
     const responseText = chatCompletion.choices[0].message.content
     let jsonStr = responseText.trim()
     const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
@@ -241,9 +320,27 @@ Return ONLY valid JSON, no markdown formatting.`
       jsonStr = jsonMatch[1].trim()
     }
 
-    return JSON.parse(jsonStr)
+    const result = JSON.parse(jsonStr)
+
+    await logAICall({
+      model: activeModel,
+      action: 'synonym_generation',
+      duration: Date.now() - startTime,
+      status: 'success',
+      usage
+    })
+
+    return result
   } catch (error) {
     console.error('Error generating synonyms for repeated words:', error.message)
+
+    await logAICall({
+      model: activeModel,
+      action: 'synonym_generation',
+      duration: Date.now() - startTime,
+      status: 'failure',
+      errorMessage: error.message
+    })
     // Fallback static list of common overused words and synonyms
     const fallbacks = {
       'very': ['extremely', 'exceptionally', 'profoundly', 'exceedingly'],
@@ -504,9 +601,13 @@ function categorizeWord(word) {
  * Generate 4 essay topics by theme using Gemini AI
  */
 export const generateTopicsByTheme = async (theme, excludeTopics = []) => {
+  const activeModel = await getConfigValue('DEFAULT_AI_MODEL', 'llama-3.3-70b-versatile')
+  const apiKey = await getConfigValue('GROQ_API_KEY', process.env.GROQ_API_KEY)
+  const startTime = Date.now()
+  let usage = null
+
   try {
     const Groq = (await import('groq-sdk')).default
-    const apiKey = process.env.GROQ_API_KEY
     if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
       throw new Error('Groq API key is not configured or is the default placeholder')
     }
@@ -527,10 +628,11 @@ Return a JSON object with a key "topics" containing the list of 4 topics, for ex
       messages: [
         { role: 'user', content: prompt }
       ],
-      model: 'llama-3.3-70b-versatile',
+      model: activeModel,
       response_format: { type: 'json_object' }
     })
 
+    usage = chatCompletion.usage
     const responseText = chatCompletion.choices[0].message.content
     let jsonStr = responseText.trim()
     const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
@@ -539,6 +641,15 @@ Return a JSON object with a key "topics" containing the list of 4 topics, for ex
     }
     
     const responseObj = JSON.parse(jsonStr)
+
+    await logAICall({
+      model: activeModel,
+      action: 'topic_generation',
+      duration: Date.now() - startTime,
+      status: 'success',
+      usage
+    })
+
     if (responseObj && Array.isArray(responseObj.topics)) {
       return responseObj.topics
     }
@@ -548,6 +659,14 @@ Return a JSON object with a key "topics" containing the list of 4 topics, for ex
     return Object.values(responseObj)[0] || []
   } catch (error) {
     console.error('AI Topic Generation Error (Groq):', error.message)
+
+    await logAICall({
+      model: activeModel,
+      action: 'topic_generation',
+      duration: Date.now() - startTime,
+      status: 'failure',
+      errorMessage: error.message
+    })
     // Fallback topics if AI fails
     const defaultTopics = [
       `The role of ${theme} in modern society`,
@@ -567,9 +686,13 @@ Return a JSON object with a key "topics" containing the list of 4 topics, for ex
 export const enrichWordsList = async (words, contextText = '') => {
   if (!words || words.length === 0) return []
 
+  const activeModel = await getConfigValue('DEFAULT_AI_MODEL', 'llama-3.3-70b-versatile')
+  const apiKey = await getConfigValue('GROQ_API_KEY', process.env.GROQ_API_KEY)
+  const startTime = Date.now()
+  let usage = null
+
   try {
     const Groq = (await import('groq-sdk')).default
-    const apiKey = process.env.GROQ_API_KEY
     if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
       throw new Error('Groq API key is not configured or is the default placeholder')
     }
@@ -602,10 +725,11 @@ ${contextText ? `\nContext (from essay):\n"${contextText}"` : ''}`
       messages: [
         { role: 'user', content: prompt }
       ],
-      model: 'llama-3.3-70b-versatile',
+      model: activeModel,
       response_format: { type: 'json_object' }
     })
 
+    usage = chatCompletion.usage
     const responseText = chatCompletion.choices[0].message.content
     let jsonStr = responseText.trim()
     const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
@@ -614,9 +738,26 @@ ${contextText ? `\nContext (from essay):\n"${contextText}"` : ''}`
     }
 
     const result = JSON.parse(jsonStr)
+
+    await logAICall({
+      model: activeModel,
+      action: 'vocabulary_enrichment',
+      duration: Date.now() - startTime,
+      status: 'success',
+      usage
+    })
+
     return result.enrichedWords || []
   } catch (error) {
     console.error('AI Vocab Enrichment Error (Groq):', error.message)
+
+    await logAICall({
+      model: activeModel,
+      action: 'vocabulary_enrichment',
+      duration: Date.now() - startTime,
+      status: 'failure',
+      errorMessage: error.message
+    })
     // Fallback dictionary values if AI fails
     return words.map(w => ({
       word: w.toLowerCase(),
@@ -636,9 +777,13 @@ ${contextText ? `\nContext (from essay):\n"${contextText}"` : ''}`
 export const translateTextToVietnamese = async (text) => {
   if (!text || !text.trim()) return ''
 
+  const activeModel = await getConfigValue('DEFAULT_AI_MODEL', 'llama-3.3-70b-versatile')
+  const apiKey = await getConfigValue('GROQ_API_KEY', process.env.GROQ_API_KEY)
+  const startTime = Date.now()
+  let usage = null
+
   try {
     const Groq = (await import('groq-sdk')).default
-    const apiKey = process.env.GROQ_API_KEY
     if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
       throw new Error('Groq API key is not configured or is the default placeholder')
     }
@@ -661,10 +806,11 @@ Text to translate:
       messages: [
         { role: 'user', content: prompt }
       ],
-      model: 'llama-3.3-70b-versatile',
+      model: activeModel,
       response_format: { type: 'json_object' }
     })
 
+    usage = chatCompletion.usage
     const responseText = chatCompletion.choices[0].message.content
     let jsonStr = responseText.trim()
     const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
@@ -673,9 +819,26 @@ Text to translate:
     }
 
     const responseObj = JSON.parse(jsonStr)
+
+    await logAICall({
+      model: activeModel,
+      action: 'translation',
+      duration: Date.now() - startTime,
+      status: 'success',
+      usage
+    })
+
     return responseObj.translation || ''
   } catch (error) {
     console.error('AI Translation Error:', error.message)
+
+    await logAICall({
+      model: activeModel,
+      action: 'translation',
+      duration: Date.now() - startTime,
+      status: 'failure',
+      errorMessage: error.message
+    })
     return `[Lỗi dịch: ${error.message}]`
   }
 }
@@ -686,9 +849,13 @@ Text to translate:
 export const getSynonymsForRepeatedWords = async (words, essayContent) => {
   if (!words || words.length === 0) return {}
 
+  const activeModel = await getConfigValue('DEFAULT_AI_MODEL', 'llama-3.3-70b-versatile')
+  const apiKey = await getConfigValue('GROQ_API_KEY', process.env.GROQ_API_KEY)
+  const startTime = Date.now()
+  let usage = null
+
   try {
     const Groq = (await import('groq-sdk')).default
-    const apiKey = process.env.GROQ_API_KEY
     if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
       throw new Error('Groq API key is not configured or is the default placeholder')
     }
@@ -719,10 +886,11 @@ Essay context:
       messages: [
         { role: 'user', content: prompt }
       ],
-      model: 'llama-3.3-70b-versatile',
+      model: activeModel,
       response_format: { type: 'json_object' }
     })
 
+    usage = chatCompletion.usage
     const responseText = chatCompletion.choices[0].message.content
     let jsonStr = responseText.trim()
     const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
@@ -731,9 +899,26 @@ Essay context:
     }
 
     const result = JSON.parse(jsonStr)
+
+    await logAICall({
+      model: activeModel,
+      action: 'synonym_recommendation',
+      duration: Date.now() - startTime,
+      status: 'success',
+      usage
+    })
+
     return result.synonymsMap || {}
   } catch (error) {
     console.error('AI Synonym Recommendation Error:', error.message)
+
+    await logAICall({
+      model: activeModel,
+      action: 'synonym_recommendation',
+      duration: Date.now() - startTime,
+      status: 'failure',
+      errorMessage: error.message
+    })
     // Fallback synonyms
     const fallbacks = {
       'very': ['extremely', 'exceptionally', 'remarkably', 'highly'],

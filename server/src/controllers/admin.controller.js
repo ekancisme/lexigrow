@@ -3,6 +3,8 @@ import User from '../models/User.js'
 import Essay from '../models/Essay.js'
 import Class from '../models/Class.js'
 import AIAnalysis from '../models/AIAnalysis.js'
+import Config from '../models/Config.js'
+import AILog from '../models/AILog.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 
@@ -317,8 +319,250 @@ export const seedMockData = asyncHandler(async (req, res) => {
     }
   }
 
+  // 6. Create historical AI logs
+  const aiLogCount = await AILog.countDocuments()
+  if (aiLogCount < 20) {
+    const models = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'gemma2-9b-it']
+    const actions = ['essay_analysis', 'synonym_generation', 'topic_generation', 'vocabulary_enrichment']
+    const baseDate = new Date()
+    
+    for (let i = 0; i < 40; i++) {
+      const logDate = new Date(baseDate)
+      logDate.setDate(baseDate.getDate() - (i % 7)) // Spread over last 7 days
+      logDate.setHours(baseDate.getHours() - (i * 2))
+
+      const status = Math.random() > 0.08 ? 'success' : 'failure' // 8% failure rate
+      const model = models[i % models.length]
+      const action = actions[i % actions.length]
+      
+      const promptTokens = status === 'success' ? Math.floor(Math.random() * 1500) + 500 : 0
+      const completionTokens = status === 'success' ? Math.floor(Math.random() * 800) + 200 : 0
+      const totalTokens = promptTokens + completionTokens
+      
+      const processingTimeMs = status === 'success' ? Math.floor(Math.random() * 1500) + 500 : Math.floor(Math.random() * 300)
+      const errorMessage = status === 'failure' ? 'API rate limit exceeded or connection timed out' : undefined
+      
+      // cost calculation
+      let costEstimate = 0
+      if (status === 'success') {
+        if (model.includes('70b')) {
+          costEstimate = (promptTokens * 0.59 / 1000000) + (completionTokens * 0.79 / 1000000)
+        } else {
+          costEstimate = (totalTokens * 0.20 / 1000000)
+        }
+      }
+
+      await AILog.create({
+        model,
+        action,
+        tokensUsed: {
+          promptTokens,
+          completionTokens,
+          totalTokens
+        },
+        processingTimeMs,
+        status,
+        errorMessage,
+        costEstimate,
+        createdAt: logDate
+      })
+    }
+  }
+
   res.status(200).json({
     success: true,
     message: 'Mock analytical and audit data successfully seeded!'
+  })
+})
+
+/**
+ * @desc    Get system settings (API keys masked)
+ * @route   GET /api/admin/config
+ * @access  Private (Admin)
+ */
+export const getConfigs = asyncHandler(async (req, res) => {
+  const configs = await Config.find({})
+  
+  // Mask API Keys for security
+  const maskedConfigs = configs.map(c => {
+    const isApiKey = c.key.endsWith('_API_KEY')
+    return {
+      key: c.key,
+      value: isApiKey && c.value ? `${c.value.substring(0, 6)}...${c.value.substring(c.value.length - 4)}` : c.value,
+      description: c.description
+    }
+  })
+
+  res.status(200).json({
+    success: true,
+    data: maskedConfigs
+  })
+})
+
+/**
+ * @desc    Update system settings
+ * @route   PUT /api/admin/config
+ * @access  Private (Admin)
+ */
+export const updateConfigs = asyncHandler(async (req, res) => {
+  const { settings } = req.body
+
+  if (!settings) {
+    return res.status(400).json({ success: false, message: 'Settings are required' })
+  }
+
+  const updatedSettings = []
+  const logDetails = {}
+
+  for (const item of settings) {
+    const { key, value } = item
+    
+    const config = await Config.findOne({ key })
+    if (config) {
+      const isApiKey = key.endsWith('_API_KEY')
+      if (isApiKey && (value.includes('...') || value.includes('***'))) {
+        continue
+      }
+      
+      const oldValue = config.value
+      config.value = value
+      await config.save()
+      
+      updatedSettings.push({ key, value })
+      logDetails[key] = { from: oldValue ? 'masked' : 'empty', to: value ? 'updated' : 'empty' }
+    }
+  }
+
+  // Log this config update action into AuditLog
+  try {
+    await AuditLog.create({
+      user: req.user._id,
+      action: 'UPDATE_SYSTEM_CONFIG',
+      targetType: 'SystemConfig',
+      details: logDetails
+    })
+  } catch (auditErr) {
+    console.error('Failed to write audit log for config update:', auditErr.message)
+  }
+
+  res.status(200).json({
+    success: true,
+    message: 'System settings updated successfully',
+    data: updatedSettings
+  })
+})
+
+/**
+ * @desc    Get paginated AI logs
+ * @route   GET /api/admin/ai/logs
+ * @access  Private (Admin)
+ */
+export const getAILogs = asyncHandler(async (req, res) => {
+  const page = parseInt(req.query.page, 10) || 1
+  const limit = parseInt(req.query.limit, 10) || 10
+  const skip = (page - 1) * limit
+
+  const { status, action, model, startDate, endDate } = req.query
+  const query = {}
+
+  if (status) query.status = status
+  if (action) query.action = action
+  if (model) query.model = model
+
+  if (startDate || endDate) {
+    query.createdAt = {}
+    if (startDate) query.createdAt.$gte = new Date(startDate)
+    if (endDate) query.createdAt.$lte = new Date(endDate)
+  }
+
+  const total = await AILog.countDocuments(query)
+  const logs = await AILog.find(query)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+
+  res.status(200).json({
+    success: true,
+    pagination: {
+      total,
+      page,
+      limit,
+      pages: Math.ceil(total / limit)
+    },
+    data: logs
+  })
+})
+
+/**
+ * @desc    Get AI monitoring dashboard charts & metrics
+ * @route   GET /api/admin/ai/monitoring
+ * @access  Private (Admin)
+ */
+export const getAIMonitoringAnalytics = asyncHandler(async (req, res) => {
+  const totalCalls = await AILog.countDocuments()
+  const successCalls = await AILog.countDocuments({ status: 'success' })
+  const failedCalls = await AILog.countDocuments({ status: 'failure' })
+  
+  const successRate = totalCalls > 0 ? Math.round((successCalls / totalCalls) * 100) : 100
+  
+  const tokenStats = await AILog.aggregate([
+    {
+      $group: {
+        _id: null,
+        totalTokens: { $sum: '$tokensUsed.totalTokens' },
+        totalCost: { $sum: '$costEstimate' },
+        avgTime: { $avg: '$processingTimeMs' }
+      }
+    }
+  ])
+  
+  const totalTokens = tokenStats[0]?.totalTokens || 0
+  const totalCost = tokenStats[0]?.totalCost || 0
+  const avgResponseTime = Math.round(tokenStats[0]?.avgTime || 0)
+  
+  // Daily stats for the last 7 days
+  const sevenDaysAgo = new Date()
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+  sevenDaysAgo.setHours(0, 0, 0, 0)
+  
+  const dailyStats = await AILog.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: sevenDaysAgo }
+      }
+    },
+    {
+      $group: {
+        _id: {
+          $dateToString: { format: "%Y-%m-%d", date: "$createdAt" }
+        },
+        calls: { $sum: 1 },
+        success: {
+          $sum: { $cond: [{ $eq: ["$status", "success"] }, 1, 0] }
+        },
+        failed: {
+          $sum: { $cond: [{ $eq: ["$status", "failure"] }, 1, 0] }
+        },
+        tokens: { $sum: "$tokensUsed.totalTokens" },
+        cost: { $sum: "$costEstimate" }
+      }
+    },
+    { $sort: { _id: 1 } }
+  ])
+  
+  res.status(200).json({
+    success: true,
+    data: {
+      metrics: {
+        totalCalls,
+        successCalls,
+        failedCalls,
+        successRate,
+        totalTokens,
+        totalCost: Math.round(totalCost * 10000) / 10000,
+        avgResponseTime
+      },
+      dailyStats
+    }
   })
 })
