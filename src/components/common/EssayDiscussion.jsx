@@ -20,8 +20,8 @@ export default function EssayDiscussion({ essayId, currentUserId }) {
       try {
         setLoading(true)
         const response = await api.get(`/comments/essay/${essayId}`)
-        if (response.data && response.data.success) {
-          setComments(response.data.data)
+        if (response && response.success) {
+          setComments(response.data)
         }
       } catch (err) {
         console.error('Error fetching comments:', err)
@@ -75,8 +75,8 @@ export default function EssayDiscussion({ essayId, currentUserId }) {
       const response = await api.post(`/comments/essay/${essayId}`, {
         content: newComment.trim(),
       })
-      if (response.data && response.data.success) {
-        const createdComment = response.data.data
+      if (response && response.success) {
+        const createdComment = response.data
         setComments((prev) => {
           if (prev.some((c) => c._id === createdComment._id)) {
             return prev
