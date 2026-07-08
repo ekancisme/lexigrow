@@ -2,6 +2,7 @@ import SystemPrompt from '../models/SystemPrompt.js'
 import { analyzeEssay } from '../services/ai.service.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
+import { logAction } from '../utils/auditLogger.js'
 
 /**
  * @desc    Create a new prompt
@@ -17,6 +18,8 @@ export const createPrompt = asyncHandler(async (req, res) => {
     template,
     teacher: req.user._id,
   })
+
+  await logAction(req.user._id, 'CREATE_PROMPT', 'SystemPrompt', prompt._id, { name, category })
 
   res.status(201).json({ success: true, data: prompt })
 })
@@ -61,6 +64,9 @@ export const updatePrompt = asyncHandler(async (req, res) => {
   if (status) prompt.status = status
 
   await prompt.save()
+  
+  await logAction(req.user._id, 'UPDATE_PROMPT', 'SystemPrompt', prompt._id, { name: prompt.name, category: prompt.category })
+  
   res.status(200).json({ success: true, data: prompt })
 })
 
@@ -74,6 +80,9 @@ export const deletePrompt = asyncHandler(async (req, res) => {
   if (!prompt) throw new ErrorResponse('Prompt not found', 404)
 
   await prompt.deleteOne()
+  
+  await logAction(req.user._id, 'DELETE_PROMPT', 'SystemPrompt', req.params.id, { name: prompt.name })
+  
   res.status(200).json({ success: true, message: 'Prompt deleted' })
 })
 

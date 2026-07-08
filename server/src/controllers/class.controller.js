@@ -5,6 +5,7 @@ import AIAnalysis from '../models/AIAnalysis.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import { createNotification } from '../services/notification.service.js'
+import { logAction } from '../utils/auditLogger.js'
 
 /**
  * @desc    Create a new class
@@ -20,6 +21,8 @@ export const createClass = asyncHandler(async (req, res) => {
     schedule,
     teacher: req.user._id,
   })
+
+  await logAction(req.user._id, 'CREATE_CLASS', 'Class', cls._id, { name })
 
   res.status(201).json({ success: true, data: cls })
 })
@@ -153,6 +156,9 @@ export const updateClass = asyncHandler(async (req, res) => {
   if (status) cls.status = status
 
   await cls.save()
+  
+  await logAction(req.user._id, 'UPDATE_CLASS', 'Class', cls._id, { name: cls.name, status: cls.status })
+  
   res.status(200).json({ success: true, data: cls })
 })
 
@@ -167,6 +173,9 @@ export const deleteClass = asyncHandler(async (req, res) => {
   if (cls.teacher.toString() !== req.user._id.toString()) throw new ErrorResponse('Not authorized', 403)
 
   await cls.deleteOne()
+  
+  await logAction(req.user._id, 'DELETE_CLASS', 'Class', req.params.id, { name: cls.name })
+  
   res.status(200).json({ success: true, message: 'Class deleted' })
 })
 
@@ -189,6 +198,8 @@ export const addStudent = asyncHandler(async (req, res) => {
 
   cls.students.push(student._id)
   await cls.save()
+
+  await logAction(req.user._id, 'ADD_STUDENT', 'Class', cls._id, { studentEmail: student.email, studentName: student.name, className: cls.name })
 
   // Gửi thông báo realtime cho học sinh
   try {
@@ -219,6 +230,8 @@ export const removeStudent = asyncHandler(async (req, res) => {
 
   cls.students = cls.students.filter(s => s.toString() !== req.params.studentId)
   await cls.save()
+
+  await logAction(req.user._id, 'REMOVE_STUDENT', 'Class', cls._id, { studentId: req.params.studentId, className: cls.name })
 
   res.status(200).json({ success: true, data: cls })
 })
