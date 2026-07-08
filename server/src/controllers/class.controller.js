@@ -4,6 +4,7 @@ import Essay from '../models/Essay.js'
 import AIAnalysis from '../models/AIAnalysis.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
+import { classifyStudents } from '../services/studentStatus.service.js'
 import { createNotification } from '../services/notification.service.js'
 import { logAction } from '../utils/auditLogger.js'
 
@@ -82,37 +83,42 @@ export const getClassDetail = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Not authorized', 403)
   }
 
-  // Get per-student metrics
+  // Get per-student metrics — classify using canonical studentStatus service
+  // so that status is consistent with Dashboard and Student Analytics views.
+  const studentIds = cls.students.map(s => s._id)
+  const statusMap  = studentIds.length > 0 ? await classifyStudents(studentIds) : new Map()
+
   const roster = await Promise.all(cls.students.map(async (student) => {
-    const essays = await Essay.find({ student: student._id, status: { $ne: 'draft' } })
-    const essayIds = essays.map(e => e._id)
-    const analyses = await AIAnalysis.find({ essay: { $in: essayIds } })
+    const essays    = await Essay.find({ student: student._id, status: { $ne: 'draft' } })
+    const essayIds  = essays.map(e => e._id)
+    const analyses  = await AIAnalysis.find({ essay: { $in: essayIds } })
 
     const avgTTR = analyses.length > 0
       ? Math.round((analyses.reduce((sum, a) => sum + (a.scores?.vocabularyDiversity || 0), 0) / analyses.length) * 100) / 100
       : 0
 
-    // Growth: compare last 2 analyses
+    // Growth % string (still useful for display even though status comes from service)
     let growth = '0%'
-    let status = 'stagnating'
     if (analyses.length >= 2) {
-      const sorted = analyses.sort((a, b) => b.createdAt - a.createdAt)
-      const diff = (sorted[0].scores?.vocabularyDiversity || 0) - (sorted[1].scores?.vocabularyDiversity || 0)
-      const pct = Math.round(diff * 100)
+      const sorted = [...analyses].sort((a, b) => b.createdAt - a.createdAt)
+      const diff   = (sorted[0].scores?.vocabularyDiversity || 0) - (sorted[1].scores?.vocabularyDiversity || 0)
+      const pct    = Math.round(diff * 100)
       growth = `${pct >= 0 ? '+' : ''}${pct}%`
-      status = pct > 0 ? 'growing' : pct < -5 ? 'declining' : 'stagnating'
     } else if (analyses.length === 1) {
-      status = 'growing'
       growth = '+0%'
     }
 
+    // Status from canonical service
+    const classification = statusMap.get(student._id.toString())
+    const status = classification?.status ?? 'stagnating'
+
     return {
-      _id: student._id,
-      name: student.name,
-      email: student.email,
-      level: student.englishLevel || 'N/A',
+      _id:    student._id,
+      name:   student.name,
+      email:  student.email,
+      level:  student.englishLevel || 'N/A',
       essays: essays.length,
-      ttr: avgTTR,
+      ttr:    avgTTR,
       growth,
       status,
     }

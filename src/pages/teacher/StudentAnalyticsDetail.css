@@ -48,8 +48,40 @@
   min-width: 0;
 }
 
-.sa-profile__name {
+.sa-profile__name-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
   margin-bottom: 10px;
+}
+
+.sa-profile__name {
+  margin-bottom: 0;
+}
+
+/* ── Learning Status Badge ── */
+.sa-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: var(--text-label-sm-size);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.sa-status--growing {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+.sa-status--stagnating {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+.sa-status--declining {
+  background: var(--color-danger-bg);
+  color: var(--color-error);
 }
 
 .sa-profile__meta {
