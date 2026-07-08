@@ -38,7 +38,7 @@ export const createAssignment = asyncHandler(async (req, res) => {
       title: 'New Assignment Assigned',
       message: `Teacher ${req.user.name} has posted a new assignment: "${title}" in class "${cls.name}".`,
       type: 'assignment',
-      link: '/student/assignments',
+      link: `/student/class/${classId}`,
     }))
 
     createManyNotifications(notifications).catch(err => {
@@ -59,11 +59,19 @@ export const getAssignmentsByClass = asyncHandler(async (req, res) => {
 
   if (!classId) throw new ErrorResponse('Please provide a classId query parameter', 400)
 
-  // Verify ownership
+  // Verify ownership or enrollment
   const cls = await Class.findById(classId)
   if (!cls) throw new ErrorResponse('Class not found', 404)
-  if (cls.teacher.toString() !== req.user._id.toString()) {
-    throw new ErrorResponse('Not authorized to view assignments for this class', 403)
+
+  if (req.user.role === 'teacher') {
+    if (cls.teacher.toString() !== req.user._id.toString()) {
+      throw new ErrorResponse('Not authorized to view assignments for this class', 403)
+    }
+  } else if (req.user.role === 'student') {
+    const isEnrolled = cls.students?.some(studentId => studentId.toString() === req.user._id.toString())
+    if (!isEnrolled) {
+      throw new ErrorResponse('Not authorized to view assignments for this class', 403)
+    }
   }
 
   const assignments = await Assignment.find({ classId })
@@ -155,7 +163,7 @@ export const updateAssignment = asyncHandler(async (req, res) => {
       title: 'Assignment Updated',
       message: `Teacher ${req.user.name} has updated the assignment: "${assignment.title}" in class "${cls.name}".`,
       type: 'assignment',
-      link: '/student/assignments',
+      link: `/student/class/${assignment.classId}`,
     }))
 
     createManyNotifications(notifications).catch(err => {

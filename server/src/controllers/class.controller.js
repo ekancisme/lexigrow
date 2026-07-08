@@ -40,6 +40,7 @@ export const getClasses = asyncHandler(async (req, res) => {
 
   const classes = await Class.find(query)
     .populate('students', 'name email englishLevel')
+    .populate('teacher', 'name email')
     .sort({ createdAt: -1 })
 
   // Enrich with metrics
@@ -381,6 +382,29 @@ export const getAdminClassDetail = asyncHandler(async (req, res) => {
 
   if (!cls) {
     throw new ErrorResponse('Class not found', 404)
+  }
+
+  res.status(200).json({ success: true, data: cls })
+})
+
+/**
+ * @desc    Get single class detail for student (Overview & classmate list)
+ * @route   GET /api/classes/:id/student-view
+ * @access  Private (student)
+ */
+export const getStudentClassDetail = asyncHandler(async (req, res) => {
+  const cls = await Class.findById(req.params.id)
+    .populate('students', 'name email englishLevel')
+    .populate('teacher', 'name email')
+
+  if (!cls) {
+    throw new ErrorResponse('Class not found', 404)
+  }
+
+  // Verify the student is enrolled in this class
+  const isEnrolled = cls.students.some(s => s._id.toString() === req.user._id.toString())
+  if (!isEnrolled) {
+    throw new ErrorResponse('Not authorized to access this class', 403)
   }
 
   res.status(200).json({ success: true, data: cls })

@@ -1,0 +1,438 @@
+.student-class {
+  padding: 24px;
+  max-width: var(--container-max-width);
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* ── Header ── */
+.student-class__header {
+  margin-bottom: 24px;
+}
+
+.student-class__title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--color-on-surface);
+  margin: 0;
+}
+
+.student-class__subtitle {
+  font-size: 0.95rem;
+  color: var(--color-outline);
+  margin: 4px 0 0 0;
+}
+
+/* ── Tabs Bar ── */
+.student-class__tabs {
+  display: flex;
+  gap: 16px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  margin-bottom: 24px;
+}
+
+.student-class__tab-btn {
+  background: none;
+  border: none;
+  padding: 10px 16px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-outline);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  transition: color var(--transition-fast);
+}
+
+.student-class__tab-btn:hover {
+  color: var(--color-primary);
+}
+
+.student-class__tab-btn--active {
+  color: var(--color-primary);
+}
+
+.student-class__tab-btn--active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--color-primary);
+  border-radius: var(--radius-full);
+}
+
+/* ── Overview Tab Layout ── */
+.student-class__overview-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .student-class__overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.student-class__info-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.student-class__info-section h4 {
+  margin: 0 0 8px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.student-class__info-section p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--color-on-surface-variant);
+}
+
+/* ── Teacher Card ── */
+.student-class__teacher-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 28px 24px;
+  background: var(--color-surface-container-low);
+}
+
+.student-class__teacher-avatar {
+  width: 68px;
+  height: 68px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+}
+
+.student-class__teacher-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--color-outline);
+  margin: 0 0 4px 0;
+}
+
+.student-class__teacher-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--color-on-surface);
+  margin: 0 0 12px 0;
+}
+
+.student-class__teacher-contact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--color-on-surface-variant);
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  padding: 8px 16px;
+  border-radius: 999px;
+  width: 100%;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* ── Classmates & Assignments Table Styles ── */
+.student-class__table-card {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.student-class__table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.student-class__table th {
+  padding: 14px 20px;
+  background: var(--color-surface-container-low);
+  color: var(--color-outline);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.student-class__table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  font-size: 0.92rem;
+  color: var(--color-on-surface);
+  vertical-align: middle;
+}
+
+.student-class__table tr:last-child td {
+  border-bottom: none;
+}
+
+.student-class__table tr:hover td {
+  background: var(--color-surface-container-low);
+}
+
+.student-class__student-name {
+  font-weight: 600;
+}
+
+.student-class__student-email {
+  font-size: 0.8rem;
+  color: var(--color-outline);
+  margin-top: 2px;
+}
+
+/* ── Badges ── */
+.student-class__badge {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.student-class__badge--not-started {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.student-class__badge--draft {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.student-class__badge--submitted {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.student-class__badge--reviewed {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.student-class__badge--revision {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* ── Empty & Loading States ── */
+.student-class__empty {
+  padding: 60px 24px;
+  text-align: center;
+  color: var(--color-outline);
+}
+
+.student-class__empty .material-symbols-outlined {
+  font-size: 48px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.student-class__empty p {
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+.student-class__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+}
+
+/* ── Class Card Grid (For Multi-class View) ── */
+.student-class__list-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.student-class__card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px;
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.student-class__card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-primary);
+}
+
+.student-class__card-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-on-surface);
+  margin: 0 0 8px 0;
+}
+
+.student-class__card-desc {
+  font-size: 0.9rem;
+  color: var(--color-on-surface-variant);
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.student-class__card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--color-outline-variant);
+  padding-top: 12px;
+  margin-top: 12px;
+}
+
+.student-class__card-teacher {
+  font-size: 0.85rem;
+  color: var(--color-outline);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Assignment Detail Modal ── */
+.student-class__modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 11000;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.student-class__modal {
+  width: 540px;
+  max-width: 90vw;
+  animation: scaleIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  padding: 28px;
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: var(--shadow-2xl);
+}
+
+.student-class__modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--color-outline-variant);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  gap: 16px;
+}
+
+.student-class__modal-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-on-surface);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.student-class__modal-close {
+  background: transparent;
+  border: none;
+  color: var(--color-outline);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: var(--radius-full);
+  transition: background var(--transition-fast), color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.student-class__modal-close:hover {
+  background: var(--color-surface-container-high);
+  color: var(--color-on-surface);
+}
+
+.student-class__modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.student-class__modal-detail-item h5 {
+  margin: 0 0 6px 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-outline);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.student-class__modal-detail-item p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--color-on-surface-variant);
+}
+
+.student-class__modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+  border-top: 1px solid var(--color-outline-variant);
+  padding-top: 20px;
+}
+
+.student-class__modal-desc-box {
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-variant);
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+  max-height: 200px;
+  overflow-y: auto;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--color-on-surface);
+  white-space: pre-wrap;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+

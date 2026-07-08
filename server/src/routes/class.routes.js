@@ -3,13 +3,17 @@ import {
   createClass, getClasses, getClassDetail,
   updateClass, deleteClass, addStudent, removeStudent,
   getAdminClasses, forceEnrollStudent, forceUnenrollStudent, transferStudent,
-  archiveClassByAdmin, deleteClassByAdmin, getAdminClassDetail, getAdminUsers
+  archiveClassByAdmin, deleteClassByAdmin, getAdminClassDetail, getAdminUsers,
+  getStudentClassDetail
 } from '../controllers/class.controller.js'
 import { protect, authorize } from '../middleware/auth.middleware.js'
 
 const router = Router()
 
 router.use(protect)
+
+// Student-specific class detail route (placed before /:id)
+router.get('/:id/student-view', authorize('student'), getStudentClassDetail)
 
 router.route('/')
   .post(authorize('teacher'), createClass)
