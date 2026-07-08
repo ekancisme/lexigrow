@@ -75,9 +75,14 @@ function AlertCard({ alert, onResolve, resolving }) {
             <span className="material-symbols-outlined">{meta.icon}</span>
           </div>
           <div className="ewa-card__student-info">
-            <p className="text-label-md ewa-card__student-name">
-              {alert.student?.name || 'Unknown Student'}
-            </p>
+            <div className="ewa-card__student-header">
+              <h4 className="ewa-card__student-name">
+                {alert.student?.name || 'Unknown Student'}
+              </h4>
+              {alert.student?.email && (
+                <span className="ewa-card__student-email">({alert.student.email})</span>
+              )}
+            </div>
             <div className="ewa-card__meta-row">
               {alert.class?.name && (
                 <span className="ewa-card__meta-chip">

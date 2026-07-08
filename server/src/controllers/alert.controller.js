@@ -1,6 +1,7 @@
 import Alert from '../models/Alert.js'
 import Notification from '../models/Notification.js'
 import User from '../models/User.js'
+import Class from '../models/Class.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 
@@ -11,7 +12,15 @@ import ErrorResponse from '../utils/ErrorResponse.js'
  */
 export const getAlerts = asyncHandler(async (req, res) => {
   const { type, isRead, page = 1, limit = 20 } = req.query
-  const query = { teacher: req.user._id }
+
+  // Find all classes taught by this teacher
+  const teacherClasses = await Class.find({ teacher: req.user._id })
+  const studentIds = teacherClasses.flatMap(c => c.students)
+
+  const query = { 
+    teacher: req.user._id,
+    student: { $in: studentIds }
+  }
 
   if (type) query.type = type
   if (isRead !== undefined) query.isRead = isRead === 'true'
@@ -103,12 +112,20 @@ export const markAsResolved = asyncHandler(async (req, res) => {
  * @access  Private (teacher)
  */
 export const getAlertStats = asyncHandler(async (req, res) => {
+  // Find all classes taught by this teacher
+  const teacherClasses = await Class.find({ teacher: req.user._id })
+  const studentIds = teacherClasses.flatMap(c => c.students)
+
   const stats = await Alert.aggregate([
-    { $match: { teacher: req.user._id, isResolved: false } },
+    { $match: { teacher: req.user._id, student: { $in: studentIds }, isResolved: false } },
     { $group: { _id: '$type', count: { $sum: 1 } } },
   ])
 
-  const unreadCount = await Alert.countDocuments({ teacher: req.user._id, isRead: false })
+  const unreadCount = await Alert.countDocuments({ 
+    teacher: req.user._id, 
+    student: { $in: studentIds }, 
+    isRead: false 
+  })
 
   const result = {
     critical: 0,

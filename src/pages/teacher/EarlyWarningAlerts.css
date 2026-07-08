@@ -364,9 +364,23 @@
     color: var(--color-success);
 }
 
+.ewa-card__student-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
 .ewa-card__student-name {
+    font-size: 18px;
     font-weight: 700;
     color: var(--color-on-surface);
+}
+
+.ewa-card__student-email {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--color-outline);
 }
 
 .ewa-card__meta-row {
