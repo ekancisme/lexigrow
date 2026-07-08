@@ -355,3 +355,20 @@ export const deleteClassByAdmin = asyncHandler(async (req, res) => {
   await cls.deleteOne()
   res.status(200).json({ success: true, message: 'Class deleted successfully' })
 })
+
+/**
+ * @desc    Get class detail for admin
+ * @route   GET /api/classes/admin/:id
+ * @access  Private (admin)
+ */
+export const getAdminClassDetail = asyncHandler(async (req, res) => {
+  const cls = await Class.findById(req.params.id)
+    .populate('teacher', 'name email')
+    .populate('students', 'name email englishLevel')
+
+  if (!cls) {
+    throw new ErrorResponse('Class not found', 404)
+  }
+
+  res.status(200).json({ success: true, data: cls })
+})
