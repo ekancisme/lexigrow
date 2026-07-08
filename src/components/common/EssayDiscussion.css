@@ -1,19 +1,18 @@
 .essay-discussion-container {
   margin-top: 2rem;
   padding: 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: var(--shadow);
   display: flex;
   flex-direction: column;
-  color: #f1f3f5;
+  color: var(--text);
+  text-align: left;
 }
 
 .discussion-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--border);
   padding-bottom: 0.75rem;
   margin-bottom: 1rem;
 }
@@ -22,20 +21,21 @@
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0 0 0.25rem 0;
-  color: #fff;
+  color: var(--text-h);
 }
 
 .discussion-subtitle {
   font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text);
+  opacity: 0.8;
   margin: 0;
 }
 
 .discussion-error {
-  background: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.1);
   border: 1px solid #ef4444;
   border-radius: 6px;
-  color: #fca5a5;
+  color: #ef4444;
   padding: 0.5rem;
   font-size: 0.9rem;
   margin-bottom: 1rem;
@@ -56,18 +56,19 @@
   width: 6px;
 }
 .comments-feed::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(0, 0, 0, 0.02);
   border-radius: 4px;
 }
 .comments-feed::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--border);
   border-radius: 4px;
 }
 
 .discussion-loading,
 .discussion-empty {
   text-align: center;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text);
+  opacity: 0.6;
   font-size: 0.95rem;
   padding: 2rem 0;
   font-style: italic;
@@ -98,8 +99,8 @@
 }
 
 .comment-author {
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+  color: var(--text-h);
 }
 
 .role-badge {
@@ -111,21 +112,21 @@
 }
 
 .role-badge.teacher {
-  background: rgba(147, 51, 234, 0.2);
-  color: #c084fc;
-  border: 1px solid rgba(168, 85, 247, 0.4);
+  background: rgba(147, 51, 234, 0.1);
+  color: #a855f7;
+  border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
 .role-badge.student {
-  background: rgba(16, 185, 129, 0.2);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.1);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .role-badge.parent {
-  background: rgba(245, 158, 11, 0.2);
-  color: #fbbf24;
-  border: 1px solid rgba(245, 158, 11, 0.4);
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .comment-bubble {
@@ -133,20 +134,21 @@
   border-radius: 12px;
   position: relative;
   word-break: break-word;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .self .comment-bubble {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  background: #2563eb; /* Royal blue for self */
   border-top-right-radius: 2px;
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .other .comment-bubble {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--border); /* System border color acts as a neutral gray background */
   border-top-left-radius: 2px;
-  color: #f1f3f5;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--text-h);
+  border: 1px solid rgba(0, 0, 0, 0.02);
 }
 
 .comment-text {
@@ -158,34 +160,42 @@
 .comment-time {
   display: block;
   font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.45);
   margin-top: 0.25rem;
   text-align: right;
+}
+
+.self .comment-time {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.other .comment-time {
+  color: var(--text);
+  opacity: 0.7;
 }
 
 .discussion-input-form {
   display: flex;
   gap: 0.75rem;
   margin-top: 1.25rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--border);
   padding-top: 1rem;
 }
 
 .discussion-input {
   flex: 1;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--bg);
+  border: 1px solid var(--border);
   border-radius: 8px;
   padding: 0.75rem 1rem;
-  color: #fff;
+  color: var(--text-h);
   font-size: 0.95rem;
   outline: none;
   transition: all 0.2s ease;
 }
 
 .discussion-input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
 }
 
 .discussion-send-btn {
@@ -204,7 +214,8 @@
 }
 
 .discussion-send-btn:disabled {
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.3);
+  background: var(--border);
+  color: var(--text);
+  opacity: 0.5;
   cursor: not-allowed;
 }
