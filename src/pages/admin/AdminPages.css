@@ -71,12 +71,12 @@
 
 .admin-stat-card__icon--green {
   background: rgba(40, 167, 69, 0.08);
-  color: var(--color-success || #28a745);
+  color: var(--color-success, #28a745);
 }
 
 .admin-stat-card__icon--orange {
   background: rgba(253, 126, 20, 0.08);
-  color: var(--color-warning || #fd7e14);
+  color: var(--color-warning, #fd7e14);
 }
 
 .admin-stat-card__icon--purple {

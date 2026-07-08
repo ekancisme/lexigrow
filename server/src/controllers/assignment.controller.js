@@ -2,6 +2,7 @@ import Assignment from '../models/Assignment.js'
 import Class from '../models/Class.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
+import { createManyNotifications } from '../services/notification.service.js'
 
 /**
  * @desc    Create a new assignment for a class
@@ -27,6 +28,22 @@ export const createAssignment = asyncHandler(async (req, res) => {
     teacher: req.user._id,
     status: 'active',
   })
+
+  // Send real-time notifications to all students in the class
+  if (cls.students && cls.students.length > 0) {
+    const notifications = cls.students.map(studentId => ({
+      recipient: studentId,
+      sender: req.user._id,
+      title: 'New Assignment Assigned',
+      message: `Teacher ${req.user.name} has posted a new assignment: "${title}" in class "${cls.name}".`,
+      type: 'assignment',
+      link: '/student/assignments',
+    }))
+
+    createManyNotifications(notifications).catch(err => {
+      console.error('Failed to send assignment notifications:', err.message)
+    })
+  }
 
   res.status(201).json({ success: true, data: assignment })
 })

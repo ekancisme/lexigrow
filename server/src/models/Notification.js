@@ -33,7 +33,7 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ['academic_alert', 'feedback', 'system', 'parent_notice'],
+      enum: ['academic_alert', 'feedback', 'system', 'parent_notice', 'assignment'],
       default: 'academic_alert',
     },
     // Đường dẫn frontend để điều hướng khi click vào thông báo

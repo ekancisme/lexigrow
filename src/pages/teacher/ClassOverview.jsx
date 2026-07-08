@@ -23,6 +23,7 @@ export default function ClassOverview() {
   // State for viewing details of an assignment
   const [viewingAssignment, setViewingAssignment] = useState(null)
   const [editForm, setEditForm] = useState({ title: '', description: '', dueDate: '', keywordsInput: '', keywords: [], status: 'active' })
+  const [deletingAssignment, setDeletingAssignment] = useState(null)
 
   useEffect(() => {
     if (viewingAssignment) {
@@ -136,14 +137,22 @@ export default function ClassOverview() {
     }
   }
 
-  async function handleDeleteAssignment(assignmentId, e) {
+  function handleDeleteAssignment(assignment, e) {
     e.stopPropagation()
-    if (!window.confirm('Delete this assignment?')) return
+    setDeletingAssignment(assignment)
+  }
+
+  async function confirmDeleteAssignment() {
+    if (!deletingAssignment) return
+    setSavingAssignment(true)
     try {
-      await api.delete(`/assignments/${assignmentId}`)
+      await api.delete(`/assignments/${deletingAssignment._id}`)
+      setDeletingAssignment(null)
       loadAssignments()
     } catch (err) {
       alert('Error deleting assignment: ' + err.message)
+    } finally {
+      setSavingAssignment(false)
     }
   }
 
@@ -420,7 +429,7 @@ export default function ClassOverview() {
                     <td onClick={(e) => e.stopPropagation()}>
                       <button
                         className="class-overview__action-btn"
-                        onClick={(e) => handleDeleteAssignment(a._id, e)}
+                        onClick={(e) => handleDeleteAssignment(a, e)}
                         style={{ backgroundColor: 'var(--color-error-container)', color: 'var(--color-error)' }}
                       >
                         Delete
@@ -618,6 +627,58 @@ export default function ClassOverview() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {/* ── CUSTOM CONFIRM DELETE MODAL ── */}
+      {deletingAssignment && createPortal(
+        <div 
+          onClick={() => setDeletingAssignment(null)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            style={{ background: 'var(--color-surface)', borderRadius: 20, padding: 24, width: '90%', maxWidth: 440, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column', gap: 16 }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 className="text-title-lg" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-error)' }}>
+                <span className="material-symbols-outlined">warning</span>
+                Delete Assignment
+              </h3>
+              <button onClick={() => setDeletingAssignment(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--color-on-surface-variant)', display: 'flex', alignItems: 'center' }}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <div>
+              <p className="text-body-md" style={{ margin: 0, lineHeight: 1.6, color: 'var(--color-on-surface-variant)' }}>
+                Are you sure you want to delete the assignment <strong>"{deletingAssignment.title}"</strong>?
+              </p>
+              <p className="text-body-sm" style={{ margin: '8px 0 0', color: 'var(--color-outline)', fontWeight: 500 }}>
+                This action cannot be undone.
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 8 }}>
+              <button 
+                type="button" 
+                onClick={() => setDeletingAssignment(null)} 
+                className="class-overview__action-btn" 
+                style={{ background: 'var(--color-surface-variant)', color: 'var(--color-on-surface-variant)' }}
+              >
+                Cancel
+              </button>
+              <button 
+                type="button" 
+                onClick={confirmDeleteAssignment} 
+                className="class-overview__action-btn" 
+                style={{ background: 'var(--color-error)', color: 'var(--color-on-error)' }}
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>,
         document.body

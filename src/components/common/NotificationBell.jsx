@@ -23,6 +23,7 @@ function getTypeIcon(type) {
     case 'academic_alert': return 'school'
     case 'parent_notice':  return 'family_restroom'
     case 'feedback':       return 'rate_review'
+    case 'assignment':     return 'assignment'
     default:               return 'notifications'
   }
 }
