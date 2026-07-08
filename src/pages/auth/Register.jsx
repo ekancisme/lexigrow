@@ -53,12 +53,21 @@ export default function Register() {
     setIsVerifying(true)
 
     try {
-      const user = await verifyEmail(verificationEmail, verificationCode)
-      if (user.role === 'student') {
+      const res = await verifyEmail(verificationEmail, verificationCode)
+      if (res && res.pendingApproval) {
+        setSuccessMessage(res.message || 'Xác thực thành công! Tài khoản đang chờ Admin phê duyệt.')
+        setTimeout(() => {
+          navigate('/login')
+        }, 5000)
+        return
+      }
+
+      const user = res
+      if (user && user.role === 'student') {
         navigate('/student/dashboard')
-      } else if (user.role === 'teacher') {
+      } else if (user && user.role === 'teacher') {
         navigate('/teacher/dashboard')
-      } else if (user.role === 'parent') {
+      } else if (user && user.role === 'parent') {
         navigate('/parent/dashboard')
       } else {
         navigate('/student/dashboard')

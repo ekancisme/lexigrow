@@ -152,6 +152,16 @@ export const login = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Email chưa được xác thực. Vui lòng xác thực trước.', 401)
   }
 
+  // Check account status
+  if (user.accountStatus === 'pending_approval') {
+    throw new ErrorResponse('Tài khoản đang chờ Admin phê duyệt. Vui lòng chờ thông báo qua email.', 403)
+  }
+  if (user.accountStatus === 'suspended') {
+    throw new ErrorResponse('Tài khoản đã bị khoá. Vui lòng liên hệ Admin để được hỗ trợ.', 403)
+  }
+  if (user.accountStatus === 'rejected') {
+    throw new ErrorResponse('Đơn đăng ký của bạn đã bị từ chối. Vui lòng liên hệ Admin để biết thêm thông tin.', 403)
+  }
   await sendTokenResponse(user, 200, res)
 })
 
@@ -439,15 +449,19 @@ export const verifyEmail = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Mã xác thực đã hết hạn', 400)
   }
 
-  // Save to primary User collection (will hash password on pre-save hook)
+  // Set accountStatus based on role:
+  // - student → active immediately
+  // - teacher/parent → pending_approval (requires Admin review)
+  const requiresApproval = ['teacher', 'parent'].includes(pending.role)
   const userFields = {
     name: pending.name,
     email: pending.email,
-    password: pending.password, // Plain text password from register form
+    password: pending.password, // Plain text; hashed by pre-save hook
     role: pending.role,
     englishLevel: pending.englishLevel,
     institution: pending.institution,
-    isVerified: true
+    isVerified: true,
+    accountStatus: requiresApproval ? 'pending_approval' : 'active',
   }
 
   let child = null
@@ -471,6 +485,15 @@ export const verifyEmail = asyncHandler(async (req, res) => {
 
   // Delete pending document
   await PendingUser.deleteOne({ _id: pending._id })
+
+  if (requiresApproval) {
+    // Teacher/Parent must wait for Admin approval — do NOT issue a token
+    return res.status(202).json({
+      success: true,
+      pendingApproval: true,
+      message: 'Email đã được xác thực thành công. Tài khoản của bạn đang chờ Admin phê duyệt. Bạn sẽ nhận được thông báo qua email khi được duyệt.',
+    })
+  }
 
   await sendTokenResponse(user, 200, res)
 })

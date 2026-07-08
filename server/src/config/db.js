@@ -15,6 +15,7 @@ const connectDB = async () => {
     try {
       const User = (await import('../models/User.js')).default
       await User.updateMany({ isVerified: { $exists: false } }, { $set: { isVerified: true } })
+      await User.updateMany({ accountStatus: { $exists: false } }, { $set: { accountStatus: 'active' } })
     } catch (migError) {
       console.error(`Migration error: ${migError.message}`)
     }

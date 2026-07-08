@@ -53,6 +53,9 @@ export function AuthProvider({ children }) {
     setLoading(true)
     try {
       const data = await api.post('/auth/verify-email', { email, code })
+      if (data.pendingApproval) {
+        return { pendingApproval: true, message: data.message }
+      }
       api.setToken(data.token)
       api.setUser(data.user)
       setToken(data.token)
