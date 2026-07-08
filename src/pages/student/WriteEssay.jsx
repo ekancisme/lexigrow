@@ -20,6 +20,7 @@ export default function WriteEssay() {
   const [essayText, setEssayText] = useState('')
   const [selectedTopic, setSelectedTopic] = useState('')
   const [title, setTitle] = useState('')
+  const [status, setStatus] = useState('draft')
   const [saving, setSaving] = useState(false)
   const [classes, setClasses] = useState([])
   const [selectedClass, setSelectedClass] = useState('')
@@ -58,6 +59,7 @@ export default function WriteEssay() {
         setEssayText(essay.content)
         if (essay.class) setSelectedClass(essay.class)
         if (essay.theme) setSelectedTheme(essay.theme)
+        if (essay.status) setStatus(essay.status)
       } catch (err) {
         console.error('Error loading essay draft:', err)
       }
@@ -170,6 +172,14 @@ export default function WriteEssay() {
       <div className="write-essay__layout">
         {/* Editor Area */}
         <div className="write-essay__editor-area">
+          {status === 'needs_revision' && (
+            <div className="write-essay__revision-alert">
+              <span className="material-symbols-outlined write-essay__revision-alert-icon">info</span>
+              <div className="write-essay__revision-alert-text">
+                <strong>Revising Requested Essay:</strong> You are currently updating an essay that your teacher has requested you to revise. Please address their revision comments.
+              </div>
+            </div>
+          )}
           {/* Title & Class */}
           <div className="write-essay__title-field card-base" style={{ display: 'flex', gap: 16, flexDirection: 'row', alignItems: 'center' }}>
             <div style={{ flex: 2 }}>
