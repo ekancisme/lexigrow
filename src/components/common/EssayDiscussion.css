@@ -1,0 +1,210 @@
+.essay-discussion-container {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  color: #f1f3f5;
+}
+
+.discussion-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.discussion-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+  color: #fff;
+}
+
+.discussion-subtitle {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0;
+}
+
+.discussion-error {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  color: #fca5a5;
+  padding: 0.5rem;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.comments-feed {
+  max-height: 350px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 120px;
+}
+
+/* Custom Scrollbar for comments feed */
+.comments-feed::-webkit-scrollbar {
+  width: 6px;
+}
+.comments-feed::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 4px;
+}
+.comments-feed::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.discussion-loading,
+.discussion-empty {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.95rem;
+  padding: 2rem 0;
+  font-style: italic;
+}
+
+.comment-bubble-wrapper {
+  display: flex;
+  flex-direction: column;
+  max-width: 75%;
+}
+
+.comment-bubble-wrapper.self {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.comment-bubble-wrapper.other {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.comment-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.8rem;
+}
+
+.comment-author {
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.role-badge {
+  text-transform: capitalize;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.role-badge.teacher {
+  background: rgba(147, 51, 234, 0.2);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.4);
+}
+
+.role-badge.student {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.role-badge.parent {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.comment-bubble {
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  position: relative;
+  word-break: break-word;
+}
+
+.self .comment-bubble {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-top-right-radius: 2px;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.other .comment-bubble {
+  background: rgba(255, 255, 255, 0.08);
+  border-top-left-radius: 2px;
+  color: #f1f3f5;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.comment-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.comment-time {
+  display: block;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.45);
+  margin-top: 0.25rem;
+  text-align: right;
+}
+
+.discussion-input-form {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 1rem;
+}
+
+.discussion-input {
+  flex: 1;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.discussion-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.discussion-send-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0 1.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.discussion-send-btn:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.discussion-send-btn:disabled {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.3);
+  cursor: not-allowed;
+}
