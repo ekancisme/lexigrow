@@ -1,39 +1,49 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import api from '../../services/api.js'
-import WeeklyComparisonWidget from '../../components/common/WeeklyComparisonWidget.jsx'
 import VocabularyTab from '../../components/common/VocabularyTab.jsx'
 import './StudentAnalyticsDetail.css'
 
 const TABS = [
-  { key: 'overview',    label: 'Overview',    icon: 'overview'       },
-  { key: 'vocabulary',  label: 'Vocabulary',  icon: 'library_books'  },
+  { key: 'overview',   label: 'Overview',   icon: 'overview'      },
+  { key: 'vocabulary', label: 'Vocabulary', icon: 'library_books' },
 ]
 
+/* ── Score badge color helper ─────────────────────── */
+function scoreBadgeClass(score) {
+  if (score >= 8) return 'sa-score-badge--high'
+  if (score >= 5) return 'sa-score-badge--mid'
+  return 'sa-score-badge--low'
+}
+
 export default function StudentAnalyticsDetail() {
-  const navigate   = useNavigate()
-  const { id }     = useParams()
-  const [data, setData]       = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('overview')
+  const navigate = useNavigate()
+  const { id }   = useParams()
+
+  const [data,       setData]       = useState(null)
+  const [loading,    setLoading]    = useState(true)
+  const [error,      setError]      = useState(null)
+  const [activeTab,  setActiveTab]  = useState('overview')
 
   useEffect(() => {
-    async function loadStudentDetail() {
+    async function load() {
       try {
         const res = await api.get(`/teacher/students/${id}`)
         setData(res.data)
       } catch (err) {
         console.error('Error fetching student details:', err)
+        setError(err.message || 'Failed to load student data.')
       } finally {
         setLoading(false)
       }
     }
-    loadStudentDetail()
+    load()
   }, [id])
 
+  /* ── Loading ── */
   if (loading) {
     return (
-      <div className="student-analytics" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
+      <div className="sa" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
         <span className="material-symbols-outlined animate-spin" style={{ fontSize: 48, color: 'var(--color-primary)' }}>
           progress_activity
         </span>
@@ -41,12 +51,16 @@ export default function StudentAnalyticsDetail() {
     )
   }
 
-  if (!data) {
+  /* ── Error ── */
+  if (error || !data) {
     return (
-      <div className="student-analytics" style={{ padding: 24, textAlign: 'center' }}>
-        <h3 className="text-title-lg" style={{ color: 'var(--color-error)' }}>Student Data Not Found</h3>
-        <button onClick={() => navigate(-1)} className="student-analytics__back" style={{ marginTop: 16 }}>
-          Go Back
+      <div className="sa" style={{ padding: 24, textAlign: 'center' }}>
+        <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-error)' }}>error_outline</span>
+        <h3 className="text-title-lg" style={{ color: 'var(--color-error)', marginTop: 12 }}>
+          {error || 'Student data not found'}
+        </h3>
+        <button className="sa-back-btn" onClick={() => navigate(-1)} style={{ marginTop: 16 }}>
+          ← Go Back
         </button>
       </div>
     )
@@ -55,71 +69,65 @@ export default function StudentAnalyticsDetail() {
   const { student, class: className, metrics, essayHistory } = data
   const latestEssay = essayHistory?.[0]
 
-  // SVG Growth Trend
-  const maxVal = essayHistory.length > 0 ? Math.max(...essayHistory.map(e => e.ttr)) : 1
-  const points = essayHistory.length > 0 ? [...essayHistory].reverse().map((e, index) => {
-    const x = (index / Math.max(1, essayHistory.length - 1)) * 800
-    const y = 180 - ((e.ttr / maxVal) * 150)
-    return `${x},${y}`
-  }).join(' ') : ''
-  const pathD = points ? `M 0,180 L ${points} L 800,180` : ''
-  const lineD = points ? `M ${points}` : 'M 0,180 L 800,180'
-
   return (
-    <div className="student-analytics">
-      <button className="student-analytics__back" onClick={() => navigate(-1)}>
+    <div className="sa">
+
+      {/* Back button */}
+      <button className="sa-back-btn" onClick={() => navigate(-1)}>
         <span className="material-symbols-outlined">arrow_back</span> Back
       </button>
 
-      {/* ── PROFILE ── */}
-      <section className="student-analytics__profile card-base">
-        <div className="student-analytics__avatar">
-          <span className="material-symbols-outlined" style={{ fontSize: 40, color: 'var(--color-primary)' }}>person</span>
+      {/* ══ BLOCK 1: PROFILE CARD ════════════════════════════ */}
+      <section className="sa-profile card-base">
+        <div className="sa-profile__avatar">
+          <span className="material-symbols-outlined" style={{ fontSize: 40, color: 'var(--color-primary)' }}>
+            person
+          </span>
         </div>
-        <div className="student-analytics__info">
-          <h2 className="text-headline-lg">{student?.name}</h2>
-          <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-            {className} • {student?.englishLevel || 'N/A'} Level • Joined {new Date(student?.createdAt).toLocaleDateString()}
-          </p>
+
+        <div className="sa-profile__info">
+          <h2 className="text-headline-lg sa-profile__name">{student?.name}</h2>
+          <div className="sa-profile__meta">
+            <span className="sa-meta-chip">
+              <span className="material-symbols-outlined" style={{ fontSize: 15 }}>mail</span>
+              {student?.email}
+            </span>
+            <span className="sa-meta-chip">
+              <span className="material-symbols-outlined" style={{ fontSize: 15 }}>class</span>
+              {className || 'N/A'}
+            </span>
+            <span className="sa-meta-chip">
+              <span className="material-symbols-outlined" style={{ fontSize: 15 }}>signal_cellular_alt</span>
+              {student?.englishLevel || 'N/A'} Level
+            </span>
+            <span className="sa-meta-chip sa-meta-chip--muted">
+              <span className="material-symbols-outlined" style={{ fontSize: 15 }}>calendar_today</span>
+              Joined {new Date(student?.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+            </span>
+          </div>
         </div>
+
+        {/* Quick action */}
         {latestEssay && (
-          <button className="student-analytics__feedback-btn" onClick={() => navigate(`/teacher/feedback/${latestEssay._id}`)}>
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>rate_review</span> Write Feedback
+          <button
+            className="sa-feedback-btn"
+            onClick={() => navigate(`/teacher/feedback/${latestEssay._id}`)}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>rate_review</span>
+            Write Feedback
           </button>
         )}
       </section>
 
-      {/* ── METRICS ── */}
-      <section className="student-analytics__metrics">
-        <div className="card-base">
-          <p className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Total Essays</p>
-          <p className="text-headline-md">{metrics?.totalEssays || 0}</p>
-        </div>
-        <div className="card-base">
-          <p className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Vocabulary Size</p>
-          <p className="text-headline-md">{metrics?.vocabularySize || 0}</p>
-        </div>
-        <div className="card-base">
-          <p className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Avg. TTR</p>
-          <p className="text-headline-md">{metrics?.avgTTR?.toFixed(2) || '0.00'}</p>
-        </div>
-        <div className="card-base">
-          <p className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Growth</p>
-          <p className="text-headline-md" style={{ color: metrics?.growth?.startsWith('-') ? 'var(--color-error)' : 'var(--color-success)' }}>
-            {metrics?.growth || '0%'}
-          </p>
-        </div>
-      </section>
-
-      {/* ── TAB NAV ── */}
-      <div className="student-analytics__tabs" role="tablist">
+      {/* ══ TABS ════════════════════════════════════════════ */}
+      <div className="sa-tabs" role="tablist">
         {TABS.map(tab => (
           <button
             key={tab.key}
             id={`tab-${tab.key}`}
             role="tab"
             aria-selected={activeTab === tab.key}
-            className={`student-analytics__tab ${activeTab === tab.key ? 'student-analytics__tab--active' : ''}`}
+            className={`sa-tab ${activeTab === tab.key ? 'sa-tab--active' : ''}`}
             onClick={() => setActiveTab(tab.key)}
           >
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>{tab.icon}</span>
@@ -128,74 +136,96 @@ export default function StudentAnalyticsDetail() {
         ))}
       </div>
 
-      {/* ── TAB CONTENT ── */}
+      {/* ══ TAB: OVERVIEW ══════════════════════════════════ */}
       {activeTab === 'overview' && (
         <div className="animate-fade-in">
-          <section style={{ marginBottom: 32 }}>
-            <WeeklyComparisonWidget studentId={id} />
-          </section>
 
-          <section className="student-analytics__chart card-base">
-            <h3 className="text-title-lg" style={{ marginBottom: 20 }}>Growth Trend</h3>
-            <div style={{ position: 'relative', width: '100%', height: 200 }}>
-              <svg viewBox="0 0 800 200" style={{ width: '100%', height: 200 }} preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="saGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#005bbf" stopOpacity="0.15"/>
-                    <stop offset="100%" stopColor="#005bbf" stopOpacity="0"/>
-                  </linearGradient>
-                </defs>
-                <line x1="0" y1="50"  x2="800" y2="50"  stroke="#e5eeff" strokeWidth="1"/>
-                <line x1="0" y1="100" x2="800" y2="100" stroke="#e5eeff" strokeWidth="1"/>
-                <line x1="0" y1="150" x2="800" y2="150" stroke="#e5eeff" strokeWidth="1"/>
-                {essayHistory.length > 0 && (
-                  <>
-                    <path d={lineD} fill="none" stroke="#005bbf" strokeWidth="3"/>
-                    <path d={pathD} fill="url(#saGrad)"/>
-                  </>
-                )}
-              </svg>
+          {/* ── BLOCK 2: VOCABULARY STATS ── */}
+          <section className="sa-vocab-stats">
+            <div className="sa-vocab-card sa-vocab-card--total card-base">
+              <span className="material-symbols-outlined sa-vocab-card__icon">library_books</span>
+              <div>
+                <p className="sa-vocab-card__value">{metrics?.vocabularySize ?? 0}</p>
+                <p className="sa-vocab-card__label">Total Words Learned</p>
+              </div>
+            </div>
+
+            <div className="sa-vocab-card sa-vocab-card--mastery card-base">
+              <span className="material-symbols-outlined sa-vocab-card__icon">verified</span>
+              <div>
+                <p className="sa-vocab-card__value">{metrics?.masteryRate ?? 0}%</p>
+                <p className="sa-vocab-card__label">Mastery Rate</p>
+                <p className="sa-vocab-card__sub">
+                  {metrics?.masteredVocab ?? 0} / {metrics?.vocabularySize ?? 0} mastered
+                </p>
+              </div>
+              {/* mini progress bar */}
+              <div className="sa-vocab-card__bar-wrap">
+                <div
+                  className="sa-vocab-card__bar-fill"
+                  style={{ width: `${metrics?.masteryRate ?? 0}%` }}
+                />
+              </div>
             </div>
           </section>
 
-          <section className="card-base" style={{ padding: 0 }}>
-            <div style={{ padding: 'var(--spacing-lg)', borderBottom: '1px solid var(--color-outline-variant)' }}>
+          {/* ── BLOCK 3: ESSAY HISTORY TABLE ── */}
+          <section className="card-base sa-essays">
+            <div className="sa-essays__header">
               <h3 className="text-title-lg">Essay History</h3>
+              <span className="sa-essays__count text-label-sm">
+                {essayHistory?.length ?? 0} essay{essayHistory?.length !== 1 ? 's' : ''}
+              </span>
             </div>
-            {essayHistory.length === 0 ? (
-              <div style={{ padding: 32, textAlign: 'center', color: 'var(--color-outline)' }}>
-                No essays written yet.
+
+            {!essayHistory || essayHistory.length === 0 ? (
+              <div className="sa-essays__empty">
+                <span className="material-symbols-outlined" style={{ fontSize: 40, color: 'var(--color-outline)' }}>
+                  description
+                </span>
+                <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>
+                  Học sinh chưa viết bài luận nào.
+                </p>
               </div>
             ) : (
-              <table className="student-analytics__table">
-                <thead>
-                  <tr>
-                    <th className="text-label-sm">DATE</th>
-                    <th className="text-label-sm">TITLE</th>
-                    <th className="text-label-sm">WORDS</th>
-                    <th className="text-label-sm">TTR</th>
-                    <th className="text-label-sm">SCORE</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {essayHistory.map((e) => (
-                    <tr key={e._id}>
-                      <td>{new Date(e.date).toLocaleDateString()}</td>
-                      <td style={{ fontWeight: 700 }}>{e.title}</td>
-                      <td>{e.words}</td>
-                      <td>{e.ttr?.toFixed(2) || '0.00'}</td>
-                      <td>
-                        <span className="student-analytics__score-badge">{e.score}/10</span>
-                      </td>
+              <div className="sa-essays__table-wrap">
+                <table className="sa-table">
+                  <thead>
+                    <tr>
+                      <th>DATE</th>
+                      <th>TITLE</th>
+                      <th>WORDS</th>
+                      <th>SCORE</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {essayHistory.map(e => (
+                      <tr key={e._id} className="sa-table__row">
+                        <td className="sa-table__date">
+                          {new Date(e.date).toLocaleDateString('en-US', {
+                            month: 'short', day: 'numeric', year: 'numeric'
+                          })}
+                        </td>
+                        <td className="sa-table__title">{e.title || 'Untitled'}</td>
+                        <td className="sa-table__words">
+                          <span className="sa-table__words-chip">{e.words ?? '—'}</span>
+                        </td>
+                        <td>
+                          <span className={`sa-score-badge ${scoreBadgeClass(e.score)}`}>
+                            {e.score}/10
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             )}
           </section>
         </div>
       )}
 
+      {/* ══ TAB: VOCABULARY ════════════════════════════════ */}
       {activeTab === 'vocabulary' && (
         <div className="animate-fade-in">
           <VocabularyTab apiBase={`/teacher/students/${id}/vocabulary`} />
