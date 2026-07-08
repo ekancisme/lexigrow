@@ -238,7 +238,7 @@ export const importGlobalVocabularies = asyncHandler(async (req, res) => {
   }
 
   // Pre-validate & format data, keeping track of errors
-  const validOps = []
+  const validOpsMap = new Map()
   const errors = []
 
   const allowedPartsOfSpeech = ['noun', 'verb', 'adjective', 'adverb', 'pronoun', 'preposition', 'conjunction', 'interjection', 'phrase', 'other']
@@ -282,7 +282,7 @@ export const importGlobalVocabularies = asyncHandler(async (req, res) => {
       return
     }
 
-    validOps.push({
+    validOpsMap.set(word, {
       word,
       ipa,
       partOfSpeech,
@@ -291,6 +291,8 @@ export const importGlobalVocabularies = asyncHandler(async (req, res) => {
       awl
     })
   })
+
+  const validOps = Array.from(validOpsMap.values())
 
   // Perform bulk upsert operations
   let createdCount = 0

@@ -98,7 +98,7 @@ export default function AdminVocabulary() {
         }
       }
     } catch (err) {
-      setError(err.message || 'Không thể tải danh sách từ vựng.')
+      setError(err.message || 'Unable to load vocabulary list.')
     } finally {
       setLoading(false)
     }
@@ -148,11 +148,11 @@ export default function AdminVocabulary() {
     setFormError('')
     
     if (!formData.word.trim()) {
-      setFormError('Từ vựng không được để trống.')
+      setFormError('Word is required.')
       return
     }
     if (!formData.definition.trim()) {
-      setFormError('Định nghĩa không được để trống.')
+      setFormError('Definition is required.')
       return
     }
 
@@ -161,10 +161,10 @@ export default function AdminVocabulary() {
       let res
       if (modalMode === 'create') {
         res = await api.post('/admin/global-vocabulary', formData)
-        setSuccessMsg(`Đã tạo thành công từ "${res.data.word}".`)
+        setSuccessMsg(`Word "${res.data.word}" created successfully.`)
       } else {
         res = await api.put(`/admin/global-vocabulary/${currentWordId}`, formData)
-        setSuccessMsg(`Đã cập nhật thành công từ "${res.data.word}".`)
+        setSuccessMsg(`Word "${res.data.word}" updated successfully.`)
       }
       
       setShowCrudModal(false)
@@ -172,7 +172,7 @@ export default function AdminVocabulary() {
       // Auto clear success message
       setTimeout(() => setSuccessMsg(''), 4000)
     } catch (err) {
-      setFormError(err.message || 'Lỗi khi lưu từ vựng.')
+      setFormError(err.message || 'Failed to save vocabulary word.')
     } finally {
       setFormLoading(false)
     }
@@ -188,13 +188,13 @@ export default function AdminVocabulary() {
     setError('')
     try {
       await api.delete(`/admin/global-vocabulary/${wordToDelete._id}`)
-      setSuccessMsg(`Đã xóa thành công từ "${wordToDelete.word}".`)
+      setSuccessMsg(`Word "${wordToDelete.word}" deleted successfully.`)
       setShowDeleteConfirm(false)
       setWordToDelete(null)
       fetchVocabularies()
       setTimeout(() => setSuccessMsg(''), 4000)
     } catch (err) {
-      setError(err.message || 'Không thể xóa từ vựng.')
+      setError(err.message || 'Failed to delete vocabulary word.')
       setShowDeleteConfirm(false)
       setWordToDelete(null)
     }
@@ -211,7 +211,7 @@ export default function AdminVocabulary() {
         }
       })
       if (!response.ok) {
-        throw new Error('Lỗi từ máy chủ khi xuất dữ liệu.')
+        throw new Error('Server error exporting data.')
       }
       const blob = await response.blob()
       const url = window.URL.createObjectURL(blob)
@@ -222,16 +222,16 @@ export default function AdminVocabulary() {
       a.click()
       a.remove()
       window.URL.revokeObjectURL(url)
-      setSuccessMsg('Đã xuất dữ liệu CSV thành công!')
+      setSuccessMsg('CSV data exported successfully!')
       setTimeout(() => setSuccessMsg(''), 4000)
     } catch (err) {
-      setError(err.message || 'Lỗi khi xuất file CSV.')
+      setError(err.message || 'Failed to export CSV file.')
     }
   }
 
   // --- Import Actions ---
   const downloadTemplate = () => {
-    const csvContent = '\uFEFFsep=,\nWord,IPA,Part of Speech,Definition,CEFR,AWL\nubiquitous,/juːˈbɪkwɪtəs/,adjective,Có mặt ở khắp mọi nơi,C1,Sublist 1\n'
+    const csvContent = '\uFEFFsep=,\nWord,IPA,Part of Speech,Definition,CEFR,AWL\nubiquitous,/juːˈbɪkwɪtəs/,adjective,"Present, appearing, or found everywhere",C1,Sublist 1\n'
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -247,7 +247,7 @@ export default function AdminVocabulary() {
     const file = e.target.files[0]
     if (file) {
       if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
-        setImportError('Vui lòng chọn tập tin có định dạng .csv')
+        setImportError('Please select a .csv file.')
         setSelectedFile(null)
         return
       }
@@ -337,7 +337,7 @@ export default function AdminVocabulary() {
         }
 
         if (rows.length <= headerRowIndex) {
-          throw new Error('Tập tin CSV trống hoặc thiếu dòng tiêu đề.')
+          throw new Error('CSV file is empty or missing headers.')
         }
 
         const headers = rows[headerRowIndex].map(h => h.trim().toLowerCase())
@@ -350,7 +350,7 @@ export default function AdminVocabulary() {
         const awlIdx = headers.indexOf('awl')
 
         if (wordIdx === -1 || defIdx === -1) {
-          throw new Error('Tập tin CSV thiếu cột bắt buộc: "Word" và "Definition".')
+          throw new Error('CSV file is missing required columns: "Word" and "Definition".')
         }
 
         const wordsToImport = []
@@ -369,11 +369,11 @@ export default function AdminVocabulary() {
           const awl = awlIdx !== -1 ? row[awlIdx]?.trim() || '' : ''
 
           if (!word) {
-            localErrors.push({ line: lineNum, message: 'Từ vựng (Word) không được bỏ trống.' })
+            localErrors.push({ line: lineNum, message: 'Word is required.' })
             continue
           }
           if (!definition) {
-            localErrors.push({ line: lineNum, word, message: 'Định nghĩa (Definition) không được bỏ trống.' })
+            localErrors.push({ line: lineNum, word, message: 'Definition is required.' })
             continue
           }
 
@@ -393,7 +393,7 @@ export default function AdminVocabulary() {
             createdCount: 0,
             updatedCount: 0,
             errors: localErrors,
-            message: 'Không có dòng hợp lệ nào để tải lên.'
+            message: 'No valid rows to import.'
           })
           setImportLoading(false)
           return
@@ -416,14 +416,14 @@ export default function AdminVocabulary() {
         setSelectedFile(null)
         fetchVocabularies()
       } catch (err) {
-        setImportError(err.message || 'Lỗi phân tích cú pháp CSV.')
+        setImportError(err.message || 'CSV parsing error.')
       } finally {
         setImportLoading(false)
       }
     }
 
     reader.onerror = () => {
-      setImportError('Không thể đọc tập tin CSV.')
+      setImportError('Failed to read CSV file.')
       setImportLoading(false)
     }
 
@@ -439,7 +439,7 @@ export default function AdminVocabulary() {
     const file = e.dataTransfer.files[0]
     if (file) {
       if (!file.name.endsWith('.csv')) {
-        setImportError('Vui lòng thả tập tin có định dạng .csv')
+        setImportError('Please drop a .csv file.')
         setSelectedFile(null)
         return
       }
@@ -454,17 +454,17 @@ export default function AdminVocabulary() {
       {/* Header */}
       <div className="admin-page__header">
         <div>
-          <h2 className="admin-page__title">Từ điển Học thuật Hệ thống</h2>
-          <p className="admin-page__subtitle">Quản lý kho từ vựng chuẩn, cấp độ khó CEFR và phân loại AWL (Academic Word List)</p>
+          <h2 className="admin-page__title">Global Academic Vocabulary</h2>
+          <p className="admin-page__subtitle">Manage system dictionaries, CEFR difficulty tiers, and AWL classifications</p>
         </div>
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           <button className="admin-task-item__btn" onClick={handleExport} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>download</span>
-            <span>Xuất dữ liệu (Export)</span>
+            <span>Export CSV</span>
           </button>
           <button className="admin-task-item__btn" onClick={() => { setShowUploadModal(true); setImportResults(null); setSelectedFile(null); setImportError(''); }} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>upload_file</span>
-            <span>Nhập danh sách (Import)</span>
+            <span>Import CSV</span>
           </button>
           <button 
             className="admin-task-item__btn" 
@@ -478,7 +478,7 @@ export default function AdminVocabulary() {
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>add</span>
-            <span>Thêm từ mới</span>
+            <span>Add Word</span>
           </button>
         </div>
       </div>
@@ -526,7 +526,7 @@ export default function AdminVocabulary() {
           </div>
           <div>
             <div className="admin-stat-card__value">{stats.totalCount}</div>
-            <div className="admin-stat-card__label">Tổng Số Từ Chuẩn</div>
+            <div className="admin-stat-card__label">Total Standard Words</div>
           </div>
         </div>
 
@@ -536,7 +536,7 @@ export default function AdminVocabulary() {
           </div>
           <div>
             <div className="admin-stat-card__value">{stats.awlCount}</div>
-            <div className="admin-stat-card__label">Từ Vựng Học Thuật (AWL)</div>
+            <div className="admin-stat-card__label">Academic Words (AWL)</div>
           </div>
         </div>
 
@@ -546,9 +546,9 @@ export default function AdminVocabulary() {
           </div>
           <div style={{ width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', fontWeight: 600, color: 'var(--color-outline)', marginBottom: '4px' }}>
-              <span>Cơ Bản (A1-A2): {stats.cefr.A1 + stats.cefr.A2}</span>
-              <span>Trung Cấp (B1-B2): {stats.cefr.B1 + stats.cefr.B2}</span>
-              <span>Cao Cấp (C1-C2): {stats.cefr.C1 + stats.cefr.C2}</span>
+              <span>Elementary (A1-A2): {stats.cefr.A1 + stats.cefr.A2}</span>
+              <span>Intermediate (B1-B2): {stats.cefr.B1 + stats.cefr.B2}</span>
+              <span>Advanced (C1-C2): {stats.cefr.C1 + stats.cefr.C2}</span>
             </div>
             {/* Progress bar visualizing distribution */}
             <div style={{ display: 'flex', height: '8px', borderRadius: '4px', overflow: 'hidden', background: 'var(--color-surface-container-high)' }}>
@@ -573,8 +573,8 @@ export default function AdminVocabulary() {
       <div className="admin-card">
         <div className="admin-card__header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', borderBottom: 'none', paddingBottom: 0 }}>
           <div>
-            <h3 className="admin-card__title" style={{ fontSize: '18px' }}>Danh sách từ điển học thuật</h3>
-            <p className="admin-card__desc" style={{ marginTop: '2px' }}>Tìm kiếm, chỉnh sửa hoặc lọc các từ vựng học thuật đang có hiệu lực trên LexiGrow</p>
+            <h3 className="admin-card__title" style={{ fontSize: '18px' }}>Academic Dictionary</h3>
+            <p className="admin-card__desc" style={{ marginTop: '2px' }}>Search, edit, or filter academic vocabulary words in LexiGrow</p>
           </div>
         </div>
 
@@ -596,7 +596,7 @@ export default function AdminVocabulary() {
             </span>
             <input
               type="text"
-              placeholder="Tìm kiếm theo từ vựng hoặc định nghĩa..."
+              placeholder="Search by word or definition..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{
@@ -638,13 +638,13 @@ export default function AdminVocabulary() {
                 cursor: 'pointer'
               }}
             >
-              <option value="">Tất cả CEFR</option>
-              <option value="A1">A1 - Sơ cấp</option>
-              <option value="A2">A2 - Sơ cấp</option>
-              <option value="B1">B1 - Trung cấp</option>
-              <option value="B2">B2 - Trung cấp</option>
-              <option value="C1">C1 - Cao cấp</option>
-              <option value="C2">C2 - Cao cấp</option>
+              <option value="">All CEFR Tiers</option>
+              <option value="A1">A1 - Beginner</option>
+              <option value="A2">A2 - Beginner</option>
+              <option value="B1">B1 - Intermediate</option>
+              <option value="B2">B2 - Intermediate</option>
+              <option value="C1">C1 - Advanced</option>
+              <option value="C2">C2 - Advanced</option>
             </select>
           </div>
 
@@ -665,9 +665,9 @@ export default function AdminVocabulary() {
                 cursor: 'pointer'
               }}
             >
-              <option value="">Tất cả AWL</option>
-              <option value="yes">Thuộc danh mục AWL</option>
-              <option value="no">Không thuộc AWL</option>
+              <option value="">All AWL Lists</option>
+              <option value="yes">Belongs to AWL</option>
+              <option value="no">Not in AWL</option>
               <option value="Sublist 1">Sublist 1</option>
               <option value="Sublist 2">Sublist 2</option>
               <option value="Sublist 3">Sublist 3</option>
@@ -688,16 +688,16 @@ export default function AdminVocabulary() {
             <span className="material-symbols-outlined animate-spin" style={{ fontSize: '48px', color: 'var(--color-primary)' }}>
               progress_activity
             </span>
-            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '14px' }}>Đang tải dữ liệu từ vựng...</p>
+            <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '14px' }}>Loading vocabulary data...</p>
           </div>
         ) : vocabularies.length === 0 ? (
           <div style={{ padding: '60px', textAlign: 'center', background: 'var(--color-surface-container-low)', borderRadius: 'var(--radius-xl)', border: '1px dashed var(--color-outline-variant)' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '48px', color: 'var(--color-outline)', marginBottom: '8px' }}>
               folder_open
             </span>
-            <h4 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px' }}>Không tìm thấy từ vựng</h4>
+            <h4 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px' }}>No Vocabulary Found</h4>
             <p style={{ color: 'var(--color-on-surface-variant)', fontSize: '13px', maxWidth: '400px', margin: '0 auto' }}>
-              Không tìm thấy từ vựng nào khớp với bộ lọc hiện tại của bạn. Thử thay đổi từ khóa hoặc bộ lọc.
+              No vocabulary words match your current filters. Try adjusting your search term or filter parameters.
             </p>
           </div>
         ) : (
@@ -705,13 +705,13 @@ export default function AdminVocabulary() {
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
               <thead>
                 <tr style={{ background: 'var(--color-surface-container-low)', borderBottom: '1px solid var(--color-outline-variant)', fontWeight: 600, color: 'var(--color-on-surface)' }}>
-                  <th style={{ padding: '14px 16px' }}>Từ Vựng</th>
-                  <th style={{ padding: '14px 16px' }}>Phiên Âm</th>
-                  <th style={{ padding: '14px 16px' }}>Từ Loại</th>
-                  <th style={{ padding: '14px 16px', width: '35%' }}>Định Nghĩa / Nghĩa</th>
+                  <th style={{ padding: '14px 16px' }}>Word</th>
+                  <th style={{ padding: '14px 16px' }}>IPA</th>
+                  <th style={{ padding: '14px 16px' }}>Part of Speech</th>
+                  <th style={{ padding: '14px 16px', width: '35%' }}>Definition</th>
                   <th style={{ padding: '14px 16px', textAlign: 'center' }}>CEFR</th>
                   <th style={{ padding: '14px 16px', textAlign: 'center' }}>AWL</th>
-                  <th style={{ padding: '14px 16px', textAlign: 'right' }}>Thao Tác</th>
+                  <th style={{ padding: '14px 16px', textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -813,7 +813,7 @@ export default function AdminVocabulary() {
         {!loading && vocabularies.length > 0 && (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', flexWrap: 'wrap', gap: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--color-outline)' }}>
-              <span>Hiển thị</span>
+              <span>Showing</span>
               <select
                 value={limit}
                 onChange={(e) => { setLimit(Number(e.target.value)); setPage(1); }}
@@ -827,11 +827,11 @@ export default function AdminVocabulary() {
                   cursor: 'pointer'
                 }}
               >
-                <option value={10}>10 dòng</option>
-                <option value={20}>20 dòng</option>
-                <option value={50}>50 dòng</option>
+                <option value={10}>10 rows</option>
+                <option value={20}>20 rows</option>
+                <option value={50}>50 rows</option>
               </select>
-              <span>của {totalCount} từ</span>
+              <span>of {totalCount} words</span>
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -853,11 +853,11 @@ export default function AdminVocabulary() {
                 }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '16px', marginRight: '4px' }}>chevron_left</span>
-                Trước
+                Previous
               </button>
 
               <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface)', padding: '0 8px' }}>
-                Trang {page} / {totalPages}
+                Page {page} / {totalPages}
               </span>
 
               <button
@@ -877,7 +877,7 @@ export default function AdminVocabulary() {
                   opacity: page === totalPages ? 0.5 : 1
                 }}
               >
-                Sau
+                Next
                 <span className="material-symbols-outlined" style={{ fontSize: '16px', marginLeft: '4px' }}>chevron_right</span>
               </button>
             </div>
@@ -916,7 +916,7 @@ export default function AdminVocabulary() {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: '12px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-on-surface)' }}>
-                {modalMode === 'create' ? 'Thêm Từ Vựng Hệ Thống Mới' : 'Cập Nhật Từ Vựng Hệ Thống'}
+                {modalMode === 'create' ? 'Add New System Word' : 'Update System Word'}
               </h3>
               <span 
                 className="material-symbols-outlined" 
@@ -937,14 +937,14 @@ export default function AdminVocabulary() {
             <form onSubmit={handleFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {/* Word field */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>Từ Vựng *</label>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>Word *</label>
                 <input
                   type="text"
                   name="word"
                   value={formData.word}
                   onChange={handleFormChange}
-                  placeholder="ví dụ: evaluate"
-                  disabled={modalMode === 'edit'} // Don't change word name in edit mode to avoid clashes, or we can handle it
+                  placeholder="e.g. evaluate"
+                  disabled={modalMode === 'edit'} // Don't change word name in edit mode to avoid clashes
                   style={{
                     padding: '10px 12px',
                     border: '1px solid var(--color-outline-variant)',
@@ -961,13 +961,13 @@ export default function AdminVocabulary() {
               {/* IPA & Part of Speech Row */}
               <div style={{ display: 'flex', gap: '12px' }}>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>Phiên Âm (IPA)</label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>IPA Transcription</label>
                   <input
                     type="text"
                     name="ipa"
                     value={formData.ipa}
                     onChange={handleFormChange}
-                    placeholder="ví dụ: /ɪˈvæljueɪt/"
+                    placeholder="e.g. /ɪˈvæljueɪt/"
                     style={{
                       padding: '10px 12px',
                       border: '1px solid var(--color-outline-variant)',
@@ -981,7 +981,7 @@ export default function AdminVocabulary() {
                 </div>
 
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>Từ Loại</label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>Part of Speech</label>
                   <select
                     name="partOfSpeech"
                     value={formData.partOfSpeech}
@@ -997,16 +997,16 @@ export default function AdminVocabulary() {
                       cursor: 'pointer'
                     }}
                   >
-                    <option value="noun">Danh từ (Noun)</option>
-                    <option value="verb">Động từ (Verb)</option>
-                    <option value="adjective">Tính từ (Adjective)</option>
-                    <option value="adverb">Trạng từ (Adverb)</option>
-                    <option value="pronoun">Đại từ (Pronoun)</option>
-                    <option value="preposition">Giới từ (Preposition)</option>
-                    <option value="conjunction">Liên từ (Conjunction)</option>
-                    <option value="interjection">Thán từ (Interjection)</option>
-                    <option value="phrase">Cụm từ (Phrase)</option>
-                    <option value="other">Loại khác (Other)</option>
+                    <option value="noun">Noun</option>
+                    <option value="verb">Verb</option>
+                    <option value="adjective">Adjective</option>
+                    <option value="adverb">Adverb</option>
+                    <option value="pronoun">Pronoun</option>
+                    <option value="preposition">Preposition</option>
+                    <option value="conjunction">Conjunction</option>
+                    <option value="interjection">Interjection</option>
+                    <option value="phrase">Phrase</option>
+                    <option value="other">Other</option>
                   </select>
                 </div>
               </div>
@@ -1014,7 +1014,7 @@ export default function AdminVocabulary() {
               {/* CEFR & AWL Row */}
               <div style={{ display: 'flex', gap: '12px' }}>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>Cấp độ CEFR</label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>CEFR Level</label>
                   <select
                     name="cefr"
                     value={formData.cefr}
@@ -1040,7 +1040,7 @@ export default function AdminVocabulary() {
                 </div>
 
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>Phân nhóm AWL</label>
+                  <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>AWL Classification</label>
                   <select
                     name="awl"
                     value={formData.awl}
@@ -1056,7 +1056,7 @@ export default function AdminVocabulary() {
                       cursor: 'pointer'
                     }}
                   >
-                    <option value="">Không thuộc AWL</option>
+                    <option value="">Not in AWL</option>
                     <option value="Sublist 1">Sublist 1</option>
                     <option value="Sublist 2">Sublist 2</option>
                     <option value="Sublist 3">Sublist 3</option>
@@ -1073,12 +1073,11 @@ export default function AdminVocabulary() {
 
               {/* Definition field */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>Định Nghĩa / Nghĩa Tiếng Việt *</label>
+                <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface-variant)' }}>Definition *</label>
                 <textarea
                   name="definition"
                   value={formData.definition}
-                  onChange={handleFormChange}
-                  placeholder="ví dụ: Đánh giá, định giá; ước lượng giá trị của một cái gì đó"
+                  placeholder="e.g. Form an idea of the amount, number, or value of; assess."
                   rows={3}
                   style={{
                     padding: '10px 12px',
@@ -1110,7 +1109,7 @@ export default function AdminVocabulary() {
                     cursor: 'pointer'
                   }}
                 >
-                  Hủy
+                  Cancel
                 </button>
                 <button
                   type="submit"
@@ -1131,7 +1130,7 @@ export default function AdminVocabulary() {
                   }}
                 >
                   {formLoading && <span className="material-symbols-outlined animate-spin" style={{ fontSize: '16px' }}>progress_activity</span>}
-                  Lưu Lại
+                  Save
                 </button>
               </div>
             </form>
@@ -1172,7 +1171,7 @@ export default function AdminVocabulary() {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: '12px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-on-surface)' }}>
-                Tải lên CSV - Nhập từ vựng hàng loạt
+                CSV Upload Wizard - Bulk Import
               </h3>
               <span 
                 className="material-symbols-outlined" 
@@ -1197,12 +1196,12 @@ export default function AdminVocabulary() {
               alignItems: 'center'
             }}>
               <div>
-                <strong>Quy định tiêu đề cột:</strong> <code>Word, IPA, Part of Speech, Definition, CEFR, AWL</code>
+                <strong>Required Column Headers:</strong> <code>Word, IPA, Part of Speech, Definition, CEFR, AWL</code>
                 <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--color-outline)' }}>
-                  * Bắt buộc có cột <strong>Word</strong> và <strong>Definition</strong>. Trùng từ sẽ tự động cập nhật.
+                  * <strong>Word</strong> and <strong>Definition</strong> are required. Duplicates will be updated.
                 </p>
                 <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--color-primary)', fontWeight: 500 }}>
-                  💡 Khuyên dùng: Nên tải file mẫu và chỉnh sửa để tránh lỗi font hoặc dính cột trên Microsoft Excel.
+                  💡 Recommended: Download the template CSV file to ensure compatibility with Microsoft Excel.
                 </p>
               </div>
               <button 
@@ -1223,7 +1222,7 @@ export default function AdminVocabulary() {
                 }}
               >
                 <span className="material-symbols-outlined" style={{ fontSize: '14px' }}>download</span>
-                Tải Mẫu
+                Download Template
               </button>
             </div>
 
@@ -1270,16 +1269,16 @@ export default function AdminVocabulary() {
                       {selectedFile.name}
                     </h4>
                     <p style={{ color: 'var(--color-outline)', fontSize: '12px' }}>
-                      Kích thước: {(selectedFile.size / 1024).toFixed(2)} KB - Đã sẵn sàng xử lý
+                      Size: {(selectedFile.size / 1024).toFixed(2)} KB - Ready to import
                     </p>
                   </div>
                 ) : (
                   <div>
                     <h4 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '4px' }}>
-                      Kéo thả tập tin CSV vào đây hoặc click để chọn
+                      Drag & drop a CSV file here, or click to browse
                     </h4>
                     <p style={{ color: 'var(--color-outline)', fontSize: '12px' }}>
-                      Hệ thống chỉ hỗ trợ tập tin .csv mã hóa UTF-8
+                      Only UTF-8 encoded .csv files are supported
                     </p>
                   </div>
                 )}
@@ -1299,16 +1298,16 @@ export default function AdminVocabulary() {
                     <span className="material-symbols-outlined" style={{ color: importResults.errors.length > 0 ? 'var(--color-warning, #fd7e14)' : 'var(--color-success, #28a745)' }}>
                       {importResults.errors.length > 0 ? 'warning' : 'check_circle'}
                     </span>
-                    <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Kết quả Import dữ liệu</h4>
+                    <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Import Results</h4>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '14px' }}>
                     <div style={{ background: 'var(--color-surface-container-lowest)', padding: '10px', borderRadius: '8px', border: '1px solid var(--color-outline-variant)' }}>
-                      <div style={{ fontSize: '11px', color: 'var(--color-outline)', fontWeight: 600 }}>TỪ THÊM MỚI</div>
+                      <div style={{ fontSize: '11px', color: 'var(--color-outline)', fontWeight: 600 }}>WORDS CREATED</div>
                       <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-success, #28a745)', marginTop: '2px' }}>{importResults.createdCount}</div>
                     </div>
                     <div style={{ background: 'var(--color-surface-container-lowest)', padding: '10px', borderRadius: '8px', border: '1px solid var(--color-outline-variant)' }}>
-                      <div style={{ fontSize: '11px', color: 'var(--color-outline)', fontWeight: 600 }}>TỪ CẬP NHẬT</div>
+                      <div style={{ fontSize: '11px', color: 'var(--color-outline)', fontWeight: 600 }}>WORDS UPDATED</div>
                       <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-primary)', marginTop: '2px' }}>{importResults.updatedCount}</div>
                     </div>
                   </div>
@@ -1318,7 +1317,7 @@ export default function AdminVocabulary() {
                 {importResults.errors.length > 0 && (
                   <div>
                     <h5 style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-error, #b91c1c)', marginBottom: '6px' }}>
-                      Chi tiết lỗi / cảnh báo ({importResults.errors.length}):
+                      Error & Warning Details ({importResults.errors.length}):
                     </h5>
                     <div style={{ 
                       maxHeight: '150px', 
@@ -1330,7 +1329,7 @@ export default function AdminVocabulary() {
                     }}>
                       {importResults.errors.map((err, i) => (
                         <div key={i} style={{ padding: '8px 12px', borderBottom: i === importResults.errors.length - 1 ? 'none' : '1px solid var(--color-outline-variant)', display: 'flex', gap: '6px', color: 'var(--color-on-surface-variant)' }}>
-                          <span style={{ fontWeight: 700, color: 'var(--color-outline)' }}>Dòng {err.line}:</span>
+                          <span style={{ fontWeight: 700, color: 'var(--color-outline)' }}>Row {err.line}:</span>
                           {err.word && <span style={{ fontWeight: 700, color: 'var(--color-on-surface)' }}>"{err.word}":</span>}
                           <span>{err.message}</span>
                         </div>
@@ -1357,7 +1356,7 @@ export default function AdminVocabulary() {
                   cursor: 'pointer'
                 }}
               >
-                {importResults ? 'Đóng' : 'Hủy'}
+                {importResults ? 'Close' : 'Cancel'}
               </button>
 
               {!importResults && (
@@ -1381,7 +1380,7 @@ export default function AdminVocabulary() {
                   }}
                 >
                   {importLoading && <span className="material-symbols-outlined animate-spin" style={{ fontSize: '16px' }}>progress_activity</span>}
-                  Bắt đầu nạp (Import)
+                  Import Data
                 </button>
               )}
             </div>
@@ -1420,13 +1419,13 @@ export default function AdminVocabulary() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-error, #b91c1c)' }}>
               <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>warning</span>
-              <h3 style={{ fontSize: '16px', fontWeight: 700 }}>Xác nhận xóa từ vựng</h3>
+              <h3 style={{ fontSize: '16px', fontWeight: 700 }}>Confirm Delete Word</h3>
             </div>
 
             <p style={{ fontSize: '14px', color: 'var(--color-on-surface-variant)', lineHeight: 1.5 }}>
-              Bạn có chắc chắn muốn xóa từ vựng chuẩn <strong>"{wordToDelete?.word}"</strong> ra khỏi kho từ vựng toàn hệ thống của LexiGrow? 
+              Are you sure you want to delete the standard vocabulary word <strong>"{wordToDelete?.word}"</strong> from LexiGrow's global dictionary? 
               <br />
-              <span style={{ color: 'var(--color-outline)', fontSize: '12px' }}>* Thao tác này không thể hoàn tác.</span>
+              <span style={{ color: 'var(--color-outline)', fontSize: '12px' }}>* This action cannot be undone.</span>
             </p>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '8px' }}>
@@ -1444,7 +1443,7 @@ export default function AdminVocabulary() {
                   cursor: 'pointer'
                 }}
               >
-                Hủy
+                Cancel
               </button>
               <button
                 type="button"
@@ -1460,7 +1459,7 @@ export default function AdminVocabulary() {
                   cursor: 'pointer'
                 }}
               >
-                Xóa Vĩnh Viễn
+                Delete Permanently
               </button>
             </div>
           </div>
