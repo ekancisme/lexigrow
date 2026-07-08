@@ -3,7 +3,7 @@ import {
   createClass, getClasses, getClassDetail,
   updateClass, deleteClass, addStudent, removeStudent,
   getAdminClasses, forceEnrollStudent, forceUnenrollStudent, transferStudent,
-  archiveClassByAdmin, deleteClassByAdmin, getAdminClassDetail
+  archiveClassByAdmin, deleteClassByAdmin, getAdminClassDetail, getAdminUsers
 } from '../controllers/class.controller.js'
 import { protect, authorize } from '../middleware/auth.middleware.js'
 
@@ -19,6 +19,7 @@ router.route('/')
 router.route('/admin')
   .get(authorize('admin'), getAdminClasses)
 
+router.get('/admin/users', authorize('admin'), getAdminUsers)
 router.get('/admin/:id', authorize('admin'), getAdminClassDetail)
 router.post('/admin/transfer', authorize('admin'), transferStudent)
 router.post('/admin/:id/enroll', authorize('admin'), forceEnrollStudent)

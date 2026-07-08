@@ -372,3 +372,19 @@ export const getAdminClassDetail = asyncHandler(async (req, res) => {
 
   res.status(200).json({ success: true, data: cls })
 })
+
+/**
+ * @desc    Get all users by role for admin dropdowns
+ * @route   GET /api/classes/admin/users
+ * @access  Private (admin)
+ */
+export const getAdminUsers = asyncHandler(async (req, res) => {
+  const { role } = req.query
+
+  if (!role || !['student', 'teacher'].includes(role)) {
+    throw new ErrorResponse('Please specify a valid role (student or teacher)', 400)
+  }
+
+  const users = await User.find({ role }).select('name email englishLevel').sort({ name: 1 })
+  res.status(200).json({ success: true, count: users.length, data: users })
+})
