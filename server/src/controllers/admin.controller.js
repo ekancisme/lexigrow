@@ -147,7 +147,7 @@ export const getSystemAnalytics = asyncHandler(async (req, res) => {
       $bucket: {
         groupBy: "$overallScore",
         boundaries: [0, 2, 4, 6, 8, 10.1],
-        default: 10,
+        default: 11,
         output: {
           count: { $sum: 1 }
         }
