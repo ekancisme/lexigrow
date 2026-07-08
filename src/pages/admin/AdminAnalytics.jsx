@@ -14,7 +14,7 @@ export default function AdminAnalytics() {
         setAnalytics(res.data)
       } catch (err) {
         console.error('Error fetching analytics:', err)
-        setError(err.message || 'Không thể tải thống kê hệ thống')
+        setError(err.message || 'Failed to load system analytics')
       } finally {
         setLoading(false)
       }
@@ -28,7 +28,7 @@ export default function AdminAnalytics() {
         <span className="material-symbols-outlined animate-spin" style={{ fontSize: 40, color: 'var(--color-primary)' }}>
           progress_activity
         </span>
-        <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>Đang tải dữ liệu thống kê...</p>
+        <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>Loading statistics data...</p>
       </div>
     )
   }
@@ -92,7 +92,7 @@ export default function AdminAnalytics() {
           </div>
           <div>
             <p className="admin-stat-card__value">{metrics.totalUsers || 0}</p>
-            <p className="admin-stat-card__label">Tổng người dùng</p>
+            <p className="admin-stat-card__label">Total Users</p>
           </div>
         </div>
 
@@ -102,7 +102,7 @@ export default function AdminAnalytics() {
           </div>
           <div>
             <p className="admin-stat-card__value">{metrics.totalEssays || 0}</p>
-            <p className="admin-stat-card__label">Bài viết đã nộp</p>
+            <p className="admin-stat-card__label">Essays Submitted</p>
           </div>
         </div>
 
@@ -112,7 +112,7 @@ export default function AdminAnalytics() {
           </div>
           <div>
             <p className="admin-stat-card__value">{metrics.totalClasses || 0}</p>
-            <p className="admin-stat-card__label">Lớp học hoạt động</p>
+            <p className="admin-stat-card__label">Active Classes</p>
           </div>
         </div>
 
@@ -122,7 +122,7 @@ export default function AdminAnalytics() {
           </div>
           <div>
             <p className="admin-stat-card__value">{metrics.avgScore || 0} <span style={{ fontSize: '14px', fontWeight: 500 }}>/10</span></p>
-            <p className="admin-stat-card__label">Điểm AI trung bình</p>
+            <p className="admin-stat-card__label">Average AI Score</p>
           </div>
         </div>
       </div>
@@ -132,12 +132,12 @@ export default function AdminAnalytics() {
         
         {/* Chart 1: User Growth Line Chart */}
         <div className="admin-card card-base" style={{ padding: '20px' }}>
-          <h4 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px' }}>Tăng trưởng tài khoản</h4>
-          <p style={{ fontSize: '12px', color: 'var(--color-outline)', marginBottom: '16px' }}>Đăng ký tài khoản mới theo tuần</p>
+          <h4 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px' }}>Account Growth</h4>
+          <p style={{ fontSize: '12px', color: 'var(--color-outline)', marginBottom: '16px' }}>New registrations per week</p>
           
           {points.length === 0 ? (
             <div style={{ height: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-outline)' }}>
-              Không có dữ liệu đăng ký
+              No registration data
             </div>
           ) : (
             <div>
@@ -181,12 +181,12 @@ export default function AdminAnalytics() {
 
         {/* Chart 2: Essay Submission Bar Chart */}
         <div className="admin-card card-base" style={{ padding: '20px' }}>
-          <h4 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px' }}>Tần suất nộp bài viết</h4>
-          <p style={{ fontSize: '12px', color: 'var(--color-outline)', marginBottom: '16px' }}>Số lượng bài viết đã submit hàng ngày</p>
+          <h4 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px' }}>Essay Submission Frequency</h4>
+          <p style={{ fontSize: '12px', color: 'var(--color-outline)', marginBottom: '16px' }}>Daily submitted essays count</p>
 
           {submissionsList.length === 0 ? (
             <div style={{ height: '150px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-outline)' }}>
-              Không có dữ liệu bài nộp
+              No submission data
             </div>
           ) : (
             <div>
@@ -235,13 +235,13 @@ export default function AdminAnalytics() {
         
         {/* Column 1: Roles breakdown list */}
         <div className="admin-card card-base" style={{ padding: '20px' }}>
-          <h4 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px' }}>Cơ cấu tài khoản hệ thống</h4>
-          <p style={{ fontSize: '12px', color: 'var(--color-outline)', marginBottom: '20px' }}>Phần trăm người dùng theo phân quyền</p>
+          <h4 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px' }}>Account Structure</h4>
+          <p style={{ fontSize: '12px', color: 'var(--color-outline)', marginBottom: '20px' }}>User percentage by role</p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <span className="text-label-md" style={{ color: 'var(--color-on-surface)', fontWeight: 600 }}>Học sinh</span>
+                <span className="text-label-md" style={{ color: 'var(--color-on-surface)', fontWeight: 600 }}>Students</span>
                 <span className="text-label-md" style={{ color: 'var(--color-primary)', fontWeight: 700 }}>{studentCount} ({studentPct}%)</span>
               </div>
               <div style={{ width: '100%', height: '8px', background: 'var(--color-surface-container-high)', borderRadius: '4px', overflow: 'hidden' }}>
@@ -251,7 +251,7 @@ export default function AdminAnalytics() {
 
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <span className="text-label-md" style={{ color: 'var(--color-on-surface)', fontWeight: 600 }}>Giáo viên</span>
+                <span className="text-label-md" style={{ color: 'var(--color-on-surface)', fontWeight: 600 }}>Teachers</span>
                 <span className="text-label-md" style={{ color: '#6f42c1', fontWeight: 700 }}>{teacherCount} ({teacherPct}%)</span>
               </div>
               <div style={{ width: '100%', height: '8px', background: 'var(--color-surface-container-high)', borderRadius: '4px', overflow: 'hidden' }}>
@@ -261,7 +261,7 @@ export default function AdminAnalytics() {
 
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-                <span className="text-label-md" style={{ color: 'var(--color-on-surface)', fontWeight: 600 }}>Phụ huynh</span>
+                <span className="text-label-md" style={{ color: 'var(--color-on-surface)', fontWeight: 600 }}>Parents</span>
                 <span className="text-label-md" style={{ color: '#fd7e14', fontWeight: 700 }}>{parentCount} ({parentPct}%)</span>
               </div>
               <div style={{ width: '100%', height: '8px', background: 'var(--color-surface-container-high)', borderRadius: '4px', overflow: 'hidden' }}>
@@ -273,8 +273,8 @@ export default function AdminAnalytics() {
 
         {/* Column 2: Score Distribution Progress Bars */}
         <div className="admin-card card-base" style={{ padding: '20px' }}>
-          <h4 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px' }}>Phân bố điểm AI chấm</h4>
-          <p style={{ fontSize: '12px', color: 'var(--color-outline)', marginBottom: '20px' }}>Số lượng bài viết theo phổ điểm từ 0 đến 10</p>
+          <h4 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px' }}>AI Grade Distribution</h4>
+          <p style={{ fontSize: '12px', color: 'var(--color-outline)', marginBottom: '20px' }}>Number of essays by score range from 0 to 10</p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {(charts?.scoreDistribution || []).map((bucket, index) => {
@@ -295,7 +295,7 @@ export default function AdminAnalytics() {
                   <div style={{ flex: 1, height: '12px', background: 'var(--color-surface-container-high)', borderRadius: '6px', overflow: 'hidden' }}>
                     <div style={{ width: `${pct}%`, height: '100%', background: color, borderRadius: '6px', transition: 'width 0.4s ease' }} />
                   </div>
-                  <span className="text-label-md" style={{ width: '40px', textAlign: 'right', fontWeight: 700, color: 'var(--color-on-surface)' }}>{bucket.count} bài</span>
+                  <span className="text-label-md" style={{ width: '60px', textAlign: 'right', fontWeight: 700, color: 'var(--color-on-surface)' }}>{bucket.count} essays</span>
                 </div>
               )
             })}

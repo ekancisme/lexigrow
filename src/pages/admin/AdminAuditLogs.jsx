@@ -109,15 +109,15 @@ export default function AdminAuditLogs() {
       
       {/* Filtering Box */}
       <form onSubmit={handleFilterSubmit} className="admin-card card-base" style={{ padding: '20px' }}>
-        <h4 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '16px' }}>Bộ lọc tìm kiếm</h4>
+        <h4 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '16px' }}>Search Filters</h4>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', alignItems: 'end' }}>
           {/* Text search */}
           <div>
-            <label className="text-label-md" style={{ color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '6px' }}>Tìm theo Người thực hiện</label>
+            <label className="text-label-md" style={{ color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '6px' }}>Search by Performer</label>
             <input
               type="text"
-              placeholder="Tên hoặc email..."
+              placeholder="Name or email..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{
@@ -134,7 +134,7 @@ export default function AdminAuditLogs() {
 
           {/* Action category */}
           <div>
-            <label className="text-label-md" style={{ color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '6px' }}>Hành động</label>
+            <label className="text-label-md" style={{ color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '6px' }}>Action</label>
             <select
               value={action}
               onChange={(e) => setAction(e.target.value)}
@@ -148,24 +148,24 @@ export default function AdminAuditLogs() {
                 outline: 'none'
               }}
             >
-              <option value="">Tất cả hành động</option>
-              <option value="CREATE_CLASS">Tạo lớp học (CREATE_CLASS)</option>
-              <option value="UPDATE_CLASS">Cập nhật lớp (UPDATE_CLASS)</option>
-              <option value="DELETE_CLASS">Xóa lớp học (DELETE_CLASS)</option>
-              <option value="ADD_STUDENT">Thêm học sinh (ADD_STUDENT)</option>
-              <option value="REMOVE_STUDENT">Xóa học sinh (REMOVE_STUDENT)</option>
-              <option value="CREATE_PROMPT">Tạo Prompt AI (CREATE_PROMPT)</option>
-              <option value="UPDATE_PROMPT">Cập nhật Prompt (UPDATE_PROMPT)</option>
-              <option value="DELETE_PROMPT">Xóa Prompt AI (DELETE_PROMPT)</option>
-              <option value="LOCK_USER">Khóa tài khoản (LOCK_USER)</option>
-              <option value="APPROVE_USER">Phê duyệt (APPROVE_USER)</option>
-              <option value="RESOLVE_ALERT">Xử lý cảnh báo (RESOLVE_ALERT)</option>
+              <option value="">All Actions</option>
+              <option value="CREATE_CLASS">Create Class (CREATE_CLASS)</option>
+              <option value="UPDATE_CLASS">Update Class (UPDATE_CLASS)</option>
+              <option value="DELETE_CLASS">Delete Class (DELETE_CLASS)</option>
+              <option value="ADD_STUDENT">Add Student (ADD_STUDENT)</option>
+              <option value="REMOVE_STUDENT">Remove Student (REMOVE_STUDENT)</option>
+              <option value="CREATE_PROMPT">Create Prompt (CREATE_PROMPT)</option>
+              <option value="UPDATE_PROMPT">Update Prompt (UPDATE_PROMPT)</option>
+              <option value="DELETE_PROMPT">Delete Prompt (DELETE_PROMPT)</option>
+              <option value="LOCK_USER">Lock User (LOCK_USER)</option>
+              <option value="APPROVE_USER">Approve User (APPROVE_USER)</option>
+              <option value="RESOLVE_ALERT">Resolve Alert (RESOLVE_ALERT)</option>
             </select>
           </div>
 
           {/* Actor role */}
           <div>
-            <label className="text-label-md" style={{ color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '6px' }}>Vai trò</label>
+            <label className="text-label-md" style={{ color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '6px' }}>Role</label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
@@ -179,16 +179,16 @@ export default function AdminAuditLogs() {
                 outline: 'none'
               }}
             >
-              <option value="">Tất cả vai trò</option>
-              <option value="admin">Quản trị viên (Admin)</option>
-              <option value="teacher">Giáo viên (Teacher)</option>
-              <option value="student">Học sinh (Student)</option>
+              <option value="">All Roles</option>
+              <option value="admin">Administrator (Admin)</option>
+              <option value="teacher">Teacher</option>
+              <option value="student">Student</option>
             </select>
           </div>
 
           {/* Dates */}
           <div>
-            <label className="text-label-md" style={{ color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '6px' }}>Từ ngày</label>
+            <label className="text-label-md" style={{ color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '6px' }}>From Date</label>
             <input
               type="date"
               value={startDate}
@@ -206,7 +206,7 @@ export default function AdminAuditLogs() {
           </div>
 
           <div>
-            <label className="text-label-md" style={{ color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '6px' }}>Đến ngày</label>
+            <label className="text-label-md" style={{ color: 'var(--color-on-surface-variant)', display: 'block', marginBottom: '6px' }}>To Date</label>
             <input
               type="date"
               value={endDate}
@@ -253,7 +253,7 @@ export default function AdminAuditLogs() {
               fontWeight: 600
             }}
           >
-            Lọc kết quả
+            Filter Results
           </button>
         </div>
       </form>
@@ -261,7 +261,7 @@ export default function AdminAuditLogs() {
       {/* Logs Table Card */}
       <div className="admin-card card-base" style={{ padding: '0px', overflow: 'hidden' }}>
         <div style={{ padding: '20px', borderBottom: '1px solid var(--color-outline-variant)' }}>
-          <h4 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Lịch sử hoạt động ({pagination.total} bản ghi)</h4>
+          <h4 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-on-surface)' }}>System Audit Logs ({pagination.total} records)</h4>
         </div>
 
         {loading ? (
@@ -269,29 +269,29 @@ export default function AdminAuditLogs() {
             <span className="material-symbols-outlined animate-spin" style={{ fontSize: 40, color: 'var(--color-primary)' }}>
               progress_activity
             </span>
-            <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>Đang tìm kiếm nhật ký...</p>
+            <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>Searching system logs...</p>
           </div>
         ) : logs.length === 0 ? (
           <div style={{ padding: '80px 20px', textAlign: 'center', color: 'var(--color-outline)' }}>
             <span className="material-symbols-outlined" style={{ fontSize: 48, marginBottom: '16px' }}>search_off</span>
-            <p className="text-title-medium" style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>Không tìm thấy nhật ký tương ứng</p>
-            <p className="text-body-md" style={{ marginTop: '4px' }}>Hãy thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm của bạn.</p>
+            <p className="text-title-medium" style={{ fontWeight: 600, color: 'var(--color-on-surface)' }}>No matching logs found</p>
+            <p className="text-body-md" style={{ marginTop: '4px' }}>Please adjust your search queries or filters.</p>
           </div>
         ) : (
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>
                 <tr style={{ background: 'var(--color-surface-container-low)', borderBottom: '1px solid var(--color-outline-variant)' }}>
-                  <th style={{ padding: '16px 20px', fontSize: '13px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Người thực hiện</th>
-                  <th style={{ padding: '16px 20px', fontSize: '13px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Hành động</th>
-                  <th style={{ padding: '16px 20px', fontSize: '13px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Đối tượng tác động</th>
-                  <th style={{ padding: '16px 20px', fontSize: '13px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Chi tiết hoạt động</th>
-                  <th style={{ padding: '16px 20px', fontSize: '13px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Thời gian</th>
+                  <th style={{ padding: '16px 20px', fontSize: '13px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Performer</th>
+                  <th style={{ padding: '16px 20px', fontSize: '13px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Action</th>
+                  <th style={{ padding: '16px 20px', fontSize: '13px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Target Entity</th>
+                  <th style={{ padding: '16px 20px', fontSize: '13px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Action Details</th>
+                  <th style={{ padding: '16px 20px', fontSize: '13px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Timestamp</th>
                 </tr>
               </thead>
               <tbody>
                 {logs.map((log) => {
-                  const actor = log.user || { name: 'Hệ thống', email: 'system@lexigrow.vn', role: 'system' }
+                  const actor = log.user || { name: 'System', email: 'system@lexigrow.com', role: 'system' }
                   
                   return (
                     <tr key={log._id} style={{ borderBottom: '1px solid var(--color-outline-variant)', transition: 'background 0.2s' }}>
@@ -357,7 +357,7 @@ export default function AdminAuditLogs() {
             {pagination.pages > 1 && (
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderTop: '1px solid var(--color-outline-variant)' }}>
                 <span className="text-label-md" style={{ color: 'var(--color-outline)' }}>
-                  Trang {pagination.page} / {pagination.pages}
+                  Page {pagination.page} of {pagination.pages}
                 </span>
 
                 <div style={{ display: 'flex', gap: '8px' }}>
@@ -376,7 +376,7 @@ export default function AdminAuditLogs() {
                     }}
                   >
                     <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_left</span>
-                    Trước
+                    Prev
                   </button>
 
                   {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((p) => (
@@ -412,7 +412,7 @@ export default function AdminAuditLogs() {
                       alignItems: 'center'
                     }}
                   >
-                    Sau
+                    Next
                     <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>chevron_right</span>
                   </button>
                 </div>
