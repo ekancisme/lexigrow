@@ -94,7 +94,11 @@ export const getStudentAnalytics = asyncHandler(async (req, res) => {
   const essays = await Essay.find({ student: student._id, status: { $ne: 'draft' } }).sort({ createdAt: -1 })
   const essayIds = essays.map(e => e._id)
   const analyses = await AIAnalysis.find({ essay: { $in: essayIds } })
-  const totalVocab = await Vocabulary.countDocuments({ student: student._id })
+
+  // Vocabulary stats
+  const totalVocab    = await Vocabulary.countDocuments({ student: student._id })
+  const masteredVocab = await Vocabulary.countDocuments({ student: student._id, masteryLevel: 'mastered' })
+  const masteryRate   = totalVocab > 0 ? Math.round((masteredVocab / totalVocab) * 100) : 0
 
   const avgTTR = analyses.length > 0
     ? Math.round((analyses.reduce((sum, a) => sum + (a.scores?.vocabularyDiversity || 0), 0) / analyses.length) * 100) / 100
@@ -135,6 +139,8 @@ export const getStudentAnalytics = asyncHandler(async (req, res) => {
       metrics: {
         totalEssays: essays.length,
         vocabularySize: totalVocab,
+        masteredVocab,
+        masteryRate,
         avgTTR,
         growth,
       },
@@ -142,6 +148,7 @@ export const getStudentAnalytics = asyncHandler(async (req, res) => {
     },
   })
 })
+
 
 /**
  * @desc    Get student essays (for teacher viewing)
