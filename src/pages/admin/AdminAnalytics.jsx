@@ -42,13 +42,16 @@ export default function AdminAnalytics() {
     )
   }
 
-  const { metrics, charts } = analytics || {}
+  const { metrics = { roles: {} }, charts = {} } = analytics || {}
 
   // 1. Roles breakdown values
-  const totalRoles = (metrics.roles.student || 0) + (metrics.roles.teacher || 0) + (metrics.roles.parent || 0)
-  const studentPct = totalRoles ? Math.round((metrics.roles.student / totalRoles) * 100) : 0
-  const teacherPct = totalRoles ? Math.round((metrics.roles.teacher / totalRoles) * 100) : 0
-  const parentPct = totalRoles ? Math.round((metrics.roles.parent / totalRoles) * 100) : 0
+  const studentCount = metrics?.roles?.student || 0
+  const teacherCount = metrics?.roles?.teacher || 0
+  const parentCount = metrics?.roles?.parent || 0
+  const totalRoles = studentCount + teacherCount + parentCount
+  const studentPct = totalRoles ? Math.round((studentCount / totalRoles) * 100) : 0
+  const teacherPct = totalRoles ? Math.round((teacherCount / totalRoles) * 100) : 0
+  const parentPct = totalRoles ? Math.round((parentCount / totalRoles) * 100) : 0
 
   // 2. SVG Line/Area Chart calculation for User Growth
   const userGrowthList = charts?.userGrowth || []
@@ -88,7 +91,7 @@ export default function AdminAnalytics() {
             <span className="material-symbols-outlined">group</span>
           </div>
           <div>
-            <p className="admin-stat-card__value">{metrics.totalUsers}</p>
+            <p className="admin-stat-card__value">{metrics.totalUsers || 0}</p>
             <p className="admin-stat-card__label">Tổng người dùng</p>
           </div>
         </div>
@@ -98,7 +101,7 @@ export default function AdminAnalytics() {
             <span className="material-symbols-outlined">description</span>
           </div>
           <div>
-            <p className="admin-stat-card__value">{metrics.totalEssays}</p>
+            <p className="admin-stat-card__value">{metrics.totalEssays || 0}</p>
             <p className="admin-stat-card__label">Bài viết đã nộp</p>
           </div>
         </div>
@@ -108,7 +111,7 @@ export default function AdminAnalytics() {
             <span className="material-symbols-outlined">school</span>
           </div>
           <div>
-            <p className="admin-stat-card__value">{metrics.totalClasses}</p>
+            <p className="admin-stat-card__value">{metrics.totalClasses || 0}</p>
             <p className="admin-stat-card__label">Lớp học hoạt động</p>
           </div>
         </div>
@@ -118,7 +121,7 @@ export default function AdminAnalytics() {
             <span className="material-symbols-outlined">analytics</span>
           </div>
           <div>
-            <p className="admin-stat-card__value">{metrics.avgScore} <span style={{ fontSize: '14px', fontWeight: 500 }}>/10</span></p>
+            <p className="admin-stat-card__value">{metrics.avgScore || 0} <span style={{ fontSize: '14px', fontWeight: 500 }}>/10</span></p>
             <p className="admin-stat-card__label">Điểm AI trung bình</p>
           </div>
         </div>
@@ -239,7 +242,7 @@ export default function AdminAnalytics() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                 <span className="text-label-md" style={{ color: 'var(--color-on-surface)', fontWeight: 600 }}>Học sinh</span>
-                <span className="text-label-md" style={{ color: 'var(--color-primary)', fontWeight: 700 }}>{metrics.roles.student} ({studentPct}%)</span>
+                <span className="text-label-md" style={{ color: 'var(--color-primary)', fontWeight: 700 }}>{studentCount} ({studentPct}%)</span>
               </div>
               <div style={{ width: '100%', height: '8px', background: 'var(--color-surface-container-high)', borderRadius: '4px', overflow: 'hidden' }}>
                 <div style={{ width: `${studentPct}%`, height: '100%', background: 'var(--color-primary)', borderRadius: '4px' }} />
@@ -249,7 +252,7 @@ export default function AdminAnalytics() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                 <span className="text-label-md" style={{ color: 'var(--color-on-surface)', fontWeight: 600 }}>Giáo viên</span>
-                <span className="text-label-md" style={{ color: '#6f42c1', fontWeight: 700 }}>{metrics.roles.teacher} ({teacherPct}%)</span>
+                <span className="text-label-md" style={{ color: '#6f42c1', fontWeight: 700 }}>{teacherCount} ({teacherPct}%)</span>
               </div>
               <div style={{ width: '100%', height: '8px', background: 'var(--color-surface-container-high)', borderRadius: '4px', overflow: 'hidden' }}>
                 <div style={{ width: `${teacherPct}%`, height: '100%', background: '#6f42c1', borderRadius: '4px' }} />
@@ -259,7 +262,7 @@ export default function AdminAnalytics() {
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                 <span className="text-label-md" style={{ color: 'var(--color-on-surface)', fontWeight: 600 }}>Phụ huynh</span>
-                <span className="text-label-md" style={{ color: '#fd7e14', fontWeight: 700 }}>{metrics.roles.parent} ({parentPct}%)</span>
+                <span className="text-label-md" style={{ color: '#fd7e14', fontWeight: 700 }}>{parentCount} ({parentPct}%)</span>
               </div>
               <div style={{ width: '100%', height: '8px', background: 'var(--color-surface-container-high)', borderRadius: '4px', overflow: 'hidden' }}>
                 <div style={{ width: `${parentPct}%`, height: '100%', background: '#fd7e14', borderRadius: '4px' }} />
