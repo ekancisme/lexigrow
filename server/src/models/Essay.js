@@ -30,6 +30,12 @@ const essaySchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Class',
   },
+  // Assignment this essay was written for (optional)
+  assignment: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Assignment',
+    default: null,
+  },
   // Auto-calculated stats
   wordCount: {
     type: Number,

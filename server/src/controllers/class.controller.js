@@ -6,6 +6,7 @@ import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import { classifyStudents } from '../services/studentStatus.service.js'
 import { createNotification } from '../services/notification.service.js'
+import { logAction } from '../utils/auditLogger.js'
 
 /**
  * @desc    Create a new class
@@ -21,6 +22,8 @@ export const createClass = asyncHandler(async (req, res) => {
     schedule,
     teacher: req.user._id,
   })
+
+  await logAction(req.user._id, 'CREATE_CLASS', 'Class', cls._id, { name })
 
   res.status(201).json({ success: true, data: cls })
 })
@@ -159,6 +162,9 @@ export const updateClass = asyncHandler(async (req, res) => {
   if (status) cls.status = status
 
   await cls.save()
+  
+  await logAction(req.user._id, 'UPDATE_CLASS', 'Class', cls._id, { name: cls.name, status: cls.status })
+  
   res.status(200).json({ success: true, data: cls })
 })
 
@@ -173,6 +179,9 @@ export const deleteClass = asyncHandler(async (req, res) => {
   if (cls.teacher.toString() !== req.user._id.toString()) throw new ErrorResponse('Not authorized', 403)
 
   await cls.deleteOne()
+  
+  await logAction(req.user._id, 'DELETE_CLASS', 'Class', req.params.id, { name: cls.name })
+  
   res.status(200).json({ success: true, message: 'Class deleted' })
 })
 
@@ -195,6 +204,8 @@ export const addStudent = asyncHandler(async (req, res) => {
 
   cls.students.push(student._id)
   await cls.save()
+
+  await logAction(req.user._id, 'ADD_STUDENT', 'Class', cls._id, { studentEmail: student.email, studentName: student.name, className: cls.name })
 
   // Gửi thông báo realtime cho học sinh
   try {
@@ -226,5 +237,167 @@ export const removeStudent = asyncHandler(async (req, res) => {
   cls.students = cls.students.filter(s => s.toString() !== req.params.studentId)
   await cls.save()
 
+  await logAction(req.user._id, 'REMOVE_STUDENT', 'Class', cls._id, { studentId: req.params.studentId, className: cls.name })
+
   res.status(200).json({ success: true, data: cls })
+})
+
+/**
+ * @desc    Get all active classes for admin
+ * @route   GET /api/classes/admin
+ * @access  Private (admin)
+ */
+export const getAdminClasses = asyncHandler(async (req, res) => {
+  const classes = await Class.find({ status: 'active' })
+    .populate('teacher', 'name email')
+    .sort({ createdAt: -1 })
+
+  const enriched = classes.map(cls => {
+    const classObj = cls.toObject()
+    classObj.studentCount = cls.students ? cls.students.length : 0
+    return classObj
+  })
+
+  res.status(200).json({ success: true, count: enriched.length, data: enriched })
+})
+
+/**
+ * @desc    Force enroll a student in a class
+ * @route   POST /api/classes/admin/:id/enroll
+ * @access  Private (admin)
+ */
+export const forceEnrollStudent = asyncHandler(async (req, res) => {
+  const cls = await Class.findById(req.params.id)
+  if (!cls) throw new ErrorResponse('Class not found', 404)
+
+  const student = await User.findById(req.body.studentId)
+  if (!student || student.role !== 'student') {
+    throw new ErrorResponse('Student not found', 404)
+  }
+
+  if (cls.students.includes(student._id)) {
+    throw new ErrorResponse('Student already in this class', 400)
+  }
+
+  cls.students.push(student._id)
+  await cls.save()
+
+  res.status(200).json({ success: true, data: cls })
+})
+
+/**
+ * @desc    Force unenroll a student from a class
+ * @route   POST /api/classes/admin/:id/unenroll
+ * @access  Private (admin)
+ */
+export const forceUnenrollStudent = asyncHandler(async (req, res) => {
+  const cls = await Class.findById(req.params.id)
+  if (!cls) throw new ErrorResponse('Class not found', 404)
+
+  cls.students = cls.students.filter(s => s.toString() !== req.body.studentId)
+  await cls.save()
+
+  res.status(200).json({ success: true, data: cls })
+})
+
+/**
+ * @desc    Transfer student between classes
+ * @route   POST /api/classes/admin/transfer
+ * @access  Private (admin)
+ */
+export const transferStudent = asyncHandler(async (req, res) => {
+  const { studentId, fromClassId, toClassId } = req.body
+
+  if (!studentId || !toClassId) {
+    throw new ErrorResponse('Please provide studentId and toClassId', 400)
+  }
+
+  // Remove from old class if provided
+  if (fromClassId) {
+    const fromClass = await Class.findById(fromClassId)
+    if (fromClass) {
+      fromClass.students = fromClass.students.filter(s => s.toString() !== studentId)
+      await fromClass.save()
+    }
+  } else {
+    // If fromClassId is not provided, remove student from ANY class they are currently in
+    await Class.updateMany(
+      { students: studentId },
+      { $pull: { students: studentId } }
+    )
+  }
+
+  // Add to target class
+  const toClass = await Class.findById(toClassId)
+  if (!toClass) {
+    throw new ErrorResponse('Target class not found', 404)
+  }
+
+  if (!toClass.students.includes(studentId)) {
+    toClass.students.push(studentId)
+    await toClass.save()
+  }
+
+  res.status(200).json({ success: true, message: 'Student transferred successfully' })
+})
+
+/**
+ * @desc    Archive a class
+ * @route   PATCH /api/classes/admin/:id/archive
+ * @access  Private (admin)
+ */
+export const archiveClassByAdmin = asyncHandler(async (req, res) => {
+  const cls = await Class.findById(req.params.id)
+  if (!cls) throw new ErrorResponse('Class not found', 404)
+
+  cls.status = 'archived'
+  await cls.save()
+
+  res.status(200).json({ success: true, data: cls })
+})
+
+/**
+ * @desc    Delete a class by admin
+ * @route   DELETE /api/classes/admin/:id
+ * @access  Private (admin)
+ */
+export const deleteClassByAdmin = asyncHandler(async (req, res) => {
+  const cls = await Class.findById(req.params.id)
+  if (!cls) throw new ErrorResponse('Class not found', 404)
+
+  await cls.deleteOne()
+  res.status(200).json({ success: true, message: 'Class deleted successfully' })
+})
+
+/**
+ * @desc    Get class detail for admin
+ * @route   GET /api/classes/admin/:id
+ * @access  Private (admin)
+ */
+export const getAdminClassDetail = asyncHandler(async (req, res) => {
+  const cls = await Class.findById(req.params.id)
+    .populate('teacher', 'name email')
+    .populate('students', 'name email englishLevel')
+
+  if (!cls) {
+    throw new ErrorResponse('Class not found', 404)
+  }
+
+  res.status(200).json({ success: true, data: cls })
+})
+
+/**
+ * @desc    Get all users by role for admin dropdowns
+ * @route   GET /api/classes/admin/users
+ * @access  Private (admin)
+ */
+export const getAdminUsers = asyncHandler(async (req, res) => {
+  const { role } = req.query
+
+  if (!role || !['student', 'teacher'].includes(role)) {
+    throw new ErrorResponse('Please specify a valid role (student or teacher)', 400)
+  }
+
+  const users = await User.find({ role }).select('name email englishLevel').sort({ name: 1 })
+  res.status(200).json({ success: true, count: users.length, data: users })
 })

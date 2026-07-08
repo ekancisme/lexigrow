@@ -11,6 +11,7 @@ import AppLayout from './components/layout/AppLayout'
 
 /* Student Pages */
 import StudentDashboard from './pages/student/StudentDashboard'
+import AssignmentInbox from './pages/student/AssignmentInbox'
 import WriteEssay from './pages/student/WriteEssay'
 import MyProgress from './pages/student/MyProgress'
 import SetWeeklyGoals from './pages/student/SetWeeklyGoals'
@@ -28,11 +29,12 @@ import ManualFeedbackReview from './pages/teacher/ManualFeedbackReview'
 import EarlyWarningAlerts from './pages/teacher/EarlyWarningAlerts'
 import SystemPromptsManagement from './pages/teacher/SystemPromptsManagement'
 import ProfileSettings from './pages/teacher/ProfileSettings'
+import AssignmentDetail from './pages/teacher/AssignmentDetail'
 
 /* Admin Pages */
 import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminUsers from './pages/admin/AdminUsers'
-import AdminClasses from './pages/admin/AdminClasses'
+import AdminClassManagement from './pages/admin/AdminClassManagement'
 import AdminAIMonitoring from './pages/admin/AdminAIMonitoring'
 import AdminVocabulary from './pages/admin/AdminVocabulary'
 import AdminLogs from './pages/admin/AdminLogs'
@@ -75,6 +77,7 @@ function App() {
       <Route path="/student" element={<AppLayout role="student" />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<StudentDashboard />} />
+        <Route path="assignments" element={<AssignmentInbox />} />
         <Route path="write-essay" element={<WriteEssay />} />
         <Route path="vocabulary" element={<VocabularyLibrary />} />
         <Route path="vocabulary/review" element={<FlashcardReview />} />
@@ -92,6 +95,7 @@ function App() {
         <Route path="classes" element={<ClassManagement />} />
         <Route path="student/:id" element={<StudentAnalyticsDetail />} />
         <Route path="feedback/:id" element={<ManualFeedbackReview />} />
+        <Route path="assignment/:id" element={<AssignmentDetail />} />
         <Route path="alerts" element={<EarlyWarningAlerts />} />
         <Route path="prompts" element={<SystemPromptsManagement />} />
       </Route>
@@ -105,7 +109,7 @@ function App() {
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="users" element={<AdminUsers />} />
-        <Route path="classes" element={<AdminClasses />} />
+        <Route path="classes" element={<AdminClassManagement />} />
         <Route path="ai-monitoring" element={<AdminAIMonitoring />} />
         <Route path="vocabulary" element={<AdminVocabulary />} />
         <Route path="logs" element={<AdminLogs />} />
