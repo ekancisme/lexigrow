@@ -23,6 +23,15 @@ const parentNavItems = [
   { icon: 'dashboard', label: 'Dashboard', path: '/parent/dashboard' },
 ]
 
+const adminNavItems = [
+  { icon: 'dashboard', label: 'Dashboard', path: '/admin/dashboard' },
+  { icon: 'group', label: 'Users', path: '/admin/users' },
+  { icon: 'domain', label: 'Classes', path: '/admin/classes' },
+  { icon: 'monitoring', label: 'AI Monitoring', path: '/admin/ai-monitoring' },
+  { icon: 'dictionary', label: 'Vocabulary', path: '/admin/vocabulary' },
+  { icon: 'receipt_long', label: 'Audit Logs', path: '/admin/logs' },
+]
+
 const bottomItems = [
   { icon: 'settings', label: 'Settings', path: '/settings' },
   { icon: 'help', label: 'Help Center', path: '#' },
@@ -31,7 +40,9 @@ const bottomItems = [
 export default function Sidebar({ role = 'student' }) {
   const navigate = useNavigate()
   const { logout } = useAuth()
-  const navItems = role === 'teacher' ? teacherNavItems : (role === 'parent' ? parentNavItems : studentNavItems)
+  const navItems = role === 'admin'
+    ? adminNavItems
+    : (role === 'teacher' ? teacherNavItems : (role === 'parent' ? parentNavItems : studentNavItems))
 
   return (
     <aside className="sidebar">
@@ -65,7 +76,7 @@ export default function Sidebar({ role = 'student' }) {
       </nav>
 
       {/* CTA Button */}
-      {role !== 'parent' && (
+      {role !== 'parent' && role !== 'admin' && (
         <div className="sidebar__cta">
           <button
             className="sidebar__cta-btn"

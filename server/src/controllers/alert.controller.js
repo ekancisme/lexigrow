@@ -1,5 +1,5 @@
 import Alert from '../models/Alert.js'
-import Notification from '../models/Notification.js'
+import { createNotification, createManyNotifications } from '../services/notification.service.js'
 import User from '../models/User.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
@@ -69,7 +69,7 @@ export const markAsResolved = asyncHandler(async (req, res) => {
 
   if (student) {
     // ── 1. Thông báo cho Học sinh ──────────────────────────────────────
-    await Notification.create({
+    await createNotification({
       recipient: student._id,
       sender: teacher._id,
       alert: alert._id,
@@ -90,7 +90,7 @@ export const markAsResolved = asyncHandler(async (req, res) => {
         type: 'parent_notice',
         link: '',
       }))
-      await Notification.insertMany(parentNotifications)
+      await createManyNotifications(parentNotifications)
     }
   }
 
