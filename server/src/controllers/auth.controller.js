@@ -153,8 +153,15 @@ export const login = asyncHandler(async (req, res) => {
   }
 
   // Check account status
-
-
+  if (user.accountStatus === 'pending_approval') {
+    throw new ErrorResponse('Tài khoản đang chờ Admin phê duyệt. Vui lòng chờ thông báo qua email.', 403)
+  }
+  if (user.accountStatus === 'suspended') {
+    throw new ErrorResponse('Tài khoản đã bị khoá. Vui lòng liên hệ Admin để được hỗ trợ.', 403)
+  }
+  if (user.accountStatus === 'rejected') {
+    throw new ErrorResponse('Đơn đăng ký của bạn đã bị từ chối. Vui lòng liên hệ Admin để biết thêm thông tin.', 403)
+  }
   await sendTokenResponse(user, 200, res)
 })
 
