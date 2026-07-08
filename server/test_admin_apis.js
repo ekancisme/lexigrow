@@ -31,7 +31,7 @@ async function test() {
       console.log('⚠ Không có lớp học nào trên hệ thống. Hãy tạo một lớp học để tiếp tục.');
       return;
     }
-    
+
     // Chọn lớp học và học sinh để chạy thử nghiệm
     const testClass = classes[0];
     console.log(`-> Sử dụng lớp: "${testClass.name}" (ID: ${testClass._id})`);
