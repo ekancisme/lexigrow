@@ -222,3 +222,22 @@ export const removeStudent = asyncHandler(async (req, res) => {
 
   res.status(200).json({ success: true, data: cls })
 })
+
+/**
+ * @desc    Get all active classes for admin
+ * @route   GET /api/classes/admin
+ * @access  Private (admin)
+ */
+export const getAdminClasses = asyncHandler(async (req, res) => {
+  const classes = await Class.find({ status: 'active' })
+    .populate('teacher', 'name email')
+    .sort({ createdAt: -1 })
+
+  const enriched = classes.map(cls => {
+    const classObj = cls.toObject()
+    classObj.studentCount = cls.students ? cls.students.length : 0
+    return classObj
+  })
+
+  res.status(200).json({ success: true, count: enriched.length, data: enriched })
+})

@@ -15,7 +15,7 @@ export default function AdminClasses() {
           <h3 className="admin-card__title">Nhiệm vụ phân công: NGƯỜI 2</h3>
           <p className="admin-card__desc">Phân hệ này đảm nhận việc giám sát lớp học của giáo viên và quyền can thiệp sỉ số, học viên.</p>
         </div>
-        
+
         <div style={{ padding: '40px', textAlign: 'center', background: 'var(--color-surface-container-low)', borderRadius: 'var(--radius-xl)', border: '1px dashed var(--color-outline-variant)' }}>
           <span className="material-symbols-outlined" style={{ fontSize: 64, color: 'var(--color-outline)', marginBottom: '16px' }}>
             engineering
