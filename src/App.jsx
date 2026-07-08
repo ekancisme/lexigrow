@@ -11,7 +11,6 @@ import AppLayout from './components/layout/AppLayout'
 
 /* Student Pages */
 import StudentDashboard from './pages/student/StudentDashboard'
-import AssignmentInbox from './pages/student/AssignmentInbox'
 import WriteEssay from './pages/student/WriteEssay'
 import MyProgress from './pages/student/MyProgress'
 import SetWeeklyGoals from './pages/student/SetWeeklyGoals'
@@ -19,6 +18,7 @@ import AIFeedbackReview from './pages/student/AIFeedbackReview'
 import VocabularyLibrary from './pages/student/VocabularyLibrary'
 import FlashcardReview from './pages/student/FlashcardReview'
 import EssayHistory from './pages/student/EssayHistory'
+import StudentClassDetail from './pages/student/StudentClassDetail'
 
 /* Teacher Pages */
 import TeacherDashboard from './pages/teacher/TeacherDashboard'
@@ -77,7 +77,6 @@ function App() {
       <Route path="/student" element={<AppLayout role="student" />}>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<StudentDashboard />} />
-        <Route path="assignments" element={<AssignmentInbox />} />
         <Route path="write-essay" element={<WriteEssay />} />
         <Route path="vocabulary" element={<VocabularyLibrary />} />
         <Route path="vocabulary/review" element={<FlashcardReview />} />
@@ -85,6 +84,8 @@ function App() {
         <Route path="progress" element={<MyProgress />} />
         <Route path="goals" element={<SetWeeklyGoals />} />
         <Route path="feedback" element={<AIFeedbackReview />} />
+        <Route path="class" element={<StudentClassDetail />} />
+        <Route path="class/:classId" element={<StudentClassDetail />} />
       </Route>
 
       {/* Teacher routes */}

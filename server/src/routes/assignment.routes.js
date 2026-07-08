@@ -20,10 +20,10 @@ router.get('/inbox', authorize('student'), getAssignmentInbox)
 // Teacher: get submissions for assignment
 router.get('/:id/submissions', authorize('teacher'), getAssignmentSubmissions)
 
-// Teacher: create / list assignments by class
+// Teacher: create; Both: list assignments by class
 router.route('/')
   .post(authorize('teacher'), createAssignment)
-  .get(authorize('teacher'), getAssignmentsByClass)
+  .get(authorize('teacher', 'student'), getAssignmentsByClass)
 
 // Both: get single assignment; teacher: update/delete
 router.route('/:id')
