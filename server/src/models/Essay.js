@@ -13,7 +13,7 @@ const essaySchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['draft', 'submitted', 'reviewed'],
+    enum: ['draft', 'submitted', 'reviewed', 'needs_revision'],
     default: 'draft',
   },
   theme: {

@@ -2,10 +2,15 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import api from '../../services/api.js'
 import './ManualFeedbackReview.css'
+import EssayDiscussion from '../../components/common/EssayDiscussion.jsx'
 
 export default function ManualFeedbackReview() {
   const navigate = useNavigate()
   const { id: essayId } = useParams()
+
+  const userStr = localStorage.getItem('lexigrow_user')
+  const currentUser = userStr ? JSON.parse(userStr) : null
+  const currentUserId = currentUser?._id || currentUser?.id
 
   const [essay, setEssay] = useState(null)
   const [feedbackId, setFeedbackId] = useState(null)
@@ -109,6 +114,39 @@ export default function ManualFeedbackReview() {
     }
   }
 
+  async function handleRequestRevision() {
+    if (!feedbackText.trim()) {
+      alert('Please provide some written feedback explaining why revision is requested.')
+      return
+    }
+    setSaving(true)
+    try {
+      let currentFbId = feedbackId
+      if (!currentFbId) {
+        const res = await api.post(`/feedback/${essayId}`, {
+          scores,
+          feedbackText,
+        })
+        currentFbId = res.data._id
+        setFeedbackId(currentFbId)
+      } else {
+        await api.put(`/feedback/${currentFbId}`, {
+          scores,
+          feedbackText,
+        })
+      }
+
+      // Mark the essay as needs_revision
+      await api.patch(`/essays/${essayId}/request-revision`)
+      alert('Revision requested successfully!')
+      navigate(-1)
+    } catch (err) {
+      alert('Error requesting revision: ' + err.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="manual-feedback" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
@@ -172,7 +210,7 @@ export default function ManualFeedbackReview() {
               value={feedbackText}
               onChange={e => setFeedbackText(e.target.value)}
             />
-            <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+            <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap' }}>
               <button className="manual-feedback__save-btn" onClick={handleSaveDraft} disabled={saving}>
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>save</span>
                 {saving ? 'Saving...' : 'Save Draft'}
@@ -181,10 +219,38 @@ export default function ManualFeedbackReview() {
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>send</span>
                 {saving ? 'Submitting...' : 'Submit Feedback'}
               </button>
+              <button 
+                className="manual-feedback__revision-btn" 
+                onClick={handleRequestRevision} 
+                disabled={saving}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '10px 20px',
+                  borderRadius: 'var(--radius-lg)',
+                  background: 'rgba(217, 119, 6, 0.15)',
+                  border: '1px solid rgba(217, 119, 6, 0.3)',
+                  color: '#f59e0b',
+                  fontSize: 'var(--text-label-md-size)',
+                  fontWeight: 'var(--text-label-md-weight)',
+                  transition: 'all var(--transition-fast)',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(217, 119, 6, 0.25)' }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(217, 119, 6, 0.15)' }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: 18 }}>assignment_return</span>
+                Request Revision
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {essayId && (
+        <EssayDiscussion essayId={essayId} currentUserId={currentUserId} />
+      )}
     </div>
   )
 }

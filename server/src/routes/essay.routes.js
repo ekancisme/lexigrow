@@ -3,6 +3,7 @@ import {
   createEssay, getEssays, getEssay,
   updateEssay, submitEssay, deleteEssay,
   getEssaysByStudent, getSuggestedTopics,
+  requestRevision,
 } from '../controllers/essay.controller.js'
 import { protect, authorize } from '../middleware/auth.middleware.js'
 
@@ -22,6 +23,7 @@ router.route('/:id')
   .delete(authorize('student'), deleteEssay)
 
 router.patch('/:id/submit', authorize('student'), submitEssay)
+router.patch('/:id/request-revision', authorize('teacher'), requestRevision)
 
 router.get('/student/:studentId', authorize('teacher'), getEssaysByStudent)
 
