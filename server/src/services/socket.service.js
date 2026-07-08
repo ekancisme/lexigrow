@@ -85,6 +85,16 @@ export const initSocket = (server) => {
       console.error(`Error joining rooms for user ${userId}:`, error)
     }
 
+    socket.on('join_essay_comments', (essayId) => {
+      socket.join(`essay:${essayId}`)
+      console.log(`💬 User ${userId} joined essay comment room: essay:${essayId}`)
+    })
+
+    socket.on('leave_essay_comments', (essayId) => {
+      socket.leave(`essay:${essayId}`)
+      console.log(`💬 User ${userId} left essay comment room: essay:${essayId}`)
+    })
+
     socket.on('disconnect', () => {
       console.log(`🔌 Socket disconnected: User ${userId}`)
     })

@@ -1,5 +1,6 @@
 import Essay from '../models/Essay.js'
 import { processEssayAnalysis, generateTopicsByTheme } from '../services/ai.service.js'
+import { getIO } from '../services/socket.service.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 
@@ -87,8 +88,8 @@ export const updateEssay = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Not authorized to update this essay', 403)
   }
 
-  // If the essay was already submitted or reviewed, modifying it resets its status to 'draft'
-  if (essay.status !== 'draft') {
+  // If the essay was already submitted or reviewed, modifying it resets its status to 'draft' (unless it is needs_revision)
+  if (essay.status !== 'draft' && essay.status !== 'needs_revision') {
     essay.status = 'draft'
   }
 
@@ -118,7 +119,7 @@ export const submitEssay = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Not authorized', 403)
   }
 
-  if (essay.status !== 'draft') {
+  if (essay.status !== 'draft' && essay.status !== 'needs_revision') {
     throw new ErrorResponse('Essay already submitted', 400)
   }
 
@@ -196,4 +197,54 @@ export const getSuggestedTopics = asyncHandler(async (req, res) => {
 
   const topics = await generateTopicsByTheme(theme, existingTitles)
   res.status(200).json({ success: true, data: topics })
+})
+
+/**
+ * @desc    Request a student to revise their essay
+ * @route   PATCH /api/essays/:id/request-revision
+ * @access  Private (teacher only)
+ */
+export const requestRevision = asyncHandler(async (req, res) => {
+  if (req.user.role !== 'teacher') {
+    throw new ErrorResponse('Not authorized: teachers only', 403)
+  }
+
+  const essay = await Essay.findById(req.params.id)
+  if (!essay) {
+    throw new ErrorResponse('Essay not found', 404)
+  }
+
+  essay.status = 'needs_revision'
+  await essay.save()
+
+  // Create early warning or standard database notification for the student
+  try {
+    const Notification = (await import('../models/Notification.js')).default
+    if (Notification) {
+      await Notification.create({
+        recipient: essay.student,
+        sender: req.user._id,
+        type: 'early_warning',
+        title: 'Revision Requested',
+        message: `Your teacher requested a revision for essay: "${essay.title}"`,
+        relatedItem: essay._id,
+        onModel: 'Essay'
+      })
+    }
+  } catch (notiErr) {
+    console.error('Could not create revision notification in database:', notiErr.message)
+  }
+
+  // Emit Socket event to student
+  const io = getIO()
+  if (io) {
+    io.to(`user:${essay.student}`).emit('notification', {
+      type: 'revision_requested',
+      essayId: essay._id,
+      title: essay.title,
+      message: 'Your teacher has requested a revision on your essay.'
+    })
+  }
+
+  res.status(200).json({ success: true, data: essay, message: 'Revision requested successfully' })
 })
