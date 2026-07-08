@@ -33,7 +33,7 @@ import ProfileSettings from './pages/teacher/ProfileSettings'
 /* Admin Pages */
 import AdminDashboard from './pages/admin/AdminDashboard'
 import AdminUsers from './pages/admin/AdminUsers'
-import AdminClasses from './pages/admin/AdminClasses'
+import AdminClassManagement from './pages/admin/AdminClassManagement'
 import AdminAIMonitoring from './pages/admin/AdminAIMonitoring'
 import AdminVocabulary from './pages/admin/AdminVocabulary'
 import AdminLogs from './pages/admin/AdminLogs'
@@ -107,7 +107,7 @@ function App() {
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="users" element={<AdminUsers />} />
-        <Route path="classes" element={<AdminClasses />} />
+        <Route path="classes" element={<AdminClassManagement />} />
         <Route path="ai-monitoring" element={<AdminAIMonitoring />} />
         <Route path="vocabulary" element={<AdminVocabulary />} />
         <Route path="logs" element={<AdminLogs />} />

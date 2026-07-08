@@ -14,14 +14,14 @@ export default function AdminLogs() {
     setSeedMessage('')
     try {
       const res = await api.post('/admin/logs/seed')
-      setSeedMessage(res.message || 'Khởi tạo dữ liệu mẫu thành công!')
+      setSeedMessage(res.message || 'Mock data seeded successfully!')
       // Refresh page to load seeded data after 1.5 seconds
       setTimeout(() => {
         window.location.reload()
       }, 1500)
     } catch (err) {
       console.error(err)
-      setSeedMessage('Có lỗi xảy ra khi tạo dữ liệu mẫu.')
+      setSeedMessage('An error occurred while seeding mock data.')
     } finally {
       setSeeding(false)
     }
@@ -32,8 +32,8 @@ export default function AdminLogs() {
       {/* Header */}
       <div className="admin-page__header" style={{ borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: '12px', marginBottom: '8px' }}>
         <div>
-          <h2 className="admin-page__title">Nhật ký & Thống kê hệ thống</h2>
-          <p className="admin-page__subtitle">Theo dõi tổng quan dữ liệu chấm điểm AI và lịch sử thao tác của giáo viên/admin</p>
+          <h2 className="admin-page__title">System Logs & Reports</h2>
+          <p className="admin-page__subtitle">Monitor system activities, admin actions, and LLM rating analytics</p>
         </div>
 
         {/* Mock Data Seeder Trigger */}
@@ -59,10 +59,10 @@ export default function AdminLogs() {
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
               {seeding ? 'autorenew' : 'database'}
             </span>
-            {seeding ? 'Đang tạo dữ liệu mẫu...' : 'Tạo Dữ liệu Mẫu (Seed)'}
+            {seeding ? 'Seeding mock data...' : 'Seed Mock Data'}
           </button>
           {seedMessage && (
-            <p style={{ fontSize: '12px', color: seedMessage.includes('lỗi') ? 'var(--color-error)' : '#28a745', fontWeight: 600 }}>
+            <p style={{ fontSize: '12px', color: seedMessage.includes('error') ? 'var(--color-error)' : '#28a745', fontWeight: 600 }}>
               {seedMessage}
             </p>
           )}
@@ -89,7 +89,7 @@ export default function AdminLogs() {
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>monitoring</span>
-          Thống kê hoạt động
+          Activity Analytics
         </button>
 
         <button
@@ -110,7 +110,7 @@ export default function AdminLogs() {
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>receipt_long</span>
-          Nhật ký hệ thống
+          System Audit Logs
         </button>
       </div>
 
