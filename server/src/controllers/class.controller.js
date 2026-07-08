@@ -280,3 +280,44 @@ export const forceUnenrollStudent = asyncHandler(async (req, res) => {
 
   res.status(200).json({ success: true, data: cls })
 })
+
+/**
+ * @desc    Transfer student between classes
+ * @route   POST /api/classes/admin/transfer
+ * @access  Private (admin)
+ */
+export const transferStudent = asyncHandler(async (req, res) => {
+  const { studentId, fromClassId, toClassId } = req.body
+
+  if (!studentId || !toClassId) {
+    throw new ErrorResponse('Please provide studentId and toClassId', 400)
+  }
+
+  // Remove from old class if provided
+  if (fromClassId) {
+    const fromClass = await Class.findById(fromClassId)
+    if (fromClass) {
+      fromClass.students = fromClass.students.filter(s => s.toString() !== studentId)
+      await fromClass.save()
+    }
+  } else {
+    // If fromClassId is not provided, remove student from ANY class they are currently in
+    await Class.updateMany(
+      { students: studentId },
+      { $pull: { students: studentId } }
+    )
+  }
+
+  // Add to target class
+  const toClass = await Class.findById(toClassId)
+  if (!toClass) {
+    throw new ErrorResponse('Target class not found', 404)
+  }
+
+  if (!toClass.students.includes(studentId)) {
+    toClass.students.push(studentId)
+    await toClass.save()
+  }
+
+  res.status(200).json({ success: true, message: 'Student transferred successfully' })
+})
