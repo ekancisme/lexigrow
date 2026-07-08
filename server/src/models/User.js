@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['student', 'teacher', 'parent'],
+    enum: ['student', 'teacher', 'parent', 'admin'],
     default: 'student',
   },
   // Student-specific fields
