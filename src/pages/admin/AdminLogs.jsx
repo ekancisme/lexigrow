@@ -14,7 +14,7 @@ export default function AdminLogs() {
     setSeedMessage('')
     try {
       const res = await api.post('/admin/logs/seed')
-      setSeedMessage(res.data.message || 'Khởi tạo dữ liệu mẫu thành công!')
+      setSeedMessage(res.message || 'Khởi tạo dữ liệu mẫu thành công!')
       // Refresh page to load seeded data after 1.5 seconds
       setTimeout(() => {
         window.location.reload()

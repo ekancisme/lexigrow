@@ -29,10 +29,12 @@ export default function AdminAuditLogs() {
       }
 
       const res = await api.get('/admin/logs', { params })
-      setLogs(res.data.data || [])
-      setPagination(res.data.pagination)
+      setLogs(res.data || [])
+      setPagination(res.pagination || { total: 0, page: 1, limit: 10, pages: 1 })
     } catch (err) {
       console.error('Error fetching logs:', err)
+      setLogs([])
+      setPagination({ total: 0, page: 1, limit: 10, pages: 1 })
     } finally {
       setLoading(false)
     }
