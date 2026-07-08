@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
 import './AIFeedbackReview.css'
+import EssayDiscussion from '../../components/common/EssayDiscussion.jsx'
 
 export default function AIFeedbackReview() {
   const [searchParams] = useSearchParams()
@@ -250,6 +251,10 @@ export default function AIFeedbackReview() {
     )
   }
 
+  const userStr = localStorage.getItem('lexigrow_user')
+  const currentUser = userStr ? JSON.parse(userStr) : null
+  const currentUserId = currentUser?._id || currentUser?.id
+
   const overallScore = analysis?.overallScore || 0
   const scoresList = [
     { 
@@ -295,6 +300,20 @@ export default function AIFeedbackReview() {
           </button>
         </div>
       </section>
+
+      {essay?.status === 'needs_revision' && (
+        <div className="essay-revision-banner">
+          <span className="material-symbols-outlined essay-revision-banner__icon">warning</span>
+          <div className="essay-revision-banner__content">
+            <h4>Revision Requested by Teacher</h4>
+            <p>Your teacher reviewed this essay and requested some changes. Please read the comments below and revise your essay.</p>
+          </div>
+          <button className="ai-feedback__btn-primary" onClick={() => navigate(`/student/write-essay?id=${essayId}`)}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>edit</span>
+            Revise Now
+          </button>
+        </div>
+      )}
 
       <div className="ai-feedback__layout">
         {/* Main Scores */}
@@ -954,6 +973,10 @@ export default function AIFeedbackReview() {
           </div>
         </div>
       </div>
+
+      {essayId && (
+        <EssayDiscussion essayId={essayId} currentUserId={currentUserId} />
+      )}
     </div>
   )
 }
