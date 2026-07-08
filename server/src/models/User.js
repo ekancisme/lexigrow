@@ -68,6 +68,15 @@ const userSchema = new mongoose.Schema({
   resetPasswordExpire: {
     type: Date,
   },
+  accountStatus: {
+    type: String,
+    enum: ['active', 'suspended', 'pending_approval', 'rejected'],
+    default: 'active',
+  },
+  statusNote: {
+    type: String,
+    default: '',
+  },
 }, {
   timestamps: true,
 })

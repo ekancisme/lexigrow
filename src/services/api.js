@@ -23,11 +23,21 @@ class ApiClient {
 
   getUser() {
     const user = localStorage.getItem('lexigrow_user')
-    return user ? JSON.parse(user) : null
+    if (!user || user === 'undefined') return null
+    try {
+      return JSON.parse(user)
+    } catch (e) {
+      localStorage.removeItem('lexigrow_user')
+      return null
+    }
   }
 
   setUser(user) {
-    localStorage.setItem('lexigrow_user', JSON.stringify(user))
+    if (user === undefined || user === null) {
+      localStorage.removeItem('lexigrow_user')
+    } else {
+      localStorage.setItem('lexigrow_user', JSON.stringify(user))
+    }
   }
 
   async request(endpoint, options = {}) {
