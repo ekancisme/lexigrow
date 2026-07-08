@@ -11,10 +11,10 @@ export default function AdminAnalytics() {
     async function fetchAnalytics() {
       try {
         const res = await api.get('/admin/analytics')
-        setAnalytics(res.data.data)
+        setAnalytics(res.data)
       } catch (err) {
         console.error('Error fetching analytics:', err)
-        setError(err.response?.data?.message || 'Không thể tải thống kê hệ thống')
+        setError(err.message || 'Không thể tải thống kê hệ thống')
       } finally {
         setLoading(false)
       }
