@@ -16,6 +16,23 @@ function scoreBadgeClass(score) {
   return 'sa-score-badge--low'
 }
 
+/* ── Learning Status Badge ────────────────────────── */
+const STATUS_CONFIG = {
+  growing:    { icon: 'trending_up',   label: 'Growing',    cls: 'sa-status--growing'    },
+  stagnating: { icon: 'trending_flat', label: 'Stagnating', cls: 'sa-status--stagnating' },
+  declining:  { icon: 'trending_down', label: 'Declining',  cls: 'sa-status--declining'  },
+}
+
+function LearningStatusBadge({ status }) {
+  const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.stagnating
+  return (
+    <span className={`sa-status-badge ${cfg.cls}`}>
+      <span className="material-symbols-outlined" style={{ fontSize: 14 }}>{cfg.icon}</span>
+      {cfg.label}
+    </span>
+  )
+}
+
 export default function StudentAnalyticsDetail() {
   const navigate = useNavigate()
   const { id }   = useParams()
@@ -66,7 +83,7 @@ export default function StudentAnalyticsDetail() {
     )
   }
 
-  const { student, class: className, metrics, essayHistory } = data
+  const { student, class: className, metrics, essayHistory, learningStatus } = data
   const latestEssay = essayHistory?.[0]
 
   return (
@@ -86,7 +103,10 @@ export default function StudentAnalyticsDetail() {
         </div>
 
         <div className="sa-profile__info">
-          <h2 className="text-headline-lg sa-profile__name">{student?.name}</h2>
+          <div className="sa-profile__name-row">
+            <h2 className="text-headline-lg sa-profile__name">{student?.name}</h2>
+            {learningStatus && <LearningStatusBadge status={learningStatus} />}
+          </div>
           <div className="sa-profile__meta">
             <span className="sa-meta-chip">
               <span className="material-symbols-outlined" style={{ fontSize: 15 }}>mail</span>

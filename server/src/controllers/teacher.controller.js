@@ -6,6 +6,7 @@ import Vocabulary from '../models/Vocabulary.js'
 import Alert from '../models/Alert.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
+import { classifyStudents, classifyStudentStatus } from '../services/studentStatus.service.js'
 
 /**
  * @desc    Get teacher dashboard stats
@@ -14,51 +15,53 @@ import asyncHandler from '../utils/asyncHandler.js'
  */
 export const getDashboard = asyncHandler(async (req, res) => {
   const classes = await Class.find({ teacher: req.user._id })
+  // De-duplicate students who may be in multiple classes
   const allStudentIds = [...new Set(classes.flatMap(c => c.students.map(s => s.toString())))]
 
-  const totalClasses = classes.length
+  const totalClasses  = classes.length
   const totalStudents = allStudentIds.length
 
-  // Classify students by growth status
+  // ── Classify students using the canonical studentStatus service ──────
+  // All signals (vocab stagnation 4w + grammar decline 3 essays) are
+  // evaluated in parallel for performance.
   let growing = 0, stagnating = 0, declining = 0
 
-  for (const studentId of allStudentIds) {
-    const essays = await Essay.find({ student: studentId, status: { $ne: 'draft' } }).sort({ createdAt: -1 }).limit(2).distinct('_id')
-    const analyses = await AIAnalysis.find({ essay: { $in: essays } }).sort({ createdAt: -1 })
-
-    if (analyses.length >= 2) {
-      const diff = (analyses[0].scores?.vocabularyDiversity || 0) - (analyses[1].scores?.vocabularyDiversity || 0)
-      if (diff > 0.02) growing++
-      else if (diff < -0.05) declining++
-      else stagnating++
-    } else if (analyses.length === 1) {
-      growing++
-    } else {
-      stagnating++
+  if (allStudentIds.length > 0) {
+    const statusMap = await classifyStudents(allStudentIds)
+    for (const { status } of statusMap.values()) {
+      if (status === 'growing')    growing++
+      else if (status === 'declining') declining++
+      else                         stagnating++
     }
   }
 
-  // Recent alerts
-  const recentAlerts = await Alert.find({ teacher: req.user._id })
+  // ── Recent alerts (only students in this teacher's classes) ─────────
+  const studentIdSet = allStudentIds
+  const recentAlerts = await Alert.find({
+    teacher: req.user._id,
+    student: { $in: studentIdSet },
+  })
     .sort({ createdAt: -1 })
     .limit(5)
     .populate('student', 'name')
 
-  // Classes summary
+  // ── Class summary ────────────────────────────────────────────────────
   const classSummary = await Promise.all(classes.map(async (cls) => {
     const studentIds = cls.students.map(s => s.toString())
-    const essayIds = await Essay.find({ student: { $in: studentIds }, status: { $ne: 'draft' } }).distinct('_id')
+    const essayIds   = await Essay
+      .find({ student: { $in: studentIds }, status: { $ne: 'draft' } })
+      .distinct('_id')
     const analyses = await AIAnalysis.find({ essay: { $in: essayIds } })
     const avgTTR = analyses.length > 0
       ? Math.round((analyses.reduce((sum, a) => sum + (a.scores?.vocabularyDiversity || 0), 0) / analyses.length) * 100) / 100
       : 0
 
     return {
-      _id: cls._id,
-      name: cls.name,
+      _id:      cls._id,
+      name:     cls.name,
       students: cls.students.length,
       avgTTR,
-      status: cls.status,
+      status:   cls.status,
     }
   }))
 
@@ -125,6 +128,9 @@ export const getStudentAnalytics = asyncHandler(async (req, res) => {
     }
   }))
 
+  // Canonical status — same logic used on Dashboard and Class Detail
+  const { status: learningStatus, signals } = await classifyStudentStatus(student._id)
+
   res.status(200).json({
     success: true,
     data: {
@@ -136,6 +142,8 @@ export const getStudentAnalytics = asyncHandler(async (req, res) => {
         createdAt: student.createdAt,
       },
       class: teacherClasses[0]?.name || 'N/A',
+      learningStatus,
+      signals,
       metrics: {
         totalEssays: essays.length,
         vocabularySize: totalVocab,
