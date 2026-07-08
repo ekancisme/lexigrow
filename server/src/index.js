@@ -68,12 +68,14 @@ import profileRoutes from './routes/profile.routes.js'
 import parentRoutes from './routes/parent.routes.js'
 import notificationRoutes from './routes/notification.routes.js'
 import commentRoutes from './routes/comment.routes.js'
+import adminRoutes from './routes/admin.routes.js'
 
 app.use('/api/prompts', promptRoutes)
 app.use('/api/profile', profileRoutes)
 app.use('/api/parent', parentRoutes)
 app.use('/api/notifications', notificationRoutes)
 app.use('/api/comments', commentRoutes)
+app.use('/api/admin', adminRoutes)
 
 // Error handler (must be after routes)
 app.use(errorHandler)
