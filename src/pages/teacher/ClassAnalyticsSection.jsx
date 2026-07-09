@@ -75,10 +75,10 @@ export default function ClassAnalyticsSection({ classId }) {
   // Calculate coordinates
   const points = trend.map((item, index) => {
     const x = paddingX + (index / (trend.length - 1)) * (chartWidth - 2 * paddingX)
-    
+
     // Scale TTR (0-1.0) vertically to (0 - height)
     const yTTR = chartHeight - paddingY - (item.avgTTR * (chartHeight - 2 * paddingY))
-    
+
     // Scale Grammar (0-10) vertically to (0 - height)
     const yGrammar = chartHeight - paddingY - ((item.avgGrammar / 10) * (chartHeight - 2 * paddingY))
 
@@ -102,7 +102,7 @@ export default function ClassAnalyticsSection({ classId }) {
 
   return (
     <div className="class-analytics">
-      
+
       {/* Actionable Alerts / Warnings banner */}
       {insights?.warnings && insights.warnings.length > 0 && (
         <div className="class-analytics__warnings">
@@ -120,7 +120,7 @@ export default function ClassAnalyticsSection({ classId }) {
           </div>
         </div>
       )}
-      
+
       {/* Metrics Summary Cards */}
       <div className="class-analytics__summary">
         <div className="class-analytics__card">
@@ -253,7 +253,7 @@ export default function ClassAnalyticsSection({ classId }) {
               <div style={{ fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px', borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: '3px' }}>
                 {hoveredPoint.label}
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', marginTop: '2px' }}>
+              <div style={{ display: 'column', justifyContent: 'space-between', gap: '8px', marginTop: '2px' }}>
                 <span style={{ color: 'var(--color-outline)' }}>Avg TTR:</span>
                 <span style={{ fontWeight: 600, color: 'var(--color-primary)' }}>{Math.round(hoveredPoint.avgTTR * 100)}%</span>
               </div>
@@ -284,7 +284,7 @@ export default function ClassAnalyticsSection({ classId }) {
 
       {/* Two Column Layout for Insights */}
       <div className="class-analytics__row">
-        
+
         {/* Left Column: Top Overused Words */}
         <div className="class-analytics__section-card">
           <h4 className="class-analytics__section-title">
@@ -360,7 +360,7 @@ export default function ClassAnalyticsSection({ classId }) {
                         </span>
                       </div>
                     </div>
-                    
+
                     {isOpen && (
                       <div className="class-analytics__accordion-body">
                         <p style={{ fontSize: '0.82rem', color: 'var(--color-outline)', fontWeight: 600, marginBottom: '4px' }}>
