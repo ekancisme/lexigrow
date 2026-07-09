@@ -6,7 +6,7 @@ import {
   archiveClassByAdmin, deleteClassByAdmin, getAdminClassDetail, getAdminUsers,
   getStudentClassDetail, joinClassByCode, getMyPendingClasses, handleJoinRequest
 } from '../controllers/class.controller.js'
-import { getClassAnalytics, getClassInsights } from '../controllers/teacher.controller.js'
+import { getClassAnalytics, getClassInsights, getClassLeaderboard } from '../controllers/teacher.controller.js'
 import { protect, authorize } from '../middleware/auth.middleware.js'
 
 const router = Router()
@@ -42,6 +42,7 @@ router.route('/:id')
 
 router.get('/:id/analytics', authorize('teacher'), getClassAnalytics)
 router.get('/:id/insights', authorize('teacher'), getClassInsights)
+router.get('/:id/leaderboard', authorize('teacher', 'student'), getClassLeaderboard)
 
 router.post('/:id/students', authorize('teacher'), addStudent)
 router.delete('/:id/students/:studentId', authorize('teacher'), removeStudent)

@@ -32,6 +32,11 @@ const userSchema = new mongoose.Schema({
     enum: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', ''],
     default: '',
   },
+  anonymousNickname: {
+    type: String,
+    trim: true,
+    default: '',
+  },
   // Teacher-specific fields
   institution: {
     type: String,

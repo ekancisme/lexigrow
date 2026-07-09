@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { useNavigate, useParams } from 'react-router-dom'
 import api from '../../services/api.js'
 import ClassAnalyticsSection from './ClassAnalyticsSection.jsx'
+import ClassLeaderboard from '../../components/class/ClassLeaderboard.jsx'
 import './ClassOverview.css'
 
 export default function ClassOverview() {
@@ -265,6 +266,12 @@ export default function ClassOverview() {
             Class Analytics
           </span>
         </button>
+        <button style={tabStyle('leaderboard')} onClick={() => setActiveTab('leaderboard')}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>emoji_events</span>
+            Leaderboard
+          </span>
+        </button>
       </section>
 
       {/* ── TAB: STUDENT ROSTER ── */}
@@ -472,6 +479,13 @@ export default function ClassOverview() {
       {activeTab === 'analytics' && (
         <section className="card-base" style={{ padding: 24, borderRadius: '0 12px 12px 12px' }}>
           <ClassAnalyticsSection classId={id} />
+        </section>
+      )}
+
+      {/* ── TAB: CLASS LEADERBOARD ── */}
+      {activeTab === 'leaderboard' && (
+        <section className="card-base" style={{ padding: 24, borderRadius: '0 12px 12px 12px' }}>
+          <ClassLeaderboard classId={id} />
         </section>
       )}
 

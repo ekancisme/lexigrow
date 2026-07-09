@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
 import { getSocket } from '../../services/socket.js'
+import ClassLeaderboard from '../../components/class/ClassLeaderboard.jsx'
 import './StudentClassDetail.css'
 
 export default function StudentClassDetail() {
@@ -364,6 +365,13 @@ export default function StudentClassDetail() {
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>assignment</span>
           Assignments
         </button>
+        <button
+          className={`student-class__tab-btn ${activeTab === 'leaderboard' ? 'student-class__tab-btn--active' : ''}`}
+          onClick={() => setActiveTab('leaderboard')}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>emoji_events</span>
+          Leaderboard
+        </button>
       </div>
 
       {/* ── TAB 1: OVERVIEW ── */}
@@ -545,6 +553,13 @@ export default function StudentClassDetail() {
               </table>
             </div>
           )}
+        </section>
+      )}
+
+      {/* ── TAB 4: LEADERBOARD ── */}
+      {activeTab === 'leaderboard' && (
+        <section className="card-base student-class__leaderboard-card animate-fade-in" style={{ padding: 24 }}>
+          <ClassLeaderboard classId={classId} />
         </section>
       )}
 
