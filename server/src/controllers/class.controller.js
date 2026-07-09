@@ -502,7 +502,7 @@ export const joinClassByCode = asyncHandler(async (req, res) => {
   await createNotification({
     recipient: cls.teacher,
     sender: req.user._id,
-    type: 'info',
+    type: 'system',
     title: 'New Class Join Request',
     message: `${req.user.name} requested to join your class "${cls.name}".`,
     link: `/teacher/class/${cls._id}`
@@ -568,7 +568,7 @@ export const handleJoinRequest = asyncHandler(async (req, res) => {
     await createNotification({
       recipient: studentId,
       sender: req.user._id,
-      type: 'success',
+      type: 'system',
       title: 'Join Request Approved',
       message: `You have been approved to join the class "${cls.name}".`,
       link: `/student/class/${cls._id}`
@@ -579,7 +579,7 @@ export const handleJoinRequest = asyncHandler(async (req, res) => {
     await createNotification({
       recipient: studentId,
       sender: req.user._id,
-      type: 'warning',
+      type: 'system',
       title: 'Join Request Rejected',
       message: `Your request to join the class "${cls.name}" was declined.`,
       link: '/student/class'
