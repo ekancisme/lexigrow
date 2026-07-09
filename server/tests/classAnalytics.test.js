@@ -9,6 +9,8 @@ vi.mock('../src/config/db.js', () => ({
 vi.mock('../src/models/Class.js', () => ({
   default: {
     findById: vi.fn(),
+    findOne: vi.fn(),
+    find: vi.fn()
   }
 }))
 vi.mock('../src/models/Essay.js', () => ({
@@ -22,15 +24,27 @@ vi.mock('../src/models/AIAnalysis.js', () => ({
   }
 }))
 
-// Mock protect middleware to inject a mock req.user as teacher
+// Mock protect middleware to inject a mock req.user dynamically based on requested URL
 vi.mock('../src/middleware/auth.middleware.js', () => ({
   protect: (req, res, next) => {
-    req.user = { _id: 'mock_teacher_id', role: 'teacher', name: 'Mock Teacher' }
+    if (req.path.includes('/analytics') || req.path.includes('/requests') || req.path.includes('/insights')) {
+      req.user = { _id: 'mock_teacher_id', role: 'teacher', name: 'Mock Teacher' }
+    } else {
+      req.user = { _id: 'mock_student_id', role: 'student', name: 'Mock Student' }
+    }
     next()
   },
   authorize: (...roles) => (req, res, next) => {
     next()
   }
+}))
+
+// Mock notifications and logger services
+vi.mock('../src/services/notification.service.js', () => ({
+  createNotification: vi.fn().mockResolvedValue({})
+}))
+vi.mock('../src/utils/auditLogger.js', () => ({
+  logAction: vi.fn().mockResolvedValue({})
 }))
 
 import request from 'supertest'
@@ -39,7 +53,7 @@ import Class from '../src/models/Class.js'
 import Essay from '../src/models/Essay.js'
 import AIAnalysis from '../src/models/AIAnalysis.js'
 
-describe('Class Analytics API', () => {
+describe('Class Analytics & Access API', () => {
   it('should return 200 and valid statistics structure', async () => {
     // 1. Mock Class.findById
     Class.findById.mockResolvedValue({
@@ -96,7 +110,6 @@ describe('Class Analytics API', () => {
   })
 
   it('should return 200 and valid insights data structure', async () => {
-    // 1. Mock Class.findById
     Class.findById.mockResolvedValue({
       _id: 'mock_class_id',
       teacher: 'mock_teacher_id',
@@ -104,13 +117,11 @@ describe('Class Analytics API', () => {
       name: 'Class A'
     })
 
-    // 2. Mock Essay.find
     Essay.find.mockResolvedValue([
       { _id: 'essay1', student: 'student1' },
       { _id: 'essay2', student: 'student2' }
     ])
 
-    // 3. Mock AIAnalysis.find
     AIAnalysis.find.mockResolvedValue([
       {
         essay: 'essay1',
@@ -142,5 +153,47 @@ describe('Class Analytics API', () => {
     expect(res.body.data.repeatedWords[0].count).toBe(7)
     expect(res.body.data.repeatedWords[0].studentCount).toBe(2)
     expect(res.body.data.grammarErrors).toHaveLength(2)
+  })
+
+  it('should allow student to request to join a class by class code', async () => {
+    const mockSave = vi.fn().mockResolvedValue({})
+    Class.findOne.mockResolvedValue({
+      _id: 'mock_class_id',
+      name: 'IELTS Basic',
+      teacher: 'mock_teacher_id',
+      students: [],
+      pendingStudents: [],
+      save: mockSave
+    })
+
+    const res = await request(app)
+      .post('/api/classes/join')
+      .send({ code: 'IELTS6' })
+      .expect(200)
+
+    expect(res.body.success).toBe(true)
+    expect(res.body.message).toContain('Join request sent successfully')
+    expect(mockSave).toHaveBeenCalled()
+  })
+
+  it('should allow teacher to approve a pending student request', async () => {
+    const mockSave = vi.fn().mockResolvedValue({})
+    Class.findById.mockResolvedValue({
+      _id: 'mock_class_id',
+      name: 'IELTS Basic',
+      teacher: 'mock_teacher_id',
+      students: [],
+      pendingStudents: ['mock_student_id'],
+      save: mockSave
+    })
+
+    const res = await request(app)
+      .post('/api/classes/mock_class_id/requests/mock_student_id/handle')
+      .send({ action: 'approve' })
+      .expect(200)
+
+    expect(res.body.success).toBe(true)
+    expect(res.body.message).toContain('approved')
+    expect(mockSave).toHaveBeenCalled()
   })
 })

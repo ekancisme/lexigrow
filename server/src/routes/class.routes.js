@@ -4,16 +4,19 @@ import {
   updateClass, deleteClass, addStudent, removeStudent,
   getAdminClasses, forceEnrollStudent, forceUnenrollStudent, transferStudent,
   archiveClassByAdmin, deleteClassByAdmin, getAdminClassDetail, getAdminUsers,
-  getStudentClassDetail
+  getStudentClassDetail, joinClassByCode, getMyPendingClasses, handleJoinRequest
 } from '../controllers/class.controller.js'
-import { getClassAnalytics, getClassInsights } from '../controllers/teacher.controller.js'
+import { getClassAnalytics, getClassInsights, getClassLeaderboard } from '../controllers/teacher.controller.js'
 import { protect, authorize } from '../middleware/auth.middleware.js'
 
 const router = Router()
 
 router.use(protect)
 
-// Student-specific class detail route (placed before /:id)
+// Student-specific join routes (placed before /:id)
+router.post('/join', authorize('student'), joinClassByCode)
+router.get('/my-pending', authorize('student'), getMyPendingClasses)
+
 router.get('/:id/student-view', authorize('student'), getStudentClassDetail)
 
 router.route('/')
@@ -39,8 +42,11 @@ router.route('/:id')
 
 router.get('/:id/analytics', authorize('teacher'), getClassAnalytics)
 router.get('/:id/insights', authorize('teacher'), getClassInsights)
+router.get('/:id/leaderboard', authorize('teacher', 'student'), getClassLeaderboard)
 
 router.post('/:id/students', authorize('teacher'), addStudent)
 router.delete('/:id/students/:studentId', authorize('teacher'), removeStudent)
+
+router.post('/:id/requests/:studentId/handle', authorize('teacher'), handleJoinRequest)
 
 export default router

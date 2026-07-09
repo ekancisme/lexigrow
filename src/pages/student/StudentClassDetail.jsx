@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
 import { getSocket } from '../../services/socket.js'
+import ClassLeaderboard from '../../components/class/ClassLeaderboard.jsx'
 import './StudentClassDetail.css'
 
 export default function StudentClassDetail() {
@@ -9,11 +10,17 @@ export default function StudentClassDetail() {
   const { classId } = useParams()
 
   const [classes, setClasses] = useState([])
+  const [pendingRequests, setPendingRequests] = useState([])
   const [classDetail, setClassDetail] = useState(null)
   const [assignments, setAssignments] = useState([])
   const [essays, setEssays] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  // Join by class code
+  const [joinCode, setJoinCode] = useState('')
+  const [joining, setJoining] = useState(false)
+  const [joinMessage, setJoinMessage] = useState(null)
 
   // Tab State
   const [activeTab, setActiveTab] = useState('overview')
@@ -25,13 +32,18 @@ export default function StudentClassDetail() {
   useEffect(() => {
     if (classId) return // If detail view, run other loader
 
-    async function loadClasses() {
+    async function loadClassesAndPending() {
       try {
         setLoading(true)
-        const res = await api.get('/classes')
-        const data = res.data || []
+        const [classesRes, pendingRes] = await Promise.all([
+          api.get('/classes'),
+          api.get('/classes/my-pending'),
+        ])
+        const data = classesRes.data || []
+        const pending = pendingRes.data || []
         setClasses(data)
-        
+        setPendingRequests(pending)
+
         // UX Shortcut: If student belongs to exactly 1 class, auto-redirect
         if (data.length === 1) {
           navigate(`/student/class/${data[0]._id}`, { replace: true })
@@ -43,8 +55,31 @@ export default function StudentClassDetail() {
         setLoading(false)
       }
     }
-    loadClasses()
+    loadClassesAndPending()
   }, [classId, navigate])
+
+  async function handleJoinClass(e) {
+    e.preventDefault()
+    const code = joinCode.trim()
+    if (!code) return
+
+    setJoining(true)
+    setJoinMessage(null)
+    try {
+      const res = await api.post('/classes/join', { code })
+      setJoinCode('')
+      setJoinMessage({
+        type: 'success',
+        text: res.message || 'Yêu cầu tham gia đã được gửi. Vui lòng chờ giáo viên duyệt.',
+      })
+      const pendingRes = await api.get('/classes/my-pending')
+      setPendingRequests(pendingRes.data || [])
+    } catch (err) {
+      setJoinMessage({ type: 'error', text: err.message || 'Không thể gửi yêu cầu tham gia.' })
+    } finally {
+      setJoining(false)
+    }
+  }
 
   // Helper function to fetch assignments and student essays (optionally silently in the background)
   async function fetchAssignmentsAndEssays(silent = false) {
@@ -97,16 +132,32 @@ export default function StudentClassDetail() {
     }
   }, [activeTab, classId])
 
-  // Real-time listener: reload assignments immediately when a socket notification arrives
+  // Real-time listener: reload assignments or class list on relevant notifications
   useEffect(() => {
-    if (!classId) return
     const socket = getSocket()
     if (!socket) return
 
-    const handleRealtimeNotification = (notif) => {
-      // Whenever an assignment update or addition happens, reload assignments in the background
-      if (notif.type === 'assignment') {
+    const handleRealtimeNotification = async (notif) => {
+      if (classId && notif.type === 'assignment') {
         fetchAssignmentsAndEssays(true)
+        return
+      }
+
+      if (!classId && (notif.title === 'Join Request Approved' || notif.title === 'Join Request Declined')) {
+        try {
+          const [classesRes, pendingRes] = await Promise.all([
+            api.get('/classes'),
+            api.get('/classes/my-pending'),
+          ])
+          const data = classesRes.data || []
+          setClasses(data)
+          setPendingRequests(pendingRes.data || [])
+          if (data.length === 1) {
+            navigate(`/student/class/${data[0]._id}`, { replace: true })
+          }
+        } catch (err) {
+          console.error('Error refreshing classes after join notification:', err)
+        }
       }
     }
 
@@ -114,7 +165,7 @@ export default function StudentClassDetail() {
     return () => {
       socket.off('notification', handleRealtimeNotification)
     }
-  }, [classId])
+  }, [classId, navigate])
 
   // Helper to determine assignment status for the student
   function getAssignmentStatus(assignId) {
@@ -171,14 +222,76 @@ export default function StudentClassDetail() {
           <p className="student-class__subtitle">Select a class to view assignments and classmates</p>
         </div>
 
-        {classes.length === 0 ? (
-          <div className="student-class__empty card-base">
-            <span className="material-symbols-outlined">school</span>
-            <p>Bạn chưa tham gia lớp học nào.</p>
-            <p className="text-body-sm" style={{ color: 'var(--color-outline)', marginTop: 8 }}>
-              Liên hệ giáo viên của bạn để được thêm vào lớp học.
-            </p>
+        {/* Join by class code */}
+        <section className="card-base student-class__join-card">
+          <div className="student-class__join-header">
+            <span className="material-symbols-outlined">key</span>
+            <div>
+              <h3 className="student-class__join-title">Vào lớp bằng mã code</h3>
+              <p className="student-class__join-desc">Nhập mã lớp học do giáo viên cung cấp để gửi yêu cầu tham gia.</p>
+            </div>
           </div>
+          <form className="student-class__join-form" onSubmit={handleJoinClass}>
+            <input
+              type="text"
+              className="student-class__join-input"
+              placeholder="Nhập mã lớp (VD: ABC123)"
+              value={joinCode}
+              onChange={(e) => {
+                setJoinCode(e.target.value.toUpperCase())
+                if (joinMessage) setJoinMessage(null)
+              }}
+              maxLength={8}
+              disabled={joining}
+            />
+            <button
+              type="submit"
+              className="class-mgmt__submit-btn"
+              disabled={joining || !joinCode.trim()}
+            >
+              {joining ? 'Đang gửi...' : 'Gửi yêu cầu'}
+            </button>
+          </form>
+          {joinMessage && (
+            <p className={`student-class__join-message student-class__join-message--${joinMessage.type}`}>
+              {joinMessage.text}
+            </p>
+          )}
+        </section>
+
+        {/* Pending join requests */}
+        {pendingRequests.length > 0 && (
+          <section className="card-base student-class__pending-card">
+            <div className="student-class__pending-header">
+              <span className="material-symbols-outlined">hourglass_top</span>
+              <span>Đang chờ giáo viên duyệt ({pendingRequests.length})</span>
+            </div>
+            <div className="student-class__pending-list">
+              {pendingRequests.map(cls => (
+                <div key={cls._id} className="student-class__pending-item">
+                  <div>
+                    <p className="student-class__pending-name">{cls.name}</p>
+                    <p className="student-class__pending-meta">
+                      Giáo viên: {cls.teacher?.name || 'N/A'}
+                    </p>
+                  </div>
+                  <span className="student-class__badge student-class__badge--pending">Chờ duyệt</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {classes.length === 0 ? (
+          pendingRequests.length === 0 ? (
+            <div className="student-class__empty card-base">
+              <span className="material-symbols-outlined">school</span>
+              <p>Bạn chưa tham gia lớp học nào.</p>
+              <p className="text-body-sm" style={{ color: 'var(--color-outline)', marginTop: 8 }}>
+                Nhập mã lớp học ở trên hoặc liên hệ giáo viên để được thêm vào lớp.
+              </p>
+            </div>
+          ) : null
         ) : (
           <div className="student-class__list-grid">
             {classes.map(cls => (
@@ -251,6 +364,13 @@ export default function StudentClassDetail() {
         >
           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>assignment</span>
           Assignments
+        </button>
+        <button
+          className={`student-class__tab-btn ${activeTab === 'leaderboard' ? 'student-class__tab-btn--active' : ''}`}
+          onClick={() => setActiveTab('leaderboard')}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>emoji_events</span>
+          Leaderboard
         </button>
       </div>
 
@@ -433,6 +553,13 @@ export default function StudentClassDetail() {
               </table>
             </div>
           )}
+        </section>
+      )}
+
+      {/* ── TAB 4: LEADERBOARD ── */}
+      {activeTab === 'leaderboard' && (
+        <section className="card-base student-class__leaderboard-card animate-fade-in" style={{ padding: 24 }}>
+          <ClassLeaderboard classId={classId} />
         </section>
       )}
 

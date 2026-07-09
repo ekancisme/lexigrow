@@ -31,6 +31,16 @@ const classSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   }],
+  code: {
+    type: String,
+    unique: true,
+    sparse: true,
+    trim: true,
+  },
+  pendingStudents: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  }],
 }, {
   timestamps: true,
   toJSON: { virtuals: true },

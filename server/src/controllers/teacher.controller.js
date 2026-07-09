@@ -526,3 +526,103 @@ export const getClassInsights = asyncHandler(async (req, res) => {
   })
 })
 
+/**
+ * @desc    Get anonymous class leaderboard for weekly vocabulary and essay counts
+ * @route   GET /api/classes/:id/leaderboard
+ * @access  Private (teacher, student)
+ */
+export const getClassLeaderboard = asyncHandler(async (req, res) => {
+  const cls = await Class.findById(req.params.id).populate('students', 'name email englishLevel anonymousNickname')
+  if (!cls) {
+    throw new ErrorResponse('Class not found', 404)
+  }
+
+  // Authorize: teacher of class, or student in class
+  const isTeacher = cls.teacher.toString() === req.user._id.toString()
+  const isStudent = cls.students.some(s => s._id.toString() === req.user._id.toString())
+  if (!isTeacher && !isStudent) {
+    throw new ErrorResponse('Not authorized to view this class leaderboard', 403)
+  }
+
+  const oneWeekAgo = new Date()
+  oneWeekAgo.setDate(oneWeekAgo.getDate() - 7)
+
+  // Adjectives & Animals list for anonymous nicknames
+  const adjectives = ['Clever', 'Silent', 'Joyful', 'Bright', 'Golden', 'Swift', 'Wise', 'Sleek', 'Happy', 'Brave', 'Gentle', 'Quick', 'Calm', 'Noble', 'Mighty']
+  const animals = ['Panda', 'Eagle', 'Fox', 'Owl', 'Dolphin', 'Tiger', 'Koala', 'Lion', 'Falcon', 'Cheetah', 'Wolf', 'Panther', 'Deer', 'Otter', 'Jaguar']
+
+  const generateUniqueNickname = async (studentUser) => {
+    let nickname = studentUser.anonymousNickname
+    if (nickname) return nickname
+
+    let attempts = 0
+    let isUnique = false
+    while (!isUnique && attempts < 100) {
+      attempts++
+      const adj = adjectives[Math.floor(Math.random() * adjectives.length)]
+      const anim = animals[Math.floor(Math.random() * animals.length)]
+      const num = Math.floor(Math.random() * 90 + 10)
+      const testName = `${adj} ${anim} ${num}`
+
+      // Check database uniqueness
+      const existing = await User.findOne({ anonymousNickname: testName })
+      if (!existing) {
+        nickname = testName
+        isUnique = true
+      }
+    }
+
+    if (!nickname) {
+      nickname = `User ${studentUser._id.toString().substring(18)}`
+    }
+
+    studentUser.anonymousNickname = nickname
+    await studentUser.save()
+    return nickname
+  }
+
+  const leaderboard = await Promise.all(cls.students.map(async (student) => {
+    // 1. Generate nickname
+    const anonName = await generateUniqueNickname(student)
+
+    // 2. Count essays completed in last 7 days
+    const essayCount = await Essay.countDocuments({
+      student: student._id,
+      status: { $ne: 'draft' },
+      createdAt: { $gte: oneWeekAgo }
+    })
+
+    // 3. Count unique vocabulary words added in last 7 days
+    const vocabCount = await Vocabulary.countDocuments({
+      student: student._id,
+      createdAt: { $gte: oneWeekAgo }
+    })
+
+    return {
+      studentId: student._id,
+      anonymousNickname: anonName,
+      essaysCompleted: essayCount,
+      vocabAccumulated: vocabCount,
+      isCurrentUser: student._id.toString() === req.user._id.toString()
+    }
+  }))
+
+  // Sort: vocab count desc, essays completed desc
+  leaderboard.sort((a, b) => {
+    if (b.vocabAccumulated !== a.vocabAccumulated) {
+      return b.vocabAccumulated - a.vocabAccumulated
+    }
+    return b.essaysCompleted - a.essaysCompleted
+  })
+
+  // Add rank numbers
+  const rankedLeaderboard = leaderboard.map((item, idx) => ({
+    rank: idx + 1,
+    ...item
+  }))
+
+  res.status(200).json({
+    success: true,
+    data: rankedLeaderboard
+  })
+})

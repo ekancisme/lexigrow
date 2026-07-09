@@ -8,6 +8,28 @@ import { classifyStudents } from '../services/studentStatus.service.js'
 import { createNotification } from '../services/notification.service.js'
 import { logAction } from '../utils/auditLogger.js'
 
+const generateClassCode = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+  let code = ''
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length))
+  }
+  return code
+}
+
+const getUniqueClassCode = async () => {
+  let isUnique = false
+  let code = ''
+  while (!isUnique) {
+    code = generateClassCode()
+    const existing = await Class.findOne({ code })
+    if (!existing) {
+      isUnique = true
+    }
+  }
+  return code
+}
+
 /**
  * @desc    Create a new class
  * @route   POST /api/classes
@@ -16,11 +38,14 @@ import { logAction } from '../utils/auditLogger.js'
 export const createClass = asyncHandler(async (req, res) => {
   const { name, description, schedule } = req.body
 
+  const code = await getUniqueClassCode()
+
   const cls = await Class.create({
     name,
     description,
     schedule,
     teacher: req.user._id,
+    code,
   })
 
   await logAction(req.user._id, 'CREATE_CLASS', 'Class', cls._id, { name })
@@ -73,8 +98,9 @@ export const getClasses = asyncHandler(async (req, res) => {
  * @access  Private (teacher)
  */
 export const getClassDetail = asyncHandler(async (req, res) => {
-  const cls = await Class.findById(req.params.id)
+  let cls = await Class.findById(req.params.id)
     .populate('students', 'name email englishLevel')
+    .populate('pendingStudents', 'name email englishLevel')
 
   if (!cls) {
     throw new ErrorResponse('Class not found', 404)
@@ -82,6 +108,16 @@ export const getClassDetail = asyncHandler(async (req, res) => {
 
   if (cls.teacher.toString() !== req.user._id.toString()) {
     throw new ErrorResponse('Not authorized', 403)
+  }
+
+  // Generate class code dynamically for legacy classes
+  if (!cls.code) {
+    cls.code = await getUniqueClassCode()
+    await cls.save()
+    // Re-query to get populated document
+    cls = await Class.findById(req.params.id)
+      .populate('students', 'name email englishLevel')
+      .populate('pendingStudents', 'name email englishLevel')
   }
 
   // Get per-student metrics — classify using canonical studentStatus service
@@ -424,4 +460,134 @@ export const getAdminUsers = asyncHandler(async (req, res) => {
 
   const users = await User.find({ role }).select('name email englishLevel').sort({ name: 1 })
   res.status(200).json({ success: true, count: users.length, data: users })
+})
+
+/**
+ * @desc    Student joins class by class code
+ * @route   POST /api/classes/join
+ * @access  Private (student)
+ */
+export const joinClassByCode = asyncHandler(async (req, res) => {
+  const { code } = req.body
+  if (!code) {
+    throw new ErrorResponse('Please provide a class code', 400)
+  }
+
+  const cls = await Class.findOne({ code: code.toUpperCase().trim() })
+  if (!cls) {
+    throw new ErrorResponse('Class not found with this code', 404)
+  }
+
+  // Check if student is already enrolled
+  const isEnrolled = cls.students.some(s => s.toString() === req.user._id.toString())
+  if (isEnrolled) {
+    throw new ErrorResponse('You are already enrolled in this class', 400)
+  }
+
+  // Check if request is already pending
+  const isPending = cls.pendingStudents?.some(s => s.toString() === req.user._id.toString())
+  if (isPending) {
+    throw new ErrorResponse('Your request to join this class is already pending approval', 400)
+  }
+
+  // Add student to pending
+  if (!cls.pendingStudents) {
+    cls.pendingStudents = []
+  }
+  cls.pendingStudents.push(req.user._id)
+  await cls.save()
+
+  // Create audit log and notification for teacher
+  await logAction(req.user._id, 'JOIN_REQUEST_SENT', 'Class', cls._id, { className: cls.name })
+  await createNotification({
+    recipient: cls.teacher,
+    sender: req.user._id,
+    type: 'system',
+    title: 'New Class Join Request',
+    message: `${req.user.name} requested to join your class "${cls.name}".`,
+    link: `/teacher/class/${cls._id}`
+  })
+
+  res.status(200).json({
+    success: true,
+    message: 'Join request sent successfully! Waiting for teacher approval.'
+  })
+})
+
+/**
+ * @desc    Student gets their pending class requests
+ * @route   GET /api/classes/my-pending
+ * @access  Private (student)
+ */
+export const getMyPendingClasses = asyncHandler(async (req, res) => {
+  const classes = await Class.find({ pendingStudents: req.user._id })
+    .populate('teacher', 'name email')
+    .select('name description teacher')
+  res.status(200).json({ success: true, count: classes.length, data: classes })
+})
+
+/**
+ * @desc    Teacher handles (approve/reject) pending student join request
+ * @route   POST /api/classes/:id/requests/:studentId/handle
+ * @access  Private (teacher)
+ */
+export const handleJoinRequest = asyncHandler(async (req, res) => {
+  const { action } = req.body // 'approve' or 'reject'
+  const { id, studentId } = req.params
+
+  if (!['approve', 'reject'].includes(action)) {
+    throw new ErrorResponse('Invalid action. Choose approve or reject.', 400)
+  }
+
+  const cls = await Class.findById(id)
+  if (!cls) {
+    throw new ErrorResponse('Class not found', 404)
+  }
+
+  if (cls.teacher.toString() !== req.user._id.toString()) {
+    throw new ErrorResponse('Not authorized to manage this class requests', 403)
+  }
+
+  // Check if student is in pending list
+  const isPending = cls.pendingStudents?.some(s => s.toString() === studentId.toString())
+  if (!isPending) {
+    throw new ErrorResponse('Student join request not found in pending list', 404)
+  }
+
+  // Remove from pending
+  cls.pendingStudents = cls.pendingStudents.filter(s => s.toString() !== studentId.toString())
+
+  if (action === 'approve') {
+    // Check if already enrolled (just in case)
+    if (!cls.students.includes(studentId)) {
+      cls.students.push(studentId)
+    }
+    await cls.save()
+
+    await logAction(req.user._id, 'APPROVE_JOIN_REQUEST', 'Class', cls._id, { studentId })
+    await createNotification({
+      recipient: studentId,
+      sender: req.user._id,
+      type: 'system',
+      title: 'Join Request Approved',
+      message: `You have been approved to join the class "${cls.name}".`,
+      link: `/student/class/${cls._id}`
+    })
+  } else {
+    await cls.save()
+    await logAction(req.user._id, 'REJECT_JOIN_REQUEST', 'Class', cls._id, { studentId })
+    await createNotification({
+      recipient: studentId,
+      sender: req.user._id,
+      type: 'system',
+      title: 'Join Request Rejected',
+      message: `Your request to join the class "${cls.name}" was declined.`,
+      link: '/student/class'
+    })
+  }
+
+  res.status(200).json({
+    success: true,
+    message: `Successfully ${action === 'approve' ? 'approved' : 'rejected'} student join request.`
+  })
 })

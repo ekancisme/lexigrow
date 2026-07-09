@@ -239,6 +239,133 @@
   color: #b91c1c;
 }
 
+.student-class__badge--pending {
+  background: #fef9c3;
+  color: #a16207;
+}
+
+/* ── Join by Class Code ── */
+.student-class__join-card {
+  margin-bottom: 20px;
+  padding: 20px 24px;
+  border: 1.5px dashed var(--color-primary);
+  background: rgba(40, 167, 69, 0.03);
+}
+
+.student-class__join-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.student-class__join-header .material-symbols-outlined {
+  font-size: 28px;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.student-class__join-title {
+  margin: 0 0 4px 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.student-class__join-desc {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--color-outline);
+  line-height: 1.5;
+}
+
+.student-class__join-form {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.student-class__join-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  box-sizing: border-box;
+}
+
+.student-class__join-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.15);
+}
+
+.student-class__join-message {
+  margin: 12px 0 0 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.student-class__join-message--success {
+  color: #15803d;
+}
+
+.student-class__join-message--error {
+  color: var(--color-error);
+}
+
+/* ── Pending Join Requests ── */
+.student-class__pending-card {
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  border: 1.5px dashed #ca8a04;
+  background: rgba(202, 138, 4, 0.04);
+}
+
+.student-class__pending-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #a16207;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.student-class__pending-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.student-class__pending-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: var(--color-surface-container-low);
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--color-outline-variant);
+}
+
+.student-class__pending-name {
+  margin: 0;
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
+.student-class__pending-meta {
+  margin: 2px 0 0 0;
+  font-size: 0.85rem;
+  color: var(--color-outline);
+}
+
 /* ── Empty & Loading States ── */
 .student-class__empty {
   padding: 60px 24px;

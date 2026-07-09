@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { useNavigate, useParams } from 'react-router-dom'
 import api from '../../services/api.js'
 import ClassAnalyticsSection from './ClassAnalyticsSection.jsx'
+import ClassLeaderboard from '../../components/class/ClassLeaderboard.jsx'
 import './ClassOverview.css'
 
 export default function ClassOverview() {
@@ -75,6 +76,15 @@ export default function ClassOverview() {
       loadClassDetail()
     } catch (err) {
       alert('Error removing student: ' + err.message)
+    }
+  }
+
+  async function handleRequestAction(studentId, action) {
+    try {
+      await api.post(`/classes/${id}/requests/${studentId}/handle`, { action })
+      loadClassDetail()
+    } catch (err) {
+      alert(`Error handling request: ${err.message}`)
     }
   }
 
@@ -187,8 +197,24 @@ export default function ClassOverview() {
             <span className="material-symbols-outlined">arrow_back</span>
             Back to Dashboard
           </button>
-          <h2 className="text-headline-lg" style={{ marginTop: 8 }}>{name}</h2>
-          <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
+            <h2 className="text-headline-lg" style={{ margin: 0 }}>{name}</h2>
+            <span style={{
+              background: 'var(--color-primary-container)',
+              color: 'var(--color-on-primary-container)',
+              padding: '4px 10px',
+              borderRadius: '8px',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6
+            }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>key</span>
+              Class Code: {classDetail.code || 'N/A'}
+            </span>
+          </div>
+          <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginTop: 4 }}>
             {roster?.length || 0} students • Avg TTR: {classTtr} • {schedule || 'No schedule'}
           </p>
         </div>
@@ -240,11 +266,65 @@ export default function ClassOverview() {
             Class Analytics
           </span>
         </button>
+        <button style={tabStyle('leaderboard')} onClick={() => setActiveTab('leaderboard')}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>emoji_events</span>
+            Leaderboard
+          </span>
+        </button>
       </section>
 
       {/* ── TAB: STUDENT ROSTER ── */}
       {activeTab === 'roster' && (
-      <section className="card-base" style={{ padding: 0, borderRadius: '0 12px 12px 12px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        {/* Pending Requests Sub-Section */}
+        {classDetail.pendingStudents && classDetail.pendingStudents.length > 0 && (
+          <section className="card-base" style={{ padding: 20 }}>
+            <h3 className="text-title-medium" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-primary)', fontWeight: 700, marginBottom: 16 }}>
+              <span className="material-symbols-outlined">hourglass_top</span>
+              Pending Join Requests ({classDetail.pendingStudents.length})
+            </h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {classDetail.pendingStudents.map(student => (
+                <div key={student._id} style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '12px 16px',
+                  background: 'var(--color-surface-container-low)',
+                  border: '1px solid var(--color-outline-variant)',
+                  borderRadius: '10px'
+                }}>
+                  <div>
+                    <p style={{ fontWeight: 700, margin: 0 }}>{student.name}</p>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--color-outline)', margin: '2px 0 0 0' }}>
+                      {student.email} • Level: {student.englishLevel || 'N/A'}
+                    </p>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      className="class-overview__action-btn"
+                      onClick={() => handleRequestAction(student._id, 'approve')}
+                      style={{ background: '#28a745', color: 'white', border: 'none' }}
+                    >
+                      Approve
+                    </button>
+                    <button
+                      className="class-overview__action-btn"
+                      onClick={() => handleRequestAction(student._id, 'reject')}
+                      style={{ background: 'var(--color-error-container)', color: 'var(--color-error)', border: 'none' }}
+                    >
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Active Student Roster Table Card */}
+        <section className="card-base" style={{ padding: 0 }}>
         <div className="class-overview__table-header">
           <h3 className="text-title-lg">Student Roster</h3>
           <div style={{ display: 'flex', gap: 12 }}>
@@ -319,6 +399,7 @@ export default function ClassOverview() {
           )}
         </div>
       </section>
+      </div>
       )}
 
       {/* ── TAB: ASSIGNMENTS ── */}
@@ -398,6 +479,13 @@ export default function ClassOverview() {
       {activeTab === 'analytics' && (
         <section className="card-base" style={{ padding: 24, borderRadius: '0 12px 12px 12px' }}>
           <ClassAnalyticsSection classId={id} />
+        </section>
+      )}
+
+      {/* ── TAB: CLASS LEADERBOARD ── */}
+      {activeTab === 'leaderboard' && (
+        <section className="card-base" style={{ padding: 24, borderRadius: '0 12px 12px 12px' }}>
+          <ClassLeaderboard classId={id} />
         </section>
       )}
 
