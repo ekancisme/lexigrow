@@ -4,17 +4,23 @@ import './ClassAnalyticsSection.css'
 
 export default function ClassAnalyticsSection({ classId }) {
   const [data, setData] = useState(null)
+  const [insights, setInsights] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [hoveredPoint, setHoveredPoint] = useState(null) // { index, x, y, label, avgTTR, avgGrammar, essayCount }
+  const [hoveredPoint, setHoveredPoint] = useState(null)
+  const [expandedCategory, setExpandedCategory] = useState(null)
 
   useEffect(() => {
-    async function fetchAnalytics() {
+    async function fetchAllData() {
       setLoading(true)
       setError('')
       try {
-        const res = await api.get(`/classes/${classId}/analytics`)
-        setData(res.data || null)
+        const [analyticsRes, insightsRes] = await Promise.all([
+          api.get(`/classes/${classId}/analytics`),
+          api.get(`/classes/${classId}/insights`)
+        ])
+        setData(analyticsRes.data || null)
+        setInsights(insightsRes.data || null)
       } catch (err) {
         console.error('Failed to load class analytics:', err)
         setError(err.message || 'Unable to load class performance analytics.')
@@ -22,7 +28,7 @@ export default function ClassAnalyticsSection({ classId }) {
         setLoading(false)
       }
     }
-    fetchAnalytics()
+    fetchAllData()
   }, [classId])
 
   if (loading) {
@@ -97,7 +103,25 @@ export default function ClassAnalyticsSection({ classId }) {
   return (
     <div className="class-analytics">
       
-      {/* Metrics Summary Rows */}
+      {/* Actionable Alerts / Warnings banner */}
+      {insights?.warnings && insights.warnings.length > 0 && (
+        <div className="class-analytics__warnings">
+          <div className="class-analytics__warnings-header">
+            <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>warning</span>
+            <span>Teacher Actionable Alerts</span>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {insights.warnings.map((w, idx) => (
+              <div key={idx} className="class-analytics__warning-item">
+                <span className="material-symbols-outlined" style={{ fontSize: '14px', color: 'var(--color-error)', marginTop: '3px' }}>error</span>
+                <span>{w}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
+      {/* Metrics Summary Cards */}
       <div className="class-analytics__summary">
         <div className="class-analytics__card">
           <div className="class-analytics__card-icon class-analytics__card-icon--blue">
@@ -256,6 +280,108 @@ export default function ClassAnalyticsSection({ classId }) {
             <span>Grammar Accuracy (0-10 Score)</span>
           </div>
         </div>
+      </div>
+
+      {/* Two Column Layout for Insights */}
+      <div className="class-analytics__row">
+        
+        {/* Left Column: Top Overused Words */}
+        <div className="class-analytics__section-card">
+          <h4 className="class-analytics__section-title">
+            <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>forum</span>
+            Top Overused Words
+          </h4>
+          <p className="text-body-sm" style={{ color: 'var(--color-outline)', marginBottom: '8px' }}>
+            Most frequently repeated words across class essays (excluding common stop words)
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {insights?.repeatedWords && insights.repeatedWords.length > 0 ? (
+              insights.repeatedWords.map((item, idx) => {
+                const maxCount = insights.repeatedWords[0].count
+                const pct = maxCount > 0 ? (item.count / maxCount) * 100 : 0
+                return (
+                  <div key={idx} className="class-analytics__repeated-word-row">
+                    <div className="class-analytics__repeated-word-info">
+                      <span style={{ color: 'var(--color-on-surface)', fontWeight: 700 }}>"{item.word}"</span>
+                      <span style={{ color: 'var(--color-outline)' }}>
+                        {item.count} times ({item.studentCount} students)
+                      </span>
+                    </div>
+                    <div className="class-analytics__progress-track">
+                      <div className="class-analytics__progress-fill" style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                )
+              })
+            ) : (
+              <p style={{ color: 'var(--color-outline)', fontStyle: 'italic', fontSize: '0.9rem' }}>No word repetitions detected.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Right Column: Writing & Grammar Weaknesses Accordions */}
+        <div className="class-analytics__section-card">
+          <h4 className="class-analytics__section-title">
+            <span className="material-symbols-outlined" style={{ color: '#28a745' }}>rule</span>
+            Writing & Grammar Weaknesses
+          </h4>
+          <p className="text-body-sm" style={{ color: 'var(--color-outline)', marginBottom: '8px' }}>
+            Top categories of grammar/style corrections suggested by AI for students in this class
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {insights?.grammarErrors && insights.grammarErrors.length > 0 ? (
+              insights.grammarErrors.map((item, idx) => {
+                const isOpen = expandedCategory === item.category
+                return (
+                  <div key={idx} className="class-analytics__accordion">
+                    <div
+                      className="class-analytics__accordion-header"
+                      onClick={() => setExpandedCategory(isOpen ? null : item.category)}
+                    >
+                      <span>{item.category}</span>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <span style={{
+                          background: 'var(--color-error-container)',
+                          color: 'var(--color-error)',
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '0.75rem',
+                          fontWeight: 700
+                        }}>
+                          {item.count} issues
+                        </span>
+                        <span className="material-symbols-outlined" style={{
+                          fontSize: '18px',
+                          transform: isOpen ? 'rotate(180deg)' : 'none',
+                          transition: 'transform 0.2s',
+                          color: 'var(--color-outline)'
+                        }}>
+                          expand_more
+                        </span>
+                      </div>
+                    </div>
+                    
+                    {isOpen && (
+                      <div className="class-analytics__accordion-body">
+                        <p style={{ fontSize: '0.82rem', color: 'var(--color-outline)', fontWeight: 600, marginBottom: '4px' }}>
+                          Sample suggestions from student essays:
+                        </p>
+                        {item.examples.map((ex, eIdx) => (
+                          <div key={eIdx} className="class-analytics__accordion-example">
+                            "{ex}"
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )
+              })
+            ) : (
+              <p style={{ color: 'var(--color-outline)', fontStyle: 'italic', fontSize: '0.9rem' }}>No writing suggestions detected.</p>
+            )}
+          </div>
+        </div>
+
       </div>
 
     </div>

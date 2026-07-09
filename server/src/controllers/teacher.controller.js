@@ -368,3 +368,161 @@ export const getClassAnalytics = asyncHandler(async (req, res) => {
   })
 })
 
+/**
+ * @desc    Get classroom analytics insights (repeated words, grammar error categories, warnings)
+ * @route   GET /api/classes/:id/insights
+ * @access  Private (teacher)
+ */
+export const getClassInsights = asyncHandler(async (req, res) => {
+  const cls = await Class.findById(req.params.id)
+  if (!cls) throw new ErrorResponse('Class not found', 404)
+
+  if (cls.teacher.toString() !== req.user._id.toString()) {
+    throw new ErrorResponse('Not authorized', 403)
+  }
+
+  const studentIds = cls.students.map(s => s.toString())
+  
+  if (studentIds.length === 0) {
+    return res.status(200).json({
+      success: true,
+      data: {
+        repeatedWords: [],
+        grammarErrors: [],
+        warnings: []
+      }
+    })
+  }
+
+  // Find all non-draft essays of students
+  const essays = await Essay.find({
+    student: { $in: studentIds },
+    status: { $ne: 'draft' }
+  })
+  
+  const essayIds = essays.map(e => e._id)
+  const analyses = await AIAnalysis.find({
+    essay: { $in: essayIds }
+  })
+
+  // 1. Accumulate repeated words
+  const repeatedWordsMap = {} // word -> { word, count, students: Set }
+  
+  analyses.forEach(analysis => {
+    const essayDoc = essays.find(e => e._id.toString() === analysis.essay.toString())
+    const studentId = essayDoc?.student?.toString()
+    
+    if (analysis.nlpStats?.repeatedWords) {
+      analysis.nlpStats.repeatedWords.forEach(rw => {
+        const word = rw.word.toLowerCase().trim()
+        if (!repeatedWordsMap[word]) {
+          repeatedWordsMap[word] = {
+            word,
+            count: 0,
+            students: new Set()
+          }
+        }
+        repeatedWordsMap[word].count += rw.count
+        if (studentId) {
+          repeatedWordsMap[word].students.add(studentId)
+        }
+      })
+    }
+  })
+
+  const repeatedWords = Object.values(repeatedWordsMap).map(item => ({
+    word: item.word,
+    count: item.count,
+    studentCount: item.students.size
+  })).sort((a, b) => b.count - a.count).slice(0, 8)
+
+  // 2. Classify improvements into categories
+  const categoriesConfig = [
+    { key: 'Verb Tenses/Forms', keywords: ['tense', 'past', 'present', 'future', 'conjugation', 'verb form', 'infinitive', 'gerund', 'participle'] },
+    { key: 'Subject-Verb Agreement', keywords: ['subject-verb', 'agreement', 'singular', 'plural', 'verbs agreement'] },
+    { key: 'Preposition Usage', keywords: ['preposition', 'in', 'on', 'at', 'with', 'of', 'for', 'to', 'about'] },
+    { key: 'Articles (A/An/The)', keywords: ['article', 'definite article', 'indefinite article', 'a', 'an', 'the'] },
+    { key: 'Punctuation', keywords: ['comma', 'punctuation', 'semi-colon', 'colon', 'apostrophe', 'period', 'question mark'] },
+    { key: 'Spelling', keywords: ['spelling', 'misspell', 'typo', 'spell check'] },
+    { key: 'Passive Voice Overuse', keywords: ['passive voice', 'passive form'] },
+    { key: 'Vocabulary Selection', keywords: ['vocabulary', 'word choice', 'synonym', 'repetitive word', 'redundant', 'word selection'] },
+    { key: 'Coherence & Transitions', keywords: ['coherence', 'transition', 'connective', 'cohesive', 'linking word'] }
+  ]
+
+  const grammarErrorsMap = {} // categoryName -> { category, count, examples: Set }
+  categoriesConfig.forEach(cat => {
+    grammarErrorsMap[cat.key] = {
+      category: cat.key,
+      count: 0,
+      examples: new Set()
+    }
+  })
+  
+  const defaultCategory = 'Sentence Structure & Style'
+  grammarErrorsMap[defaultCategory] = {
+    category: defaultCategory,
+    count: 0,
+    examples: new Set()
+  }
+
+  analyses.forEach(analysis => {
+    if (analysis.suggestions) {
+      analysis.suggestions.forEach(sug => {
+        if (sug.type === 'improvement') {
+          const text = sug.text
+          const textLower = text.toLowerCase()
+          let matched = false
+
+          for (const cat of categoriesConfig) {
+            const hasKeyword = cat.keywords.some(kw => textLower.includes(kw))
+            if (hasKeyword) {
+              grammarErrorsMap[cat.key].count++
+              grammarErrorsMap[cat.key].examples.add(text)
+              matched = true
+              break
+            }
+          }
+
+          if (!matched) {
+            grammarErrorsMap[defaultCategory].count++
+            grammarErrorsMap[defaultCategory].examples.add(text)
+          }
+        }
+      })
+    }
+  })
+
+  const grammarErrors = Object.values(grammarErrorsMap)
+    .filter(item => item.count > 0)
+    .map(item => ({
+      category: item.category,
+      count: item.count,
+      examples: Array.from(item.examples).slice(0, 3)
+    }))
+    .sort((a, b) => b.count - a.count)
+
+  // 3. Generate warnings/alerts
+  const warnings = []
+  
+  grammarErrors.forEach(err => {
+    if (err.count >= 3) {
+      warnings.push(`High frequency of "${err.category}" issues detected in the class (occurred ${err.count} times). Consider doing a brief classroom review session on this topic.`)
+    }
+  })
+
+  repeatedWords.forEach(rw => {
+    if (rw.studentCount >= 3) {
+      warnings.push(`The word "${rw.word}" is frequently overused, affecting ${rw.studentCount} students in this class (repeated ${rw.count} times total). Encourage them to use academic synonyms to expand their vocabulary.`)
+    }
+  })
+
+  res.status(200).json({
+    success: true,
+    data: {
+      repeatedWords,
+      grammarErrors,
+      warnings
+    }
+  })
+})
+

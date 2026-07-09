@@ -6,7 +6,7 @@ import {
   archiveClassByAdmin, deleteClassByAdmin, getAdminClassDetail, getAdminUsers,
   getStudentClassDetail
 } from '../controllers/class.controller.js'
-import { getClassAnalytics } from '../controllers/teacher.controller.js'
+import { getClassAnalytics, getClassInsights } from '../controllers/teacher.controller.js'
 import { protect, authorize } from '../middleware/auth.middleware.js'
 
 const router = Router()
@@ -38,6 +38,7 @@ router.route('/:id')
   .delete(authorize('teacher'), deleteClass)
 
 router.get('/:id/analytics', authorize('teacher'), getClassAnalytics)
+router.get('/:id/insights', authorize('teacher'), getClassInsights)
 
 router.post('/:id/students', authorize('teacher'), addStudent)
 router.delete('/:id/students/:studentId', authorize('teacher'), removeStudent)

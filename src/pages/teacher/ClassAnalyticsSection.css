@@ -125,3 +125,138 @@
   margin-bottom: 16px;
   color: var(--color-outline);
 }
+
+/* Warnings and Alerts */
+.class-analytics__warnings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: rgba(217, 83, 79, 0.04);
+  border: 1.5px dashed var(--color-error);
+  border-radius: var(--radius-xl);
+  padding: 20px;
+}
+
+.class-analytics__warnings-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-error);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.class-analytics__warning-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 0.9rem;
+  color: var(--color-on-surface);
+  line-height: 1.4;
+}
+
+/* Columns row layout */
+.class-analytics__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .class-analytics__row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.class-analytics__section-card {
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.class-analytics__section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-on-surface);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Repeated word progress bars */
+.class-analytics__repeated-word-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.class-analytics__repeated-word-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.class-analytics__progress-track {
+  width: 100%;
+  height: 8px;
+  background: var(--color-outline-variant);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.class-analytics__progress-fill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 99px;
+  transition: width 0.3s ease-in-out;
+}
+
+/* Accordion controls */
+.class-analytics__accordion {
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--color-surface-container-low);
+}
+
+.class-analytics__accordion-header {
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  background: var(--color-surface-container-high);
+  font-weight: 600;
+  font-size: 0.95rem;
+  user-select: none;
+  transition: background 0.2s;
+}
+
+.class-analytics__accordion-header:hover {
+  background: var(--color-surface-container-highest);
+}
+
+.class-analytics__accordion-body {
+  padding: 16px 18px;
+  border-top: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-container-lowest);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.class-analytics__accordion-example {
+  background: var(--color-surface-container-low);
+  border-left: 3px solid var(--color-primary);
+  padding: 10px 14px;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  font-size: 0.88rem;
+  color: var(--color-on-surface-variant);
+  font-style: italic;
+  line-height: 1.4;
+}

@@ -94,4 +94,53 @@ describe('Class Analytics API', () => {
 
     expect(res.body.success).toBe(false)
   })
+
+  it('should return 200 and valid insights data structure', async () => {
+    // 1. Mock Class.findById
+    Class.findById.mockResolvedValue({
+      _id: 'mock_class_id',
+      teacher: 'mock_teacher_id',
+      students: ['student1', 'student2'],
+      name: 'Class A'
+    })
+
+    // 2. Mock Essay.find
+    Essay.find.mockResolvedValue([
+      { _id: 'essay1', student: 'student1' },
+      { _id: 'essay2', student: 'student2' }
+    ])
+
+    // 3. Mock AIAnalysis.find
+    AIAnalysis.find.mockResolvedValue([
+      {
+        essay: 'essay1',
+        nlpStats: {
+          repeatedWords: [{ word: 'however', count: 5 }, { word: 'very', count: 3 }]
+        },
+        suggestions: [
+          { type: 'improvement', text: 'You made a tense grammar error here.' }
+        ]
+      },
+      {
+        essay: 'essay2',
+        nlpStats: {
+          repeatedWords: [{ word: 'however', count: 2 }]
+        },
+        suggestions: [
+          { type: 'improvement', text: 'Check your article preposition usage in this sentence.' }
+        ]
+      }
+    ])
+
+    const res = await request(app)
+      .get('/api/classes/mock_class_id/insights')
+      .expect(200)
+
+    expect(res.body.success).toBe(true)
+    expect(res.body.data.repeatedWords).toHaveLength(2)
+    expect(res.body.data.repeatedWords[0].word).toBe('however')
+    expect(res.body.data.repeatedWords[0].count).toBe(7)
+    expect(res.body.data.repeatedWords[0].studentCount).toBe(2)
+    expect(res.body.data.grammarErrors).toHaveLength(2)
+  })
 })
