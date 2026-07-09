@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate, useParams } from 'react-router-dom'
 import api from '../../services/api.js'
+import ClassAnalyticsSection from './ClassAnalyticsSection.jsx'
 import './ClassOverview.css'
 
 export default function ClassOverview() {
@@ -233,6 +234,12 @@ export default function ClassOverview() {
             )}
           </span>
         </button>
+        <button style={tabStyle('analytics')} onClick={() => setActiveTab('analytics')}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>monitoring</span>
+            Class Analytics
+          </span>
+        </button>
       </section>
 
       {/* ── TAB: STUDENT ROSTER ── */}
@@ -385,6 +392,13 @@ export default function ClassOverview() {
           </table>
         )}
       </section>
+      )}
+
+      {/* ── TAB: CLASS ANALYTICS ── */}
+      {activeTab === 'analytics' && (
+        <section className="card-base" style={{ padding: 24, borderRadius: '0 12px 12px 12px' }}>
+          <ClassAnalyticsSection classId={id} />
+        </section>
       )}
 
       {/* ── CREATE ASSIGNMENT MODAL ── */}

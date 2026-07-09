@@ -268,3 +268,103 @@ export const getStudentVocabulary = asyncHandler(async (req, res) => {
   })
 })
 
+/**
+ * @desc    Get classroom aggregated analytics and performance trends
+ * @route   GET /api/classes/:id/analytics
+ * @access  Private (teacher)
+ */
+export const getClassAnalytics = asyncHandler(async (req, res) => {
+  const cls = await Class.findById(req.params.id)
+  if (!cls) throw new ErrorResponse('Class not found', 404)
+
+  if (cls.teacher.toString() !== req.user._id.toString()) {
+    throw new ErrorResponse('Not authorized', 403)
+  }
+
+  const studentIds = cls.students.map(s => s.toString())
+  
+  if (studentIds.length === 0) {
+    return res.status(200).json({
+      success: true,
+      data: {
+        summary: {
+          overallAvgTTR: 0,
+          overallAvgGrammar: 0,
+          totalEssaysAnalyzed: 0
+        },
+        trend: []
+      }
+    })
+  }
+
+  // Get all submitted essays
+  const essays = await Essay.find({
+    student: { $in: studentIds },
+    status: { $ne: 'draft' }
+  })
+  
+  const essayIds = essays.map(e => e._id)
+  const analyses = await AIAnalysis.find({
+    essay: { $in: essayIds }
+  })
+
+  // Summary Metrics
+  const totalEssaysAnalyzed = analyses.length
+  const overallAvgTTR = totalEssaysAnalyzed > 0
+    ? Math.round((analyses.reduce((sum, a) => sum + (a.scores?.vocabularyDiversity || 0), 0) / totalEssaysAnalyzed) * 100) / 100
+    : 0
+  const overallAvgGrammar = totalEssaysAnalyzed > 0
+    ? Math.round((analyses.reduce((sum, a) => sum + (a.scores?.grammarAccuracy || 0), 0) / totalEssaysAnalyzed) * 10) / 10
+    : 0
+
+  // Trend Breakdown (6 intervals of 7 days leading up to today)
+  const intervals = []
+  const now = new Date()
+  for (let i = 5; i >= 0; i--) {
+    const end = new Date(now.getTime() - i * 7 * 24 * 60 * 60 * 1000)
+    const start = new Date(end.getTime() - 6 * 24 * 60 * 60 * 1000)
+    start.setHours(0, 0, 0, 0)
+    end.setHours(23, 59, 59, 999)
+    const label = `${start.getMonth() + 1}/${start.getDate()} - ${end.getMonth() + 1}/${end.getDate()}`
+    intervals.push({ start, end, label })
+  }
+
+  const trend = intervals.map(interval => {
+    const intervalAnalyses = analyses.filter(a => {
+      const date = new Date(a.createdAt)
+      return date >= interval.start && date <= interval.end
+    })
+
+    if (intervalAnalyses.length === 0) {
+      return {
+        label: interval.label,
+        avgTTR: 0,
+        avgGrammar: 0,
+        essayCount: 0
+      }
+    }
+
+    const totalTTR = intervalAnalyses.reduce((sum, a) => sum + (a.scores?.vocabularyDiversity || 0), 0)
+    const totalGrammar = intervalAnalyses.reduce((sum, a) => sum + (a.scores?.grammarAccuracy || 0), 0)
+
+    return {
+      label: interval.label,
+      avgTTR: Math.round((totalTTR / intervalAnalyses.length) * 100) / 100,
+      avgGrammar: Math.round((totalGrammar / intervalAnalyses.length) * 10) / 10,
+      essayCount: intervalAnalyses.length
+    }
+  })
+
+  res.status(200).json({
+    success: true,
+    data: {
+      summary: {
+        overallAvgTTR,
+        overallAvgGrammar,
+        totalEssaysAnalyzed
+      },
+      trend
+    }
+  })
+})
+
