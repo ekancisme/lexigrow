@@ -253,7 +253,7 @@ export default function ClassAnalyticsSection({ classId }) {
               <div style={{ fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px', borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: '3px' }}>
                 {hoveredPoint.label}
               </div>
-              <div style={{ display: 'column', justifyContent: 'space-between', gap: '8px', marginTop: '2px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', marginTop: '2px' }}>
                 <span style={{ color: 'var(--color-outline)' }}>Avg TTR:</span>
                 <span style={{ fontWeight: 600, color: 'var(--color-primary)' }}>{Math.round(hoveredPoint.avgTTR * 100)}%</span>
               </div>
