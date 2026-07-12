@@ -3,6 +3,13 @@ import AuditLog from '../models/AuditLog.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+const parsePositiveInteger = (value, fallback, max = Number.MAX_SAFE_INTEGER) => {
+  const parsed = Number.parseInt(value, 10)
+  return Number.isInteger(parsed) && parsed > 0 ? Math.min(parsed, max) : fallback
+}
+
 /**
  * @desc    Get global vocabulary library with search, filter, and pagination
  * @route   GET /api/admin/global-vocabulary
@@ -26,14 +33,15 @@ export const getGlobalVocabularies = asyncHandler(async (req, res) => {
     }
   }
   if (search) {
+    const safeSearch = escapeRegex(String(search).trim())
     query.$or = [
-      { word: { $regex: search, $options: 'i' } },
-      { definition: { $regex: search, $options: 'i' } }
+      { word: { $regex: safeSearch, $options: 'i' } },
+      { definition: { $regex: safeSearch, $options: 'i' } }
     ]
   }
 
-  const pageNum = parseInt(page, 10) || 1
-  const limitNum = parseInt(limit, 10) || 10
+  const pageNum = parsePositiveInteger(page, 1)
+  const limitNum = parsePositiveInteger(limit, 10, 100)
   const skip = (pageNum - 1) * limitNum
 
   const words = await GlobalVocabulary.find(query)
@@ -233,6 +241,7 @@ export const importGlobalVocabularies = asyncHandler(async (req, res) => {
       success: true,
       createdCount: 0,
       updatedCount: 0,
+      unchangedCount: 0,
       message: 'No words to process'
     })
   }
@@ -245,7 +254,13 @@ export const importGlobalVocabularies = asyncHandler(async (req, res) => {
   const allowedCefr = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 
   words.forEach((item, index) => {
-    const lineNum = index + 1
+    const lineNum = Number.isInteger(item?.line) && item.line > 0 ? item.line : index + 1
+
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      errors.push({ line: lineNum, message: 'Dữ liệu dòng phải là một đối tượng từ vựng hợp lệ' })
+      return
+    }
+
     const rawWord = item.word || item.Word
     const rawDef = item.definition || item.Definition
     const rawIpa = item.ipa || item.IPA || ''
@@ -253,13 +268,18 @@ export const importGlobalVocabularies = asyncHandler(async (req, res) => {
     const rawCefr = item.cefr || item.CEFR || 'B1'
     const rawAwl = item.awl || item.AWL || ''
 
-    if (!rawWord || !rawWord.trim()) {
+    if (typeof rawWord !== 'string' || !rawWord.trim()) {
       errors.push({ line: lineNum, message: 'Từ vựng (Word) không được để trống' })
       return
     }
 
-    if (!rawDef || !rawDef.trim()) {
+    if (typeof rawDef !== 'string' || !rawDef.trim()) {
       errors.push({ line: lineNum, word: rawWord, message: 'Định nghĩa (Definition) không được để trống' })
+      return
+    }
+
+    if ([rawIpa, rawPos, rawCefr, rawAwl].some(value => typeof value !== 'string')) {
+      errors.push({ line: lineNum, word: rawWord, message: 'IPA, từ loại, CEFR và AWL phải là chuỗi ký tự' })
       return
     }
 
@@ -297,9 +317,33 @@ export const importGlobalVocabularies = asyncHandler(async (req, res) => {
   // Perform bulk upsert operations
   let createdCount = 0
   let updatedCount = 0
+  let unchangedCount = 0
 
   if (validOps.length > 0) {
-    const bulkOps = validOps.map(op => ({
+    const existingVocabularies = await GlobalVocabulary.find({
+      word: { $in: validOps.map(op => op.word) }
+    }).select('word ipa partOfSpeech definition cefr awl')
+    const existingByWord = new Map(existingVocabularies.map(item => [item.word, item]))
+    const fields = ['ipa', 'partOfSpeech', 'definition', 'cefr', 'awl']
+    const changedOps = []
+
+    validOps.forEach(op => {
+      const existing = existingByWord.get(op.word)
+      if (!existing) {
+        createdCount += 1
+        changedOps.push(op)
+        return
+      }
+
+      if (fields.some(field => (existing[field] || '') !== (op[field] || ''))) {
+        updatedCount += 1
+        changedOps.push(op)
+      } else {
+        unchangedCount += 1
+      }
+    })
+
+    const bulkOps = changedOps.map(op => ({
       updateOne: {
         filter: { word: op.word },
         update: { $set: op },
@@ -307,16 +351,9 @@ export const importGlobalVocabularies = asyncHandler(async (req, res) => {
       }
     }))
 
-    const result = await GlobalVocabulary.bulkWrite(bulkOps)
-    
-    // In bulkWrite result, upsertedCount is newly created docs, 
-    // modifiedCount (or matchedCount - upsertedCount) is updated docs.
-    createdCount = result.upsertedCount
-    // If it's upserted, it matches the filter but gets created.
-    // If it's modified, it existed and was updated. If it matched but wasn't modified (same content),
-    // we can still count it as updated or unchanged. Let's count modifiedCount + upsertedCount.
-    updatedCount = result.modifiedCount || (result.matchedCount - result.upsertedCount)
-    if (updatedCount < 0) updatedCount = 0
+    if (bulkOps.length > 0) {
+      await GlobalVocabulary.bulkWrite(bulkOps)
+    }
 
     // Create Audit Log
     await AuditLog.create({
@@ -327,6 +364,7 @@ export const importGlobalVocabularies = asyncHandler(async (req, res) => {
         totalImported: validOps.length,
         createdCount,
         updatedCount,
+        unchangedCount,
         errorsCount: errors.length
       }
     })
@@ -336,8 +374,9 @@ export const importGlobalVocabularies = asyncHandler(async (req, res) => {
     success: true,
     createdCount,
     updatedCount,
+    unchangedCount,
     errors,
-    message: `Đã xử lý xong. Thêm mới: ${createdCount}, Cập nhật: ${updatedCount}, Lỗi: ${errors.length}`
+    message: `Đã xử lý xong. Thêm mới: ${createdCount}, Cập nhật: ${updatedCount}, Không đổi: ${unchangedCount}, Lỗi: ${errors.length}`
   })
 })
 

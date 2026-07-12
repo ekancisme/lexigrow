@@ -59,6 +59,7 @@ import GlobalVocabulary from '../src/models/GlobalVocabulary.js'
 describe('Global Vocabulary API', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    GlobalVocabulary.find.mockReturnValue(mockQuery([]))
   })
 
   it('should successfully get list of global vocabularies', async () => {
@@ -77,6 +78,24 @@ describe('Global Vocabulary API', () => {
     expect(res.body.data.length).toBe(2)
     expect(res.body.data[0].word).toBe('ubiquitous')
     expect(res.body.data[1].word).toBe('mitigate')
+  })
+
+  it('should escape special regex characters in search and normalize pagination', async () => {
+    const query = mockQuery([])
+    GlobalVocabulary.find.mockReturnValueOnce(query)
+
+    await request(app)
+      .get('/api/admin/global-vocabulary?search=%5B&page=-1&limit=1000')
+      .expect(200)
+
+    expect(GlobalVocabulary.find).toHaveBeenCalledWith({
+      $or: [
+        { word: { $regex: '\\[', $options: 'i' } },
+        { definition: { $regex: '\\[', $options: 'i' } }
+      ]
+    })
+    expect(query.skip).toHaveBeenCalledWith(0)
+    expect(query.limit).toHaveBeenCalledWith(100)
   })
 
   it('should successfully create a new global vocabulary word', async () => {
@@ -123,11 +142,10 @@ describe('Global Vocabulary API', () => {
   })
 
   it('should successfully bulk import vocabularies', async () => {
-    GlobalVocabulary.bulkWrite.mockResolvedValueOnce({
-      upsertedCount: 1,
-      modifiedCount: 1,
-      matchedCount: 2
-    })
+    GlobalVocabulary.find.mockReturnValueOnce(mockQuery([
+      { word: 'evaluate', ipa: '', partOfSpeech: 'verb', definition: 'Old definition', cefr: 'B2', awl: 'Sublist 1' }
+    ]))
+    GlobalVocabulary.bulkWrite.mockResolvedValueOnce({})
 
     const res = await request(app)
       .post('/api/admin/global-vocabulary/import')
@@ -142,7 +160,46 @@ describe('Global Vocabulary API', () => {
     expect(res.body.success).toBe(true)
     expect(res.body.createdCount).toBe(1)
     expect(res.body.updatedCount).toBe(1)
+    expect(res.body.unchangedCount).toBe(0)
     expect(res.body.errors.length).toBe(0)
+  })
+
+  it('should report unchanged rows separately from updated rows', async () => {
+    GlobalVocabulary.find.mockReturnValueOnce(mockQuery([
+      { word: 'acquire', ipa: '', partOfSpeech: 'verb', definition: 'Old definition', cefr: 'B2', awl: '' },
+      { word: 'evaluate', ipa: '', partOfSpeech: 'verb', definition: 'Unchanged definition', cefr: 'B2', awl: '' }
+    ]))
+    GlobalVocabulary.bulkWrite.mockResolvedValueOnce({})
+
+    const res = await request(app)
+      .post('/api/admin/global-vocabulary/import')
+      .send({
+        words: [
+          { word: 'acquire', partOfSpeech: 'verb', definition: 'Updated definition', cefr: 'B2' },
+          { word: 'evaluate', partOfSpeech: 'verb', definition: 'Unchanged definition', cefr: 'B2' }
+        ]
+      })
+      .expect(200)
+
+    expect(res.body.createdCount).toBe(0)
+    expect(res.body.updatedCount).toBe(1)
+    expect(res.body.unchangedCount).toBe(1)
+  })
+
+  it('should preserve source line numbers and reject non-string import fields', async () => {
+    const res = await request(app)
+      .post('/api/admin/global-vocabulary/import')
+      .send({
+        words: [
+          { line: 7, word: 123, definition: 'Numeric words are invalid' },
+          { line: 11, word: 'valid', definition: 'Valid definition', ipa: 123 }
+        ]
+      })
+      .expect(200)
+
+    expect(res.body.errors).toHaveLength(2)
+    expect(res.body.errors.map(error => error.line)).toEqual([7, 11])
+    expect(GlobalVocabulary.bulkWrite).not.toHaveBeenCalled()
   })
 
   it('should capture format errors during bulk import', async () => {

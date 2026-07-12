@@ -5,10 +5,10 @@ import { useTheme } from '../../contexts/ThemeContext.jsx'
 import NotificationBell from '../common/NotificationBell.jsx'
 import './TopNav.css'
 
-export default function TopNav({ role = 'student' }) {
+export default function TopNav({ role = 'student', onMenuToggle }) {
   const [searchFocused, setSearchFocused] = useState(false)
   const navigate = useNavigate()
-  const { user: authUser, logout } = useAuth()
+  const { user: authUser } = useAuth()
   const { theme, toggleTheme } = useTheme()
 
   const user = authUser
@@ -29,6 +29,9 @@ export default function TopNav({ role = 'student' }) {
 
   return (
     <header className="topnav">
+      <button className="topnav__menu-btn" onClick={onMenuToggle} aria-label="Open navigation menu">
+        <span className="material-symbols-outlined">menu</span>
+      </button>
       {/* Search Bar */}
       <div className={`topnav__search ${searchFocused ? 'topnav__search--focused' : ''}`}>
         <span className="material-symbols-outlined topnav__search-icon">search</span>

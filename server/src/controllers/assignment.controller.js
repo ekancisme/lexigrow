@@ -5,6 +5,17 @@ import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import { createManyNotifications, createNotification } from '../services/notification.service.js'
 
+const parseFutureDueDate = (value) => {
+  const dueDate = new Date(value)
+  if (Number.isNaN(dueDate.getTime())) {
+    throw new ErrorResponse('Please provide a valid due date', 400)
+  }
+  if (dueDate <= new Date()) {
+    throw new ErrorResponse('Due date must be in the future', 400)
+  }
+  return dueDate
+}
+
 /**
  * @desc    Create a new assignment for a class
  * @route   POST /api/assignments
@@ -12,6 +23,7 @@ import { createManyNotifications, createNotification } from '../services/notific
  */
 export const createAssignment = asyncHandler(async (req, res) => {
   const { title, description, dueDate, keywords, classId } = req.body
+  const validatedDueDate = parseFutureDueDate(dueDate)
 
   // Verify the class belongs to this teacher
   const cls = await Class.findById(classId)
@@ -23,7 +35,7 @@ export const createAssignment = asyncHandler(async (req, res) => {
   const assignment = await Assignment.create({
     title,
     description: description || '',
-    dueDate,
+    dueDate: validatedDueDate,
     keywords: keywords || [],
     classId,
     teacher: req.user._id,
@@ -148,7 +160,7 @@ export const updateAssignment = asyncHandler(async (req, res) => {
   const { title, description, dueDate, keywords, status } = req.body
   if (title !== undefined) assignment.title = title
   if (description !== undefined) assignment.description = description
-  if (dueDate !== undefined) assignment.dueDate = dueDate
+  if (dueDate !== undefined) assignment.dueDate = parseFutureDueDate(dueDate)
   if (keywords !== undefined) assignment.keywords = keywords
   if (status !== undefined) assignment.status = status
 

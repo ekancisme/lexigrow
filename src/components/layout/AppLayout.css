@@ -1,10 +1,13 @@
 .app-layout {
   display: flex;
   min-height: 100vh;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .app-layout__main {
   flex: 1;
+  min-width: 0;
   margin-left: var(--sidebar-width);
   display: flex;
   flex-direction: column;
@@ -18,7 +21,13 @@
   padding: var(--margin-desktop);
   max-width: var(--container-max-width);
   width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   animation: fadeIn 0.3s ease-out;
+}
+
+.app-layout__sidebar-overlay {
+  display: none;
 }
 
 /* For pages that need full-bleed layout (no padding) */
@@ -35,5 +44,14 @@
   
   .app-layout__content {
     padding: var(--margin-mobile);
+  }
+
+  .app-layout__sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    display: block;
+    background: rgba(0, 0, 0, 0.45);
+    border: 0;
+    z-index: calc(var(--z-sidebar) - 1);
   }
 }

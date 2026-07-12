@@ -70,12 +70,12 @@ export default function StudentClassDetail() {
       setJoinCode('')
       setJoinMessage({
         type: 'success',
-        text: res.message || 'Yêu cầu tham gia đã được gửi. Vui lòng chờ giáo viên duyệt.',
+        text: res.message || 'Your join request has been sent. Please wait for teacher approval.',
       })
       const pendingRes = await api.get('/classes/my-pending')
       setPendingRequests(pendingRes.data || [])
     } catch (err) {
-      setJoinMessage({ type: 'error', text: err.message || 'Không thể gửi yêu cầu tham gia.' })
+      setJoinMessage({ type: 'error', text: err.message || 'Unable to send the join request.' })
     } finally {
       setJoining(false)
     }
@@ -227,15 +227,15 @@ export default function StudentClassDetail() {
           <div className="student-class__join-header">
             <span className="material-symbols-outlined">key</span>
             <div>
-              <h3 className="student-class__join-title">Vào lớp bằng mã code</h3>
-              <p className="student-class__join-desc">Nhập mã lớp học do giáo viên cung cấp để gửi yêu cầu tham gia.</p>
+              <h3 className="student-class__join-title">Join a Class with a Code</h3>
+              <p className="student-class__join-desc">Enter the class code provided by your teacher to request access.</p>
             </div>
           </div>
           <form className="student-class__join-form" onSubmit={handleJoinClass}>
             <input
               type="text"
               className="student-class__join-input"
-              placeholder="Nhập mã lớp (VD: ABC123)"
+              placeholder="Enter class code (e.g. ABC123)"
               value={joinCode}
               onChange={(e) => {
                 setJoinCode(e.target.value.toUpperCase())
@@ -249,7 +249,7 @@ export default function StudentClassDetail() {
               className="class-mgmt__submit-btn"
               disabled={joining || !joinCode.trim()}
             >
-              {joining ? 'Đang gửi...' : 'Gửi yêu cầu'}
+              {joining ? 'Sending...' : 'Send Request'}
             </button>
           </form>
           {joinMessage && (
@@ -264,7 +264,7 @@ export default function StudentClassDetail() {
           <section className="card-base student-class__pending-card">
             <div className="student-class__pending-header">
               <span className="material-symbols-outlined">hourglass_top</span>
-              <span>Đang chờ giáo viên duyệt ({pendingRequests.length})</span>
+              <span>Awaiting Teacher Approval ({pendingRequests.length})</span>
             </div>
             <div className="student-class__pending-list">
               {pendingRequests.map(cls => (
@@ -272,10 +272,10 @@ export default function StudentClassDetail() {
                   <div>
                     <p className="student-class__pending-name">{cls.name}</p>
                     <p className="student-class__pending-meta">
-                      Giáo viên: {cls.teacher?.name || 'N/A'}
+                      Teacher: {cls.teacher?.name || 'N/A'}
                     </p>
                   </div>
-                  <span className="student-class__badge student-class__badge--pending">Chờ duyệt</span>
+                  <span className="student-class__badge student-class__badge--pending">Pending</span>
                 </div>
               ))}
             </div>
@@ -286,9 +286,9 @@ export default function StudentClassDetail() {
           pendingRequests.length === 0 ? (
             <div className="student-class__empty card-base">
               <span className="material-symbols-outlined">school</span>
-              <p>Bạn chưa tham gia lớp học nào.</p>
+              <p>You have not joined any classes yet.</p>
               <p className="text-body-sm" style={{ color: 'var(--color-outline)', marginTop: 8 }}>
-                Nhập mã lớp học ở trên hoặc liên hệ giáo viên để được thêm vào lớp.
+                Enter a class code above or contact your teacher to be added to a class.
               </p>
             </div>
           ) : null

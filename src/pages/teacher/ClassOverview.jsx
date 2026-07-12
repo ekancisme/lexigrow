@@ -20,6 +20,7 @@ export default function ClassOverview() {
   const [assignments, setAssignments] = useState([])
   const [assignmentsLoading, setAssignmentsLoading] = useState(false)
   const [showAssignmentModal, setShowAssignmentModal] = useState(false)
+  const [minimumDueDate, setMinimumDueDate] = useState('')
   const [assignmentForm, setAssignmentForm] = useState({ title: '', description: '', dueDate: '', keywordsInput: '', keywords: [] })
   const [savingAssignment, setSavingAssignment] = useState(false)
   const [deletingAssignment, setDeletingAssignment] = useState(null)
@@ -100,10 +101,20 @@ export default function ClassOverview() {
     setAssignmentForm(prev => ({ ...prev, keywords: prev.keywords.filter(k => k !== kw) }))
   }
 
+  function openAssignmentModal() {
+    const now = new Date()
+    setMinimumDueDate(new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16))
+    setShowAssignmentModal(true)
+  }
+
   async function handleCreateAssignment(e) {
     e.preventDefault()
     if (!assignmentForm.title.trim() || !assignmentForm.dueDate) {
       alert('Title and due date are required.')
+      return
+    }
+    if (new Date(assignmentForm.dueDate) <= new Date()) {
+      alert('Due date must be in the future.')
       return
     }
     setSavingAssignment(true)
@@ -409,7 +420,7 @@ export default function ClassOverview() {
           <h3 className="text-title-lg">Assignments</h3>
           <button
             className="class-overview__action-btn"
-            onClick={() => setShowAssignmentModal(true)}
+            onClick={openAssignmentModal}
             style={{ display: 'flex', alignItems: 'center', gap: 6 }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>add</span>
@@ -533,6 +544,7 @@ export default function ClassOverview() {
                   type="datetime-local"
                   value={assignmentForm.dueDate}
                   onChange={e => setAssignmentForm(p => ({ ...p, dueDate: e.target.value }))}
+                  min={minimumDueDate}
                   required
                   style={{ width: '100%', padding: '10px 14px', borderRadius: 10, border: '1px solid var(--color-outline)', fontSize: '0.95rem', boxSizing: 'border-box', background: 'var(--color-surface)', color: 'var(--color-on-surface)' }}
                 />

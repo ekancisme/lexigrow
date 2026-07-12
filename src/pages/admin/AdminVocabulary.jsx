@@ -2,6 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import api from '../../services/api.js'
 import './AdminPages.css'
 
+const SUPPORTED_IMPORT_EXTENSIONS = ['.csv', '.xls', '.xlsx']
+
+const getFileExtension = (fileName) => {
+  const dotIndex = fileName.lastIndexOf('.')
+  return dotIndex >= 0 ? fileName.slice(dotIndex).toLowerCase() : ''
+}
+
 export default function AdminVocabulary() {
   const [vocabularies, setVocabularies] = useState([])
   const [loading, setLoading] = useState(true)
@@ -246,8 +253,8 @@ export default function AdminVocabulary() {
   const handleFileChange = (e) => {
     const file = e.target.files[0]
     if (file) {
-      if (file.type !== 'text/csv' && !file.name.endsWith('.csv')) {
-        setImportError('Please select a .csv file.')
+      if (!SUPPORTED_IMPORT_EXTENSIONS.includes(getFileExtension(file.name))) {
+        setImportError('Please select a .csv, .xls, or .xlsx file.')
         setSelectedFile(null)
         return
       }
@@ -263,16 +270,16 @@ export default function AdminVocabulary() {
 
   // Custom high-quality CSV parser with auto delimiter detection
   const parseCSV = (text) => {
-    let delimiter = ','
     const firstLine = text.split('\n')[0] || ''
-    if (firstLine.trim().toLowerCase().startsWith('sep=')) {
-      delimiter = firstLine.trim().charAt(4) || ','
-    } else {
+    const delimiter = (() => {
+      if (firstLine.trim().toLowerCase().startsWith('sep=')) {
+        return firstLine.trim().charAt(4) || ','
+      }
       // Auto-detect based on frequency of commas vs semicolons in the first line
       const commaCount = (firstLine.match(/,/g) || []).length
       const semicolonCount = (firstLine.match(/;/g) || []).length
-      delimiter = semicolonCount > commaCount ? ';' : ','
-    }
+      return semicolonCount > commaCount ? ';' : ','
+    })()
 
     const lines = []
     let row = []
@@ -318,6 +325,23 @@ export default function AdminVocabulary() {
     return lines
   }
 
+  const parseImportFile = async (arrayBuffer, fileName) => {
+    if (getFileExtension(fileName) === '.csv') {
+      return parseCSV(new TextDecoder('utf-8').decode(arrayBuffer))
+    }
+
+    const XLSX = await import('xlsx')
+    const workbook = XLSX.read(arrayBuffer, { type: 'array' })
+    const firstSheetName = workbook.SheetNames[0]
+    if (!firstSheetName) return []
+
+    return XLSX.utils.sheet_to_json(workbook.Sheets[firstSheetName], {
+      header: 1,
+      raw: false,
+      defval: ''
+    })
+  }
+
   const handleImportSubmit = () => {
     if (!selectedFile) return
     
@@ -327,9 +351,8 @@ export default function AdminVocabulary() {
 
     const reader = new FileReader()
     reader.onload = async (e) => {
-      const text = e.target.result
       try {
-        const rows = parseCSV(text)
+        const rows = await parseImportFile(e.target.result, selectedFile.name)
         
         let headerRowIndex = 0
         if (rows.length > 0 && rows[0][0] && rows[0][0].trim().toLowerCase().startsWith('sep=')) {
@@ -337,7 +360,7 @@ export default function AdminVocabulary() {
         }
 
         if (rows.length <= headerRowIndex) {
-          throw new Error('CSV file is empty or missing headers.')
+          throw new Error('The selected file is empty or missing headers.')
         }
 
         const headers = rows[headerRowIndex].map(h => h.trim().toLowerCase())
@@ -350,7 +373,7 @@ export default function AdminVocabulary() {
         const awlIdx = headers.indexOf('awl')
 
         if (wordIdx === -1 || defIdx === -1) {
-          throw new Error('CSV file is missing required columns: "Word" and "Definition".')
+          throw new Error('The selected file is missing required columns: "Word" and "Definition".')
         }
 
         const wordsToImport = []
@@ -378,6 +401,7 @@ export default function AdminVocabulary() {
           }
 
           wordsToImport.push({
+            line: lineNum,
             word,
             ipa,
             partOfSpeech,
@@ -392,6 +416,7 @@ export default function AdminVocabulary() {
             success: false,
             createdCount: 0,
             updatedCount: 0,
+            unchangedCount: 0,
             errors: localErrors,
             message: 'No valid rows to import.'
           })
@@ -409,6 +434,7 @@ export default function AdminVocabulary() {
           success: true,
           createdCount: res.createdCount || 0,
           updatedCount: res.updatedCount || 0,
+          unchangedCount: res.unchangedCount || 0,
           errors: allErrors,
           message: res.message
         })
@@ -416,18 +442,18 @@ export default function AdminVocabulary() {
         setSelectedFile(null)
         fetchVocabularies()
       } catch (err) {
-        setImportError(err.message || 'CSV parsing error.')
+        setImportError(err.message || 'File parsing error.')
       } finally {
         setImportLoading(false)
       }
     }
 
     reader.onerror = () => {
-      setImportError('Failed to read CSV file.')
+      setImportError('Failed to read the selected file.')
       setImportLoading(false)
     }
 
-    reader.readAsText(selectedFile, 'UTF-8')
+    reader.readAsArrayBuffer(selectedFile)
   }
 
   const handleDragOver = (e) => {
@@ -438,8 +464,8 @@ export default function AdminVocabulary() {
     e.preventDefault()
     const file = e.dataTransfer.files[0]
     if (file) {
-      if (!file.name.endsWith('.csv')) {
-        setImportError('Please drop a .csv file.')
+      if (!SUPPORTED_IMPORT_EXTENSIONS.includes(getFileExtension(file.name))) {
+        setImportError('Please drop a .csv, .xls, or .xlsx file.')
         setSelectedFile(null)
         return
       }
@@ -887,7 +913,7 @@ export default function AdminVocabulary() {
 
       {/* --- CRUD MODAL --- */}
       {showCrudModal && (
-        <div style={{
+        <div className="admin-vocabulary-modal" style={{
           position: 'fixed',
           top: 0,
           left: 0,
@@ -901,7 +927,7 @@ export default function AdminVocabulary() {
           backdropFilter: 'blur(4px)',
           animation: 'fadeIn 0.2s ease-out'
         }}>
-          <div style={{
+          <div className="admin-vocabulary-modal__content" style={{
             background: 'var(--color-surface-container-lowest)',
             border: '1px solid var(--color-outline-variant)',
             borderRadius: 'var(--radius-2xl)',
@@ -1077,6 +1103,7 @@ export default function AdminVocabulary() {
                 <textarea
                   name="definition"
                   value={formData.definition}
+                  onChange={handleFormChange}
                   placeholder="e.g. Form an idea of the amount, number, or value of; assess."
                   rows={3}
                   style={{
@@ -1140,7 +1167,7 @@ export default function AdminVocabulary() {
 
       {/* --- IMPORT UPLOAD WIZARD MODAL --- */}
       {showUploadModal && (
-        <div style={{
+        <div className="admin-vocabulary-modal" style={{
           position: 'fixed',
           top: 0,
           left: 0,
@@ -1154,7 +1181,7 @@ export default function AdminVocabulary() {
           backdropFilter: 'blur(4px)',
           animation: 'fadeIn 0.2s ease-out'
         }}>
-          <div style={{
+          <div className="admin-vocabulary-modal__content" style={{
             background: 'var(--color-surface-container-lowest)',
             border: '1px solid var(--color-outline-variant)',
             borderRadius: 'var(--radius-2xl)',
@@ -1171,7 +1198,7 @@ export default function AdminVocabulary() {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: '12px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-on-surface)' }}>
-                CSV Upload Wizard - Bulk Import
+                CSV / Excel Upload Wizard - Bulk Import
               </h3>
               <span 
                 className="material-symbols-outlined" 
@@ -1256,7 +1283,7 @@ export default function AdminVocabulary() {
                   type="file" 
                   ref={fileInputRef}
                   onChange={handleFileChange}
-                  accept=".csv"
+                  accept=".csv,.xls,.xlsx"
                   style={{ display: 'none' }}
                 />
                 <span className="material-symbols-outlined" style={{ fontSize: '48px', color: selectedFile ? 'var(--color-primary)' : 'var(--color-outline)', marginBottom: '12px' }}>
@@ -1275,10 +1302,10 @@ export default function AdminVocabulary() {
                 ) : (
                   <div>
                     <h4 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-on-surface)', marginBottom: '4px' }}>
-                      Drag & drop a CSV file here, or click to browse
+                      Drag & drop a CSV or Excel file here, or click to browse
                     </h4>
                     <p style={{ color: 'var(--color-outline)', fontSize: '12px' }}>
-                      Only UTF-8 encoded .csv files are supported
+                      Supported formats: UTF-8 CSV, XLS, and XLSX
                     </p>
                   </div>
                 )}
@@ -1301,7 +1328,7 @@ export default function AdminVocabulary() {
                     <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Import Results</h4>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '14px' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', fontSize: '14px' }}>
                     <div style={{ background: 'var(--color-surface-container-lowest)', padding: '10px', borderRadius: '8px', border: '1px solid var(--color-outline-variant)' }}>
                       <div style={{ fontSize: '11px', color: 'var(--color-outline)', fontWeight: 600 }}>WORDS CREATED</div>
                       <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-success, #28a745)', marginTop: '2px' }}>{importResults.createdCount}</div>
@@ -1309,6 +1336,10 @@ export default function AdminVocabulary() {
                     <div style={{ background: 'var(--color-surface-container-lowest)', padding: '10px', borderRadius: '8px', border: '1px solid var(--color-outline-variant)' }}>
                       <div style={{ fontSize: '11px', color: 'var(--color-outline)', fontWeight: 600 }}>WORDS UPDATED</div>
                       <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-primary)', marginTop: '2px' }}>{importResults.updatedCount}</div>
+                    </div>
+                    <div style={{ background: 'var(--color-surface-container-lowest)', padding: '10px', borderRadius: '8px', border: '1px solid var(--color-outline-variant)' }}>
+                      <div style={{ fontSize: '11px', color: 'var(--color-outline)', fontWeight: 600 }}>UNCHANGED</div>
+                      <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-outline)', marginTop: '2px' }}>{importResults.unchangedCount}</div>
                     </div>
                   </div>
                 </div>

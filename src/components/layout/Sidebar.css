@@ -11,6 +11,7 @@
   padding: var(--spacing-lg) 0;
   z-index: var(--z-sidebar);
   overflow-y: auto;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
 }
 
 .sidebar__brand {
@@ -20,6 +21,14 @@
   padding: 0 var(--spacing-lg);
   margin-bottom: var(--spacing-xl);
   cursor: pointer;
+}
+
+.sidebar__mobile-close {
+  display: none;
+  margin-left: auto;
+  padding: 8px;
+  color: var(--color-on-surface-variant);
+  border-radius: var(--radius-full);
 }
 
 .sidebar__logo {
@@ -132,4 +141,19 @@
 
 .sidebar__logout:hover {
   color: var(--color-error);
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    transform: translateX(-100%);
+  }
+
+  .sidebar--open {
+    transform: translateX(0);
+    box-shadow: var(--shadow-xl);
+  }
+
+  .sidebar__mobile-close {
+    display: flex;
+  }
 }

@@ -38,7 +38,7 @@ const bottomItems = [
   { icon: 'help', label: 'Help Center', path: '#' },
 ]
 
-export default function Sidebar({ role = 'student' }) {
+export default function Sidebar({ role = 'student', mobileOpen = false, onClose }) {
   const navigate = useNavigate()
   const { logout } = useAuth()
   const navItems = role === 'admin'
@@ -46,9 +46,9 @@ export default function Sidebar({ role = 'student' }) {
     : (role === 'teacher' ? teacherNavItems : (role === 'parent' ? parentNavItems : studentNavItems))
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${mobileOpen ? 'sidebar--open' : ''}`}>
       {/* Brand */}
-      <div className="sidebar__brand" onClick={() => navigate(`/${role}/dashboard`)}>
+      <div className="sidebar__brand" onClick={() => { navigate(`/${role}/dashboard`); onClose?.() }}>
         <div className="sidebar__logo">
           <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
             auto_stories
@@ -58,6 +58,13 @@ export default function Sidebar({ role = 'student' }) {
           <h1 className="sidebar__title">LexiGrow</h1>
           <p className="sidebar__subtitle">Measured Growth</p>
         </div>
+        <button
+          className="sidebar__mobile-close"
+          aria-label="Close navigation menu"
+          onClick={(event) => { event.stopPropagation(); onClose?.() }}
+        >
+          <span className="material-symbols-outlined">close</span>
+        </button>
       </div>
 
       {/* Main Nav */}
@@ -69,6 +76,7 @@ export default function Sidebar({ role = 'student' }) {
             className={({ isActive }) =>
               `sidebar__link ${isActive ? 'sidebar__link--active' : ''}`
             }
+            onClick={onClose}
           >
             <span className="material-symbols-outlined">{item.icon}</span>
             <span>{item.label}</span>
@@ -82,7 +90,7 @@ export default function Sidebar({ role = 'student' }) {
           <button
             className="sidebar__cta-btn"
             onClick={() =>
-              navigate(role === 'student' ? '/student/write-essay' : '/teacher/classes')
+              { navigate(role === 'student' ? '/student/write-essay' : '/teacher/classes'); onClose?.() }
             }
           >
             <span className="material-symbols-outlined">add</span>
@@ -100,6 +108,7 @@ export default function Sidebar({ role = 'student' }) {
             className={({ isActive }) =>
               `sidebar__link ${isActive ? 'sidebar__link--active' : ''}`
             }
+            onClick={onClose}
           >
             <span className="material-symbols-outlined">{item.icon}</span>
             <span>{item.label}</span>

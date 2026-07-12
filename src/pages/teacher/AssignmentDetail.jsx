@@ -84,13 +84,27 @@ export default function AssignmentDetail() {
     }
     setSaving(true)
     try {
-      await api.put(`/assignments/${id}`, {
+      const payload = {
         title: editForm.title,
         description: editForm.description,
-        dueDate: editForm.dueDate,
         keywords: editForm.keywords,
         status: editForm.status
-      })
+      }
+
+      const originalDate = new Date(assignment.dueDate)
+      const originalLocalDate = new Date(originalDate.getTime() - originalDate.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16)
+      if (editForm.dueDate !== originalLocalDate) {
+        if (new Date(editForm.dueDate) <= new Date()) {
+          alert('Due date must be in the future.')
+          setSaving(false)
+          return
+        }
+        payload.dueDate = editForm.dueDate
+      }
+
+      await api.put(`/assignments/${id}`, payload)
       loadData()
     } catch (err) {
       alert('Error updating assignment: ' + err.message)
