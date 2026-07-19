@@ -1,4 +1,5 @@
 import Essay from '../models/Essay.js'
+import Config from '../models/Config.js'
 import { processEssayAnalysis, generateTopicsByTheme } from '../services/ai.service.js'
 import { getIO } from '../services/socket.service.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
@@ -248,4 +249,17 @@ export const requestRevision = asyncHandler(async (req, res) => {
   }
 
   res.status(200).json({ success: true, data: essay, message: 'Revision requested successfully' })
+})
+
+/**
+ * @desc    Get whether student is allowed to paste essay
+ * @route   GET /api/essays/paste-config
+ * @access  Private (student)
+ */
+export const getPasteConfig = asyncHandler(async (req, res) => {
+  const config = await Config.findOne({ key: 'ALLOW_PASTE_ESSAY' })
+  res.status(200).json({
+    success: true,
+    allowPaste: config ? config.value === 'true' || config.value === true : true
+  })
 })

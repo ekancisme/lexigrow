@@ -30,6 +30,7 @@ export default function WriteEssay() {
   const [topicsLoading, setTopicsLoading] = useState(false)
   // Assignment mode state
   const [assignmentData, setAssignmentData] = useState(null)
+  const [allowPaste, setAllowPaste] = useState(true)
 
   const wordCount = essayText.trim() ? essayText.trim().split(/\s+/).length : 0
 
@@ -44,6 +45,10 @@ export default function WriteEssay() {
         // Let's get active classes
         const clsRes = await api.get('/classes')
         setClasses(clsRes.data || [])
+
+        // Load paste configuration
+        const pasteRes = await api.get('/essays/paste-config')
+        setAllowPaste(pasteRes.allowPaste)
       } catch (err) {
         console.error('Error loading writing settings:', err)
       }
@@ -113,6 +118,13 @@ export default function WriteEssay() {
     }
     fetchTopics()
   }, [selectedTheme])
+
+  const handlePaste = (e) => {
+    if (!allowPaste) {
+      e.preventDefault()
+      alert('Không được phép paste bài viết! Vui lòng tự nhập bài luận.')
+    }
+  }
 
   async function handleSaveDraft() {
     if (!title.trim() || !essayText.trim()) return
@@ -277,6 +289,7 @@ export default function WriteEssay() {
               placeholder="Start writing your essay here..."
               value={essayText}
               onChange={(e) => setEssayText(e.target.value)}
+              onPaste={handlePaste}
               rows={16}
             />
 

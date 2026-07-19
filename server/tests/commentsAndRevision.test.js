@@ -23,6 +23,12 @@ vi.mock('../src/models/Essay.js', () => ({
   }
 }))
 
+vi.mock('../src/models/Config.js', () => ({
+  default: {
+    findOne: vi.fn(),
+  }
+}))
+
 vi.mock('../src/models/Comment.js', () => {
   const mockComment = {
     _id: 'mock_comment_id',
@@ -74,6 +80,7 @@ import request from 'supertest'
 import app from '../src/index.js'
 import Essay from '../src/models/Essay.js'
 import Comment from '../src/models/Comment.js'
+import Config from '../src/models/Config.js'
 
 describe('Comments & Revision API', () => {
   it('should successfully transition an essay status to needs_revision', async () => {
@@ -132,5 +139,18 @@ describe('Comments & Revision API', () => {
 
     expect(res.body.success).toBe(true)
     expect(res.body.data.content).toBe('Mock discussion message content')
+  })
+
+  describe('GET /api/essays/paste-config', () => {
+    it('should return allowPaste value from db configuration', async () => {
+      Config.findOne.mockResolvedValue({ key: 'ALLOW_PASTE_ESSAY', value: 'false' })
+
+      const res = await request(app)
+        .get('/api/essays/paste-config')
+        .expect(200)
+
+      expect(res.body.success).toBe(true)
+      expect(res.body.allowPaste).toBe(false)
+    })
   })
 })

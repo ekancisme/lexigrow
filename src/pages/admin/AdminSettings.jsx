@@ -19,6 +19,7 @@ export default function AdminSettings() {
   const [llamaKey, setLlamaKey] = useState('')
   const [defaultModel, setDefaultModel] = useState('llama-3.3-70b-versatile')
   const [systemPrompt, setSystemPrompt] = useState('')
+  const [allowPasteEssay, setAllowPasteEssay] = useState(true)
 
   useEffect(() => {
     async function fetchSettings() {
@@ -39,6 +40,8 @@ export default function AdminSettings() {
         if (llama) setLlamaKey(llama.value || '')
         if (model) setDefaultModel(model.value || 'llama-3.3-70b-versatile')
         if (prompt) setSystemPrompt(prompt.value || '')
+        const paste = data.find(c => c.key === 'ALLOW_PASTE_ESSAY')
+        if (paste) setAllowPasteEssay(paste.value === 'true' || paste.value === true)
       } catch (err) {
         console.error('Error fetching system settings:', err)
         setError(err.message || 'Không thể tải cấu hình hệ thống')
@@ -61,7 +64,8 @@ export default function AdminSettings() {
         { key: 'OPENAI_API_KEY', value: openAIKey },
         { key: 'LLAMA_API_KEY', value: llamaKey },
         { key: 'DEFAULT_AI_MODEL', value: defaultModel },
-        { key: 'SYSTEM_ANALYSIS_PROMPT', value: systemPrompt }
+        { key: 'SYSTEM_ANALYSIS_PROMPT', value: systemPrompt },
+        { key: 'ALLOW_PASTE_ESSAY', value: allowPasteEssay.toString() }
       ]
 
       await api.put('/admin/config', { settings: payload })
@@ -301,6 +305,24 @@ Rules:
             <option value="mixtral-8x7b-32768">mixtral-8x7b-32768 (Xử lý ngữ cảnh dài)</option>
             <option value="gemma2-9b-it">gemma2-9b-it (Google Gemma 2)</option>
           </select>
+        </div>
+
+        {/* Row 2.5: Student Paste Essay Policy Switch */}
+        <div className="switch-container" style={{ maxWidth: '400px' }}>
+          <div className="switch-label-group">
+            <span className="switch-title">Cho phép học sinh paste bài viết</span>
+            <span className="switch-description">
+              Bật để cho phép học sinh copy-paste bài luận. Tắt để chặn sự kiện paste, buộc học sinh phải tự gõ.
+            </span>
+          </div>
+          <label className="switch-toggle">
+            <input
+              type="checkbox"
+              checked={allowPasteEssay}
+              onChange={(e) => setAllowPasteEssay(e.target.checked)}
+            />
+            <span className="switch-slider"></span>
+          </label>
         </div>
 
         {/* Row 3: System Prompt Template */}

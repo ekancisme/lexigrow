@@ -31,6 +31,7 @@ const connectDB = async () => {
         { key: 'LLAMA_API_KEY', value: process.env.LLAMA_API_KEY || '', description: 'Llama API Key' },
         { key: 'DEFAULT_AI_MODEL', value: 'llama-3.3-70b-versatile', description: 'Default AI Model for Analysis' },
         { key: 'SYSTEM_ANALYSIS_PROMPT', value: DEFAULT_ANALYSIS_PROMPT, description: 'System Analysis Prompt Template' },
+        { key: 'ALLOW_PASTE_ESSAY', value: 'true', description: 'Cho phép học sinh paste bài viết essay (true/false)' },
       ]
 
       for (const config of defaultConfigs) {
