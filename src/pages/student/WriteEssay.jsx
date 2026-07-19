@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
+import { useModal } from '../../contexts/ModalContext.jsx'
 import './WriteEssay.css'
 
 const themesList = [
@@ -31,6 +32,7 @@ export default function WriteEssay() {
   // Assignment mode state
   const [assignmentData, setAssignmentData] = useState(null)
   const [allowPaste, setAllowPaste] = useState(true)
+  const { showAlert } = useModal()
 
   const wordCount = essayText.trim() ? essayText.trim().split(/\s+/).length : 0
 
@@ -122,7 +124,7 @@ export default function WriteEssay() {
   const handlePaste = (e) => {
     if (!allowPaste) {
       e.preventDefault()
-      alert('Không được phép paste bài viết! Vui lòng tự nhập bài luận.')
+      showAlert('Paste Restricted', 'Pasting content is not allowed for this essay. Please type your essay manually.', 'warning')
     }
   }
 
@@ -149,7 +151,7 @@ export default function WriteEssay() {
         navigate(newUrl, { replace: true })
       }
     } catch (err) {
-      alert('Error saving draft: ' + err.message)
+      showAlert('Error', 'Could not save draft: ' + err.message, 'error')
     } finally {
       setSaving(false)
     }
@@ -157,7 +159,7 @@ export default function WriteEssay() {
 
   async function handleSubmit() {
     if (!title.trim() || !essayText.trim()) {
-      alert('Please provide a title and essay content.')
+      showAlert('Missing Information', 'Please provide both a title and essay content before submitting.', 'warning')
       return
     }
     setSaving(true)
@@ -182,7 +184,7 @@ export default function WriteEssay() {
       await api.patch(`/essays/${targetId}/submit`)
       navigate(`/student/feedback?id=${targetId}`)
     } catch (err) {
-      alert('Error submitting essay: ' + err.message)
+      showAlert('Error', 'Could not submit essay: ' + err.message, 'error')
     } finally {
       setSaving(false)
     }

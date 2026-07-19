@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import api from '../../services/api.js'
+import { useModal } from '../../contexts/ModalContext.jsx'
 import './AssignmentDetail.css'
 
 export default function AssignmentDetail() {
   const navigate = useNavigate()
   const { id } = useParams()
+  const { showConfirm } = useModal()
 
   const [assignment, setAssignment] = useState(null)
   const [submissions, setSubmissions] = useState([])
@@ -115,20 +117,21 @@ export default function AssignmentDetail() {
 
   // ── Delete Assignment ──
   async function handleDelete() {
-    if (!window.confirm('Are you sure you want to delete this assignment? This will unlink student essay drafts.')) return
-    setDeleting(true)
-    try {
-      await api.delete(`/assignments/${id}`)
-      // Go back to class overview using the classId
-      if (assignment?.classId?._id) {
-        navigate(`/teacher/class/${assignment.classId._id}`)
-      } else {
-        navigate(-1)
+    showConfirm('Delete Assignment', 'Are you sure you want to delete this assignment? This will unlink student essay drafts.', async () => {
+      setDeleting(true)
+      try {
+        await api.delete(`/assignments/${id}`)
+        // Go back to class overview using the classId
+        if (assignment?.classId?._id) {
+          navigate(`/teacher/class/${assignment.classId._id}`)
+        } else {
+          navigate(-1)
+        }
+      } catch (err) {
+        alert('Error deleting assignment: ' + err.message)
+        setDeleting(false)
       }
-    } catch (err) {
-      alert('Error deleting assignment: ' + err.message)
-      setDeleting(false)
-    }
+    })
   }
 
   if (loading) {

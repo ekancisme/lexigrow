@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import api from '../../services/api.js'
+import { useModal } from '../../contexts/ModalContext.jsx'
 import './AdminUsers.css'
 
 /* ── Constants ──────────────────────────────────────────── */
@@ -52,6 +53,7 @@ function UserModal({ user, onClose, onAction }) {
   const [newPassword, setNewPassword] = useState('')
   const [statusNote, setStatusNote] = useState(user.statusNote || '')
   const [saving, setSaving] = useState(false)
+  const { showConfirm } = useModal()
 
   async function applyStatusChange() {
     if (newStatus === user.accountStatus) return
@@ -88,14 +90,15 @@ function UserModal({ user, onClose, onAction }) {
   }
 
   async function handleDelete() {
-    if (!confirm(`Delete user "${user.name}"? This cannot be undone.`)) return
-    setSaving(true)
-    try {
-      await api.delete(`/admin/users/${user._id}`)
-      onAction('delete', user)
-    } catch (err) {
-      alert(err.message)
-    } finally { setSaving(false) }
+    showConfirm('Delete User', `Delete user "${user.name}"? This cannot be undone.`, async () => {
+      setSaving(true)
+      try {
+        await api.delete(`/admin/users/${user._id}`)
+        onAction('delete', user)
+      } catch (err) {
+        alert(err.message)
+      } finally { setSaving(false) }
+    })
   }
 
   return (

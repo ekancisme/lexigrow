@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate, useParams } from 'react-router-dom'
 import api from '../../services/api.js'
+import { useModal } from '../../contexts/ModalContext.jsx'
 import ClassAnalyticsSection from './ClassAnalyticsSection.jsx'
 import ClassLeaderboard from '../../components/class/ClassLeaderboard.jsx'
 import './ClassOverview.css'
@@ -9,6 +10,7 @@ import './ClassOverview.css'
 export default function ClassOverview() {
   const navigate = useNavigate()
   const { id } = useParams()
+  const { showConfirm } = useModal()
   const [classDetail, setClassDetail] = useState(null)
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
@@ -71,13 +73,14 @@ export default function ClassOverview() {
 
   async function handleRemoveStudent(studentId, e) {
     e.stopPropagation()
-    if (!window.confirm('Are you sure you want to remove this student?')) return
-    try {
-      await api.delete(`/classes/${id}/students/${studentId}`)
-      loadClassDetail()
-    } catch (err) {
-      alert('Error removing student: ' + err.message)
-    }
+    showConfirm('Remove Student', 'Are you sure you want to remove this student?', async () => {
+      try {
+        await api.delete(`/classes/${id}/students/${studentId}`)
+        loadClassDetail()
+      } catch (err) {
+        alert('Error removing student: ' + err.message)
+      }
+    })
   }
 
   async function handleRequestAction(studentId, action) {
