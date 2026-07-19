@@ -35,7 +35,6 @@ const adminNavItems = [
 
 const bottomItems = [
   { icon: 'settings', label: 'Settings', path: '/settings' },
-  { icon: 'help', label: 'Help Center', path: '#' },
 ]
 
 export default function Sidebar({ role = 'student', mobileOpen = false, onClose }) {
