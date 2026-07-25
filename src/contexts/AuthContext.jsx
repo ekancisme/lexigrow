@@ -73,6 +73,15 @@ export function AuthProvider({ children }) {
     setUser(null)
   }
 
+  const updateUser = (updates) => {
+    setUser(currentUser => {
+      if (!currentUser) return currentUser
+      const updatedUser = { ...currentUser, ...updates }
+      api.setUser(updatedUser)
+      return updatedUser
+    })
+  }
+
   // 4. Đăng nhập Google
   const loginWithGoogle = async (googlePayload) => {
     setLoading(true)
@@ -111,6 +120,7 @@ export function AuthProvider({ children }) {
       logout, 
       loginWithGoogle, 
       checkEmail, 
+      updateUser,
       isAuthenticated 
     }}>
       {children}

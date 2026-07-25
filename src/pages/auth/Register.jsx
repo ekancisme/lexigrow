@@ -31,7 +31,6 @@ export default function Register() {
       role,
       englishLevel: role === 'student' ? (e.target['reg-level']?.value || '') : '',
       institution: role === 'teacher' ? (e.target['reg-institution']?.value || '') : '',
-      childEmail: role === 'parent' ? (e.target['reg-child-email']?.value || '') : '',
     }
 
     try {
@@ -121,11 +120,9 @@ export default function Register() {
             return
           }
           try {
-            const childEmailVal = role === 'parent' ? (document.getElementById('reg-child-email')?.value || '') : ''
             const loggedInUser = await loginWithGoogle({
               code: response.code,
               role,
-              childEmail: childEmailVal
             })
             if (loggedInUser.role === 'teacher') {
               navigate('/teacher/dashboard')
@@ -284,16 +281,6 @@ export default function Register() {
                     <input id="reg-email" type="email" className="register__input" placeholder="name@example.com" required />
                   </div>
                 </div>
-
-                {role === 'parent' && (
-                  <div className="register__field">
-                    <label htmlFor="reg-child-email" className="register__label text-label-md">Child's Email Address</label>
-                    <div className="register__input-wrap">
-                      <span className="material-symbols-outlined register__input-icon">mail</span>
-                      <input id="reg-child-email" type="email" className="register__input" placeholder="child@example.com" required />
-                    </div>
-                  </div>
-                )}
 
                 {/* Password */}
                 <div className="register__field">

@@ -20,6 +20,9 @@ import FlashcardReview from './pages/student/FlashcardReview'
 import EssayHistory from './pages/student/EssayHistory'
 import StudentClassDetail from './pages/student/StudentClassDetail'
 
+/* Parent Pages */
+import ParentDashboard from './pages/parent/ParentDashboard'
+
 /* Teacher Pages */
 import TeacherDashboard from './pages/teacher/TeacherDashboard'
 import ClassOverview from './pages/teacher/ClassOverview'
@@ -63,6 +66,26 @@ function AdminProtectedRoute({ children }) {
   return children
 }
 
+function ParentProtectedRoute({ children }) {
+  const { isAuthenticated, user, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <span className="material-symbols-outlined animate-spin" style={{ fontSize: 48, color: 'var(--color-primary)' }}>
+          progress_activity
+        </span>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated || user?.role !== 'parent') {
+    return <Navigate to="/login" replace state={{ infoMessage: 'Bạn không có quyền truy cập trang phụ huynh.' }} />
+  }
+
+  return children
+}
+
 function App() {
   return (
     <>
@@ -86,6 +109,16 @@ function App() {
         <Route path="feedback" element={<AIFeedbackReview />} />
         <Route path="class" element={<StudentClassDetail />} />
         <Route path="class/:classId" element={<StudentClassDetail />} />
+      </Route>
+
+      {/* Parent routes */}
+      <Route path="/parent" element={
+        <ParentProtectedRoute>
+          <AppLayout role="parent" />
+        </ParentProtectedRoute>
+      }>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<ParentDashboard />} />
       </Route>
 
       {/* Teacher routes */}

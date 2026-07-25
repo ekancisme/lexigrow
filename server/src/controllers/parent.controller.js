@@ -1,47 +1,168 @@
+import { createHash, randomInt } from 'crypto'
 import User from '../models/User.js'
 import Essay from '../models/Essay.js'
 import AIAnalysis from '../models/AIAnalysis.js'
 import Vocabulary from '../models/Vocabulary.js'
 import Alert from '../models/Alert.js'
+import ChildLinkCode from '../models/ChildLinkCode.js'
+import ParentStudentLink from '../models/ParentStudentLink.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 
+const LINK_CODE_ALPHABET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'
+const LINK_CODE_LENGTH = 8
+const LINK_CODE_TTL_MS = 15 * 60 * 1000
+const VALID_RELATIONSHIPS = ['father', 'mother', 'guardian', 'other']
+
+const hashLinkCode = code => createHash('sha256').update(code).digest('hex')
+
+const generateLinkCode = () => Array.from(
+  { length: LINK_CODE_LENGTH },
+  () => LINK_CODE_ALPHABET[randomInt(LINK_CODE_ALPHABET.length)]
+).join('')
+
 /**
- * @desc    Link parent account to a student by student email
+ * @desc    Generate a one-time code that a parent can use to link this student
+ * @route   POST /api/parent/link-code
+ * @access  Private (student)
+ */
+export const createChildLinkCode = asyncHandler(async (req, res) => {
+  await ChildLinkCode.deleteMany({ student: req.user._id, usedAt: null })
+
+  const code = generateLinkCode()
+  const expiresAt = new Date(Date.now() + LINK_CODE_TTL_MS)
+
+  await ChildLinkCode.create({
+    student: req.user._id,
+    codeHash: hashLinkCode(code),
+    expiresAt,
+  })
+
+  res.status(201).json({
+    success: true,
+    data: { code, expiresAt },
+  })
+})
+
+/**
+ * @desc    Link parent account to a student with a one-time code
  * @route   POST /api/parent/link
  * @access  Private (parent)
  */
 export const linkChild = asyncHandler(async (req, res) => {
-  const { childEmail } = req.body
+  const { linkCode, relationship = 'guardian' } = req.body
+  const normalizedCode = String(linkCode || '').replace(/[\s-]/g, '').toUpperCase()
 
-  if (!childEmail) {
-    throw new ErrorResponse('Please provide student email address', 400)
+  if (normalizedCode.length !== LINK_CODE_LENGTH) {
+    throw new ErrorResponse('Invalid or expired link code', 400)
   }
 
-  const child = await User.findOne({ email: childEmail.toLowerCase(), role: 'student' })
-  if (!child) {
-    throw new ErrorResponse('No student found with the provided email address', 404)
+  if (!VALID_RELATIONSHIPS.includes(relationship)) {
+    throw new ErrorResponse('Invalid relationship type', 400)
   }
 
-  const parent = await User.findById(req.user._id)
+  const claimedCode = await ChildLinkCode.findOneAndUpdate(
+    {
+      codeHash: hashLinkCode(normalizedCode),
+      usedAt: null,
+      expiresAt: { $gt: new Date() },
+    },
+    {
+      $set: {
+        usedAt: new Date(),
+        usedBy: req.user._id,
+      },
+    },
+    { new: true }
+  )
 
-  // Avoid duplicate linkage
-  if (parent.children.includes(child._id)) {
-    throw new ErrorResponse('This student is already linked to your account', 400)
+  if (!claimedCode) {
+    throw new ErrorResponse('Invalid or expired link code', 400)
   }
 
-  parent.children.push(child._id)
-  await parent.save()
+  try {
+    const child = await User.findOne({ _id: claimedCode.student, role: 'student' })
+    if (!child) {
+      throw new ErrorResponse('Invalid or expired link code', 400)
+    }
 
-  child.parents = child.parents || []
-  if (!child.parents.includes(parent._id)) {
-    child.parents.push(parent._id)
-    await child.save()
+    let link = await ParentStudentLink.findOne({
+      parent: req.user._id,
+      student: child._id,
+    })
+
+    if (link) {
+      link.relationship = relationship
+      link.status = 'active'
+      link.linkedAt = new Date()
+      link.revokedAt = null
+      link.revokedBy = null
+      await link.save()
+    } else {
+      link = await ParentStudentLink.create({
+        parent: req.user._id,
+        student: child._id,
+        relationship,
+      })
+    }
+
+    await Promise.all([
+      User.updateOne({ _id: req.user._id }, { $addToSet: { children: child._id } }),
+      User.updateOne({ _id: child._id }, { $addToSet: { parents: req.user._id } }),
+    ])
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully linked with student ${child.name}`,
+      data: {
+        linkId: link._id,
+        student: {
+          _id: child._id,
+          name: child.name,
+          avatar: child.avatar,
+          englishLevel: child.englishLevel,
+        },
+        relationship: link.relationship,
+      },
+    })
+  } catch (error) {
+    await ChildLinkCode.updateOne(
+      { _id: claimedCode._id, usedBy: req.user._id },
+      { $set: { usedAt: null, usedBy: null } }
+    )
+    throw error
   }
+})
+
+/**
+ * @desc    Revoke one parent-student relationship
+ * @route   DELETE /api/parent/children/:id/link
+ * @access  Private (parent)
+ */
+export const unlinkChild = asyncHandler(async (req, res) => {
+  const link = await ParentStudentLink.findOne({
+    parent: req.user._id,
+    student: req.params.id,
+    status: 'active',
+  })
+
+  if (!link) {
+    throw new ErrorResponse('Active child link not found', 404)
+  }
+
+  link.status = 'revoked'
+  link.revokedAt = new Date()
+  link.revokedBy = req.user._id
+  await link.save()
+
+  await Promise.all([
+    User.updateOne({ _id: req.user._id }, { $pull: { children: req.params.id } }),
+    User.updateOne({ _id: req.params.id }, { $pull: { parents: req.user._id } }),
+  ])
 
   res.status(200).json({
     success: true,
-    message: `Successfully linked with student ${child.name}`
+    message: 'Child link revoked successfully',
   })
 })
 

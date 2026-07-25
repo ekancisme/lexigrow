@@ -25,6 +25,21 @@ vi.mock('../src/models/User.js', () => ({
     findById: vi.fn(),
     findOne: vi.fn(),
     find: vi.fn(),
+    updateOne: vi.fn(),
+  }
+}))
+vi.mock('../src/models/ChildLinkCode.js', () => ({
+  default: {
+    create: vi.fn(),
+    deleteMany: vi.fn(),
+    findOneAndUpdate: vi.fn(),
+    updateOne: vi.fn(),
+  }
+}))
+vi.mock('../src/models/ParentStudentLink.js', () => ({
+  default: {
+    create: vi.fn(),
+    findOne: vi.fn(),
   }
 }))
 vi.mock('../src/models/Vocabulary.js', () => ({
@@ -67,34 +82,84 @@ import Vocabulary from '../src/models/Vocabulary.js'
 import Essay from '../src/models/Essay.js'
 import AIAnalysis from '../src/models/AIAnalysis.js'
 import Alert from '../src/models/Alert.js'
+import ChildLinkCode from '../src/models/ChildLinkCode.js'
+import ParentStudentLink from '../src/models/ParentStudentLink.js'
 
 describe('Parent API', () => {
-  it('should successfully link a student using their email', async () => {
-    const parentMock = {
-      _id: 'mock_parent_id',
-      children: [],
-      save: vi.fn().mockResolvedValue(true)
-    }
+  it('should generate a one-time child link code without storing the raw code', async () => {
+    ChildLinkCode.deleteMany.mockResolvedValue({ deletedCount: 0 })
+    ChildLinkCode.create.mockResolvedValue({ _id: 'code_id' })
+
+    const res = await request(app)
+      .post('/api/parent/link-code')
+      .expect(201)
+
+    expect(res.body.success).toBe(true)
+    expect(res.body.data.code).toMatch(/^[23456789ABCDEFGHJKLMNPQRSTUVWXYZ]{8}$/)
+    expect(ChildLinkCode.create).toHaveBeenCalledWith(expect.objectContaining({
+      student: 'mock_parent_id',
+      codeHash: expect.not.stringContaining(res.body.data.code),
+    }))
+  })
+
+  it('should successfully link a student using a one-time code', async () => {
     const studentMock = {
       _id: 'mock_student_id',
-      email: 'student@example.com',
+      name: 'Mock Child',
       role: 'student',
-      parents: [],
-      save: vi.fn().mockResolvedValue(true)
+      avatar: '',
+      englishLevel: 'B1',
+    }
+    const linkMock = {
+      _id: 'link_id',
+      relationship: 'guardian',
     }
 
-    User.findById.mockReturnValue(mockQuery(parentMock))
-    User.findOne.mockReturnValue(mockQuery(studentMock))
+    ChildLinkCode.findOneAndUpdate.mockResolvedValue({
+      _id: 'code_id',
+      student: 'mock_student_id',
+    })
+    User.findOne.mockResolvedValue(studentMock)
+    ParentStudentLink.findOne.mockResolvedValue(null)
+    ParentStudentLink.create.mockResolvedValue(linkMock)
+    User.updateOne.mockResolvedValue({ modifiedCount: 1 })
 
     const res = await request(app)
       .post('/api/parent/link')
-      .send({ childEmail: 'student@example.com' })
+      .send({ linkCode: 'ABCD2345', relationship: 'guardian' })
       .expect(200)
 
     expect(res.body.success).toBe(true)
     expect(res.body.message).toContain('Successfully linked with student')
-    expect(parentMock.children).toContain('mock_student_id')
-    expect(studentMock.parents).toContain('mock_parent_id')
+    expect(ParentStudentLink.create).toHaveBeenCalledWith({
+      parent: 'mock_parent_id',
+      student: 'mock_student_id',
+      relationship: 'guardian',
+    })
+    expect(User.updateOne).toHaveBeenCalledTimes(2)
+  })
+
+  it('should revoke only the selected child relationship', async () => {
+    const linkMock = {
+      status: 'active',
+      revokedAt: null,
+      revokedBy: null,
+      save: vi.fn().mockResolvedValue(true),
+    }
+    ParentStudentLink.findOne.mockResolvedValue(linkMock)
+    User.updateOne.mockResolvedValue({ modifiedCount: 1 })
+
+    const res = await request(app)
+      .delete('/api/parent/children/mock_student_id/link')
+      .expect(200)
+
+    expect(res.body.success).toBe(true)
+    expect(linkMock.status).toBe('revoked')
+    expect(linkMock.revokedBy).toBe('mock_parent_id')
+    expect(User.updateOne).toHaveBeenCalledWith(
+      { _id: 'mock_parent_id' },
+      { $pull: { children: 'mock_student_id' } }
+    )
   })
 
   it('should get linked children list', async () => {
