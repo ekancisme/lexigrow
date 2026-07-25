@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import TopNav from './TopNav'
+import ParentBottomNav from './ParentBottomNav'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import './AppLayout.css'
 
@@ -11,12 +12,17 @@ const FULL_BLEED_ROUTES = [
 ]
 
 export default function AppLayout({ role }) {
-  const { user } = useAuth()
+  const { user, selectedParentChildId } = useAuth()
   const resolvedRole = role || user?.role || 'student'
   const location = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const isFullBleed = FULL_BLEED_ROUTES.some(r => location.pathname.startsWith(r))
+  const storedChildIsValid = user?.children?.some(child => child._id === selectedParentChildId)
+  const selectedChildId = location.pathname.match(/^\/parent\/children\/([^/]+)/)?.[1]
+    || (storedChildIsValid ? selectedParentChildId : '')
+    || user?.children?.[0]?._id
+    || ''
 
   return (
     <div className="app-layout">
@@ -34,10 +40,13 @@ export default function AppLayout({ role }) {
       )}
       <div className="app-layout__main">
         <TopNav role={resolvedRole} onMenuToggle={() => setMobileMenuOpen(open => !open)} />
-        <main className={`app-layout__content${isFullBleed ? ' app-layout__content--no-padding' : ''}`}>
+        <main className={`app-layout__content${isFullBleed ? ' app-layout__content--no-padding' : ''}${resolvedRole === 'parent' ? ' app-layout__content--parent' : ''}`}>
           <Outlet />
         </main>
       </div>
+      {resolvedRole === 'parent' && (
+        <ParentBottomNav childId={selectedChildId} onMore={() => setMobileMenuOpen(true)} />
+      )}
     </div>
   )
 }

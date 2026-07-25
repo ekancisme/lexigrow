@@ -62,6 +62,17 @@ vi.mock('../src/models/AIAnalysis.js', () => ({
 vi.mock('../src/models/Alert.js', () => ({
   default: {
     find: vi.fn(),
+    findOne: vi.fn(),
+  }
+}))
+vi.mock('../src/models/Class.js', () => ({
+  default: {
+    findOne: vi.fn(),
+  }
+}))
+vi.mock('../src/models/WeeklyGoal.js', () => ({
+  default: {
+    findOne: vi.fn(),
   }
 }))
 
@@ -83,6 +94,8 @@ import Vocabulary from '../src/models/Vocabulary.js'
 import Essay from '../src/models/Essay.js'
 import AIAnalysis from '../src/models/AIAnalysis.js'
 import Alert from '../src/models/Alert.js'
+import Class from '../src/models/Class.js'
+import WeeklyGoal from '../src/models/WeeklyGoal.js'
 import ChildLinkCode from '../src/models/ChildLinkCode.js'
 import ParentStudentLink from '../src/models/ParentStudentLink.js'
 
@@ -164,11 +177,48 @@ describe('Parent API', () => {
   })
 
   it('should get linked children list', async () => {
+    const child = {
+      _id: 'mock_student_id',
+      name: 'Mock Child',
+      email: 'child@example.com',
+      englishLevel: 'B1',
+      toObject() {
+        return { _id: this._id, name: this.name, email: this.email, englishLevel: this.englishLevel }
+      },
+    }
     const parentMock = {
       _id: 'mock_parent_id',
-      children: [{ _id: 'mock_student_id', name: 'Mock Child' }],
+      children: [child],
     }
     User.findById.mockReturnValue(mockQuery(parentMock))
+    Vocabulary.countDocuments
+      .mockResolvedValueOnce(6)
+      .mockResolvedValueOnce(3)
+      .mockResolvedValueOnce(6)
+    Essay.find
+      .mockReturnValueOnce(mockQuery([
+        { _id: 'essay_new', title: 'Recent Essay', status: 'reviewed', submittedAt: new Date('2026-07-20') },
+        { _id: 'essay_old', title: 'Older Essay', status: 'reviewed', submittedAt: new Date('2026-07-10') },
+      ]))
+      .mockReturnValueOnce(mockQuery([]))
+    Alert.find.mockReturnValue(mockQuery([
+      { _id: 'alert_id', type: 'warning', metric: 'vocabulary_stagnation' },
+    ]))
+    WeeklyGoal.findOne.mockReturnValue(mockQuery({
+      _id: 'goal_id',
+      goals: [
+        { label: 'New Words', target: 10, current: 0 },
+        { label: 'Essays Written', target: 2, current: 0 },
+      ],
+    }))
+    Class.findOne.mockReturnValue(mockQuery({
+      name: 'English B1',
+      teacher: { name: 'Ms. Taylor' },
+    }))
+    AIAnalysis.find.mockReturnValue(mockQuery([
+      { essay: { toString: () => 'essay_new' }, overallScore: 8.2 },
+      { essay: { toString: () => 'essay_old' }, overallScore: 7.4 },
+    ]))
 
     const res = await request(app)
       .get('/api/parent/children')
@@ -177,6 +227,39 @@ describe('Parent API', () => {
     expect(res.body.success).toBe(true)
     expect(res.body.data.length).toBe(1)
     expect(res.body.data[0].name).toBe('Mock Child')
+    expect(res.body.data[0]).toEqual(expect.objectContaining({
+      overallStatus: 'watch',
+      wordsThisWeek: 6,
+      wordsChange: 3,
+      latestScore: 8.2,
+      scoreChange: 0.8,
+      activeAlertCount: 1,
+      unreadAlertCount: 1,
+      goalCompletionRate: 30,
+      className: 'English B1',
+      teacherName: 'Ms. Taylor',
+    }))
+  })
+
+  it('should get current weekly goals for a linked child', async () => {
+    User.findById.mockReturnValue(mockQuery({
+      _id: 'mock_parent_id',
+      children: ['mock_student_id'],
+    }))
+    WeeklyGoal.findOne.mockReturnValue(mockQuery({
+      _id: 'goal_id',
+      goals: [{ label: 'New Words', target: 20, current: 0 }],
+    }))
+    Vocabulary.countDocuments.mockResolvedValue(8)
+    Essay.find.mockReturnValue(mockQuery([]))
+
+    const res = await request(app)
+      .get('/api/parent/children/mock_student_id/goals')
+      .expect(200)
+
+    expect(res.body.data.configured).toBe(true)
+    expect(res.body.data.completionRate).toBe(40)
+    expect(res.body.data.goals[0]).toEqual(expect.objectContaining({ current: 8, target: 20 }))
   })
 
   it('should get progress overview of a child', async () => {
@@ -238,7 +321,13 @@ describe('Parent API', () => {
       children: ['mock_student_id'],
     }
     User.findById.mockReturnValue(mockQuery(parentMock))
-    Alert.find.mockReturnValue(mockQuery([{ _id: 'alert_id', title: 'Stagnant Vocabulary' }]))
+    Alert.find.mockReturnValue(mockQuery([{
+      _id: 'alert_id',
+      title: 'Stagnant Vocabulary',
+      metric: 'vocabulary_stagnation',
+      detail: 'Học sinh đã không tích lũy thêm từ mới nào trong 4 tuần liên tiếp.',
+      viewedByParents: [],
+    }]))
 
     const res = await request(app)
       .get('/api/parent/children/mock_student_id/alerts')
@@ -247,6 +336,30 @@ describe('Parent API', () => {
     expect(res.body.success).toBe(true)
     expect(res.body.data.length).toBe(1)
     expect(res.body.data[0].title).toBe('Stagnant Vocabulary')
+    expect(res.body.data[0].detail).toBe('No new vocabulary was added for four consecutive weeks.')
+    expect(res.body.data[0].isViewed).toBe(false)
+  })
+
+  it('should mark an alert as viewed only for the current parent', async () => {
+    User.findById.mockReturnValue(mockQuery({
+      _id: 'mock_parent_id',
+      children: ['mock_student_id'],
+    }))
+    const alertMock = {
+      _id: 'alert_id',
+      student: 'mock_student_id',
+      viewedByParents: ['other_parent_id'],
+      save: vi.fn().mockResolvedValue(true),
+    }
+    Alert.findOne.mockResolvedValue(alertMock)
+
+    const res = await request(app)
+      .patch('/api/parent/children/mock_student_id/alerts/alert_id/viewed')
+      .expect(200)
+
+    expect(res.body.data).toEqual({ alertId: 'alert_id', isViewed: true })
+    expect(alertMock.viewedByParents).toEqual(['other_parent_id', 'mock_parent_id'])
+    expect(alertMock.save).toHaveBeenCalledTimes(1)
   })
 
   it('should get essays of a child', async () => {

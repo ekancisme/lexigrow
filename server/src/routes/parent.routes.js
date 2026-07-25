@@ -4,8 +4,10 @@ import {
   linkChild,
   unlinkChild,
   getChildren,
+  getChildGoals,
   getChildProgress,
   getChildAlerts,
+  markChildAlertViewed,
   getChildEssays,
   getChildVocabulary,
 } from '../controllers/parent.controller.js'
@@ -30,7 +32,9 @@ router.use(authorize('parent'))
 router.get('/children', getChildren)
 router.delete('/children/:id/link', unlinkChild)
 router.get('/children/:id/progress', getChildProgress)
+router.get('/children/:id/goals', getChildGoals)
 router.get('/children/:id/alerts', getChildAlerts)
+router.patch('/children/:id/alerts/:alertId/viewed', markChildAlertViewed)
 router.get('/children/:id/essays', getChildEssays)
 router.get('/children/:id/vocabulary', getChildVocabulary)
 

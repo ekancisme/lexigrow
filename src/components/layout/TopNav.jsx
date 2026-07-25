@@ -32,17 +32,23 @@ export default function TopNav({ role = 'student', onMenuToggle }) {
       <button className="topnav__menu-btn" onClick={onMenuToggle} aria-label="Open navigation menu">
         <span className="material-symbols-outlined">menu</span>
       </button>
-      {/* Search Bar */}
-      <div className={`topnav__search ${searchFocused ? 'topnav__search--focused' : ''}`}>
-        <span className="material-symbols-outlined topnav__search-icon">search</span>
-        <input
-          type="text"
-          className="topnav__search-input"
-          placeholder={role === 'teacher' ? 'Search students or metrics...' : 'Search essays or vocabulary...'}
-          onFocus={() => setSearchFocused(true)}
-          onBlur={() => setSearchFocused(false)}
-        />
-      </div>
+      {role === 'parent' ? (
+        <div className="topnav__parent-context">
+          <span className="material-symbols-outlined">family_restroom</span>
+          <div><strong>Parent workspace</strong><span>Family learning overview</span></div>
+        </div>
+      ) : (
+        <div className={`topnav__search ${searchFocused ? 'topnav__search--focused' : ''}`}>
+          <span className="material-symbols-outlined topnav__search-icon">search</span>
+          <input
+            type="text"
+            className="topnav__search-input"
+            placeholder={role === 'teacher' ? 'Search students or metrics...' : 'Search essays or vocabulary...'}
+            onFocus={() => setSearchFocused(true)}
+            onBlur={() => setSearchFocused(false)}
+          />
+        </div>
+      )}
 
       {/* Right Actions */}
       <div className="topnav__actions">

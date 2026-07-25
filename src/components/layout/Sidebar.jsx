@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import './Sidebar.css'
 
@@ -20,10 +20,6 @@ const teacherNavItems = [
   { icon: 'smart_toy', label: 'System Prompts', path: '/teacher/prompts' },
 ]
 
-const parentNavItems = [
-  { icon: 'dashboard', label: 'Dashboard', path: '/parent/dashboard' },
-]
-
 const adminNavItems = [
   { icon: 'dashboard', label: 'Dashboard', path: '/admin/dashboard' },
   { icon: 'group', label: 'Users', path: '/admin/users' },
@@ -39,7 +35,20 @@ const bottomItems = [
 
 export default function Sidebar({ role = 'student', mobileOpen = false, onClose }) {
   const navigate = useNavigate()
-  const { logout } = useAuth()
+  const location = useLocation()
+  const { logout, user, selectedParentChildId, selectParentChild } = useAuth()
+  const routeChildId = location.pathname.match(/^\/parent\/children\/([^/]+)/)?.[1]
+  const storedChildIsValid = user?.children?.some(child => child._id === selectedParentChildId)
+  const selectedChildId = routeChildId || (storedChildIsValid ? selectedParentChildId : '') || user?.children?.[0]?._id || ''
+  const selectedChild = user?.children?.find(child => child._id === selectedChildId)
+  const parentNavItems = [
+    { icon: 'dashboard', label: 'Overview', path: '/parent/dashboard' },
+    { icon: 'monitoring', label: 'Progress', path: selectedChildId ? `/parent/children/${selectedChildId}/progress` : '/parent/dashboard', childRequired: true },
+    { icon: 'history_edu', label: 'Essays', path: selectedChildId ? `/parent/children/${selectedChildId}/essays` : '/parent/dashboard', childRequired: true },
+    { icon: 'menu_book', label: 'Vocabulary', path: selectedChildId ? `/parent/children/${selectedChildId}/vocabulary` : '/parent/dashboard', childRequired: true },
+    { icon: 'flag', label: 'Weekly goals', path: selectedChildId ? `/parent/children/${selectedChildId}/goals` : '/parent/dashboard', childRequired: true },
+    { icon: 'warning', label: 'Alerts', path: selectedChildId ? `/parent/children/${selectedChildId}/alerts` : '/parent/dashboard', childRequired: true, badge: selectedChild?.unreadAlertCount },
+  ]
   const navItems = role === 'admin'
     ? adminNavItems
     : (role === 'teacher' ? teacherNavItems : (role === 'parent' ? parentNavItems : studentNavItems))
@@ -66,6 +75,33 @@ export default function Sidebar({ role = 'student', mobileOpen = false, onClose 
         </button>
       </div>
 
+      {role === 'parent' && user?.children?.length > 0 && (
+        <div className="sidebar__child-switcher">
+          <label htmlFor="sidebar-child-select">Viewing student</label>
+          <div className="sidebar__child-select-wrap">
+            <span className="material-symbols-outlined">school</span>
+            <select
+              id="sidebar-child-select"
+              value={selectedChildId}
+              onChange={(event) => {
+                const nextChildId = event.target.value
+                selectParentChild(nextChildId)
+                const currentView = location.pathname.match(/^\/parent\/children\/[^/]+\/(progress|essays|vocabulary|goals|alerts)$/)?.[1] || 'progress'
+                navigate(`/parent/children/${nextChildId}/${currentView}`)
+                onClose?.()
+              }}
+            >
+              {user.children.map(child => (
+                <option key={child._id} value={child._id}>{child.name}</option>
+              ))}
+            </select>
+          </div>
+          {selectedChild && (
+            <p>{selectedChild.englishLevel || 'Level not set'}{selectedChild.activeAlertCount ? ` · ${selectedChild.activeAlertCount} active alert${selectedChild.activeAlertCount === 1 ? '' : 's'}` : ' · On track'}</p>
+          )}
+        </div>
+      )}
+
       {/* Main Nav */}
       <nav className="sidebar__nav">
         {navItems.map((item) => (
@@ -73,17 +109,32 @@ export default function Sidebar({ role = 'student', mobileOpen = false, onClose 
             key={item.path}
             to={item.path}
             className={({ isActive }) =>
-              `sidebar__link ${isActive ? 'sidebar__link--active' : ''}`
+              `sidebar__link ${isActive ? 'sidebar__link--active' : ''} ${item.childRequired && !selectedChildId ? 'sidebar__link--disabled' : ''}`
             }
-            onClick={onClose}
+            onClick={(event) => {
+              if (item.childRequired && !selectedChildId) event.preventDefault()
+              else onClose?.()
+            }}
           >
             <span className="material-symbols-outlined">{item.icon}</span>
-            <span>{item.label}</span>
+            <span className="sidebar__link-label">{item.label}</span>
+            {item.badge > 0 && <span className="sidebar__badge">{item.badge > 9 ? '9+' : item.badge}</span>}
           </NavLink>
         ))}
       </nav>
 
       {/* CTA Button */}
+      {role === 'parent' && (
+        <div className="sidebar__cta">
+          <button
+            className="sidebar__cta-btn"
+            onClick={() => { navigate('/parent/dashboard?link=1'); onClose?.() }}
+          >
+            <span className="material-symbols-outlined">person_add</span>
+            <span>Link student</span>
+          </button>
+        </div>
+      )}
       {role !== 'parent' && role !== 'admin' && (
         <div className="sidebar__cta">
           <button

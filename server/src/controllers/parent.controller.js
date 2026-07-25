@@ -4,6 +4,8 @@ import Essay from '../models/Essay.js'
 import AIAnalysis from '../models/AIAnalysis.js'
 import Vocabulary from '../models/Vocabulary.js'
 import Alert from '../models/Alert.js'
+import Class from '../models/Class.js'
+import WeeklyGoal from '../models/WeeklyGoal.js'
 import ChildLinkCode from '../models/ChildLinkCode.js'
 import ParentStudentLink from '../models/ParentStudentLink.js'
 import asyncHandler from '../utils/asyncHandler.js'
@@ -14,12 +16,80 @@ const LINK_CODE_LENGTH = 8
 const LINK_CODE_TTL_MS = 15 * 60 * 1000
 const VALID_RELATIONSHIPS = ['father', 'mother', 'guardian', 'other']
 
+function getParentAlertDetail(alert) {
+  if (alert.metric === 'vocabulary_stagnation') {
+    return 'No new vocabulary was added for four consecutive weeks.'
+  }
+  if (alert.metric === 'grammar_decline') {
+    const scoreSequence = alert.detail?.match(/\(([^)]+)\)/)?.[1]
+    return `Grammar accuracy declined across the latest three reviewed essays${scoreSequence ? ` (${scoreSequence})` : ''}.`
+  }
+  return alert.detail
+}
+
 const hashLinkCode = code => createHash('sha256').update(code).digest('hex')
 
 const generateLinkCode = () => Array.from(
   { length: LINK_CODE_LENGTH },
   () => LINK_CODE_ALPHABET[randomInt(LINK_CODE_ALPHABET.length)]
 ).join('')
+
+function getCurrentWeekBounds() {
+  const now = new Date()
+  const dayOfWeek = now.getDay()
+  const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+  const weekStart = new Date(now)
+  weekStart.setDate(now.getDate() + diffToMonday)
+  weekStart.setHours(0, 0, 0, 0)
+  const weekEnd = new Date(weekStart)
+  weekEnd.setDate(weekStart.getDate() + 6)
+  weekEnd.setHours(23, 59, 59, 999)
+  return { weekStart, weekEnd }
+}
+
+async function buildChildGoals(studentId) {
+  const { weekStart, weekEnd } = getCurrentWeekBounds()
+  const [goal, wordsThisWeek, essaysThisWeek] = await Promise.all([
+    WeeklyGoal.findOne({ student: studentId, weekStart }).lean(),
+    Vocabulary.countDocuments({ student: studentId, createdAt: { $gte: weekStart, $lte: weekEnd } }),
+    Essay.find({
+      student: studentId,
+      status: { $ne: 'draft' },
+      submittedAt: { $gte: weekStart, $lte: weekEnd },
+    }).select('wordCount').lean(),
+  ])
+
+  if (!goal) {
+    return {
+      weekStart,
+      weekEnd,
+      goals: [],
+      completionRate: 0,
+      configured: false,
+    }
+  }
+
+  const totalWordsWritten = essaysThisWeek.reduce((sum, essay) => sum + (essay.wordCount || 0), 0)
+  const goals = goal.goals.map(item => {
+    let current = item.current || 0
+    if (item.label === 'New Words') current = wordsThisWeek
+    if (item.label === 'Essays Written') current = essaysThisWeek.length
+    if (item.label.includes('Writing Length')) current = totalWordsWritten
+    return { ...item, current }
+  })
+  const completionRate = goals.length > 0
+    ? Math.round(goals.reduce((sum, item) => sum + Math.min(1, item.target > 0 ? item.current / item.target : 0), 0) / goals.length * 100)
+    : 0
+
+  return {
+    _id: goal._id,
+    weekStart,
+    weekEnd,
+    goals,
+    completionRate,
+    configured: true,
+  }
+}
 
 /**
  * @desc    Generate a one-time code that a parent can use to link this student
@@ -173,11 +243,81 @@ export const unlinkChild = asyncHandler(async (req, res) => {
  */
 export const getChildren = asyncHandler(async (req, res) => {
   const parent = await User.findById(req.user._id).populate('children', 'name email avatar englishLevel')
+  const now = new Date()
+  const thisWeekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+  const lastWeekStart = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000)
+
+  const children = await Promise.all((parent.children || []).map(async child => {
+    const [wordsThisWeek, wordsLastWeek, latestEssays, activeAlerts, goals, childClass] = await Promise.all([
+      Vocabulary.countDocuments({ student: child._id, createdAt: { $gte: thisWeekStart } }),
+      Vocabulary.countDocuments({ student: child._id, createdAt: { $gte: lastWeekStart, $lt: thisWeekStart } }),
+      Essay.find({ student: child._id })
+        .sort({ submittedAt: -1, createdAt: -1 })
+        .limit(2)
+        .select('title status submittedAt createdAt wordCount')
+        .lean(),
+      Alert.find({ student: child._id, isResolved: false }).select('type metric createdAt viewedByParents').lean(),
+      buildChildGoals(child._id),
+      Class.findOne({ students: child._id, status: 'active' }).populate('teacher', 'name').select('name teacher').lean(),
+    ])
+
+    const analyses = latestEssays.length > 0
+      ? await AIAnalysis.find({ essay: { $in: latestEssays.map(essay => essay._id) } }).select('essay overallScore').lean()
+      : []
+    const analysisByEssay = new Map(analyses.map(analysis => [analysis.essay.toString(), analysis]))
+    const latestScore = latestEssays[0] ? analysisByEssay.get(latestEssays[0]._id.toString())?.overallScore ?? null : null
+    const previousScore = latestEssays[1] ? analysisByEssay.get(latestEssays[1]._id.toString())?.overallScore ?? null : null
+    const scoreChange = latestScore !== null && previousScore !== null
+      ? Math.round((latestScore - previousScore) * 10) / 10
+      : null
+    const hasCriticalAlert = activeAlerts.some(alert => alert.type === 'critical')
+    const unreadAlertCount = activeAlerts.filter(alert =>
+      !(alert.viewedByParents || []).some(parentId => parentId.toString() === req.user._id.toString())
+    ).length
+    const overallStatus = hasCriticalAlert
+      ? 'needs_attention'
+      : activeAlerts.length > 0 || wordsThisWeek === 0
+        ? 'watch'
+        : 'on_track'
+
+    return {
+      ...child.toObject(),
+      overallStatus,
+      wordsThisWeek,
+      wordsChange: wordsThisWeek - wordsLastWeek,
+      latestScore,
+      scoreChange,
+      activeAlertCount: activeAlerts.length,
+      unreadAlertCount,
+      goalCompletionRate: goals.completionRate,
+      goalsConfigured: goals.configured,
+      latestEssay: latestEssays[0] || null,
+      lastActivityAt: latestEssays[0]?.submittedAt || latestEssays[0]?.createdAt || null,
+      className: childClass?.name || '',
+      teacherName: childClass?.teacher?.name || '',
+    }
+  }))
 
   res.status(200).json({
     success: true,
-    data: parent.children || []
+    data: children,
   })
+})
+
+/**
+ * @desc    Get current weekly goals for a linked child
+ * @route   GET /api/parent/children/:id/goals
+ * @access  Private (parent)
+ */
+export const getChildGoals = asyncHandler(async (req, res) => {
+  const parent = await User.findById(req.user._id)
+  const isMyChild = parent.children.some(id => id.toString() === req.params.id)
+  if (!isMyChild) {
+    throw new ErrorResponse('Not authorized to view this child\'s goals', 403)
+  }
+
+  const goals = await buildChildGoals(req.params.id)
+  res.status(200).json({ success: true, data: goals })
 })
 
 /**
@@ -250,12 +390,45 @@ export const getChildAlerts = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Not authorized to view this child\'s alerts', 403)
   }
 
-  const alerts = await Alert.find({ student: childId }).sort({ createdAt: -1 })
+  const alerts = await Alert.find({ student: childId }).sort({ createdAt: -1 }).lean()
+  const parentId = req.user._id.toString()
+  const parentAlerts = alerts.map(alert => ({
+    ...alert,
+    detail: getParentAlertDetail(alert),
+    isViewed: (alert.viewedByParents || []).some(viewerId => viewerId.toString() === parentId),
+    viewedByParents: undefined,
+  }))
 
   res.status(200).json({
     success: true,
-    data: alerts
+    data: parentAlerts,
   })
+})
+
+/**
+ * @desc    Mark a linked child's alert as viewed by the current parent
+ * @route   PATCH /api/parent/children/:id/alerts/:alertId/viewed
+ * @access  Private (parent)
+ */
+export const markChildAlertViewed = asyncHandler(async (req, res) => {
+  const parent = await User.findById(req.user._id)
+  const isMyChild = parent.children.some(id => id.toString() === req.params.id)
+  if (!isMyChild) {
+    throw new ErrorResponse('Not authorized to update this child\'s alerts', 403)
+  }
+
+  const alert = await Alert.findOne({ _id: req.params.alertId, student: req.params.id })
+  if (!alert) {
+    throw new ErrorResponse('Alert not found', 404)
+  }
+
+  const alreadyViewed = (alert.viewedByParents || []).some(parentId => parentId.toString() === req.user._id.toString())
+  if (!alreadyViewed) {
+    alert.viewedByParents = [...(alert.viewedByParents || []), req.user._id]
+    await alert.save()
+  }
+
+  res.status(200).json({ success: true, data: { alertId: alert._id, isViewed: true } })
 })
 
 /**

@@ -1,14 +1,22 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import api from '../services/api.js'
 import { connectSocket, disconnectSocket } from '../services/socket.js'
 
 const AuthContext = createContext(null)
+
+function getStoredParentChildId(user) {
+  if (!user?._id || user.role !== 'parent') return ''
+  return localStorage.getItem(`lexigrow_parent_child_${user._id}`) || ''
+}
 
 export function AuthProvider({ children }) {
   // Lấy dữ liệu lưu trữ từ localStorage trước khi render để giữ trạng thái F5
   const [user, setUser] = useState(api.getUser())
   const [token, setToken] = useState(api.getToken())
   const [loading, setLoading] = useState(false)
+  const [selectedParentChildId, setSelectedParentChildId] = useState(() => getStoredParentChildId(api.getUser()))
+  const parentChildStorageKey = user?._id && user.role === 'parent' ? `lexigrow_parent_child_${user._id}` : ''
 
   // Quản lý vòng đời kết nối Socket.io dựa trên token đăng nhập
   useEffect(() => {
@@ -31,6 +39,7 @@ export function AuthProvider({ children }) {
       api.setUser(data.user)
       setToken(data.token)
       setUser(data.user)
+      setSelectedParentChildId(getStoredParentChildId(data.user) || data.user.children?.[0]?._id || '')
       return data.user
     } finally {
       setLoading(false)
@@ -60,6 +69,7 @@ export function AuthProvider({ children }) {
       api.setUser(data.user)
       setToken(data.token)
       setUser(data.user)
+      setSelectedParentChildId(getStoredParentChildId(data.user) || data.user.children?.[0]?._id || '')
       return data.user
     } finally {
       setLoading(false)
@@ -71,16 +81,24 @@ export function AuthProvider({ children }) {
     api.removeToken()
     setToken(null)
     setUser(null)
+    setSelectedParentChildId('')
   }
 
-  const updateUser = (updates) => {
+  const updateUser = useCallback((updates) => {
     setUser(currentUser => {
       if (!currentUser) return currentUser
       const updatedUser = { ...currentUser, ...updates }
       api.setUser(updatedUser)
       return updatedUser
     })
-  }
+  }, [])
+
+  const selectParentChild = useCallback((childId) => {
+    setSelectedParentChildId(childId || '')
+    if (parentChildStorageKey && childId) {
+      localStorage.setItem(parentChildStorageKey, childId)
+    }
+  }, [parentChildStorageKey])
 
   // 4. Đăng nhập Google
   const loginWithGoogle = async (googlePayload) => {
@@ -91,6 +109,7 @@ export function AuthProvider({ children }) {
       api.setUser(data.user)
       setToken(data.token)
       setUser(data.user)
+      setSelectedParentChildId(getStoredParentChildId(data.user) || data.user.children?.[0]?._id || '')
       return data.user
     } finally {
       setLoading(false)
@@ -102,7 +121,7 @@ export function AuthProvider({ children }) {
     try {
       const data = await api.post('/auth/check-email', { email })
       return data.exists
-    } catch (err) {
+    } catch {
       return false
     }
   }
@@ -121,6 +140,8 @@ export function AuthProvider({ children }) {
       loginWithGoogle, 
       checkEmail, 
       updateUser,
+      selectedParentChildId,
+      selectParentChild,
       isAuthenticated 
     }}>
       {children}

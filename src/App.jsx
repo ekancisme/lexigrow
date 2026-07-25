@@ -81,7 +81,7 @@ function ParentProtectedRoute({ children }) {
   }
 
   if (!isAuthenticated || user?.role !== 'parent') {
-    return <Navigate to="/login" replace state={{ infoMessage: 'Bạn không có quyền truy cập trang phụ huynh.' }} />
+    return <Navigate to="/login" replace state={{ infoMessage: 'You do not have access to the parent workspace.' }} />
   }
 
   return children
@@ -120,7 +120,12 @@ function App() {
       }>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<ParentDashboard />} />
-        <Route path="children/:id" element={<ChildProgress />} />
+        <Route path="children/:id" element={<ChildProgress view="progress" />} />
+        <Route path="children/:id/progress" element={<ChildProgress view="progress" />} />
+        <Route path="children/:id/essays" element={<ChildProgress view="essays" />} />
+        <Route path="children/:id/vocabulary" element={<ChildProgress view="vocabulary" />} />
+        <Route path="children/:id/goals" element={<ChildProgress view="goals" />} />
+        <Route path="children/:id/alerts" element={<ChildProgress view="alerts" />} />
       </Route>
 
       {/* Teacher routes */}
