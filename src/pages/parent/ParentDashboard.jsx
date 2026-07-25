@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import './ParentDashboard.css'
@@ -11,6 +12,7 @@ const RELATIONSHIPS = [
 ]
 
 export default function ParentDashboard() {
+  const navigate = useNavigate()
   const { updateUser } = useAuth()
   const [children, setChildren] = useState([])
   const [linkCode, setLinkCode] = useState('')
@@ -36,7 +38,22 @@ export default function ParentDashboard() {
   }
 
   useEffect(() => {
-    loadChildren()
+    let active = true
+
+    api.get('/parent/children')
+      .then(response => {
+        if (!active) return
+        const linkedChildren = Array.isArray(response.data) ? response.data : []
+        setChildren(linkedChildren)
+      })
+      .catch(err => {
+        if (active) setError(err.message || 'Unable to load linked students.')
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+
+    return () => { active = false }
   }, [])
 
   async function handleLink(event) {
@@ -142,10 +159,16 @@ export default function ParentDashboard() {
                   <p>{child.email}</p>
                   <span>{child.englishLevel || 'Level not set'}</span>
                 </div>
-                <button type="button" className="parent-dashboard__unlink" onClick={() => handleUnlink(child)} title={`Unlink ${child.name}`}>
-                  <span className="material-symbols-outlined">link_off</span>
-                  <span>Unlink</span>
-                </button>
+                <div className="parent-dashboard__student-actions">
+                  <button type="button" className="parent-dashboard__view" onClick={() => navigate(`/parent/children/${child._id}`)}>
+                    <span className="material-symbols-outlined">monitoring</span>
+                    <span>View progress</span>
+                  </button>
+                  <button type="button" className="parent-dashboard__unlink" onClick={() => handleUnlink(child)} title={`Unlink ${child.name}`}>
+                    <span className="material-symbols-outlined">link_off</span>
+                    <span>Unlink</span>
+                  </button>
+                </div>
               </article>
             ))}
           </div>

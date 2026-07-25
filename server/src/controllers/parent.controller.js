@@ -197,6 +197,21 @@ export const getChildProgress = asyncHandler(async (req, res) => {
   const totalVocab = await Vocabulary.countDocuments({ student: childId })
   const totalEssays = await Essay.countDocuments({ student: childId })
 
+  const now = new Date()
+  const oneWeekMs = 7 * 24 * 60 * 60 * 1000
+  const weeklyVocabulary = await Promise.all(
+    Array.from({ length: 6 }, async (_, index) => {
+      const weeksAgo = 5 - index
+      const start = new Date(now.getTime() - (weeksAgo + 1) * oneWeekMs)
+      const end = new Date(now.getTime() - weeksAgo * oneWeekMs)
+      const count = await Vocabulary.countDocuments({
+        student: childId,
+        createdAt: { $gte: start, $lt: end },
+      })
+      return { start: start.toISOString(), end: end.toISOString(), count }
+    })
+  )
+
   const essays = await Essay.find({ student: childId }).distinct('_id')
   const analyses = await AIAnalysis.find({ essay: { $in: essays } })
 
@@ -205,12 +220,6 @@ export const getChildProgress = asyncHandler(async (req, res) => {
     : 0
 
   const child = await User.findById(childId)
-  let rank = child.englishLevel || 'A1'
-  if (totalVocab >= 800 && avgTTR >= 0.7) rank = 'C2'
-  else if (totalVocab >= 600 && avgTTR >= 0.65) rank = 'C1'
-  else if (totalVocab >= 400 && avgTTR >= 0.6) rank = 'B2'
-  else if (totalVocab >= 200 && avgTTR >= 0.5) rank = 'B1'
-  else if (totalVocab >= 100) rank = 'A2'
 
   res.status(200).json({
     success: true,
@@ -218,7 +227,8 @@ export const getChildProgress = asyncHandler(async (req, res) => {
       totalVocab,
       totalEssays,
       avgTTR,
-      rank,
+      englishLevel: child.englishLevel || '',
+      weeklyVocabulary,
       name: child.name,
       email: child.email,
       avatar: child.avatar,
@@ -262,11 +272,21 @@ export const getChildEssays = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Not authorized to view this child\'s essays', 403)
   }
 
-  const essays = await Essay.find({ student: childId }).sort({ createdAt: -1 })
+  const essays = await Essay.find({ student: childId }).sort({ submittedAt: -1, createdAt: -1 }).lean()
+  const analyses = essays.length > 0
+    ? await AIAnalysis.find({ essay: { $in: essays.map(essay => essay._id) } })
+      .select('essay overallScore scores learningPatterns')
+      .lean()
+    : []
+  const analysisByEssay = new Map(analyses.map(analysis => [analysis.essay.toString(), analysis]))
+  const essaySummaries = essays.map(essay => ({
+    ...essay,
+    analysis: analysisByEssay.get(essay._id.toString()) || null,
+  }))
 
   res.status(200).json({
     success: true,
-    data: essays
+    data: essaySummaries
   })
 })
 

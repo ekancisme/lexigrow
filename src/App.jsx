@@ -22,6 +22,7 @@ import StudentClassDetail from './pages/student/StudentClassDetail'
 
 /* Parent Pages */
 import ParentDashboard from './pages/parent/ParentDashboard'
+import ChildProgress from './pages/parent/ChildProgress'
 
 /* Teacher Pages */
 import TeacherDashboard from './pages/teacher/TeacherDashboard'
@@ -119,6 +120,7 @@ function App() {
       }>
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<ParentDashboard />} />
+        <Route path="children/:id" element={<ChildProgress />} />
       </Route>
 
       {/* Teacher routes */}

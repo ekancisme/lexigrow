@@ -1,0 +1,81 @@
+.child-progress { display: flex; flex-direction: column; gap: var(--spacing-lg); }
+.child-progress__header { display: grid; grid-template-columns: auto 1fr minmax(210px, 280px); align-items: center; gap: var(--spacing-md); }
+.child-progress__back { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--color-outline-variant); border-radius: 50%; color: var(--color-on-surface-variant); }
+.child-progress__identity { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.child-progress__identity h2 { font-size: var(--text-headline-md-size); }
+.child-progress__identity p { color: var(--color-on-surface-variant); overflow-wrap: anywhere; }
+.child-progress__avatar { width: 52px; height: 52px; display: grid; place-items: center; overflow: hidden; flex: 0 0 auto; border-radius: 50%; background: var(--color-surface-container-high); color: var(--color-primary); }
+.child-progress__avatar img { width: 100%; height: 100%; object-fit: cover; }
+.child-progress__selector { display: flex; flex-direction: column; gap: 4px; color: var(--color-on-surface-variant); font-size: var(--text-label-sm-size); font-weight: 600; }
+.child-progress__selector select { height: 42px; padding: 0 12px; border: 1px solid var(--color-outline-variant); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-on-surface); }
+.child-progress__tabs { display: flex; gap: 4px; min-height: 48px; border-bottom: 1px solid var(--color-outline-variant); overflow-x: auto; }
+.child-progress__tabs button { position: relative; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 120px; padding: 0 16px; color: var(--color-on-surface-variant); font-weight: 600; white-space: nowrap; }
+.child-progress__tabs button::after { content: ''; position: absolute; inset: auto 8px 0; height: 3px; background: transparent; }
+.child-progress__tabs button.is-active { color: var(--color-primary); }
+.child-progress__tabs button.is-active::after { background: var(--color-primary); }
+.child-progress__tabs i { width: 7px; height: 7px; border-radius: 50%; background: var(--color-error); }
+.child-progress__content { min-width: 0; }
+.child-progress__metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-block: 1px solid var(--color-outline-variant); }
+.child-progress__metric { display: grid; grid-template-columns: auto 1fr; align-items: center; column-gap: 10px; padding: var(--spacing-md); border-right: 1px solid var(--color-outline-variant); }
+.child-progress__metric:last-child { border-right: none; }
+.child-progress__metric .material-symbols-outlined { grid-row: 1 / 3; width: 40px; height: 40px; display: grid; place-items: center; border-radius: 50%; background: var(--color-surface-container-high); color: var(--color-primary); }
+.child-progress__metric strong { font-size: 24px; line-height: 1; }
+.child-progress__metric small { color: var(--color-on-surface-variant); }
+.child-progress__section { padding-top: var(--spacing-xl); }
+.child-progress__section-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--spacing-md); }
+.child-progress__section-heading h3 { font-size: var(--text-title-lg-size); }
+.child-progress__section-heading p, .child-progress__section-heading > span { color: var(--color-on-surface-variant); font-size: var(--text-body-sm-size); }
+.child-progress__growth { height: 260px; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); align-items: end; gap: clamp(8px, 3vw, 28px); margin-top: var(--spacing-lg); padding: 16px 12px 0; border-bottom: 1px solid var(--color-outline-variant); background: repeating-linear-gradient(to bottom, transparent 0, transparent 63px, var(--color-outline-variant) 64px); }
+.child-progress__growth-column { height: 100%; display: grid; grid-template-rows: 22px 1fr 34px; align-items: end; text-align: center; }
+.child-progress__growth-value { color: var(--color-on-surface-variant); font-size: var(--text-label-sm-size); }
+.child-progress__growth-track { height: 100%; display: flex; align-items: flex-end; justify-content: center; }
+.child-progress__growth-bar { width: min(48px, 65%); min-height: 3px; border-radius: 4px 4px 0 0; background: var(--color-primary); }
+.child-progress__growth-label { padding-top: 8px; color: var(--color-on-surface-variant); font-size: var(--text-label-sm-size); }
+.child-progress__timeline { display: flex; flex-direction: column; }
+.child-progress__essay { display: grid; grid-template-columns: 130px 1fr; border-bottom: 1px solid var(--color-outline-variant); }
+.child-progress__essay-date { padding: var(--spacing-md); color: var(--color-on-surface-variant); font-size: var(--text-label-md-size); }
+.child-progress__essay-body { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-md); padding: var(--spacing-md); border-left: 1px solid var(--color-outline-variant); }
+.child-progress__essay-body h3 { font-size: var(--text-title-md-size); }
+.child-progress__essay-body p { margin-top: 4px; color: var(--color-on-surface-variant); }
+.child-progress__essay-meta { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
+.child-progress__status { padding: 4px 8px; border-radius: var(--radius-sm); background: var(--color-surface-container-high); color: var(--color-on-surface-variant); font-size: var(--text-label-sm-size); text-transform: capitalize; }
+.child-progress__status--reviewed { color: #17643a; background: #e8f5ed; }
+.child-progress__status--needs_revision { color: #8a4b00; background: #fff2df; }
+.child-progress__alerts { display: flex; flex-direction: column; }
+.child-progress__alert { display: grid; grid-template-columns: 36px 1fr; gap: 12px; padding: var(--spacing-md); border-bottom: 1px solid var(--color-outline-variant); }
+.child-progress__alert > .material-symbols-outlined { color: #9a6700; }
+.child-progress__alert--critical > .material-symbols-outlined { color: var(--color-error); }
+.child-progress__alert-heading { display: flex; justify-content: space-between; gap: var(--spacing-md); }
+.child-progress__alert-heading h3 { font-size: var(--text-title-md-size); text-transform: capitalize; }
+.child-progress__alert-heading span { color: var(--color-on-surface-variant); font-size: var(--text-label-sm-size); }
+.child-progress__alert p { margin: 6px 0; }
+.child-progress__alert small { color: var(--color-on-surface-variant); }
+.child-progress__empty, .child-progress__state { min-height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; color: var(--color-on-surface-variant); }
+.child-progress__empty .material-symbols-outlined, .child-progress__state .material-symbols-outlined { font-size: 42px; color: var(--color-primary); }
+.child-progress__state--error .material-symbols-outlined { color: var(--color-error); }
+.child-progress__state button { margin-top: 8px; padding: 9px 16px; border-radius: var(--radius-md); background: var(--color-primary); color: var(--color-on-primary); font-weight: 600; }
+
+@media (max-width: 800px) {
+  .child-progress__header { grid-template-columns: auto 1fr; }
+  .child-progress__selector { grid-column: 1 / -1; }
+  .child-progress__metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .child-progress__metric:nth-child(2) { border-right: none; }
+  .child-progress__metric:nth-child(-n + 2) { border-bottom: 1px solid var(--color-outline-variant); }
+}
+
+@media (max-width: 520px) {
+  .child-progress__identity h2 { font-size: var(--text-title-lg-size); }
+  .child-progress__identity p { font-size: var(--text-label-sm-size); }
+  .child-progress__tabs { margin-inline: calc(var(--spacing-md) * -1); padding-inline: var(--spacing-md); }
+  .child-progress__tabs button { min-width: 105px; padding-inline: 10px; }
+  .child-progress__metrics { grid-template-columns: 1fr; }
+  .child-progress__metric { border-right: none; border-bottom: 1px solid var(--color-outline-variant); }
+  .child-progress__metric:last-child { border-bottom: none; }
+  .child-progress__growth { gap: 5px; padding-inline: 0; }
+  .child-progress__growth-label { font-size: 10px; }
+  .child-progress__essay { grid-template-columns: 1fr; }
+  .child-progress__essay-date { padding-bottom: 0; }
+  .child-progress__essay-body { align-items: flex-start; flex-direction: column; border-left: 0; }
+  .child-progress__essay-meta { width: 100%; justify-content: space-between; }
+  .child-progress__alert-heading { flex-direction: column; gap: 4px; }
+}

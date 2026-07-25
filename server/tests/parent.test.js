@@ -8,6 +8,7 @@ const mockQuery = (val) => {
     sort: vi.fn().mockImplementation(() => q),
     limit: vi.fn().mockImplementation(() => q),
     distinct: vi.fn().mockImplementation(() => q),
+    lean: vi.fn().mockImplementation(() => q),
     then: (resolve) => resolve(val),
     catch: () => {}
   }
@@ -70,7 +71,7 @@ vi.mock('../src/middleware/auth.middleware.js', () => ({
     req.user = { _id: 'mock_parent_id', role: 'parent', name: 'Mock Parent' }
     next()
   },
-  authorize: (...roles) => (req, res, next) => {
+  authorize: () => (req, res, next) => {
     next()
   }
 }))
@@ -194,8 +195,12 @@ describe('Parent API', () => {
       .mockReturnValueOnce(mockQuery(childMock))
 
     Vocabulary.countDocuments.mockResolvedValueOnce(15) // totalVocab
-    Vocabulary.countDocuments.mockResolvedValueOnce(5)  // thisMonthWords
-    Vocabulary.countDocuments.mockResolvedValueOnce(2)  // lastMonthWords
+    Vocabulary.countDocuments.mockResolvedValueOnce(0)
+    Vocabulary.countDocuments.mockResolvedValueOnce(1)
+    Vocabulary.countDocuments.mockResolvedValueOnce(2)
+    Vocabulary.countDocuments.mockResolvedValueOnce(3)
+    Vocabulary.countDocuments.mockResolvedValueOnce(4)
+    Vocabulary.countDocuments.mockResolvedValueOnce(5)
     Essay.countDocuments.mockResolvedValueOnce(4)       // totalEssays
     Essay.find.mockReturnValueOnce(mockQuery(['essay1', 'essay2']))
     AIAnalysis.find.mockReturnValueOnce(mockQuery([
@@ -210,6 +215,21 @@ describe('Parent API', () => {
     expect(res.body.success).toBe(true)
     expect(res.body.data.totalVocab).toBe(15)
     expect(res.body.data.avgTTR).toBe(0.7) // (0.65 + 0.75) / 2
+    expect(res.body.data.englishLevel).toBe('B1')
+    expect(res.body.data.weeklyVocabulary.map(week => week.count)).toEqual([0, 1, 2, 3, 4, 5])
+  })
+
+  it('should reject progress access for an unlinked student', async () => {
+    User.findById.mockReturnValue(mockQuery({
+      _id: 'mock_parent_id',
+      children: ['different_student_id'],
+    }))
+
+    const res = await request(app)
+      .get('/api/parent/children/mock_student_id/progress')
+      .expect(403)
+
+    expect(res.body.success).toBe(false)
   })
 
   it('should get alerts of a child', async () => {
@@ -236,6 +256,10 @@ describe('Parent API', () => {
     }
     User.findById.mockReturnValue(mockQuery(parentMock))
     Essay.find.mockReturnValue(mockQuery([{ _id: 'essay_id', title: 'My Holiday' }]))
+    AIAnalysis.find.mockReturnValue(mockQuery([{
+      essay: { toString: () => 'essay_id' },
+      overallScore: 8.2,
+    }]))
 
     const res = await request(app)
       .get('/api/parent/children/mock_student_id/essays')
@@ -244,5 +268,6 @@ describe('Parent API', () => {
     expect(res.body.success).toBe(true)
     expect(res.body.data.length).toBe(1)
     expect(res.body.data[0].title).toBe('My Holiday')
+    expect(res.body.data[0].analysis.overallScore).toBe(8.2)
   })
 })
