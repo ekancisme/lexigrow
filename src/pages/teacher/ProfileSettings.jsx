@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import api from '../../services/api.js'
+import { useAuth } from '../../contexts/AuthContext.jsx'
 import './ProfileSettings.css'
 
 export default function ProfileSettings() {
+  const { user: authUser } = useAuth()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [institution, setInstitution] = useState('')
@@ -16,6 +18,8 @@ export default function ProfileSettings() {
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [updatingPassword, setUpdatingPassword] = useState(false)
+  const [linkCode, setLinkCode] = useState(null)
+  const [generatingLinkCode, setGeneratingLinkCode] = useState(false)
 
   useEffect(() => {
     async function loadProfile() {
@@ -94,6 +98,18 @@ export default function ProfileSettings() {
     }
   }
 
+  async function handleGenerateLinkCode() {
+    setGeneratingLinkCode(true)
+    try {
+      const response = await api.post('/parent/link-code')
+      setLinkCode(response.data)
+    } catch (err) {
+      alert('Error generating link code: ' + err.message)
+    } finally {
+      setGeneratingLinkCode(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="profile-settings" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
@@ -112,6 +128,31 @@ export default function ProfileSettings() {
       </section>
 
       <div className="profile-settings__layout">
+        {authUser?.role === 'student' && (
+          <section className="card-base profile-settings__link-code">
+            <div>
+              <h3 className="text-title-lg">Parent link code</h3>
+              <p className="text-body-sm profile-settings__link-code-copy">
+                Generate a one-time code and share it directly with your parent or guardian. Creating a new code invalidates the previous one.
+              </p>
+            </div>
+            {linkCode ? (
+              <div className="profile-settings__link-code-result" role="status">
+                <strong aria-label={`Parent link code ${linkCode.code}`}>{linkCode.code}</strong>
+                <span>Expires {new Date(linkCode.expiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
+            ) : null}
+            <button
+              type="button"
+              className="profile-settings__save-btn"
+              onClick={handleGenerateLinkCode}
+              disabled={generatingLinkCode}
+            >
+              {generatingLinkCode ? 'Generating...' : linkCode ? 'Generate new code' : 'Generate code'}
+            </button>
+          </section>
+        )}
+
         {/* Profile Section */}
         <section className="card-base">
           <h3 className="text-title-lg" style={{ marginBottom: 24 }}>Personal Information</h3>

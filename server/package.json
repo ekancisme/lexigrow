@@ -17,11 +17,13 @@
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.6.0",
     "express-validator": "^7.3.2",
     "google-auth-library": "^10.7.0",
     "groq-sdk": "^1.2.1",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.6.3",
+    "node-cron": "^4.6.0",
     "nodemailer": "^8.0.10",
     "socket.io": "^4.8.3"
   },

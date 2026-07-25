@@ -12,11 +12,11 @@ function formatRelativeTime(dateStr) {
   const diffMin = Math.floor(diffMs / 60000)
   const diffHr  = Math.floor(diffMs / 3600000)
   const diffDay = Math.floor(diffMs / 86400000)
-  if (diffMin < 1)  return 'Vừa xong'
-  if (diffMin < 60) return `${diffMin} phút trước`
-  if (diffHr  < 24) return `${diffHr} giờ trước`
-  if (diffDay < 7)  return `${diffDay} ngày trước`
-  return new Date(dateStr).toLocaleDateString('vi-VN')
+  if (diffMin < 1)  return 'Just now'
+  if (diffMin < 60) return `${diffMin} minute${diffMin === 1 ? '' : 's'} ago`
+  if (diffHr  < 24) return `${diffHr} hour${diffHr === 1 ? '' : 's'} ago`
+  if (diffDay < 7)  return `${diffDay} day${diffDay === 1 ? '' : 's'} ago`
+  return new Date(dateStr).toLocaleDateString('en-GB')
 }
 
 function getTypeIcon(type) {
@@ -46,19 +46,15 @@ export default function NotificationBell() {
 
   const toastTimerRef = useRef(null)
 
-  /* ── Fetch unread count ── */
-  const fetchUnreadCount = useCallback(async () => {
-    try {
-      const res = await api.get('/notifications/unread-count')
-      setUnreadCount(res.data?.count ?? 0)
-    } catch {
-      // non-critical, fail silently
-    }
-  }, [])
-
   useEffect(() => {
-    fetchUnreadCount()
-  }, [fetchUnreadCount])
+    let active = true
+    api.get('/notifications/unread-count')
+      .then(res => {
+        if (active) setUnreadCount(res.data?.count ?? 0)
+      })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
 
   /* ── Socket.io live listener ── */
   useEffect(() => {
@@ -76,10 +72,11 @@ export default function NotificationBell() {
     }
 
     socket.on('notification', handleNewNotification)
+    const toastTimer = toastTimerRef.current
 
     return () => {
       socket.off('notification', handleNewNotification)
-      if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+      if (toastTimer) clearTimeout(toastTimer)
     }
   }, [open, token])
 
@@ -96,10 +93,6 @@ export default function NotificationBell() {
       setLoading(false)
     }
   }, [])
-
-  useEffect(() => {
-    if (open) fetchNotifications()
-  }, [open, fetchNotifications])
 
   /* ── Close on outside click ── */
   useEffect(() => {
@@ -182,9 +175,13 @@ export default function NotificationBell() {
         <button
           id="notification-bell-btn"
           className={`topnav__icon-btn notif-bell__btn ${open ? 'notif-bell__btn--active' : ''}`}
-          aria-label={`Thông báo${unreadCount > 0 ? ` (${unreadCount} chưa đọc)` : ''}`}
+          aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
           aria-expanded={open}
-          onClick={() => setOpen(p => !p)}
+          onClick={() => {
+            const nextOpen = !open
+            setOpen(nextOpen)
+            if (nextOpen) fetchNotifications()
+          }}
         >
           <span className="material-symbols-outlined">
             {open ? 'notifications_active' : 'notifications'}
@@ -198,13 +195,13 @@ export default function NotificationBell() {
 
         {/* Dropdown */}
         {open && (
-          <div className="notif-dropdown animate-scale-in" role="dialog" aria-label="Danh sách thông báo">
+          <div className="notif-dropdown animate-scale-in" role="dialog" aria-label="Notification list">
             {/* Header */}
             <div className="notif-dropdown__header">
               <div>
-                <h3 className="text-title-lg notif-dropdown__title">Thông báo</h3>
+                <h3 className="text-title-lg notif-dropdown__title">Notifications</h3>
                 {unreadCount > 0 && (
-                  <span className="notif-dropdown__unread-label">{unreadCount} chưa đọc</span>
+                  <span className="notif-dropdown__unread-label">{unreadCount} unread</span>
                 )}
               </div>
               {unreadCount > 0 && (
@@ -215,7 +212,7 @@ export default function NotificationBell() {
                 >
                   {markingAll
                     ? <span className="material-symbols-outlined animate-spin" style={{ fontSize: 16 }}>progress_activity</span>
-                    : 'Đánh dấu tất cả đã đọc'
+                    : 'Mark all as read'
                   }
                 </button>
               )}
@@ -239,7 +236,7 @@ export default function NotificationBell() {
                   <span className="material-symbols-outlined" style={{ fontSize: 40, color: 'var(--color-outline)' }}>
                     notifications_off
                   </span>
-                  <p className="text-body-md">Không có thông báo nào</p>
+                  <p className="text-body-md">No notifications</p>
                 </div>
               ) : (
                 notifications.map(notif => {
@@ -299,7 +296,7 @@ export default function NotificationBell() {
                           {formatRelativeTime(notif.createdAt)}
                         </span>
                       </div>
-                      {!notif.isRead && <span className="notif-item__dot" aria-label="Chưa đọc" />}
+                      {!notif.isRead && <span className="notif-item__dot" aria-label="Unread" />}
                     </ItemTag>
                   )
                 })
@@ -310,7 +307,7 @@ export default function NotificationBell() {
             {!loading && notifications.length > 0 && (
               <div className="notif-dropdown__footer">
                 <button className="notif-dropdown__see-all" onClick={() => setOpen(false)}>
-                  Đóng
+                  Close
                 </button>
               </div>
             )}

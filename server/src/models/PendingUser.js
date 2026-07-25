@@ -30,12 +30,6 @@ const pendingUserSchema = new mongoose.Schema({
     trim: true,
     default: '',
   },
-  childEmail: {
-    type: String,
-    lowercase: true,
-    trim: true,
-    default: '',
-  },
   verificationCode: {
     type: String,
     required: true,

@@ -12,7 +12,7 @@ const alertSchema = new mongoose.Schema({
   teacher: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    default: null,
   },
   type: {
     type: String,
@@ -39,12 +39,17 @@ const alertSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+  viewedByParents: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  }],
 }, {
   timestamps: true,
 })
 
 alertSchema.index({ teacher: 1, isRead: 1, createdAt: -1 })
 alertSchema.index({ teacher: 1, type: 1 })
+alertSchema.index({ student: 1, isResolved: 1, createdAt: -1 })
 
 const Alert = mongoose.model('Alert', alertSchema)
 export default Alert

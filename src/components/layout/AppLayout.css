@@ -46,6 +46,10 @@
     padding: var(--margin-mobile);
   }
 
+  .app-layout__content--parent {
+    padding-bottom: calc(var(--margin-mobile) + 72px + env(safe-area-inset-bottom));
+  }
+
   .app-layout__sidebar-overlay {
     position: fixed;
     inset: 0;
