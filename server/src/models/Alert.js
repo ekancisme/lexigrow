@@ -12,7 +12,7 @@ const alertSchema = new mongoose.Schema({
   teacher: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true,
+    default: null,
   },
   type: {
     type: String,

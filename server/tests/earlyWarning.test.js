@@ -14,6 +14,10 @@ vi.mock('../src/utils/sendEmail.js', () => ({
   default: vi.fn().mockResolvedValue({ success: true })
 }))
 
+vi.mock('../src/services/notification.service.js', () => ({
+  createManyNotifications: vi.fn().mockResolvedValue([])
+}))
+
 // Mock models
 vi.mock('../src/models/User.js', () => ({
   default: {
@@ -48,6 +52,7 @@ vi.mock('../src/models/Alert.js', () => {
   class MockAlert {
     constructor(data) {
       Object.assign(this, data)
+      this._id = 'alert_123'
     }
     save() {
       return mockSave()
@@ -67,12 +72,14 @@ vi.mock('../src/models/Class.js', () => ({
   }
 }))
 
-import { checkVocabularyStagnation, checkGrammarDecline, runEarlyWarningScan } from '../src/services/earlyWarning.service.js'
+import { checkVocabularyStagnation, checkGrammarDecline, createAndNotifyAlert, runEarlyWarningScan } from '../src/services/earlyWarning.service.js'
 import Vocabulary from '../src/models/Vocabulary.js'
 import Essay from '../src/models/Essay.js'
 import AIAnalysis from '../src/models/AIAnalysis.js'
 import User from '../src/models/User.js'
+import Class from '../src/models/Class.js'
 import sendEmail from '../src/utils/sendEmail.js'
+import { createManyNotifications } from '../src/services/notification.service.js'
 
 describe('Early Warning System Service', () => {
   beforeEach(() => {
@@ -159,6 +166,22 @@ describe('Early Warning System Service', () => {
       const result = await checkGrammarDecline('student_123')
       expect(result.isDeclining).toBe(false)
     })
+
+    it('should ignore a continuous but insignificant grammar fluctuation', async () => {
+      Essay.find.mockReturnValue({
+        sort: vi.fn().mockReturnValue({
+          limit: vi.fn().mockResolvedValue([{ _id: 'e1' }, { _id: 'e2' }, { _id: 'e3' }])
+        })
+      })
+      AIAnalysis.find.mockResolvedValue([
+        { essay: 'e1', scores: { grammarAccuracy: 7.7 } },
+        { essay: 'e2', scores: { grammarAccuracy: 7.8 } },
+        { essay: 'e3', scores: { grammarAccuracy: 7.9 } }
+      ])
+
+      const result = await checkGrammarDecline('student_123')
+      expect(result.isDeclining).toBe(false)
+    })
   })
 
   describe('runEarlyWarningScan', () => {
@@ -178,18 +201,39 @@ describe('Early Warning System Service', () => {
         })
       })
 
-      // Alert mock setup
-      mockFindOne.mockResolvedValue(null) // no existing duplicate alert
-      User.findOne.mockResolvedValueOnce({ _id: 'teacher_123', role: 'teacher' }) // fallback teacher
-      User.find.mockResolvedValueOnce([{ _id: 'parent_123', email: 'parent@example.com', name: 'Parent Doe', role: 'parent' }]) // parent
+      mockFindOne.mockResolvedValue(null)
+      Class.findOne.mockResolvedValue({ _id: 'class_123', teacher: 'teacher_123' })
+      User.find.mockResolvedValueOnce([{ _id: 'parent_123', email: 'parent@example.com', name: 'Parent Doe', role: 'parent' }])
 
-      await runEarlyWarningScan()
+      const summary = await runEarlyWarningScan()
 
+      expect(summary).toEqual(expect.objectContaining({ scanned: 1, created: 1, failed: 0 }))
       expect(mockSave).toHaveBeenCalled()
+      expect(createManyNotifications).toHaveBeenCalledWith(expect.arrayContaining([
+        expect.objectContaining({ recipient: 'teacher_123', type: 'academic_alert' }),
+        expect.objectContaining({ recipient: 'parent_123', type: 'academic_alert' })
+      ]))
       expect(sendEmail).toHaveBeenCalledWith(expect.objectContaining({
         email: 'parent@example.com',
         subject: expect.stringContaining('John Doe')
       }))
+    })
+
+    it('should not duplicate an unresolved alert or resend notifications', async () => {
+      mockFindOne.mockResolvedValue({ _id: 'existing_alert' })
+
+      const created = await createAndNotifyAlert(
+        { _id: 'student_123', name: 'John Doe' },
+        'warning',
+        'vocabulary_stagnation',
+        'No vocabulary growth.'
+      )
+
+      expect(created).toBe(false)
+      expect(mockSave).not.toHaveBeenCalled()
+      expect(createManyNotifications).not.toHaveBeenCalled()
+      expect(sendEmail).not.toHaveBeenCalled()
+      expect(User.findOne).not.toHaveBeenCalled()
     })
   })
 })

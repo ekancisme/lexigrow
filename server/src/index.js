@@ -8,7 +8,7 @@ import express from 'express'
 import cors from 'cors'
 import connectDB from './config/db.js'
 import errorHandler from './middleware/error.middleware.js'
-import { runEarlyWarningScan } from './services/earlyWarning.service.js'
+import { scheduleEarlyWarningScan } from './services/earlyWarning.scheduler.js'
 import { initSocket } from './services/socket.service.js'
 
 // Connect to database
@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }))
 
 // CORS
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: globalThis.process.env.CLIENT_URL || 'http://localhost:5173',
   credentials: true,
 }))
 
@@ -84,16 +84,16 @@ app.use('/api/assignments', assignmentRoutes)
 // Error handler (must be after routes)
 app.use(errorHandler)
 
-const PORT = process.env.PORT || 5000
+const PORT = globalThis.process.env.PORT || 5000
 
 const server = app.listen(PORT, () => {
-  console.log(`🚀 LexiGrow Server running in ${process.env.NODE_ENV} mode on port ${PORT}`)
+  console.log(`🚀 LexiGrow Server running in ${globalThis.process.env.NODE_ENV} mode on port ${PORT}`)
 })
 
 initSocket(server)
 
-// Early Warning Scan Scheduler: runs every 24 hours, and starts a test run 10 seconds after server startup.
-setInterval(runEarlyWarningScan, 24 * 60 * 60 * 1000)
-setTimeout(runEarlyWarningScan, 10000)
+if (globalThis.process.env.NODE_ENV !== 'test') {
+  scheduleEarlyWarningScan()
+}
 
 export default app

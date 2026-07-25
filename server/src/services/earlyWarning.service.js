@@ -5,38 +5,53 @@ import Vocabulary from '../models/Vocabulary.js'
 import Alert from '../models/Alert.js'
 import Class from '../models/Class.js'
 import sendEmail from '../utils/sendEmail.js'
+import { createManyNotifications } from './notification.service.js'
+
+const ONE_DAY_MS = 24 * 60 * 60 * 1000
+const SCAN_BATCH_SIZE = 10
+const MIN_GRAMMAR_TOTAL_DROP = 0.5
+
+const escapeHtml = value => String(value)
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&#039;')
+
+const wait = milliseconds => new Promise(resolve => setTimeout(resolve, milliseconds))
+
+async function sendEmailWithRetry(options, attempts = 3) {
+  let lastError
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      await sendEmail(options)
+      return
+    } catch (error) {
+      lastError = error
+      if (attempt < attempts) await wait(250 * 2 ** (attempt - 1))
+    }
+  }
+  throw lastError
+}
 
 /**
  * Check if the student has stagnated in vocabulary growth (0 new words for 4 consecutive weeks)
  */
-export const checkVocabularyStagnation = async (studentId) => {
-  const now = new Date()
-  const oneDay = 24 * 60 * 60 * 1000
-
-  const week1End = now
-  const week1Start = new Date(now.getTime() - 7 * oneDay)
-
-  const week2End = week1Start
-  const week2Start = new Date(now.getTime() - 14 * oneDay)
-
-  const week3End = week2Start
-  const week3Start = new Date(now.getTime() - 21 * oneDay)
-
-  const week4End = week3Start
-  const week4Start = new Date(now.getTime() - 28 * oneDay)
-
-  const counts = await Promise.all([
-    Vocabulary.countDocuments({ student: studentId, createdAt: { $gte: week1Start, $lte: week1End } }),
-    Vocabulary.countDocuments({ student: studentId, createdAt: { $gte: week2Start, $lt: week2End } }),
-    Vocabulary.countDocuments({ student: studentId, createdAt: { $gte: week3Start, $lt: week3End } }),
-    Vocabulary.countDocuments({ student: studentId, createdAt: { $gte: week4Start, $lt: week4End } })
-  ])
-
-  const isStagnant = counts.every(count => count === 0)
+export const checkVocabularyStagnation = async (studentId, now = new Date()) => {
+  const counts = await Promise.all(
+    Array.from({ length: 4 }, (_, index) => {
+      const end = new Date(now.getTime() - index * 7 * ONE_DAY_MS)
+      const start = new Date(now.getTime() - (index + 1) * 7 * ONE_DAY_MS)
+      return Vocabulary.countDocuments({
+        student: studentId,
+        createdAt: { $gte: start, $lt: end },
+      })
+    })
+  )
 
   return {
-    isStagnant,
-    counts
+    isStagnant: counts.every(count => count === 0),
+    counts,
   }
 }
 
@@ -45,7 +60,7 @@ export const checkVocabularyStagnation = async (studentId) => {
  */
 export const checkGrammarDecline = async (studentId) => {
   const essays = await Essay.find({ student: studentId, status: 'reviewed' })
-    .sort({ createdAt: -1 })
+    .sort({ submittedAt: -1, createdAt: -1 })
     .limit(3)
 
   if (essays.length < 3) {
@@ -74,7 +89,9 @@ export const checkGrammarDecline = async (studentId) => {
 
   // Decline means older score > middle score > newest score
   // Index 0: newest, Index 1: middle, Index 2: oldest
-  const isDeclining = scores[2] > scores[1] && scores[1] > scores[0]
+  const isDeclining = scores[2] > scores[1]
+    && scores[1] > scores[0]
+    && scores[2] - scores[0] >= MIN_GRAMMAR_TOTAL_DROP
 
   return {
     isDeclining,
@@ -86,81 +103,53 @@ export const checkGrammarDecline = async (studentId) => {
  * Run automatic early warning scan for all students in the system
  */
 export const runEarlyWarningScan = async () => {
-  console.log('Starting early warning system scan...')
-  try {
-    const students = await User.find({ role: 'student' })
-    let alertCount = 0
-
-    for (const student of students) {
-      // 1. Check vocabulary stagnation
-      const vocabCheck = await checkVocabularyStagnation(student._id)
-      if (vocabCheck.isStagnant) {
-        await createAndNotifyAlert(
-          student,
-          'warning',
-          'vocabulary_stagnation',
-          'Học sinh đã không tích lũy thêm từ mới nào trong 4 tuần liên tiếp.'
-        )
-        alertCount++
-      }
-
-      // 2. Check grammar decline
-      const grammarCheck = await checkGrammarDecline(student._id)
-      if (grammarCheck.isDeclining) {
-        const s = grammarCheck.scores
-        await createAndNotifyAlert(
-          student,
-          'critical',
-          'grammar_decline',
-          `Độ chính xác ngữ pháp của học sinh giảm liên tiếp qua 3 bài viết gần nhất (${s[2].toFixed(1)} -> ${s[1].toFixed(1)} -> ${s[0].toFixed(1)}).`
-        )
-        alertCount++
-      }
-    }
-
-    console.log(`Early warning scan completed. Created ${alertCount} alerts/notifications.`)
-  } catch (error) {
-    console.error('Error during early warning scan:', error)
+  const startedAt = new Date()
+  const students = await User.find({ role: 'student', accountStatus: 'active' })
+  const summary = {
+    startedAt: startedAt.toISOString(),
+    finishedAt: null,
+    scanned: students.length,
+    created: 0,
+    failed: 0,
+    failures: [],
   }
+
+  for (let offset = 0; offset < students.length; offset += SCAN_BATCH_SIZE) {
+    const batch = students.slice(offset, offset + SCAN_BATCH_SIZE)
+    const results = await Promise.allSettled(batch.map(scanStudent))
+
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        summary.created += result.value
+      } else {
+        summary.failed++
+        summary.failures.push({
+          studentId: batch[index]._id.toString(),
+          error: result.reason?.message || 'Unknown scan error',
+        })
+      }
+    })
+  }
+
+  summary.finishedAt = new Date().toISOString()
+  return summary
 }
 
 /**
  * Create alert in database and notify parent via email
  */
-async function createAndNotifyAlert(student, type, metric, detail) {
-  // Find class and teacher
-  const studentClass = await Class.findOne({ students: student._id })
-  let teacherId = null
-  let classId = null
-
-  if (studentClass) {
-    teacherId = studentClass.teacher
-    classId = studentClass._id
-  } else {
-    // Find any teacher as a fallback to avoid validation error
-    const anyTeacher = await User.findOne({ role: 'teacher' })
-    if (anyTeacher) {
-      teacherId = anyTeacher._id
-    }
-  }
-
-  if (!teacherId) {
-    console.warn(`No teacher found to assign early warning alert for student: ${student.name}`)
-    return
-  }
-
-  // Check if a similar active alert was created recently to avoid duplicate alerts (e.g., in the last 24 hours)
-  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+export async function createAndNotifyAlert(student, type, metric, detail) {
   const existingAlert = await Alert.findOne({
     student: student._id,
     metric,
     isResolved: false,
-    createdAt: { $gte: oneDayAgo }
   })
 
-  if (existingAlert) {
-    return
-  }
+  if (existingAlert) return false
+
+  const studentClass = await Class.findOne({ students: student._id, status: 'active' })
+  const teacherId = studentClass?.teacher || null
+  const classId = studentClass?._id || null
 
   // Create alert in DB
   const alert = new Alert({
@@ -175,28 +164,94 @@ async function createAndNotifyAlert(student, type, metric, detail) {
 
   await alert.save()
 
-  // Find linked parents
   const parents = await User.find({ role: 'parent', children: student._id })
+  const notifications = []
+
+  if (teacherId) {
+    notifications.push({
+      recipient: teacherId,
+      sender: null,
+      alert: alert._id,
+      relatedUser: student._id,
+      title: `Learning alert: ${student.name}`,
+      message: detail,
+      type: 'academic_alert',
+      link: '/teacher/alerts',
+    })
+  }
+
   for (const parent of parents) {
+    notifications.push({
+      recipient: parent._id,
+      sender: null,
+      alert: alert._id,
+      relatedUser: student._id,
+      title: `Learning alert for ${student.name}`,
+      message: detail,
+      type: 'academic_alert',
+      link: `/parent/children/${student._id}`,
+    })
+  }
+
+  if (notifications.length > 0) {
     try {
-      await sendEmail({
-        email: parent.email,
-        subject: `[LexiGrow Alert] Cảnh báo học tập của học sinh ${student.name}`,
-        message: `Xin chào phụ huynh ${parent.name},\n\nHệ thống LexiGrow phát hiện cảnh báo sớm cho con của bạn (${student.name}):\n- Chi tiết: ${detail}\n\nVui lòng đăng nhập vào hệ thống LexiGrow để theo dõi thêm tiến trình của con.\n\nTrân trọng,\nĐội ngũ LexiGrow`,
-        html: `
-          <h3>Xin chào phụ huynh ${parent.name},</h3>
-          <p>Hệ thống LexiGrow phát hiện cảnh báo sớm cho con của bạn (<strong>${student.name}</strong>):</p>
-          <ul>
-            <li><strong>Loại cảnh báo:</strong> ${metric === 'grammar_decline' ? 'Độ chính xác ngữ pháp suy giảm' : 'Tốc độ tích lũy từ vựng chững lại'}</li>
-            <li><strong>Chi tiết:</strong> ${detail}</li>
-          </ul>
-          <p>Vui lòng đăng nhập vào hệ thống LexiGrow để theo dõi thêm tiến trình của con.</p>
-          <br/>
-          <p>Trân trọng,<br/><strong>Đội ngũ LexiGrow</strong></p>
-        `
-      })
-    } catch (err) {
-      console.error(`Failed to send alert email to parent ${parent.email}:`, err)
+      await createManyNotifications(notifications)
+    } catch (error) {
+      console.error(`[EarlyWarning] In-app notification failure for ${student._id}:`, error.message)
     }
   }
+
+  for (const parent of parents) {
+    if (parent.notifications?.email === false) continue
+
+    try {
+      const parentName = escapeHtml(parent.name)
+      const studentName = escapeHtml(student.name)
+      const safeDetail = escapeHtml(detail)
+      await sendEmailWithRetry({
+        email: parent.email,
+        subject: `[LexiGrow Alert] Cảnh báo học tập của học sinh ${student.name}`,
+        message: `Xin chào phụ huynh ${parent.name},\n\nLexiGrow phát hiện cảnh báo cho ${student.name}: ${detail}\n\nVui lòng đăng nhập để xem tiến trình chi tiết.`,
+        html: `
+          <h3>Xin chào phụ huynh ${parentName},</h3>
+          <p>LexiGrow phát hiện cảnh báo sớm cho <strong>${studentName}</strong>:</p>
+          <p><strong>${safeDetail}</strong></p>
+          <p>Vui lòng đăng nhập để xem tiến trình chi tiết và phối hợp hỗ trợ học sinh.</p>
+        `,
+      })
+    } catch (error) {
+      console.error(`[EarlyWarning] Email delivery failed for parent ${parent._id}:`, error.message)
+    }
+  }
+
+  return true
+}
+
+async function scanStudent(student) {
+  let created = 0
+  const [vocabulary, grammar] = await Promise.all([
+    checkVocabularyStagnation(student._id),
+    checkGrammarDecline(student._id),
+  ])
+
+  if (vocabulary.isStagnant) {
+    if (await createAndNotifyAlert(
+      student,
+      'warning',
+      'vocabulary_stagnation',
+      'Học sinh đã không tích lũy thêm từ mới nào trong 4 tuần liên tiếp.'
+    )) created++
+  }
+
+  if (grammar.isDeclining) {
+    const scores = grammar.scores
+    if (await createAndNotifyAlert(
+      student,
+      'critical',
+      'grammar_decline',
+      `Độ chính xác ngữ pháp giảm liên tiếp qua 3 bài viết gần nhất (${scores[2].toFixed(1)} -> ${scores[1].toFixed(1)} -> ${scores[0].toFixed(1)}).`
+    )) created++
+  }
+
+  return created
 }
