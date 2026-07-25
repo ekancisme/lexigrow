@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import sendEmail from '../utils/sendEmail.js'
+import Notification from '../models/Notification.js'
 
 /* ── Helpers ─────────────────────────────────────────────── */
 function sanitize(user) {
@@ -167,6 +168,7 @@ export const getPendingApprovals = asyncHandler(async (req, res) => {
   const skip  = (Number(page) - 1) * Number(limit)
   const total = await User.countDocuments(query)
   const users = await User.find(query)
+    .populate('children', 'name email')
     .select('-password -resetPasswordCode')
     .sort({ createdAt: 1 }) // oldest first — FIFO
     .skip(skip)
@@ -271,4 +273,52 @@ export const rejectUser = asyncHandler(async (req, res) => {
   console.log(`[ADMIN] ${req.user.name} REJECTED ${user.email} (${user.role}). Reason: ${reason}`)
 
   res.status(200).json({ success: true, data: sanitize(user) })
+})
+
+// ─────────────────────────────────────────────────────────────
+// POST /api/admin/approvals/:id/verify-via-student
+// ─────────────────────────────────────────────────────────────
+export const sendStudentVerification = asyncHandler(async (req, res) => {
+  const parent = await User.findById(req.params.id)
+  if (!parent) throw new ErrorResponse('Parent user not found', 404)
+  if (parent.accountStatus !== 'pending_approval') {
+    throw new ErrorResponse('User is not in pending_approval status', 400)
+  }
+  if (!parent.children || parent.children.length === 0) {
+    throw new ErrorResponse('No children associated with this parent', 400)
+  }
+
+  const childId = parent.children[0]
+  const child = await User.findById(childId)
+  if (!child) throw new ErrorResponse('Child student not found', 404)
+
+  // Create verification notification for the student
+  const notification = await Notification.create({
+    recipient: child._id,
+    sender: req.user._id,
+    title: 'Parent Verification Request',
+    message: `Parent ${parent.name} (${parent.email}) wants to link to your account. Please confirm.`,
+    type: 'parent_notice',
+    link: '',
+    relatedUser: parent._id,
+  })
+
+  // Send socket realtime notification
+  try {
+    const { sendNotificationToUser } = await import('../services/socket.service.js')
+    sendNotificationToUser(child._id, {
+      ...notification.toObject(),
+      sender: { _id: req.user._id, name: req.user.name, role: req.user.role }
+    })
+  } catch (socketErr) {
+    console.error('[ADMIN] Realtime notification socket failed to emit:', socketErr.message)
+  }
+
+  // Mark parent status as verification sent
+  parent.statusNote = `Verification request sent to student ${child.name} (${child.email}) on ${new Date().toISOString()}`
+  await parent.save()
+
+  console.log(`[ADMIN] Verification sent to student ${child.email} for parent approval ${parent.email}`)
+
+  res.status(200).json({ success: true, data: sanitize(parent) })
 })

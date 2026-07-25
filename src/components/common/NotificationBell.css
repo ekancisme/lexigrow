@@ -383,3 +383,61 @@
   }
 }
 
+/* ── Parent link request notification actions ── */
+.notif-item__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 6px;
+}
+
+.notif-item__action-btn {
+  padding: 6px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: opacity var(--transition-fast);
+}
+
+.notif-item__action-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.notif-item__action-btn--approve {
+  background: var(--color-success);
+  color: #fff;
+}
+
+.notif-item__action-btn--reject {
+  background: var(--color-surface-container-high);
+  color: var(--color-on-surface-variant);
+  border: 1px solid var(--color-outline-variant);
+}
+
+.notif-item__action-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.notif-item__status {
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 6px;
+  display: inline-flex;
+  align-items: center;
+}
+.notif-item__status--approved {
+  color: var(--color-success);
+}
+.notif-item__status--rejected {
+  color: var(--color-error);
+}
+
+.notif-item__message--full {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+

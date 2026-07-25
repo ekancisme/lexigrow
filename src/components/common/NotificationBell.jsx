@@ -41,6 +41,8 @@ export default function NotificationBell() {
   const [loading, setLoading]             = useState(false)
   const [markingAll, setMarkingAll]       = useState(false)
   const [activeToast, setActiveToast]     = useState(null)
+  const [respondingId, setRespondingId]   = useState(null)
+  const [responses, setResponses]         = useState({})
 
   const toastTimerRef = useRef(null)
 
@@ -153,6 +155,25 @@ export default function NotificationBell() {
     }
   }
 
+  async function handleRespondParentRequest(notifId, action) {
+    setRespondingId(notifId)
+    try {
+      const res = await api.post(`/notifications/${notifId}/respond-parent-request`, { action })
+      if (res.success) {
+        setResponses(prev => ({ ...prev, [notifId]: action === 'approve' ? 'approved' : 'rejected' }))
+        setNotifications(prev => prev.map(n => n._id === notifId ? { ...n, message: res.data.message, isRead: true } : n))
+        const wasUnread = notifications.find(n => n._id === notifId && !n.isRead)
+        if (wasUnread) {
+          setUnreadCount(prev => Math.max(0, prev - 1))
+        }
+      }
+    } catch (err) {
+      alert(err.message)
+    } finally {
+      setRespondingId(null)
+    }
+  }
+
   /* ── RENDER ── */
   return (
     <>
@@ -221,29 +242,67 @@ export default function NotificationBell() {
                   <p className="text-body-md">Không có thông báo nào</p>
                 </div>
               ) : (
-                notifications.map(notif => (
-                  <button
-                    key={notif._id}
-                    role="listitem"
-                    className={`notif-item ${!notif.isRead ? 'notif-item--unread' : ''} ${notif.link ? 'notif-item--clickable' : ''}`}
-                    onClick={() => handleNotificationClick(notif)}
-                  >
-                    <div className={`notif-item__icon notif-item__icon--${notif.type}`}>
-                      <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
-                        {getTypeIcon(notif.type)}
-                      </span>
-                    </div>
-                    <div className="notif-item__body">
-                      <p className="notif-item__title text-label-md">{notif.title}</p>
-                      <p className="notif-item__message text-label-sm">{notif.message}</p>
-                      <span className="notif-item__time">
-                        <span className="material-symbols-outlined" style={{ fontSize: 12 }}>schedule</span>
-                        {formatRelativeTime(notif.createdAt)}
-                      </span>
-                    </div>
-                    {!notif.isRead && <span className="notif-item__dot" aria-label="Chưa đọc" />}
-                  </button>
-                ))
+                notifications.map(notif => {
+                  const hasActions = notif.type === 'parent_notice' && notif.relatedUser
+                  const ItemTag = hasActions ? 'div' : 'button'
+                  return (
+                    <ItemTag
+                      key={notif._id}
+                      role="listitem"
+                      className={`notif-item ${!notif.isRead ? 'notif-item--unread' : ''} ${notif.link && !hasActions ? 'notif-item--clickable' : ''}`}
+                      onClick={() => !hasActions && handleNotificationClick(notif)}
+                    >
+                      <div className={`notif-item__icon notif-item__icon--${notif.type}`}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                          {getTypeIcon(notif.type)}
+                        </span>
+                      </div>
+                      <div className="notif-item__body">
+                        <p className="notif-item__title text-label-md">{notif.title}</p>
+                        <p className={`notif-item__message text-label-sm ${hasActions ? 'notif-item__message--full' : ''}`}>{notif.message}</p>
+
+                        {hasActions && (
+                          <div className="notif-item__actions" onClick={e => e.stopPropagation()}>
+                            {responses[notif._id] === 'approved' || (notif.isRead && notif.message.toLowerCase().includes('approved')) ? (
+                              <span className="notif-item__status notif-item__status--approved">
+                                <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: 'middle', marginRight: 4 }}>check_circle</span>
+                                Approved
+                              </span>
+                            ) : responses[notif._id] === 'rejected' || (notif.isRead && notif.message.toLowerCase().includes('declined')) ? (
+                              <span className="notif-item__status notif-item__status--rejected">
+                                <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: 'middle', marginRight: 4 }}>cancel</span>
+                                Declined
+                              </span>
+                            ) : (
+                              <>
+                                <button
+                                  className="notif-item__action-btn notif-item__action-btn--approve"
+                                  onClick={() => handleRespondParentRequest(notif._id, 'approve')}
+                                  disabled={respondingId === notif._id}
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  className="notif-item__action-btn notif-item__action-btn--reject"
+                                  onClick={() => handleRespondParentRequest(notif._id, 'reject')}
+                                  disabled={respondingId === notif._id}
+                                >
+                                  Decline
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        )}
+
+                        <span className="notif-item__time">
+                          <span className="material-symbols-outlined" style={{ fontSize: 12 }}>schedule</span>
+                          {formatRelativeTime(notif.createdAt)}
+                        </span>
+                      </div>
+                      {!notif.isRead && <span className="notif-item__dot" aria-label="Chưa đọc" />}
+                    </ItemTag>
+                  )
+                })
               )}
             </div>
 

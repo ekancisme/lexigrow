@@ -242,7 +242,7 @@ function UserModal({ user, onClose, onAction }) {
 }
 
 /* ── Approval Card ───────────────────────────────────────── */
-function ApprovalCard({ user, onApprove, onReject, processing }) {
+function ApprovalCard({ user, onApprove, onReject, onVerifyViaStudent, processing }) {
   const [rejectReason, setRejectReason] = useState('')
   const [showReject, setShowReject] = useState(false)
 
@@ -266,7 +266,13 @@ function ApprovalCard({ user, onApprove, onReject, processing }) {
           {user.children && user.children.length > 0 && (
             <p className="au-approval-card__meta">
               <span className="material-symbols-outlined" style={{ fontSize: 14 }}>child_care</span>
-              Linked child on file
+              Con: {user.children[0]?.name ? `${user.children[0].name} (${user.children[0].email})` : 'Linked child on file'}
+            </p>
+          )}
+          {user.statusNote && (
+            <p className="au-approval-card__meta" style={{ color: 'var(--color-primary)', fontWeight: 500 }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 14 }}>info</span>
+              {user.statusNote}
             </p>
           )}
         </div>
@@ -297,6 +303,21 @@ function ApprovalCard({ user, onApprove, onReject, processing }) {
         </div>
       ) : (
         <div className="au-approval-card__actions">
+          {user.role === 'parent' && user.children && user.children.length > 0 && (
+            <button
+              className="au-btn au-btn--secondary"
+              onClick={() => onVerifyViaStudent(user._id)}
+              disabled={processing === user._id}
+              style={{ marginRight: 'auto' }}
+            >
+              {processing === user._id ? (
+                <span className="material-symbols-outlined animate-spin" style={{ fontSize: 16 }}>progress_activity</span>
+              ) : (
+                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>send_and_archive</span>
+              )}
+              Verify via Student
+            </button>
+          )}
           <button
             className="au-btn au-btn--danger-ghost"
             onClick={() => setShowReject(true)}
@@ -403,6 +424,16 @@ export default function AdminUsers() {
       await api.post(`/admin/approvals/${userId}/reject`, { reason })
       setApprovals(prev => prev.filter(u => u._id !== userId))
       loadUsers(page)
+    } catch (err) { alert(err.message) }
+    finally { setProcessing(null) }
+  }
+
+  async function handleVerifyViaStudent(userId) {
+    setProcessing(userId)
+    try {
+      const res = await api.post(`/admin/approvals/${userId}/verify-via-student`)
+      setApprovals(prev => prev.map(u => u._id === userId ? { ...u, statusNote: res.data.statusNote } : u))
+      alert('Verification request sent to Student successfully!')
     } catch (err) { alert(err.message) }
     finally { setProcessing(null) }
   }
@@ -595,6 +626,7 @@ export default function AdminUsers() {
                   user={u}
                   onApprove={handleApprove}
                   onReject={handleReject}
+                  onVerifyViaStudent={handleVerifyViaStudent}
                   processing={processing}
                 />
               ))}
