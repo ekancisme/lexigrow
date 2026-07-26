@@ -282,19 +282,37 @@ export const getAssignmentSubmissions = asyncHandler(async (req, res) => {
     .sort({ submittedAt: -1 })
     .lean()
 
-  // Enrich with score from AIAnalysis
+  // Enrich with score: prefer ManualFeedback (submitted) → AIAnalysis → null
   const AIAnalysis = (await import('../models/AIAnalysis.js')).default
+  const ManualFeedback = (await import('../models/ManualFeedback.js')).default
   const essayIds = submissions.map(s => s._id)
-  const analyses = await AIAnalysis.find({ essay: { $in: essayIds } }).lean()
+
+  const [analyses, manualFeedbacks] = await Promise.all([
+    AIAnalysis.find({ essay: { $in: essayIds } }).lean(),
+    ManualFeedback.find({ essay: { $in: essayIds }, status: 'submitted' }).lean(),
+  ])
+
   const analysisMap = {}
   analyses.forEach(a => {
     analysisMap[a.essay.toString()] = a.overallScore
   })
 
-  const enrichedSubmissions = submissions.map(sub => ({
-    ...sub,
-    score: analysisMap[sub._id.toString()] !== undefined ? analysisMap[sub._id.toString()] : null
-  }))
+  // Build manual score map: average of 4 criteria (1-10 each)
+  const manualScoreMap = {}
+  manualFeedbacks.forEach(fb => {
+    const { grammar = 0, vocabulary = 0, coherence = 0, complexity = 0 } = fb.scores || {}
+    const avg = Math.round(((Number(grammar) + Number(vocabulary) + Number(coherence) + Number(complexity)) / 4) * 10) / 10
+    manualScoreMap[fb.essay.toString()] = avg
+  })
+
+  const enrichedSubmissions = submissions.map(sub => {
+    const id = sub._id.toString()
+    // Manual feedback (submitted by teacher) takes priority over AI score
+    const score = manualScoreMap[id] !== undefined
+      ? manualScoreMap[id]
+      : (analysisMap[id] !== undefined ? analysisMap[id] : null)
+    return { ...sub, score }
+  })
 
   res.status(200).json({ success: true, count: enrichedSubmissions.length, data: enrichedSubmissions })
 })
