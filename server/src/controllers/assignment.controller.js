@@ -5,12 +5,12 @@ import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import { createManyNotifications, createNotification } from '../services/notification.service.js'
 
-const parseFutureDueDate = (value) => {
+const parseFutureDueDate = (value, allowPast = false) => {
   const dueDate = new Date(value)
   if (Number.isNaN(dueDate.getTime())) {
     throw new ErrorResponse('Please provide a valid due date', 400)
   }
-  if (dueDate <= new Date()) {
+  if (!allowPast && dueDate <= new Date()) {
     throw new ErrorResponse('Due date must be in the future', 400)
   }
   return dueDate
@@ -69,27 +69,73 @@ export const createAssignment = asyncHandler(async (req, res) => {
 export const getAssignmentsByClass = asyncHandler(async (req, res) => {
   const { classId } = req.query
 
-  if (!classId) throw new ErrorResponse('Please provide a classId query parameter', 400)
+  let query = {}
 
-  // Verify ownership or enrollment
-  const cls = await Class.findById(classId)
-  if (!cls) throw new ErrorResponse('Class not found', 404)
+  if (classId) {
+    // Verify ownership or enrollment
+    const cls = await Class.findById(classId)
+    if (!cls) throw new ErrorResponse('Class not found', 404)
 
-  if (req.user.role === 'teacher') {
-    if (cls.teacher.toString() !== req.user._id.toString()) {
-      throw new ErrorResponse('Not authorized to view assignments for this class', 403)
+    if (req.user.role === 'teacher') {
+      if (cls.teacher.toString() !== req.user._id.toString()) {
+        throw new ErrorResponse('Not authorized to view assignments for this class', 403)
+      }
+    } else if (req.user.role === 'student') {
+      const isEnrolled = cls.students?.some(studentId => studentId.toString() === req.user._id.toString())
+      if (!isEnrolled) {
+        throw new ErrorResponse('Not authorized to view assignments for this class', 403)
+      }
     }
-  } else if (req.user.role === 'student') {
-    const isEnrolled = cls.students?.some(studentId => studentId.toString() === req.user._id.toString())
-    if (!isEnrolled) {
-      throw new ErrorResponse('Not authorized to view assignments for this class', 403)
+    query.classId = classId
+  } else {
+    // If no classId provided, allow teachers to view all their assignments
+    if (req.user.role === 'teacher') {
+      query.teacher = req.user._id
+    } else {
+      throw new ErrorResponse('Please provide a classId query parameter', 400)
     }
   }
 
-  const assignments = await Assignment.find({ classId })
+  const assignments = await Assignment.find(query)
+    .populate('classId', 'name code students')
     .sort({ createdAt: -1 })
 
-  res.status(200).json({ success: true, count: assignments.length, data: assignments })
+  // Calculate submission counts for each assignment
+  const assignmentIds = assignments.map(a => a._id)
+  const submissionsCountMap = {}
+
+  if (assignmentIds.length > 0) {
+    const essayCounts = await Essay.aggregate([
+      {
+        $match: {
+          $or: [
+            { assignment: { $in: assignmentIds } },
+            { assignmentId: { $in: assignmentIds } }
+          ],
+          status: { $ne: 'draft' }
+        }
+      },
+      {
+        $group: {
+          _id: { $ifNull: ['$assignment', '$assignmentId'] },
+          count: { $sum: 1 }
+        }
+      }
+    ])
+    essayCounts.forEach(item => {
+      if (item._id) {
+        submissionsCountMap[item._id.toString()] = item.count
+      }
+    })
+  }
+
+  const data = assignments.map(a => {
+    const obj = a.toObject({ virtuals: true })
+    obj.submissionCount = submissionsCountMap[a._id.toString()] || 0
+    return obj
+  })
+
+  res.status(200).json({ success: true, count: data.length, data })
 })
 
 /**
@@ -160,7 +206,7 @@ export const updateAssignment = asyncHandler(async (req, res) => {
   const { title, description, dueDate, keywords, status } = req.body
   if (title !== undefined) assignment.title = title
   if (description !== undefined) assignment.description = description
-  if (dueDate !== undefined) assignment.dueDate = parseFutureDueDate(dueDate)
+  if (dueDate !== undefined) assignment.dueDate = parseFutureDueDate(dueDate, true)
   if (keywords !== undefined) assignment.keywords = keywords
   if (status !== undefined) assignment.status = status
 
@@ -234,6 +280,21 @@ export const getAssignmentSubmissions = asyncHandler(async (req, res) => {
   })
     .populate('student', 'name email')
     .sort({ submittedAt: -1 })
+    .lean()
 
-  res.status(200).json({ success: true, count: submissions.length, data: submissions })
+  // Enrich with score from AIAnalysis
+  const AIAnalysis = (await import('../models/AIAnalysis.js')).default
+  const essayIds = submissions.map(s => s._id)
+  const analyses = await AIAnalysis.find({ essay: { $in: essayIds } }).lean()
+  const analysisMap = {}
+  analyses.forEach(a => {
+    analysisMap[a.essay.toString()] = a.overallScore
+  })
+
+  const enrichedSubmissions = submissions.map(sub => ({
+    ...sub,
+    score: analysisMap[sub._id.toString()] !== undefined ? analysisMap[sub._id.toString()] : null
+  }))
+
+  res.status(200).json({ success: true, count: enrichedSubmissions.length, data: enrichedSubmissions })
 })

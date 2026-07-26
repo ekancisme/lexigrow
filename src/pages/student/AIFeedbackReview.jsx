@@ -76,22 +76,34 @@ export default function AIFeedbackReview() {
       return
     }
 
-    let intervalId
+    let intervalId = null
 
     async function fetchAnalysis() {
       try {
         const essayRes = await api.get(`/essays/${essayId}`)
         setEssay(essayRes.data)
 
-        if (essayRes.data.status === 'submitted') {
-          // Still analyzing, keep loading and polling
-          setLoading(true)
-        } else {
-          // Status is reviewed or draft
+        try {
           const analysisRes = await api.get(`/essays/${essayId}/analysis`)
-          setAnalysis(analysisRes.data)
-          setLoading(false)
-          if (intervalId) clearInterval(intervalId)
+          if (analysisRes.data) {
+            setAnalysis(analysisRes.data)
+
+            // Fetch teacher's manual written feedback if available
+            try {
+              const fbRes = await api.get(`/feedback/essay/${essayId}`)
+              if (fbRes.data) {
+                setTeacherFeedback(fbRes.data)
+              }
+            } catch (fbErr) {
+              // ignore if no teacher feedback yet
+            }
+
+            setLoading(false)
+            if (intervalId) clearInterval(intervalId)
+          }
+        } catch (analysisErr) {
+          // AI analysis is still generating in background
+          setLoading(true)
         }
       } catch (err) {
         console.error('Error loading feedback:', err)
@@ -315,6 +327,40 @@ export default function AIFeedbackReview() {
         </div>
       )}
 
+      {/* ── Custom Prompt Badge ── */}
+      {analysis?.promptUsed?.isCustom && (
+        <div className="ai-feedback__prompt-banner">
+          <div className="ai-feedback__prompt-banner-left">
+            <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--color-primary)' }}>auto_awesome</span>
+            <div>
+              <p className="text-label-md" style={{ fontWeight: 700, margin: 0 }}>
+                Graded with Teacher&apos;s Custom AI Prompt
+              </p>
+              <p className="text-label-sm" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>
+                Your teacher applied the prompt &ldquo;<strong>{analysis?.promptUsed?.name || 'Custom Prompt'}</strong>&rdquo; — feedback is tailored specifically for your class.
+              </p>
+            </div>
+          </div>
+          <span className="ai-feedback__prompt-chip">Custom Prompt</span>
+        </div>
+      )}
+      {analysis && !analysis?.promptUsed?.isCustom && (
+        <div className="ai-feedback__prompt-banner ai-feedback__prompt-banner--default">
+          <div className="ai-feedback__prompt-banner-left">
+            <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--color-outline)' }}>settings</span>
+            <div>
+              <p className="text-label-md" style={{ fontWeight: 600, margin: 0, color: 'var(--color-on-surface-variant)' }}>
+                Graded with LexiGrow Default AI Prompt
+              </p>
+              <p className="text-label-sm" style={{ color: 'var(--color-outline)', margin: 0 }}>
+                Standard analysis — your teacher has not applied a custom prompt to this class yet.
+              </p>
+            </div>
+          </div>
+          <span className="ai-feedback__prompt-chip ai-feedback__prompt-chip--default">Default Prompt</span>
+        </div>
+      )}
+
       <div className="ai-feedback__layout">
         {/* Main Scores */}
         <div className="ai-feedback__main">
@@ -422,6 +468,8 @@ export default function AIFeedbackReview() {
             )}
           </div>
 
+
+
           {/* Detailed Scores */}
           <div className="card-base">
             <h3 className="text-title-lg" style={{ marginBottom: 20 }}>Detailed Analysis</h3>
@@ -463,6 +511,8 @@ export default function AIFeedbackReview() {
               )) || <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>No suggestions generated.</p>}
             </div>
           </div>
+
+
 
           {/* Learning Pattern Detection Card */}
           {analysis?.learningPatterns && (
