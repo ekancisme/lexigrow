@@ -30,6 +30,7 @@ import EarlyWarningAlerts from './pages/teacher/EarlyWarningAlerts'
 import SystemPromptsManagement from './pages/teacher/SystemPromptsManagement'
 import ProfileSettings from './pages/teacher/ProfileSettings'
 import AssignmentDetail from './pages/teacher/AssignmentDetail'
+import AssignmentManagement from './pages/teacher/AssignmentManagement'
 
 /* Admin Pages */
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -94,6 +95,7 @@ function App() {
         <Route path="dashboard" element={<TeacherDashboard />} />
         <Route path="class/:id" element={<ClassOverview />} />
         <Route path="classes" element={<ClassManagement />} />
+        <Route path="assignments" element={<AssignmentManagement />} />
         <Route path="student/:id" element={<StudentAnalyticsDetail />} />
         <Route path="feedback/:id" element={<ManualFeedbackReview />} />
         <Route path="assignment/:id" element={<AssignmentDetail />} />

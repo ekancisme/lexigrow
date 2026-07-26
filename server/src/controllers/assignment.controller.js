@@ -69,27 +69,58 @@ export const createAssignment = asyncHandler(async (req, res) => {
 export const getAssignmentsByClass = asyncHandler(async (req, res) => {
   const { classId } = req.query
 
-  if (!classId) throw new ErrorResponse('Please provide a classId query parameter', 400)
+  let query = {}
 
-  // Verify ownership or enrollment
-  const cls = await Class.findById(classId)
-  if (!cls) throw new ErrorResponse('Class not found', 404)
+  if (classId) {
+    // Verify ownership or enrollment
+    const cls = await Class.findById(classId)
+    if (!cls) throw new ErrorResponse('Class not found', 404)
 
-  if (req.user.role === 'teacher') {
-    if (cls.teacher.toString() !== req.user._id.toString()) {
-      throw new ErrorResponse('Not authorized to view assignments for this class', 403)
+    if (req.user.role === 'teacher') {
+      if (cls.teacher.toString() !== req.user._id.toString()) {
+        throw new ErrorResponse('Not authorized to view assignments for this class', 403)
+      }
+    } else if (req.user.role === 'student') {
+      const isEnrolled = cls.students?.some(studentId => studentId.toString() === req.user._id.toString())
+      if (!isEnrolled) {
+        throw new ErrorResponse('Not authorized to view assignments for this class', 403)
+      }
     }
-  } else if (req.user.role === 'student') {
-    const isEnrolled = cls.students?.some(studentId => studentId.toString() === req.user._id.toString())
-    if (!isEnrolled) {
-      throw new ErrorResponse('Not authorized to view assignments for this class', 403)
+    query.classId = classId
+  } else {
+    // If no classId provided, allow teachers to view all their assignments
+    if (req.user.role === 'teacher') {
+      query.teacher = req.user._id
+    } else {
+      throw new ErrorResponse('Please provide a classId query parameter', 400)
     }
   }
 
-  const assignments = await Assignment.find({ classId })
+  const assignments = await Assignment.find(query)
+    .populate('classId', 'name code students')
     .sort({ createdAt: -1 })
 
-  res.status(200).json({ success: true, count: assignments.length, data: assignments })
+  // Calculate submission counts for each assignment
+  const assignmentIds = assignments.map(a => a._id)
+  const submissionsCountMap = {}
+
+  if (assignmentIds.length > 0) {
+    const essayCounts = await Essay.aggregate([
+      { $match: { assignmentId: { $in: assignmentIds }, status: { $ne: 'draft' } } },
+      { $group: { _id: '$assignmentId', count: { $sum: 1 } } }
+    ])
+    essayCounts.forEach(item => {
+      submissionsCountMap[item._id.toString()] = item.count
+    })
+  }
+
+  const data = assignments.map(a => {
+    const obj = a.toObject()
+    obj.submissionCount = submissionsCountMap[a._id.toString()] || 0
+    return obj
+  })
+
+  res.status(200).json({ success: true, count: data.length, data })
 })
 
 /**
