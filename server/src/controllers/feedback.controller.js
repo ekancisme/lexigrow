@@ -5,28 +5,49 @@ import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 
 /**
- * Helper: sync teacher-adjusted scores back to AIAnalysis so the student
- * sees updated numbers and overall score immediately after the teacher saves.
+ * Helper: compute overall score from teacher's 4 manual scores (each 1-10).
+ * Returns a number rounded to 1 decimal.
+ */
+function computeTeacherOverallScore(scores) {
+  const { grammar, vocabulary, coherence, complexity } = scores || {}
+  const g = Number(grammar) || 0
+  const v = Number(vocabulary) || 0
+  const c = Number(coherence) || 0
+  const cx = Number(complexity) || 0
+  return Math.round(((g + v + c + cx) / 4) * 10) / 10
+}
+
+/**
+ * Helper: sync teacher-adjusted scores back to AIAnalysis overallScore so the
+ * submissions list shows the teacher's score instead of the raw AI score.
+ * Creates an AIAnalysis stub if one does not yet exist for the essay.
  */
 async function syncTeacherScoresToAnalysis(essayId, scores) {
   if (!scores) return
   try {
-    const analysis = await AIAnalysis.findOne({ essay: essayId })
-    if (!analysis) return
+    const overallScore = computeTeacherOverallScore(scores)
 
-    const { grammar, vocabulary, coherence, complexity } = scores
-    if (grammar !== undefined) analysis.scores.grammarAccuracy = Number(grammar)
-    if (vocabulary !== undefined) analysis.scores.vocabularyDiversity = Number(vocabulary)
-    if (coherence !== undefined) analysis.scores.coherence = Number(coherence)
-    if (complexity !== undefined) analysis.scores.complexityIndex = Number(complexity)
-
-    // Recalculate overall score as average of 4 metrics (all out of 10)
-    const g = Number(analysis.scores.grammarAccuracy) || 0
-    const v = Number(analysis.scores.vocabularyDiversity) || 0
-    const c = Number(analysis.scores.coherence) || 0
-    const cx = Number(analysis.scores.complexityIndex) || 0
-
-    analysis.overallScore = Math.round(((g + v + c + cx) / 4) * 10) / 10
+    let analysis = await AIAnalysis.findOne({ essay: essayId })
+    if (!analysis) {
+      // Create a minimal AIAnalysis so the score can be stored and returned
+      analysis = new AIAnalysis({
+        essay: essayId,
+        overallScore,
+        scores: {
+          grammarAccuracy: Number(scores.grammar) || 0,
+          coherence: Number(scores.coherence) || 0,
+          complexityIndex: Number(scores.complexity) || 0,
+          // vocabularyDiversity is TTR (0-1), keep default 0 to avoid constraint violation
+          vocabularyDiversity: 0,
+        },
+      })
+    } else {
+      // Only update overallScore — don't touch vocabularyDiversity (it is TTR 0-1)
+      analysis.overallScore = overallScore
+      if (scores.grammar !== undefined) analysis.scores.grammarAccuracy = Number(scores.grammar)
+      if (scores.coherence !== undefined) analysis.scores.coherence = Number(scores.coherence)
+      if (scores.complexity !== undefined) analysis.scores.complexityIndex = Number(scores.complexity)
+    }
 
     await analysis.save()
   } catch (err) {
