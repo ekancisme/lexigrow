@@ -64,6 +64,49 @@
   gap: 2px;
 }
 
+.sidebar__child-switcher {
+  margin: 0 var(--spacing-md) var(--spacing-lg);
+  padding: 12px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-container-low);
+}
+
+.sidebar__child-switcher label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--color-on-surface-variant);
+  font-size: var(--text-label-sm-size);
+  font-weight: 600;
+}
+
+.sidebar__child-select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sidebar__child-select-wrap .material-symbols-outlined {
+  color: var(--color-primary);
+  font-size: 18px;
+}
+
+.sidebar__child-select-wrap select {
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--color-on-surface);
+  font-weight: 700;
+}
+
+.sidebar__child-switcher p {
+  margin: 6px 0 0 24px;
+  color: var(--color-on-surface-variant);
+  font-size: 11px;
+}
+
 .sidebar__link {
   display: flex;
   align-items: center;
@@ -76,6 +119,17 @@
   text-decoration: none;
   transition: all var(--transition-normal);
   border-left: 4px solid transparent;
+}
+
+.sidebar__link > .material-symbols-outlined {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  color: color-mix(in srgb, var(--color-on-surface-variant) 88%, #001a33);
 }
 
 .sidebar__link:hover {
@@ -91,6 +145,32 @@
 
 .sidebar__link--active .material-symbols-outlined {
   color: var(--color-primary);
+  border-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 9%, var(--color-surface));
+}
+
+.sidebar__link-label { flex: 1; min-width: 0; }
+
+.sidebar__link--disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.sidebar__badge {
+  min-width: 20px;
+  height: 20px;
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  align-self: center;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: var(--color-error);
+  color: var(--color-on-error);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 20px;
+  text-align: center;
 }
 
 .sidebar__cta {

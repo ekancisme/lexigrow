@@ -20,6 +20,10 @@ import FlashcardReview from './pages/student/FlashcardReview'
 import EssayHistory from './pages/student/EssayHistory'
 import StudentClassDetail from './pages/student/StudentClassDetail'
 
+/* Parent Pages */
+import ParentDashboard from './pages/parent/ParentDashboard'
+import ChildProgress from './pages/parent/ChildProgress'
+
 /* Teacher Pages */
 import TeacherDashboard from './pages/teacher/TeacherDashboard'
 import ClassOverview from './pages/teacher/ClassOverview'
@@ -64,6 +68,26 @@ function AdminProtectedRoute({ children }) {
   return children
 }
 
+function ParentProtectedRoute({ children }) {
+  const { isAuthenticated, user, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <span className="material-symbols-outlined animate-spin" style={{ fontSize: 48, color: 'var(--color-primary)' }}>
+          progress_activity
+        </span>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated || user?.role !== 'parent') {
+    return <Navigate to="/login" replace state={{ infoMessage: 'You do not have access to the parent workspace.' }} />
+  }
+
+  return children
+}
+
 function App() {
   return (
     <>
@@ -102,6 +126,23 @@ function App() {
           <Route path="alerts" element={<EarlyWarningAlerts />} />
           <Route path="prompts" element={<SystemPromptsManagement />} />
         </Route>
+
+      {/* Parent routes */}
+      <Route path="/parent" element={
+        <ParentProtectedRoute>
+          <AppLayout role="parent" />
+        </ParentProtectedRoute>
+      }>
+        <Route index element={<Navigate to="dashboard" replace />} />
+        <Route path="dashboard" element={<ParentDashboard />} />
+        <Route path="children/:id" element={<ChildProgress view="progress" />} />
+        <Route path="children/:id/progress" element={<ChildProgress view="progress" />} />
+        <Route path="children/:id/essays" element={<ChildProgress view="essays" />} />
+        <Route path="children/:id/vocabulary" element={<ChildProgress view="vocabulary" />} />
+        <Route path="children/:id/goals" element={<ChildProgress view="goals" />} />
+        <Route path="children/:id/alerts" element={<ChildProgress view="alerts" />} />
+      </Route>
+
 
         {/* Admin routes */}
         <Route path="/admin" element={

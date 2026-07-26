@@ -1,0 +1,52 @@
+TỔNG HỢP CÁC USE CASES HỆ THỐNG LEXIGROW HOÀN CHỈNH
+
+Hệ thống bao gồm 35 Use Cases chính và 4 chức năng bổ sung được phát hiện trong mã nguồn.
+
+I. NHÓM HỌC SINH (STUDENT) - 17 USE CASES
+- UC01: Đăng ký & Đăng nhập (Quyền Học sinh) [x] (Thuộc phần Authentication)
+- UC02: Chọn chủ đề viết bài (Tự do hoặc AI gợi ý) [x]
+- UC03: Viết & Lưu nháp bài luận [x]
+- UC04: Nộp bài luận chấm điểm [x]
+- UC05: Xem phản hồi AI tổng quan (Điểm số, TTR, phức tạp, mạch lạc) [x]
+- UC06: Xem cảnh báo lặp từ trong bài viết [x]
+- UC07: Thêm từ gợi ý từ bài viết vào thư viện (Study List) [+]
+- UC08: Xem đề xuất câu & từ nối (Chuyển câu bị động, gợi ý liên từ) [+]
+- UC09: Tìm kiếm & lọc từ vựng trong thư viện cá nhân [+]
+- UC10: Xem chi tiết từ vựng AI (Phát âm IPA, loại từ, nghĩa, ví dụ context) [+]
+- UC11: Đổi mức thành thạo thủ công (New -> Learning -> Mastered) [+]
+- UC12: Tự thêm từ vựng thủ công (AI tự động làm giàu thông tin) [+]
+- UC13: Ôn tập Flashcards 3D (Lật thẻ, phát âm TTS, tự đánh giá cập nhật trạng thái) [+]
+- UC14: Đặt mục tiêu học tập tuần [+]
+- UC15: Xem biểu đồ phân phối học tập (Mức độ thành thạo từ vựng) [+]
+- UC16: Xem so sánh chỉ số tuần (Tuần này so với tuần trước) [+]
+- UC17: Xem lịch sử bài viết đầy đủ [+]
+
+II. NHÓM GIÁO VIÊN (TEACHER) - 10 USE CASES
+- UC18: Đăng ký & Đăng nhập giáo viên [x] (Thuộc phần Authentication)
+- UC19: Quản lý danh sách lớp (Tạo lớp, thêm/xóa học sinh bằng email) [x]
+- UC20: Xem Dashboard lớp học (Thống kê chung bài luận, học sinh) [x]
+- UC21: Xem biểu đồ tiến độ học sinh (Growth từ vựng, biến động điểm số) [x]
+- UC22: Xem kho từ vựng học sinh (Thư viện từ vựng đã học của từng em) [+]
+- UC23: Nhận xét thủ công bài viết (Lời phê, chấm điểm bổ sung song song AI) [x]
+- UC24: Điều chỉnh mục tiêu học sinh [+]
+- UC25: Đánh dấu học sinh cần hỗ trợ (Gắn cờ học sinh yếu) [x]
+- UC26: Xem danh sách cảnh báo sớm (Hệ thống tự động quét học lực sụt giảm) [+]
+- UC27: Cấu hình System Prompts (Kiểm thử, quản lý cấu hình chấm điểm AI) [x]
+
+III. NHÓM PHỤ HUYNH (PARENT) - 3 USE CASES
+- UC28: Liên kết tài khoản học sinh (Nhập ID con để theo dõi tiến độ) [+]
+- UC29: Xem Dashboard tiến độ của con (Từ vựng, lịch sử viết bài) [+]
+- UC30: Nhận thông báo cảnh báo sớm khi học lực con sụt giảm [+]
+
+IV. NHÓM HỆ THỐNG & AI AGENT (SYSTEM BACKGROUND TASKS) - 5 USE CASES
+- UC31: Phân tích cú pháp văn bản (spaCy tách từ, POS, câu bị động, mệnh đề phụ) [x]
+- UC32: Làm giàu từ vựng tự động (Gọi API Groq-Llama bổ sung IPA, nghĩa, ví dụ) [+]
+- UC33: Quét cảnh báo sớm định kỳ (Cronjob hàng tuần kiểm tra stagnation/decline) [+]
+- UC34: Phân tích mẫu học tập nâng cao (Phát hiện padding nhồi chữ, đạo văn) [+]
+- UC35: Đo độ đa dạng từ vựng thực sự (Thuật toán MTLD và HD-D) [+]
+
+V. CÁC CHỨC NĂNG BỔ SUNG (ĐÃ CODE NHƯNG CHƯA LIỆT KÊ TRONG ĐẶC TẢ GỐC)
+- Chức năng Bôi đen để dịch (Highlight Translation): Cho phép học sinh bôi đen từ/câu để dịch sang tiếng Việt bằng LLM.
+- Khung thảo luận thời gian thực (Essay Discussion Chat): Cho phép chat realtime giữa học sinh và giáo viên dưới mỗi bài luận bằng Socket.io.
+- Quả chuông thông báo đẩy thời gian thực (Real-time Notification Bell): Nhận thông báo realtime cho người dùng qua Socket.io.
+- Quy trình Đăng ký qua Email OTP (Email Verification Code): Gửi mã OTP xác thực qua email trước khi tạo tài khoản chính thức.

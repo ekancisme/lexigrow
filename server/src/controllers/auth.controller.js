@@ -42,23 +42,12 @@ const sendTokenResponse = async (user, statusCode, res) => {
  * @access  Public
  */
 export const register = asyncHandler(async (req, res) => {
-  const { name, email, password, role, englishLevel, institution, childEmail } = req.body
+  const { name, email, password, role, englishLevel, institution } = req.body
 
   // Check if user exists in final DB
   const existingUser = await User.findOne({ email })
   if (existingUser) {
     throw new ErrorResponse('Email already registered', 400)
-  }
-
-  // If registering as parent, validate child exists first
-  if (role === 'parent') {
-    if (!childEmail) {
-      throw new ErrorResponse('Please provide your child\'s email address', 400)
-    }
-    const child = await User.findOne({ email: childEmail.toLowerCase(), role: 'student' })
-    if (!child) {
-      throw new ErrorResponse('No student found with the provided email address', 404)
-    }
   }
 
   // Clear any existing pending registrations for this email
@@ -76,7 +65,6 @@ export const register = asyncHandler(async (req, res) => {
     role: role || 'student',
     englishLevel: role === 'student' ? englishLevel : '',
     institution: role === 'teacher' ? institution : '',
-    childEmail: role === 'parent' ? childEmail.toLowerCase() : '',
     verificationCode,
     verificationCodeExpire,
   })
@@ -188,7 +176,7 @@ export const getMe = asyncHandler(async (req, res) => {
  * @access  Public
  */
 export const googleAuth = asyncHandler(async (req, res) => {
-  const { code, role, childEmail } = req.body
+  const { code, role } = req.body
 
   if (!code) {
     throw new ErrorResponse('Google authorization code is required', 400)
@@ -246,18 +234,6 @@ export const googleAuth = asyncHandler(async (req, res) => {
     // Validate role
     const userRole = role && ['student', 'teacher', 'parent'].includes(role) ? role : 'student'
 
-    // If registering as parent, validate child exists first
-    let child = null
-    if (userRole === 'parent') {
-      if (!childEmail) {
-        throw new ErrorResponse('Please provide your child\'s email address', 400)
-      }
-      child = await User.findOne({ email: childEmail.toLowerCase(), role: 'student' })
-      if (!child) {
-        throw new ErrorResponse('No student found with the provided email address', 404)
-      }
-    }
-
     // Create new user with Google profile
     const userFields = {
       name: name || email.split('@')[0],
@@ -271,20 +247,7 @@ export const googleAuth = asyncHandler(async (req, res) => {
       isVerified: true,
     }
 
-    if (userRole === 'parent' && child) {
-      userFields.children = [child._id]
-    }
-
     user = await User.create(userFields)
-
-    // Link child back to parent
-    if (userRole === 'parent' && child) {
-      child.parents = child.parents || []
-      if (!child.parents.includes(user._id)) {
-        child.parents.push(user._id)
-        await child.save()
-      }
-    }
   }
 
   sendTokenResponse(user, 200, res)
@@ -451,8 +414,9 @@ export const verifyEmail = asyncHandler(async (req, res) => {
 
   // Set accountStatus based on role:
   // - student → active immediately
-  // - teacher/parent → pending_approval (requires Admin review)
-  const requiresApproval = ['teacher', 'parent'].includes(pending.role)
+  // - teacher → pending_approval (requires Admin review)
+  // Parent-child relationships are verified separately with one-time link codes.
+  const requiresApproval = pending.role === 'teacher'
   const userFields = {
     name: pending.name,
     email: pending.email,
@@ -464,30 +428,13 @@ export const verifyEmail = asyncHandler(async (req, res) => {
     accountStatus: requiresApproval ? 'pending_approval' : 'active',
   }
 
-  let child = null
-  if (pending.role === 'parent') {
-    child = await User.findOne({ email: pending.childEmail, role: 'student' })
-    if (child) {
-      userFields.children = [child._id]
-    }
-  }
-
   const user = await User.create(userFields)
-
-  // Link child back to parent
-  if (pending.role === 'parent' && child) {
-    child.parents = child.parents || []
-    if (!child.parents.includes(user._id)) {
-      child.parents.push(user._id)
-      await child.save()
-    }
-  }
 
   // Delete pending document
   await PendingUser.deleteOne({ _id: pending._id })
 
   if (requiresApproval) {
-    // Teacher/Parent must wait for Admin approval — do NOT issue a token
+    // Teachers must wait for Admin approval — do NOT issue a token
     return res.status(202).json({
       success: true,
       pendingApproval: true,

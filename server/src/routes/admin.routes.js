@@ -18,6 +18,7 @@ import {
   getPendingApprovals,
   approveUser,
   rejectUser,
+  sendStudentVerification,
 } from '../controllers/admin.user.controller.js'
 
 import { protect, authorize } from '../middleware/auth.middleware.js'
@@ -52,5 +53,6 @@ router.delete('/users/:id', deleteUser)
 router.get('/approvals', getPendingApprovals)
 router.post('/approvals/:id/approve', approveUser)
 router.post('/approvals/:id/reject', rejectUser)
+router.post('/approvals/:id/verify-via-student', sendStudentVerification)
 
 export default router

@@ -22,6 +22,11 @@ const notificationSchema = new mongoose.Schema(
       ref: 'Alert',
       default: null,
     },
+    relatedUser: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
     title: {
       type: String,
       required: true,

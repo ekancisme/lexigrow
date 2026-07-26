@@ -4,6 +4,7 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
   getUnreadCount,
+  respondParentRequest,
 } from '../controllers/notification.controller.js'
 import { protect } from '../middleware/auth.middleware.js'
 
@@ -16,5 +17,6 @@ router.get('/', getNotifications)
 router.get('/unread-count', getUnreadCount)
 router.patch('/read-all', markAllNotificationsRead)
 router.patch('/:id/read', markNotificationRead)
+router.post('/:id/respond-parent-request', respondParentRequest)
 
 export default router

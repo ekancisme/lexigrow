@@ -3,6 +3,13 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import './Login.css'
 
+function getRoleHome(role) {
+  if (role === 'admin') return '/admin/dashboard'
+  if (role === 'teacher') return '/teacher/dashboard'
+  if (role === 'parent') return '/parent/dashboard'
+  return '/student/dashboard'
+}
+
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
@@ -20,13 +27,7 @@ export default function Login() {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      if (user.role === 'admin') {
-        navigate('/admin/dashboard')
-      } else if (user.role === 'teacher') {
-        navigate('/teacher/dashboard')
-      } else {
-        navigate('/student/dashboard')
-      }
+      navigate(getRoleHome(user.role))
     }
   }, [isAuthenticated, user])
 
@@ -64,7 +65,7 @@ export default function Login() {
 
     try {
       const user = await login(email, password)
-      navigate(user.role === 'teacher' ? '/teacher/dashboard' : '/student/dashboard')
+      navigate(getRoleHome(user.role))
     } catch (err) {
       setError(err.message)
     }

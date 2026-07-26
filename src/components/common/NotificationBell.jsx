@@ -12,11 +12,11 @@ function formatRelativeTime(dateStr) {
   const diffMin = Math.floor(diffMs / 60000)
   const diffHr  = Math.floor(diffMs / 3600000)
   const diffDay = Math.floor(diffMs / 86400000)
-  if (diffMin < 1)  return 'Vừa xong'
-  if (diffMin < 60) return `${diffMin} phút trước`
-  if (diffHr  < 24) return `${diffHr} giờ trước`
-  if (diffDay < 7)  return `${diffDay} ngày trước`
-  return new Date(dateStr).toLocaleDateString('vi-VN')
+  if (diffMin < 1)  return 'Just now'
+  if (diffMin < 60) return `${diffMin} minute${diffMin === 1 ? '' : 's'} ago`
+  if (diffHr  < 24) return `${diffHr} hour${diffHr === 1 ? '' : 's'} ago`
+  if (diffDay < 7)  return `${diffDay} day${diffDay === 1 ? '' : 's'} ago`
+  return new Date(dateStr).toLocaleDateString('en-GB')
 }
 
 function getTypeIcon(type) {
@@ -41,22 +41,20 @@ export default function NotificationBell() {
   const [loading, setLoading]             = useState(false)
   const [markingAll, setMarkingAll]       = useState(false)
   const [activeToast, setActiveToast]     = useState(null)
+  const [respondingId, setRespondingId]   = useState(null)
+  const [responses, setResponses]         = useState({})
 
   const toastTimerRef = useRef(null)
 
-  /* ── Fetch unread count ── */
-  const fetchUnreadCount = useCallback(async () => {
-    try {
-      const res = await api.get('/notifications/unread-count')
-      setUnreadCount(res.data?.count ?? 0)
-    } catch {
-      // non-critical, fail silently
-    }
-  }, [])
-
   useEffect(() => {
-    fetchUnreadCount()
-  }, [fetchUnreadCount])
+    let active = true
+    api.get('/notifications/unread-count')
+      .then(res => {
+        if (active) setUnreadCount(res.data?.count ?? 0)
+      })
+      .catch(() => {})
+    return () => { active = false }
+  }, [])
 
   /* ── Socket.io live listener ── */
   useEffect(() => {
@@ -74,10 +72,11 @@ export default function NotificationBell() {
     }
 
     socket.on('notification', handleNewNotification)
+    const toastTimer = toastTimerRef.current
 
     return () => {
       socket.off('notification', handleNewNotification)
-      if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+      if (toastTimer) clearTimeout(toastTimer)
     }
   }, [open, token])
 
@@ -94,10 +93,6 @@ export default function NotificationBell() {
       setLoading(false)
     }
   }, [])
-
-  useEffect(() => {
-    if (open) fetchNotifications()
-  }, [open, fetchNotifications])
 
   /* ── Close on outside click ── */
   useEffect(() => {
@@ -153,6 +148,25 @@ export default function NotificationBell() {
     }
   }
 
+  async function handleRespondParentRequest(notifId, action) {
+    setRespondingId(notifId)
+    try {
+      const res = await api.post(`/notifications/${notifId}/respond-parent-request`, { action })
+      if (res.success) {
+        setResponses(prev => ({ ...prev, [notifId]: action === 'approve' ? 'approved' : 'rejected' }))
+        setNotifications(prev => prev.map(n => n._id === notifId ? { ...n, message: res.data.message, isRead: true } : n))
+        const wasUnread = notifications.find(n => n._id === notifId && !n.isRead)
+        if (wasUnread) {
+          setUnreadCount(prev => Math.max(0, prev - 1))
+        }
+      }
+    } catch (err) {
+      alert(err.message)
+    } finally {
+      setRespondingId(null)
+    }
+  }
+
   /* ── RENDER ── */
   return (
     <>
@@ -161,9 +175,13 @@ export default function NotificationBell() {
         <button
           id="notification-bell-btn"
           className={`topnav__icon-btn notif-bell__btn ${open ? 'notif-bell__btn--active' : ''}`}
-          aria-label={`Thông báo${unreadCount > 0 ? ` (${unreadCount} chưa đọc)` : ''}`}
+          aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
           aria-expanded={open}
-          onClick={() => setOpen(p => !p)}
+          onClick={() => {
+            const nextOpen = !open
+            setOpen(nextOpen)
+            if (nextOpen) fetchNotifications()
+          }}
         >
           <span className="material-symbols-outlined">
             {open ? 'notifications_active' : 'notifications'}
@@ -177,13 +195,13 @@ export default function NotificationBell() {
 
         {/* Dropdown */}
         {open && (
-          <div className="notif-dropdown animate-scale-in" role="dialog" aria-label="Danh sách thông báo">
+          <div className="notif-dropdown animate-scale-in" role="dialog" aria-label="Notification list">
             {/* Header */}
             <div className="notif-dropdown__header">
               <div>
-                <h3 className="text-title-lg notif-dropdown__title">Thông báo</h3>
+                <h3 className="text-title-lg notif-dropdown__title">Notifications</h3>
                 {unreadCount > 0 && (
-                  <span className="notif-dropdown__unread-label">{unreadCount} chưa đọc</span>
+                  <span className="notif-dropdown__unread-label">{unreadCount} unread</span>
                 )}
               </div>
               {unreadCount > 0 && (
@@ -194,7 +212,7 @@ export default function NotificationBell() {
                 >
                   {markingAll
                     ? <span className="material-symbols-outlined animate-spin" style={{ fontSize: 16 }}>progress_activity</span>
-                    : 'Đánh dấu tất cả đã đọc'
+                    : 'Mark all as read'
                   }
                 </button>
               )}
@@ -218,32 +236,70 @@ export default function NotificationBell() {
                   <span className="material-symbols-outlined" style={{ fontSize: 40, color: 'var(--color-outline)' }}>
                     notifications_off
                   </span>
-                  <p className="text-body-md">Không có thông báo nào</p>
+                  <p className="text-body-md">No notifications</p>
                 </div>
               ) : (
-                notifications.map(notif => (
-                  <button
-                    key={notif._id}
-                    role="listitem"
-                    className={`notif-item ${!notif.isRead ? 'notif-item--unread' : ''} ${notif.link ? 'notif-item--clickable' : ''}`}
-                    onClick={() => handleNotificationClick(notif)}
-                  >
-                    <div className={`notif-item__icon notif-item__icon--${notif.type}`}>
-                      <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
-                        {getTypeIcon(notif.type)}
-                      </span>
-                    </div>
-                    <div className="notif-item__body">
-                      <p className="notif-item__title text-label-md">{notif.title}</p>
-                      <p className="notif-item__message text-label-sm">{notif.message}</p>
-                      <span className="notif-item__time">
-                        <span className="material-symbols-outlined" style={{ fontSize: 12 }}>schedule</span>
-                        {formatRelativeTime(notif.createdAt)}
-                      </span>
-                    </div>
-                    {!notif.isRead && <span className="notif-item__dot" aria-label="Chưa đọc" />}
-                  </button>
-                ))
+                notifications.map(notif => {
+                  const hasActions = notif.type === 'parent_notice' && notif.relatedUser
+                  const ItemTag = hasActions ? 'div' : 'button'
+                  return (
+                    <ItemTag
+                      key={notif._id}
+                      role="listitem"
+                      className={`notif-item ${!notif.isRead ? 'notif-item--unread' : ''} ${notif.link && !hasActions ? 'notif-item--clickable' : ''}`}
+                      onClick={() => !hasActions && handleNotificationClick(notif)}
+                    >
+                      <div className={`notif-item__icon notif-item__icon--${notif.type}`}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                          {getTypeIcon(notif.type)}
+                        </span>
+                      </div>
+                      <div className="notif-item__body">
+                        <p className="notif-item__title text-label-md">{notif.title}</p>
+                        <p className={`notif-item__message text-label-sm ${hasActions ? 'notif-item__message--full' : ''}`}>{notif.message}</p>
+
+                        {hasActions && (
+                          <div className="notif-item__actions" onClick={e => e.stopPropagation()}>
+                            {responses[notif._id] === 'approved' || (notif.isRead && notif.message.toLowerCase().includes('approved')) ? (
+                              <span className="notif-item__status notif-item__status--approved">
+                                <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: 'middle', marginRight: 4 }}>check_circle</span>
+                                Approved
+                              </span>
+                            ) : responses[notif._id] === 'rejected' || (notif.isRead && notif.message.toLowerCase().includes('declined')) ? (
+                              <span className="notif-item__status notif-item__status--rejected">
+                                <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: 'middle', marginRight: 4 }}>cancel</span>
+                                Declined
+                              </span>
+                            ) : (
+                              <>
+                                <button
+                                  className="notif-item__action-btn notif-item__action-btn--approve"
+                                  onClick={() => handleRespondParentRequest(notif._id, 'approve')}
+                                  disabled={respondingId === notif._id}
+                                >
+                                  Approve
+                                </button>
+                                <button
+                                  className="notif-item__action-btn notif-item__action-btn--reject"
+                                  onClick={() => handleRespondParentRequest(notif._id, 'reject')}
+                                  disabled={respondingId === notif._id}
+                                >
+                                  Decline
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        )}
+
+                        <span className="notif-item__time">
+                          <span className="material-symbols-outlined" style={{ fontSize: 12 }}>schedule</span>
+                          {formatRelativeTime(notif.createdAt)}
+                        </span>
+                      </div>
+                      {!notif.isRead && <span className="notif-item__dot" aria-label="Unread" />}
+                    </ItemTag>
+                  )
+                })
               )}
             </div>
 
@@ -251,7 +307,7 @@ export default function NotificationBell() {
             {!loading && notifications.length > 0 && (
               <div className="notif-dropdown__footer">
                 <button className="notif-dropdown__see-all" onClick={() => setOpen(false)}>
-                  Đóng
+                  Close
                 </button>
               </div>
             )}

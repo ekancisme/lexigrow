@@ -69,6 +69,12 @@
   box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
 }
 
+.topnav__parent-context { display: flex; align-items: center; gap: 10px; color: var(--color-on-surface-variant); }
+.topnav__parent-context > .material-symbols-outlined { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid color-mix(in srgb, var(--color-primary) 24%, transparent); border-radius: 50%; background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface)); color: color-mix(in srgb, var(--color-primary) 82%, #001a33); }
+.topnav__parent-context strong, .topnav__parent-context span { display: block; }
+.topnav__parent-context strong { color: var(--color-on-surface); font-size: var(--text-label-md-size); }
+.topnav__parent-context div > span { margin-top: 1px; font-size: var(--text-label-sm-size); }
+
 /* Actions */
 .topnav__actions {
   display: flex;
@@ -172,4 +178,6 @@
   .topnav__profile-info {
     display: none;
   }
+
+  .topnav__parent-context { display: none; }
 }
