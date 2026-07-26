@@ -5,12 +5,12 @@ import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import { createManyNotifications, createNotification } from '../services/notification.service.js'
 
-const parseFutureDueDate = (value) => {
+const parseFutureDueDate = (value, allowPast = false) => {
   const dueDate = new Date(value)
   if (Number.isNaN(dueDate.getTime())) {
     throw new ErrorResponse('Please provide a valid due date', 400)
   }
-  if (dueDate <= new Date()) {
+  if (!allowPast && dueDate <= new Date()) {
     throw new ErrorResponse('Due date must be in the future', 400)
   }
   return dueDate
@@ -106,16 +106,31 @@ export const getAssignmentsByClass = asyncHandler(async (req, res) => {
 
   if (assignmentIds.length > 0) {
     const essayCounts = await Essay.aggregate([
-      { $match: { assignmentId: { $in: assignmentIds }, status: { $ne: 'draft' } } },
-      { $group: { _id: '$assignmentId', count: { $sum: 1 } } }
+      {
+        $match: {
+          $or: [
+            { assignment: { $in: assignmentIds } },
+            { assignmentId: { $in: assignmentIds } }
+          ],
+          status: { $ne: 'draft' }
+        }
+      },
+      {
+        $group: {
+          _id: { $ifNull: ['$assignment', '$assignmentId'] },
+          count: { $sum: 1 }
+        }
+      }
     ])
     essayCounts.forEach(item => {
-      submissionsCountMap[item._id.toString()] = item.count
+      if (item._id) {
+        submissionsCountMap[item._id.toString()] = item.count
+      }
     })
   }
 
   const data = assignments.map(a => {
-    const obj = a.toObject()
+    const obj = a.toObject({ virtuals: true })
     obj.submissionCount = submissionsCountMap[a._id.toString()] || 0
     return obj
   })
@@ -191,7 +206,7 @@ export const updateAssignment = asyncHandler(async (req, res) => {
   const { title, description, dueDate, keywords, status } = req.body
   if (title !== undefined) assignment.title = title
   if (description !== undefined) assignment.description = description
-  if (dueDate !== undefined) assignment.dueDate = parseFutureDueDate(dueDate)
+  if (dueDate !== undefined) assignment.dueDate = parseFutureDueDate(dueDate, true)
   if (keywords !== undefined) assignment.keywords = keywords
   if (status !== undefined) assignment.status = status
 
@@ -265,6 +280,21 @@ export const getAssignmentSubmissions = asyncHandler(async (req, res) => {
   })
     .populate('student', 'name email')
     .sort({ submittedAt: -1 })
+    .lean()
 
-  res.status(200).json({ success: true, count: submissions.length, data: submissions })
+  // Enrich with score from AIAnalysis
+  const AIAnalysis = (await import('../models/AIAnalysis.js')).default
+  const essayIds = submissions.map(s => s._id)
+  const analyses = await AIAnalysis.find({ essay: { $in: essayIds } }).lean()
+  const analysisMap = {}
+  analyses.forEach(a => {
+    analysisMap[a.essay.toString()] = a.overallScore
+  })
+
+  const enrichedSubmissions = submissions.map(sub => ({
+    ...sub,
+    score: analysisMap[sub._id.toString()] !== undefined ? analysisMap[sub._id.toString()] : null
+  }))
+
+  res.status(200).json({ success: true, count: enrichedSubmissions.length, data: enrichedSubmissions })
 })

@@ -608,9 +608,9 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
     }
   }
 
-  // Update essay status to reviewed so the client stops polling and displays the analysis
-  if (essayDoc) {
-    essayDoc.status = 'reviewed'
+  // Keep status as 'submitted' so the teacher sees it pending review
+  if (essayDoc && essayDoc.status === 'draft') {
+    essayDoc.status = 'submitted'
     await essayDoc.save()
   }
 

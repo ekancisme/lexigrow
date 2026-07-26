@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import api from '../../services/api.js'
 import { useModal } from '../../contexts/ModalContext.jsx'
+import { getSocket } from '../../services/socket.js'
 import './AssignmentDetail.css'
 
 export default function AssignmentDetail() {
@@ -62,6 +63,17 @@ export default function AssignmentDetail() {
 
   useEffect(() => {
     loadData()
+
+    const socket = getSocket()
+    if (socket) {
+      const handleNotification = () => {
+        loadData()
+      }
+      socket.on('notification', handleNotification)
+      return () => {
+        socket.off('notification', handleNotification)
+      }
+    }
   }, [id])
 
   // ── Keyword handlers ──
@@ -196,7 +208,12 @@ export default function AssignmentDetail() {
 
       {/* Header bar */}
       <div className="assignment-detail__header-bar">
-        <h2 className="assignment-detail__title">{assignment.title}</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+          <h2 className="assignment-detail__title" style={{ margin: 0 }}>{assignment.title}</h2>
+          <span className={`am__card-status ${assignment.status === 'closed' ? 'am__card-status--closed' : (new Date(assignment.dueDate) < new Date() ? 'am__card-status--expired' : 'am__card-status--active')}`} style={{ padding: '4px 12px', borderRadius: '999px', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase' }}>
+            {assignment.status === 'closed' ? 'Closed' : (new Date(assignment.dueDate) < new Date() ? 'Past Due' : 'Active')}
+          </span>
+        </div>
         <button
           className="assignment-detail__delete-btn"
           onClick={handleDelete}
@@ -324,6 +341,7 @@ export default function AssignmentDetail() {
                     <th>Student</th>
                     <th>Date Submitted</th>
                     <th>Words</th>
+                    <th>Score</th>
                     <th>Status</th>
                     <th>Action</th>
                   </tr>
@@ -343,6 +361,23 @@ export default function AssignmentDetail() {
                         </td>
                         <td>{displayDate}</td>
                         <td>{wordCount}</td>
+                        <td>
+                          {sub.score !== null && sub.score !== undefined ? (
+                            <span style={{
+                              fontWeight: 700,
+                              color: sub.score >= 8 ? '#16a34a' : sub.score >= 6 ? '#2563eb' : '#dc2626',
+                              background: sub.score >= 8 ? 'rgba(22, 163, 74, 0.1)' : sub.score >= 6 ? 'rgba(37, 99, 235, 0.1)' : 'rgba(220, 38, 38, 0.1)',
+                              padding: '4px 10px',
+                              borderRadius: '999px',
+                              fontSize: '12px',
+                              display: 'inline-block'
+                            }}>
+                              {sub.score} / 10
+                            </span>
+                          ) : (
+                            <span style={{ color: 'var(--color-outline)', fontSize: '12px' }}>Analyzing...</span>
+                          )}
+                        </td>
                         <td>
                           <span className={`assignment-detail__badge assignment-detail__badge--${sub.status}`}>
                             {sub.status === 'needs_revision' ? 'revision requested' : sub.status}

@@ -1,7 +1,38 @@
 import ManualFeedback from '../models/ManualFeedback.js'
 import Essay from '../models/Essay.js'
+import AIAnalysis from '../models/AIAnalysis.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
+
+/**
+ * Helper: sync teacher-adjusted scores back to AIAnalysis so the student
+ * sees updated numbers and overall score immediately after the teacher saves.
+ */
+async function syncTeacherScoresToAnalysis(essayId, scores) {
+  if (!scores) return
+  try {
+    const analysis = await AIAnalysis.findOne({ essay: essayId })
+    if (!analysis) return
+
+    const { grammar, vocabulary, coherence, complexity } = scores
+    if (grammar !== undefined) analysis.scores.grammarAccuracy = Number(grammar)
+    if (vocabulary !== undefined) analysis.scores.vocabularyDiversity = Number(vocabulary)
+    if (coherence !== undefined) analysis.scores.coherence = Number(coherence)
+    if (complexity !== undefined) analysis.scores.complexityIndex = Number(complexity)
+
+    // Recalculate overall score as average of 4 metrics (all out of 10)
+    const g = Number(analysis.scores.grammarAccuracy) || 0
+    const v = Number(analysis.scores.vocabularyDiversity) || 0
+    const c = Number(analysis.scores.coherence) || 0
+    const cx = Number(analysis.scores.complexityIndex) || 0
+
+    analysis.overallScore = Math.round(((g + v + c + cx) / 4) * 10) / 10
+
+    await analysis.save()
+  } catch (err) {
+    console.error('Error syncing teacher scores to AIAnalysis:', err.message)
+  }
+}
 
 /**
  * @desc    Get essays pending teacher feedback
@@ -9,12 +40,10 @@ import asyncHandler from '../utils/asyncHandler.js'
  * @access  Private (teacher)
  */
 export const getPendingEssays = asyncHandler(async (req, res) => {
-  // Get all student IDs from teacher's classes
   const Class = (await import('../models/Class.js')).default
   const classes = await Class.find({ teacher: req.user._id })
   const studentIds = [...new Set(classes.flatMap(c => c.students.map(s => s.toString())))]
 
-  // Get submitted essays without teacher feedback
   const feedbackEssayIds = await ManualFeedback.find({ teacher: req.user._id }).distinct('essay')
 
   const pendingEssays = await Essay.find({
@@ -37,7 +66,6 @@ export const createFeedback = asyncHandler(async (req, res) => {
   const essay = await Essay.findById(req.params.essayId)
   if (!essay) throw new ErrorResponse('Essay not found', 404)
 
-  // Check if feedback already exists
   const existing = await ManualFeedback.findOne({ essay: essay._id, teacher: req.user._id })
   if (existing) throw new ErrorResponse('Feedback already exists for this essay. Use PUT to update.', 400)
 
@@ -51,11 +79,15 @@ export const createFeedback = asyncHandler(async (req, res) => {
     status: 'draft',
   })
 
+  if (scores) {
+    await syncTeacherScoresToAnalysis(essay._id, scores)
+  }
+
   res.status(201).json({ success: true, data: feedback })
 })
 
 /**
- * @desc    Update feedback
+ * @desc    Update feedback (save draft)
  * @route   PUT /api/feedback/:id
  * @access  Private (teacher)
  */
@@ -68,6 +100,11 @@ export const updateFeedback = asyncHandler(async (req, res) => {
   if (feedbackText !== undefined) feedback.feedbackText = feedbackText
 
   await feedback.save()
+
+  if (scores) {
+    await syncTeacherScoresToAnalysis(feedback.essay, scores)
+  }
+
   res.status(200).json({ success: true, data: feedback })
 })
 
@@ -84,8 +121,28 @@ export const submitFeedback = asyncHandler(async (req, res) => {
   feedback.submittedAt = new Date()
   await feedback.save()
 
+  // Sync teacher scores to AIAnalysis
+  if (feedback.scores) {
+    await syncTeacherScoresToAnalysis(feedback.essay, feedback.scores)
+  }
+
   // Mark essay as reviewed
-  await Essay.findByIdAndUpdate(feedback.essay, { status: 'reviewed' })
+  const essay = await Essay.findByIdAndUpdate(feedback.essay, { status: 'reviewed' }, { new: true })
+
+  // Send real-time notification to student
+  if (essay) {
+    const { createNotification } = await import('../services/notification.service.js')
+    createNotification({
+      recipient: essay.student,
+      sender: req.user._id,
+      title: 'Teacher Written Feedback',
+      message: `Teacher ${req.user.name} has provided written feedback on your essay "${essay.title}".`,
+      type: 'feedback',
+      link: `/student/feedback?id=${essay._id}`,
+    }).catch(err => {
+      console.error('Failed to send feedback notification:', err.message)
+    })
+  }
 
   res.status(200).json({ success: true, data: feedback, message: 'Feedback submitted' })
 })

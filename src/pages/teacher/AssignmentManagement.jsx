@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
+import { getSocket } from '../../services/socket.js'
 import './AssignmentManagement.css'
 
 export default function AssignmentManagement() {
@@ -31,6 +32,7 @@ export default function AssignmentManagement() {
     dueDate: '',
     keywordsInput: '',
     keywords: [],
+    status: 'active',
   })
 
   function showToast(message, type = 'success') {
@@ -46,14 +48,26 @@ export default function AssignmentManagement() {
     return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`
   })()
 
-  // Load data on mount
+  // Load data on mount & real-time updates
   useEffect(() => {
     loadData()
+
+    const socket = getSocket()
+    if (!socket) return
+
+    function handleRealtimeNotification() {
+      loadData(true)
+    }
+
+    socket.on('notification', handleRealtimeNotification)
+    return () => {
+      socket.off('notification', handleRealtimeNotification)
+    }
   }, [])
 
-  async function loadData() {
+  async function loadData(silent = false) {
     try {
-      setLoading(true)
+      if (!silent) setLoading(true)
       const [assignRes, classRes] = await Promise.all([
         api.get('/assignments'),
         api.get('/classes')
@@ -63,9 +77,9 @@ export default function AssignmentManagement() {
       setClasses(classRes.data || [])
     } catch (err) {
       console.error('Error loading assignments page data:', err)
-      showToast('Failed to load assignments: ' + err.message, 'error')
+      if (!silent) showToast('Failed to load assignments: ' + err.message, 'error')
     } finally {
-      setLoading(false)
+      if (!silent) setLoading(false)
     }
   }
 
@@ -78,6 +92,7 @@ export default function AssignmentManagement() {
       dueDate: '',
       keywordsInput: '',
       keywords: [],
+      status: 'active',
     })
     setShowModal(true)
   }
@@ -99,8 +114,21 @@ export default function AssignmentManagement() {
       dueDate: formattedDate,
       keywordsInput: '',
       keywords: assign.keywords || [],
+      status: assign.status || 'active',
     })
     setShowModal(true)
+  }
+
+  async function handleToggleStatus(assign, e) {
+    if (e) e.stopPropagation()
+    const nextStatus = assign.status === 'closed' ? 'active' : 'closed'
+    try {
+      await api.put(`/assignments/${assign._id}`, { status: nextStatus })
+      showToast(`Assignment "${assign.title}" is now ${nextStatus.toUpperCase()}`)
+      loadData()
+    } catch (err) {
+      showToast('Error updating assignment status: ' + err.message, 'error')
+    }
   }
 
   function handleKeywordAdd() {
@@ -142,6 +170,7 @@ export default function AssignmentManagement() {
           description: form.description,
           dueDate: form.dueDate,
           keywords: form.keywords,
+          status: form.status,
         })
         showToast(`Assignment "${res.data.title}" updated successfully!`)
       } else {
@@ -152,6 +181,7 @@ export default function AssignmentManagement() {
           classId: form.classId,
           dueDate: form.dueDate,
           keywords: form.keywords,
+          status: form.status,
         })
         showToast(`Assignment "${res.data.title}" created successfully!`)
       }
@@ -357,22 +387,36 @@ export default function AssignmentManagement() {
       ) : (
         <div className="am__grid">
           {filteredAssignments.map(a => {
-            const isPastDue = new Date(a.dueDate) < new Date()
+            const isClosed = a.status === 'closed'
+            const isPastDue = !isClosed && new Date(a.dueDate) < new Date()
             const className = a.classId?.name || 'Class'
-            const enrolledCount = a.classId?.students?.length || 0
+            const enrolledCount = Array.isArray(a.classId?.students) ? a.classId.students.length : (a.classId?.studentCount || 0)
             const submittedCount = a.submissionCount || 0
-            const progressPercent = enrolledCount > 0 ? Math.min(100, Math.round((submittedCount / enrolledCount) * 100)) : 0
+            const progressPercent = enrolledCount > 0 ? Math.min(100, Math.round((submittedCount / enrolledCount) * 100)) : (submittedCount > 0 ? 100 : 0)
 
             return (
-              <div key={a._id} className="card-base am__card">
+              <div key={a._id} className="card-base am__card" style={{ opacity: isClosed ? 0.88 : 1 }}>
                 <div className="am__card-header">
                   <div className="am__card-class-tag">
                     <span className="material-symbols-outlined" style={{ fontSize: 16 }}>school</span>
                     <span>{className}</span>
                   </div>
-                  <span className={`am__card-status ${isPastDue ? 'am__card-status--expired' : 'am__card-status--active'}`}>
-                    {isPastDue ? 'Past Due' : 'Active'}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span className={`am__card-status ${isClosed ? 'am__card-status--closed' : (isPastDue ? 'am__card-status--expired' : 'am__card-status--active')}`}>
+                      {isClosed ? 'Closed' : (isPastDue ? 'Past Due' : 'Active')}
+                    </span>
+                    <button
+                      className="am__action-btn"
+                      onClick={(e) => handleToggleStatus(a, e)}
+                      title={isClosed ? 'Re-open Assignment' : 'Close Assignment'}
+                      style={{ padding: '3px 8px', fontSize: '11px', display: 'flex', alignItems: 'center', gap: 3, background: isClosed ? 'rgba(26,115,232,0.08)' : 'transparent' }}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: 14 }}>
+                        {isClosed ? 'lock_open' : 'lock'}
+                      </span>
+                      {isClosed ? 'Open' : 'Close'}
+                    </button>
+                  </div>
                 </div>
 
                 <h3 className="text-title-md am__card-title" onClick={() => navigate(`/teacher/assignment/${a._id}`)}>
@@ -389,14 +433,14 @@ export default function AssignmentManagement() {
                 <div className="am__card-progress-section">
                   <div className="am__card-progress-meta">
                     <span className="text-label-sm" style={{ color: 'var(--color-on-surface-variant)' }}>
-                      Submissions: <strong>{submittedCount}</strong> / {enrolledCount > 0 ? enrolledCount : '?'} enrolled
+                      Submissions: <strong>{submittedCount}</strong> / {enrolledCount} enrolled
                     </span>
-                    <span className="text-label-sm" style={{ fontWeight: 700, color: 'var(--color-primary)' }}>
+                    <span className="text-label-sm" style={{ fontWeight: 700, color: progressPercent === 100 ? 'var(--color-success, #16a34a)' : 'var(--color-primary)' }}>
                       {progressPercent}%
                     </span>
                   </div>
                   <div className="am__card-progress-track">
-                    <div className="am__card-progress-bar" style={{ width: `${progressPercent}%` }} />
+                    <div className="am__card-progress-bar" style={{ width: `${progressPercent}%`, backgroundColor: progressPercent === 100 ? 'var(--color-success, #16a34a)' : 'var(--color-primary)' }} />
                   </div>
                 </div>
 
@@ -520,6 +564,19 @@ export default function AssignmentManagement() {
                   min={minimumDueDate}
                   required
                 />
+              </div>
+
+              {/* Status */}
+              <div>
+                <label className="text-label-md am__field-label">Assignment Status</label>
+                <select
+                  className="am__input"
+                  value={form.status || 'active'}
+                  onChange={e => setForm(p => ({ ...p, status: e.target.value }))}
+                >
+                  <option value="active">Active (Open for student submissions)</option>
+                  <option value="closed">Closed (Locked - no new submissions accepted)</option>
+                </select>
               </div>
 
               {/* Keywords */}

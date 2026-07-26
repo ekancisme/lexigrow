@@ -76,22 +76,34 @@ export default function AIFeedbackReview() {
       return
     }
 
-    let intervalId
+    let intervalId = null
 
     async function fetchAnalysis() {
       try {
         const essayRes = await api.get(`/essays/${essayId}`)
         setEssay(essayRes.data)
 
-        if (essayRes.data.status === 'submitted') {
-          // Still analyzing, keep loading and polling
-          setLoading(true)
-        } else {
-          // Status is reviewed or draft
+        try {
           const analysisRes = await api.get(`/essays/${essayId}/analysis`)
-          setAnalysis(analysisRes.data)
-          setLoading(false)
-          if (intervalId) clearInterval(intervalId)
+          if (analysisRes.data) {
+            setAnalysis(analysisRes.data)
+
+            // Fetch teacher's manual written feedback if available
+            try {
+              const fbRes = await api.get(`/feedback/essay/${essayId}`)
+              if (fbRes.data) {
+                setTeacherFeedback(fbRes.data)
+              }
+            } catch (fbErr) {
+              // ignore if no teacher feedback yet
+            }
+
+            setLoading(false)
+            if (intervalId) clearInterval(intervalId)
+          }
+        } catch (analysisErr) {
+          // AI analysis is still generating in background
+          setLoading(true)
         }
       } catch (err) {
         console.error('Error loading feedback:', err)

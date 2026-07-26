@@ -417,155 +417,89 @@ Please adjust the feedback tone and focus as follows:
               </div>
             )}
 
-            {/* View Tabs */}
-            <div className="spm__tabs">
-              <button
-                className={`spm__tab ${viewMode === 'editor' || viewMode === 'howto' ? 'spm__tab--active' : ''}`}
-                onClick={() => setViewMode('editor')}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>edit_note</span> Editor
-              </button>
-              <button
-                className={`spm__tab ${viewMode === 'compare' ? 'spm__tab--active' : ''}`}
-                onClick={() => setViewMode('compare')}
-              >
-                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>compare</span> Compare with Default
-              </button>
+            {/* Editor */}
+            <div className="spm__editor-fields">
+              <div className="spm__field-group" style={{ flex: 2 }}>
+                <label className="spm__field-label">Prompt Name</label>
+                <input
+                  className="spm__input"
+                  value={editName}
+                  onChange={e => { setEditName(e.target.value); setIsDirty(true) }}
+                  placeholder="Enter prompt name..."
+                />
+              </div>
+              <div className="spm__field-group" style={{ flex: 1 }}>
+                <label className="spm__field-label">Category</label>
+                <select
+                  className="spm__select"
+                  value={editCategory}
+                  onChange={e => { setEditCategory(e.target.value); setIsDirty(true) }}
+                >
+                  {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
             </div>
 
-            {viewMode !== 'compare' ? (
-              /* ── Editor Tab ── */
-              <>
-                <div className="spm__editor-fields">
-                  <div className="spm__field-group" style={{ flex: 2 }}>
-                    <label className="spm__field-label">Prompt Name</label>
-                    <input
-                      className="spm__input"
-                      value={editName}
-                      onChange={e => { setEditName(e.target.value); setIsDirty(true) }}
-                      placeholder="Enter prompt name..."
-                    />
-                  </div>
-                  <div className="spm__field-group" style={{ flex: 1 }}>
-                    <label className="spm__field-label">Category</label>
-                    <select
-                      className="spm__select"
-                      value={editCategory}
-                      onChange={e => { setEditCategory(e.target.value); setIsDirty(true) }}
-                    >
-                      {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </div>
-                </div>
+            <div style={{ marginBottom: 8 }}>
+              <label className="spm__field-label">
+                Your Additional Instructions
+                <span style={{ color: 'var(--color-outline)', fontWeight: 400, marginLeft: 8, fontSize: '0.8em' }}>
+                  Injected into LexiGrow's default prompt — JSON format preserved automatically
+                </span>
+              </label>
+              <textarea
+                className="spm__textarea"
+                rows={14}
+                value={editText}
+                onChange={e => { setEditText(e.target.value); setIsDirty(true) }}
+                placeholder="Example: This is a beginner class. Focus on grammar corrections. Use simple English in feedback. Recommend A2-B1 vocabulary..."
+              />
+              <div className="spm__textarea-hint">
+                <span className="material-symbols-outlined" style={{ fontSize: 13 }}>info</span>
+                <span>{editText.length} chars · {editText.split(/\s+/).filter(Boolean).length} words · Only write your class-specific instructions here</span>
+              </div>
+            </div>
 
-                <div style={{ marginBottom: 8 }}>
-                  <label className="spm__field-label">
-                    Your Additional Instructions
-                    <span style={{ color: 'var(--color-outline)', fontWeight: 400, marginLeft: 8, fontSize: '0.8em' }}>
-                      Injected into LexiGrow's default prompt — JSON format preserved automatically
-                    </span>
-                  </label>
-                  <textarea
-                    className="spm__textarea"
-                    rows={14}
-                    value={editText}
-                    onChange={e => { setEditText(e.target.value); setIsDirty(true) }}
-                    placeholder="Example: This is a beginner class. Focus on grammar corrections. Use simple English in feedback. Recommend A2-B1 vocabulary..."
-                  />
-                  <div className="spm__textarea-hint">
-                    <span className="material-symbols-outlined" style={{ fontSize: 13 }}>info</span>
-                    <span>{editText.length} chars · {editText.split(/\s+/).filter(Boolean).length} words · Only write your class-specific instructions here</span>
-                  </div>
-                </div>
+            {/* Actions */}
+            <div className="spm__editor-actions">
+              <button className="spm__delete-btn" onClick={() => setShowDeleteConfirm(true)}>
+                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span> Delete
+              </button>
 
-                {/* Actions */}
-                <div className="spm__editor-actions">
-                  <button className="spm__delete-btn" onClick={() => setShowDeleteConfirm(true)}>
-                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>delete</span> Delete
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <button className="spm__test-btn" onClick={openTest}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>smart_toy</span> Test Prompt
+                </button>
+
+                {isDirty && (
+                  <button className="spm__save-btn" onClick={handleSaveChanges} disabled={saving}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>save</span>
+                    {saving ? 'Saving...' : 'Save Changes ●'}
                   </button>
+                )}
 
-                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                    <button className="spm__test-btn" onClick={openTest}>
-                      <span className="material-symbols-outlined" style={{ fontSize: 16 }}>smart_toy</span> Test Prompt
-                    </button>
-
-                    {isDirty && (
-                      <button className="spm__save-btn" onClick={handleSaveChanges} disabled={saving}>
-                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>save</span>
-                        {saving ? 'Saving...' : 'Save Changes ●'}
-                      </button>
-                    )}
-
-                    {!isDirty && (
-                      isSelectedActive ? (
-                        <button className="spm__deactivate-btn" onClick={handleDeactivate} disabled={activating}>
-                          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>power_off</span>
-                          {activating ? 'Deactivating...' : 'Deactivate'}
-                        </button>
-                      ) : (
-                        <button className="spm__activate-btn" onClick={handleActivate} disabled={activating}>
-                          <span className="material-symbols-outlined" style={{ fontSize: 16 }}>bolt</span>
-                          {activating ? 'Activating...' : 'Set as Active'}
-                        </button>
-                      )
-                    )}
-
-                    {isDirty && (
-                      <p className="spm__save-hint">
-                        <span className="material-symbols-outlined" style={{ fontSize: 14 }}>info</span>
-                        Save changes first, then set as active
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </>
-            ) : (
-              /* ── Compare Tab ── */
-              <div className="spm__compare">
-                <div className="spm__compare-explanation">
-                  <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--color-primary)' }}>merge</span>
-                  <p className="text-body-sm">
-                    Your instructions are <strong>injected into</strong> the LexiGrow default prompt — the JSON output format is always preserved.
-                    The final prompt sent to AI = <strong>Default base + Your instructions + JSON rules</strong>.
-                  </p>
-                </div>
-                <div className="spm__compare-grid">
-                  <div className="spm__compare-col">
-                    <div className="spm__compare-header spm__compare-header--default">
-                      <span className="material-symbols-outlined" style={{ fontSize: 16 }}>settings</span>
-                      LexiGrow Base Prompt (always present)
-                      {!isSelectedActive && <span className="spm__compare-using-tag">Only this</span>}
-                    </div>
-                    <pre className="spm__compare-text">{DEFAULT_PROMPT_PREVIEW}</pre>
-                  </div>
-                  <div className="spm__compare-col">
-                    <div className="spm__compare-header spm__compare-header--custom">
-                      <span className="material-symbols-outlined" style={{ fontSize: 16 }}>add_circle</span>
-                      Your Additional Instructions: "{selectedPrompt.name}"
-                      {isSelectedActive && <span className="spm__compare-using-tag spm__compare-using-tag--active">Injected ✓</span>}
-                    </div>
-                    <pre className="spm__compare-text">{editText || '(empty — add your class-specific instructions)'}</pre>
-                    <div className="spm__compare-merge-note">
-                      <span className="material-symbols-outlined" style={{ fontSize: 14 }}>info</span>
-                      This text is inserted between the base prompt and the JSON Rules section
-                    </div>
-                  </div>
-                </div>
-                <div style={{ marginTop: 16, textAlign: 'center' }}>
-                  {!isSelectedActive ? (
-                    <button className="spm__activate-btn" onClick={handleActivate} disabled={activating || isDirty}>
-                      <span className="material-symbols-outlined" style={{ fontSize: 16 }}>bolt</span>
-                      {isDirty ? 'Save changes first' : activating ? 'Activating...' : 'Activate — Inject into AI Prompt'}
-                    </button>
-                  ) : (
+                {!isDirty && (
+                  isSelectedActive ? (
                     <button className="spm__deactivate-btn" onClick={handleDeactivate} disabled={activating}>
                       <span className="material-symbols-outlined" style={{ fontSize: 16 }}>power_off</span>
-                      {activating ? 'Deactivating...' : 'Deactivate — Back to Default Only'}
+                      {activating ? 'Deactivating...' : 'Deactivate'}
                     </button>
-                  )}
-                </div>
+                  ) : (
+                    <button className="spm__activate-btn" onClick={handleActivate} disabled={activating}>
+                      <span className="material-symbols-outlined" style={{ fontSize: 16 }}>bolt</span>
+                      {activating ? 'Activating...' : 'Set as Active'}
+                    </button>
+                  )
+                )}
+
+                {isDirty && (
+                  <p className="spm__save-hint">
+                    <span className="material-symbols-outlined" style={{ fontSize: 14 }}>info</span>
+                    Save changes first, then set as active
+                  </p>
+                )}
               </div>
-            )}
+            </div>
           </div>
         ) : (
           <div className="card-base spm__editor spm__editor--empty">

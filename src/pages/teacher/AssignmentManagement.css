@@ -4,6 +4,7 @@
 
 .am {
   position: relative;
+  zoom: 0.9;
 }
 
 /* ── Header ── */
@@ -300,6 +301,12 @@
 .am__card-status--expired {
   background: rgba(239, 68, 68, 0.1);
   color: var(--color-error);
+}
+
+.am__card-status--closed {
+  background: rgba(100, 116, 139, 0.15);
+  color: #64748b;
+  border: 1px solid rgba(100, 116, 139, 0.3);
 }
 
 .am__card-title {

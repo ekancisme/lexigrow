@@ -15,6 +15,14 @@ import asyncHandler from '../utils/asyncHandler.js'
 export const createEssay = asyncHandler(async (req, res) => {
   const { title, content, classId, theme, assignmentId } = req.body
 
+  if (assignmentId) {
+    const Assignment = (await import('../models/Assignment.js')).default
+    const assign = await Assignment.findById(assignmentId)
+    if (assign && (assign.status === 'closed' || new Date(assign.dueDate) < new Date())) {
+      throw new ErrorResponse('This assignment is closed and no longer accepting submissions.', 400)
+    }
+  }
+
   const essay = await Essay.create({
     title,
     content: content || '',
@@ -92,6 +100,14 @@ export const updateEssay = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Not authorized to update this essay', 403)
   }
 
+  if (essay.assignment) {
+    const Assignment = (await import('../models/Assignment.js')).default
+    const assign = await Assignment.findById(essay.assignment)
+    if (assign && (assign.status === 'closed' || new Date(assign.dueDate) < new Date())) {
+      throw new ErrorResponse('This assignment is closed and no longer accepting edits.', 400)
+    }
+  }
+
   // If the essay was already submitted or reviewed, modifying it resets its status to 'draft' (unless it is needs_revision)
   if (essay.status !== 'draft' && essay.status !== 'needs_revision') {
     essay.status = 'draft'
@@ -121,6 +137,14 @@ export const submitEssay = asyncHandler(async (req, res) => {
 
   if (essay.student.toString() !== req.user._id.toString()) {
     throw new ErrorResponse('Not authorized', 403)
+  }
+
+  if (essay.assignment) {
+    const Assignment = (await import('../models/Assignment.js')).default
+    const assign = await Assignment.findById(essay.assignment)
+    if (assign && (assign.status === 'closed' || new Date(assign.dueDate) < new Date())) {
+      throw new ErrorResponse('This assignment is closed and no longer accepting submissions.', 400)
+    }
   }
 
   if (essay.status !== 'draft' && essay.status !== 'needs_revision') {

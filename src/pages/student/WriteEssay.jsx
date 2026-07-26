@@ -190,6 +190,13 @@ export default function WriteEssay() {
     }
   }
 
+  const isAssignmentClosed = Boolean(
+    assignmentData && (
+      assignmentData.status === 'closed' || 
+      (assignmentData.dueDate && new Date(assignmentData.dueDate) < new Date())
+    )
+  )
+
   return (
     <div className="write-essay">
       {/* Header */}
@@ -205,16 +212,37 @@ export default function WriteEssay() {
           </p>
         </div>
         <div className="write-essay__actions">
-          <button className="write-essay__btn-secondary" onClick={handleSaveDraft} disabled={saving}>
+          <button className="write-essay__btn-secondary" onClick={handleSaveDraft} disabled={saving || isAssignmentClosed}>
             <span className="material-symbols-outlined">save</span>
             {saving ? 'Saving...' : 'Save Draft'}
           </button>
-          <button className="write-essay__btn-primary" onClick={handleSubmit} disabled={saving}>
+          <button className="write-essay__btn-primary" onClick={handleSubmit} disabled={saving || isAssignmentClosed}>
             <span className="material-symbols-outlined">send</span>
             {saving ? 'Submitting...' : 'Submit Essay'}
           </button>
         </div>
       </section>
+
+      {/* Closed Assignment Alert */}
+      {isAssignmentClosed && (
+        <div style={{
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1.5px solid var(--color-error)',
+          color: 'var(--color-error)',
+          padding: '14px 18px',
+          borderRadius: '12px',
+          marginBottom: '20px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          fontWeight: 600
+        }}>
+          <span className="material-symbols-outlined" style={{ fontSize: 24 }}>lock</span>
+          <div>
+            <strong>Assignment Closed:</strong> This assignment has been closed by your teacher (or is past due). Submissions and edits are no longer accepted.
+          </div>
+        </div>
+      )}
 
       <div className="write-essay__layout">
         {/* Editor Area */}
