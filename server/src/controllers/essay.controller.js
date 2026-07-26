@@ -1,5 +1,7 @@
 import Essay from '../models/Essay.js'
 import Config from '../models/Config.js'
+import SystemPrompt from '../models/SystemPrompt.js'
+import Class from '../models/Class.js'
 import { processEssayAnalysis, generateTopicsByTheme } from '../services/ai.service.js'
 import { getIO } from '../services/socket.service.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
@@ -133,8 +135,41 @@ export const submitEssay = asyncHandler(async (req, res) => {
   essay.submittedAt = new Date()
   await essay.save()
 
+  // ── Load teacher's active system prompt (if any) ──
+  let customPrompt = null
+  let promptMeta = null
+  try {
+    let teacherId = null
+
+    // Try to get teacher from the essay's class
+    if (essay.class) {
+      const cls = await Class.findById(essay.class).select('teacher')
+      if (cls) teacherId = cls.teacher
+    }
+
+    // Fallback: find any class the student belongs to (take first active one)
+    if (!teacherId) {
+      const cls = await Class.findOne({ students: req.user._id, status: 'active' }).select('teacher').sort({ updatedAt: -1 })
+      if (cls) teacherId = cls.teacher
+    }
+
+    if (teacherId) {
+      const activePrompt = await SystemPrompt.findOne({ teacher: teacherId, status: 'active' })
+        .sort({ updatedAt: -1 })
+      if (activePrompt) {
+        customPrompt = activePrompt.template
+        promptMeta = { name: activePrompt.name, promptId: activePrompt._id }
+        console.log(`[Essay Submit] Using custom prompt: "${activePrompt.name}" (teacher: ${teacherId})`)
+      } else {
+        console.log(`[Essay Submit] No active custom prompt for teacher ${teacherId}. Using default.`)
+      }
+    }
+  } catch (promptErr) {
+    console.error('[Essay Submit] Error loading custom prompt (falling back to default):', promptErr.message)
+  }
+
   // Trigger AI analysis asynchronously (non-blocking)
-  processEssayAnalysis(essay._id, req.user._id, essay.content).catch(err => {
+  processEssayAnalysis(essay._id, req.user._id, essay.content, customPrompt, promptMeta).catch(err => {
     console.error('Background AI analysis failed:', err.message)
   })
 

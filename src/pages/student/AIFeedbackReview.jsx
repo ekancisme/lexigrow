@@ -315,6 +315,40 @@ export default function AIFeedbackReview() {
         </div>
       )}
 
+      {/* ── Custom Prompt Badge ── */}
+      {analysis?.promptUsed?.isCustom && (
+        <div className="ai-feedback__prompt-banner">
+          <div className="ai-feedback__prompt-banner-left">
+            <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--color-primary)' }}>auto_awesome</span>
+            <div>
+              <p className="text-label-md" style={{ fontWeight: 700, margin: 0 }}>
+                Graded with Teacher&apos;s Custom AI Prompt
+              </p>
+              <p className="text-label-sm" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>
+                Your teacher applied the prompt &ldquo;<strong>{analysis?.promptUsed?.name || 'Custom Prompt'}</strong>&rdquo; — feedback is tailored specifically for your class.
+              </p>
+            </div>
+          </div>
+          <span className="ai-feedback__prompt-chip">Custom Prompt</span>
+        </div>
+      )}
+      {analysis && !analysis?.promptUsed?.isCustom && (
+        <div className="ai-feedback__prompt-banner ai-feedback__prompt-banner--default">
+          <div className="ai-feedback__prompt-banner-left">
+            <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--color-outline)' }}>settings</span>
+            <div>
+              <p className="text-label-md" style={{ fontWeight: 600, margin: 0, color: 'var(--color-on-surface-variant)' }}>
+                Graded with LexiGrow Default AI Prompt
+              </p>
+              <p className="text-label-sm" style={{ color: 'var(--color-outline)', margin: 0 }}>
+                Standard analysis — your teacher has not applied a custom prompt to this class yet.
+              </p>
+            </div>
+          </div>
+          <span className="ai-feedback__prompt-chip ai-feedback__prompt-chip--default">Default Prompt</span>
+        </div>
+      )}
+
       <div className="ai-feedback__layout">
         {/* Main Scores */}
         <div className="ai-feedback__main">
@@ -422,6 +456,8 @@ export default function AIFeedbackReview() {
             )}
           </div>
 
+
+
           {/* Detailed Scores */}
           <div className="card-base">
             <h3 className="text-title-lg" style={{ marginBottom: 20 }}>Detailed Analysis</h3>
@@ -463,6 +499,8 @@ export default function AIFeedbackReview() {
               )) || <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>No suggestions generated.</p>}
             </div>
           </div>
+
+
 
           {/* Learning Pattern Detection Card */}
           {analysis?.learningPatterns && (

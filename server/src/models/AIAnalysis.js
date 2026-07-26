@@ -67,6 +67,12 @@ const aiAnalysisSchema = new mongoose.Schema({
     transitionWords: [{ type: String, trim: true }],
     sentenceStructures: [{ type: String, trim: true }],
     generalTips: { type: String, default: '' }
+  },
+  // Track which system prompt was used for this analysis
+  promptUsed: {
+    name: { type: String, default: 'Default System Prompt' },
+    promptId: { type: mongoose.Schema.Types.ObjectId, ref: 'SystemPrompt', default: null },
+    isCustom: { type: Boolean, default: false },
   }
 }, {
   timestamps: true,

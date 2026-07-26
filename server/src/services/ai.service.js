@@ -149,9 +149,40 @@ Rules:
  */
 export const analyzeEssay = async (essayContent, customPrompt, pastScoresSummary = '') => {
   const defaultPrompt = await getConfigValue('SYSTEM_ANALYSIS_PROMPT', DEFAULT_ANALYSIS_PROMPT)
-  const prompt = customPrompt || defaultPrompt
   const activeModel = await getConfigValue('DEFAULT_AI_MODEL', 'llama-3.3-70b-versatile')
   const apiKey = await getConfigValue('GROQ_API_KEY', process.env.GROQ_API_KEY)
+
+  /**
+   * Hybrid Prompt Strategy:
+   * - If teacher has a custom prompt: inject it as "TEACHER'S ADDITIONAL INSTRUCTIONS"
+   *   BEFORE the JSON format rules in the default prompt.
+   *   This preserves the required output JSON structure while allowing
+   *   teacher to customize tone, focus areas, scoring emphasis, etc.
+   * - If no custom prompt: use the default prompt as-is.
+   *
+   * Example result when teacher has custom prompt:
+   *   [Default base instructions about being an AI analyzer...]
+   *   TEACHER'S ADDITIONAL INSTRUCTIONS FOR THIS CLASS:
+   *   [Teacher's text...]
+   *   [Default JSON format rules...]
+   */
+  let prompt
+  if (customPrompt && customPrompt.trim()) {
+    // Split default prompt into "intro" and "Rules/JSON section"
+    // We inject teacher instructions right before the "Rules:" section
+    const rulesIndex = defaultPrompt.indexOf('\nRules:')
+    if (rulesIndex !== -1) {
+      const introPart = defaultPrompt.slice(0, rulesIndex)
+      const rulesPart = defaultPrompt.slice(rulesIndex)
+      prompt = `${introPart}\n\n--- TEACHER'S ADDITIONAL INSTRUCTIONS FOR THIS CLASS ---\n${customPrompt.trim()}\n--- END OF TEACHER INSTRUCTIONS ---${rulesPart}`
+    } else {
+      // Fallback: append teacher instructions before the end
+      prompt = `${defaultPrompt}\n\n--- TEACHER'S ADDITIONAL INSTRUCTIONS FOR THIS CLASS ---\n${customPrompt.trim()}`
+    }
+  } else {
+    prompt = defaultPrompt
+  }
+
 
   const startTime = Date.now()
   let usage = null
@@ -372,7 +403,7 @@ Return ONLY valid JSON, no markdown formatting.`
   }
 }
 
-export const processEssayAnalysis = async (essayId, studentId, essayContent, customPrompt) => {
+export const processEssayAnalysis = async (essayId, studentId, essayContent, customPrompt, promptMeta = null) => {
   const Essay = (await import('../models/Essay.js')).default
   const essayDoc = await Essay.findById(essayId)
   const essayTheme = essayDoc?.theme || 'General'
@@ -512,7 +543,11 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
         transitionWords: ['Therefore', 'Moreover', 'In addition', 'However'],
         sentenceStructures: ['Relative clauses', 'Conditional sentence (Type 2)', 'Passive voice variation'],
         generalTips: 'Practice connecting your ideas with diverse transition words and experimenting with complex sentence structures.'
-      }
+      },
+      // Track which prompt was used for this analysis
+      promptUsed: promptMeta
+        ? { name: promptMeta.name, promptId: promptMeta.promptId, isCustom: true }
+        : { name: 'Default System Prompt', promptId: null, isCustom: false },
     },
     { upsert: true, new: true, runValidators: true }
   )

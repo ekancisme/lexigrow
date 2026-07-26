@@ -2,6 +2,7 @@ import { Router } from 'express'
 import {
   createPrompt, getPrompts, getPrompt,
   updatePrompt, deletePrompt, testPrompt,
+  activatePrompt, deactivatePrompt,
 } from '../controllers/prompt.controller.js'
 import { protect, authorize } from '../middleware/auth.middleware.js'
 
@@ -20,5 +21,7 @@ router.route('/:id')
   .delete(deletePrompt)
 
 router.post('/:id/test', testPrompt)
+router.post('/:id/activate', activatePrompt)
+router.post('/:id/deactivate', deactivatePrompt)
 
 export default router
