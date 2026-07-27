@@ -508,7 +508,7 @@ export default function StudentClassDetail() {
                                 navigate(`/student/write-essay?assignmentId=${a._id}`);
                               }}
                             >
-                              {isClosed ? 'Closed' : 'Start Writing'}
+                              Start Writing
                             </button>
                           )}
                           {status === 'draft' && (
@@ -520,7 +520,7 @@ export default function StudentClassDetail() {
                                 navigate(`/student/write-essay?id=${essay._id}`);
                               }}
                             >
-                              {isClosed ? 'Closed' : 'Continue'}
+                              Continue
                             </button>
                           )}
                           {status === 'submitted' && (
@@ -634,12 +634,13 @@ export default function StudentClassDetail() {
               <button className="class-mgmt__cancel-btn" onClick={() => setSelectedAssignment(null)}>Close</button>
               {(() => {
                 const { status, essay } = getAssignmentStatus(selectedAssignment._id)
-                const isPast = new Date(selectedAssignment.dueDate) < new Date()
+                const isClosed = selectedAssignment.status === 'closed' || new Date(selectedAssignment.dueDate) < new Date()
 
-                if (status === 'not_started' && !isPast) {
+                if (status === 'not_started') {
                   return (
                     <button 
                       className="class-mgmt__submit-btn"
+                      disabled={isClosed}
                       onClick={() => {
                         setSelectedAssignment(null)
                         navigate(`/student/write-essay?assignmentId=${selectedAssignment._id}`)
