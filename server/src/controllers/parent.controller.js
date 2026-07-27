@@ -24,10 +24,22 @@ function getParentAlertDetail(alert) {
     const scoreSequence = alert.detail?.match(/\(([^)]+)\)/)?.[1]
     return `Grammar accuracy declined across the latest three reviewed essays${scoreSequence ? ` (${scoreSequence})` : ''}.`
   }
+  if (alert.metric === 'overall_score_decline') {
+    return alert.detail || 'Overall writing score declined across the latest three reviewed essays.'
+  }
+  if (alert.metric === 'missed_assignment_deadline') {
+    return alert.detail || 'An assignment deadline passed without a submission.'
+  }
   return alert.detail
 }
 
 const hashLinkCode = code => createHash('sha256').update(code).digest('hex')
+
+const maskEmail = email => {
+  const [localPart, domain] = String(email || '').split('@')
+  if (!localPart || !domain) return ''
+  return `${localPart.slice(0, 3)}***@${domain}`
+}
 
 const generateLinkCode = () => Array.from(
   { length: LINK_CODE_LENGTH },
@@ -111,6 +123,69 @@ export const createChildLinkCode = asyncHandler(async (req, res) => {
   res.status(201).json({
     success: true,
     data: { code, expiresAt },
+  })
+})
+
+/**
+ * @desc    Get active parents and guardians linked to the current student
+ * @route   GET /api/parent/guardians
+ * @access  Private (student)
+ */
+export const getLinkedGuardians = asyncHandler(async (req, res) => {
+  const links = await ParentStudentLink.find({
+    student: req.user._id,
+    status: 'active',
+  })
+    .populate('parent', 'name email avatar')
+    .sort({ linkedAt: -1 })
+    .lean()
+
+  const guardians = links
+    .filter(link => link.parent)
+    .map(link => ({
+      linkId: link._id,
+      parent: {
+        _id: link.parent._id,
+        name: link.parent.name,
+        email: maskEmail(link.parent.email),
+        avatar: link.parent.avatar || '',
+      },
+      relationship: link.relationship,
+      linkedAt: link.linkedAt,
+    }))
+
+  res.status(200).json({ success: true, data: guardians })
+})
+
+/**
+ * @desc    Revoke a parent or guardian's access to the current student
+ * @route   DELETE /api/parent/guardians/:linkId
+ * @access  Private (student)
+ */
+export const unlinkGuardian = asyncHandler(async (req, res) => {
+  const link = await ParentStudentLink.findOne({
+    _id: req.params.linkId,
+    student: req.user._id,
+    status: 'active',
+  })
+
+  if (!link) {
+    throw new ErrorResponse('Active guardian link not found', 404)
+  }
+
+  link.status = 'revoked'
+  link.revokedAt = new Date()
+  link.revokedBy = req.user._id
+  await link.save()
+
+  await Promise.all([
+    User.updateOne({ _id: req.user._id }, { $pull: { parents: link.parent } }),
+    User.updateOne({ _id: link.parent }, { $pull: { children: req.user._id } }),
+  ])
+
+  res.status(200).json({
+    success: true,
+    message: 'Guardian access removed successfully',
   })
 })
 
@@ -445,7 +520,10 @@ export const getChildEssays = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Not authorized to view this child\'s essays', 403)
   }
 
-  const essays = await Essay.find({ student: childId }).sort({ submittedAt: -1, createdAt: -1 }).lean()
+  const essays = await Essay.find({ student: childId })
+    .populate('assignment', 'title dueDate status')
+    .sort({ submittedAt: -1, createdAt: -1 })
+    .lean()
   const analyses = essays.length > 0
     ? await AIAnalysis.find({ essay: { $in: essays.map(essay => essay._id) } })
       .select('essay overallScore scores learningPatterns')

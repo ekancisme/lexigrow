@@ -18,6 +18,22 @@ function formatDate(value) {
   return new Date(value).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
+function getEssayDeadline(essay) {
+  if (!essay.assignment?.dueDate) return null
+
+  const dueAt = new Date(essay.assignment.dueDate)
+  const submittedAt = essay.submittedAt ? new Date(essay.submittedAt) : null
+  const isLate = submittedAt ? submittedAt > dueAt : Date.now() > dueAt.getTime()
+
+  return {
+    label: submittedAt
+      ? isLate ? 'Submitted late' : 'Submitted on time'
+      : isLate ? 'Overdue' : 'Due',
+    className: isLate ? 'is-late' : 'is-on-time',
+    date: formatDate(dueAt),
+  }
+}
+
 function GrowthChart({ weeks = [] }) {
   const maxCount = Math.max(1, ...weeks.map(week => week.count || 0))
 
@@ -131,13 +147,21 @@ function EssayList({ essays, expandedEssayId, onToggle }) {
 
   return (
     <div className="child-progress__timeline">
-      {essays.map(essay => (
-        <article className={`child-progress__essay ${expandedEssayId === essay._id ? 'is-expanded' : ''}`} key={essay._id}>
+      {essays.map(essay => {
+        const deadline = getEssayDeadline(essay)
+        return (
+          <article className={`child-progress__essay ${expandedEssayId === essay._id ? 'is-expanded' : ''}`} key={essay._id}>
           <div className="child-progress__essay-date"><span>{formatDate(essay.submittedAt || essay.createdAt)}</span></div>
           <div className="child-progress__essay-body">
             <div>
               <h3>{essay.title}</h3>
-              <p>{essay.theme || 'General'} · {essay.wordCount || 0} words</p>
+              <p>{essay.assignment?.title || essay.theme || 'Independent writing'} · {essay.wordCount || 0} words</p>
+              {deadline && (
+                <p className={`child-progress__essay-deadline ${deadline.className}`}>
+                  <span className="material-symbols-outlined" aria-hidden="true">event</span>
+                  {deadline.label} · {deadline.date}
+                </p>
+              )}
             </div>
             <div className="child-progress__essay-meta">
               <span className={`child-progress__status child-progress__status--${essay.status}`}>{essay.status.replace('_', ' ')}</span>
@@ -147,14 +171,20 @@ function EssayList({ essays, expandedEssayId, onToggle }) {
           </div>
           {expandedEssayId === essay._id && (
             <div className="child-progress__essay-details">
+              <div><span>Assignment</span><strong>{essay.assignment?.title || 'Independent writing'}</strong></div>
+              <div><span>Due date</span><strong>{deadline?.date || 'No deadline'}</strong></div>
+              <div><span>Submitted</span><strong>{formatDate(essay.submittedAt)}</strong></div>
+              <div><span>Writing length</span><strong>{essay.wordCount || 0} words</strong></div>
               <div><span>Grammar</span><strong>{essay.analysis ? `${Number(essay.analysis.scores?.grammarAccuracy || 0).toFixed(1)}/10` : 'Pending'}</strong></div>
               <div><span>Vocabulary diversity</span><strong>{essay.analysis ? Number(essay.analysis.scores?.vocabularyDiversity || 0).toFixed(2) : 'Pending'}</strong></div>
               <div><span>Learning status</span><strong>{essay.analysis?.learningPatterns?.learningStatus?.replaceAll('_', ' ') || 'Not available'}</strong></div>
+              <div><span>Reading time</span><strong>{essay.readingTime || 1} min</strong></div>
               {essay.analysis?.learningPatterns?.feedback && <p>{essay.analysis.learningPatterns.feedback}</p>}
             </div>
           )}
         </article>
-      ))}
+        )
+      })}
     </div>
   )
 }
@@ -178,7 +208,8 @@ function AlertList({ alerts, onNavigate, onMarkViewed, markingAlertId }) {
             <small>{formatDate(alert.createdAt)}</small>
             <div className="child-progress__alert-actions">
               {!alert.isViewed && <button className="child-progress__mark-viewed" onClick={() => onMarkViewed(alert)} disabled={markingAlertId === alert._id}><span className="material-symbols-outlined">done</span>{markingAlertId === alert._id ? 'Saving...' : 'Mark as viewed'}</button>}
-              {!alert.isResolved && <><button onClick={() => onNavigate('essays')}>Review essays</button><button onClick={() => onNavigate('vocabulary')}>Review vocabulary</button></>}
+              {!alert.isResolved && alert.metric !== 'vocabulary_stagnation' && <button onClick={() => onNavigate('essays')}>Review essays</button>}
+              {!alert.isResolved && alert.metric === 'vocabulary_stagnation' && <button onClick={() => onNavigate('vocabulary')}>Review vocabulary</button>}
             </div>
           </div>
         </article>

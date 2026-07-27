@@ -4,12 +4,14 @@ import AIAnalysis from '../models/AIAnalysis.js'
 import Vocabulary from '../models/Vocabulary.js'
 import Alert from '../models/Alert.js'
 import Class from '../models/Class.js'
+import Assignment from '../models/Assignment.js'
 import sendEmail from '../utils/sendEmail.js'
 import { createManyNotifications } from './notification.service.js'
 
 const ONE_DAY_MS = 24 * 60 * 60 * 1000
 const SCAN_BATCH_SIZE = 10
 const MIN_GRAMMAR_TOTAL_DROP = 0.5
+const MIN_OVERALL_SCORE_TOTAL_DROP = 1
 
 const escapeHtml = value => String(value)
   .replaceAll('&', '&amp;')
@@ -37,7 +39,15 @@ async function sendEmailWithRetry(options, attempts = 3) {
 /**
  * Check if the student has stagnated in vocabulary growth (0 new words for 4 consecutive weeks)
  */
-export const checkVocabularyStagnation = async (studentId, now = new Date()) => {
+export const checkVocabularyStagnation = async (studentId, now = new Date(), trackingStartedAt = null) => {
+  const fourWeeksAgo = new Date(now.getTime() - 4 * 7 * ONE_DAY_MS)
+  if (trackingStartedAt && new Date(trackingStartedAt) > fourWeeksAgo) {
+    return {
+      isStagnant: false,
+      counts: [],
+    }
+  }
+
   const counts = await Promise.all(
     Array.from({ length: 4 }, (_, index) => {
       const end = new Date(now.getTime() - index * 7 * ONE_DAY_MS)
@@ -87,15 +97,83 @@ export const checkGrammarDecline = async (studentId) => {
 
   const scores = sortedAnalyses.map(a => a.scores?.grammarAccuracy || 0)
 
-  // Decline means older score > middle score > newest score
-  // Index 0: newest, Index 1: middle, Index 2: oldest
-  const isDeclining = scores[2] > scores[1]
-    && scores[1] > scores[0]
-    && scores[2] - scores[0] >= MIN_GRAMMAR_TOTAL_DROP
+  const [newestScore, middleScore, oldestScore] = scores
+  const isDeclining = oldestScore > middleScore
+    && middleScore > newestScore
+    && oldestScore - newestScore >= MIN_GRAMMAR_TOTAL_DROP
 
   return {
     isDeclining,
     scores
+  }
+}
+
+/**
+ * Check if the overall score has steadily declined over the last 3 reviewed essays.
+ */
+export const checkOverallScoreDecline = async (studentId) => {
+  const essays = await Essay.find({ student: studentId, status: 'reviewed' })
+    .sort({ submittedAt: -1, createdAt: -1 })
+    .limit(3)
+
+  if (essays.length < 3) {
+    return { isDeclining: false, scores: [] }
+  }
+
+  const analyses = await AIAnalysis.find({ essay: { $in: essays.map(essay => essay._id) } })
+  const sortedAnalyses = essays.map(essay =>
+    analyses.find(analysis => analysis.essay.toString() === essay._id.toString())
+  ).filter(Boolean)
+
+  if (sortedAnalyses.length < 3) {
+    return { isDeclining: false, scores: [] }
+  }
+
+  const scores = sortedAnalyses.map(analysis => analysis.overallScore ?? 0)
+  const [newestScore, middleScore, oldestScore] = scores
+  const isDeclining = oldestScore > middleScore
+    && middleScore > newestScore
+    && oldestScore - newestScore >= MIN_OVERALL_SCORE_TOTAL_DROP
+
+  return { isDeclining, scores }
+}
+
+/**
+ * Find assignments whose deadline has passed without a submitted essay.
+ */
+export const checkMissedAssignmentDeadlines = async (studentId, now = new Date()) => {
+  const scanWindowStart = new Date(now.getTime() - 7 * ONE_DAY_MS)
+  const classes = await Class.find({ students: studentId, status: 'active' })
+    .select('_id')
+    .lean()
+
+  if (classes.length === 0) {
+    return { hasMissed: false, assignments: [] }
+  }
+
+  const assignments = await Assignment.find({
+    classId: { $in: classes.map(studentClass => studentClass._id) },
+    dueDate: { $gt: scanWindowStart, $lte: now },
+  })
+    .select('title dueDate')
+    .sort({ dueDate: -1 })
+    .lean()
+
+  if (assignments.length === 0) {
+    return { hasMissed: false, assignments: [] }
+  }
+
+  const submittedAssignmentIds = await Essay.distinct('assignment', {
+    student: studentId,
+    assignment: { $in: assignments.map(assignment => assignment._id) },
+    status: { $in: ['submitted', 'reviewed', 'needs_revision'] },
+  })
+  const submittedIds = new Set(submittedAssignmentIds.map(id => id.toString()))
+  const missedAssignments = assignments.filter(assignment => !submittedIds.has(assignment._id.toString()))
+
+  return {
+    hasMissed: missedAssignments.length > 0,
+    assignments: missedAssignments,
   }
 }
 
@@ -229,9 +307,11 @@ export async function createAndNotifyAlert(student, type, metric, detail) {
 
 async function scanStudent(student) {
   let created = 0
-  const [vocabulary, grammar] = await Promise.all([
-    checkVocabularyStagnation(student._id),
+  const [vocabulary, grammar, overallScore, missedDeadlines] = await Promise.all([
+    checkVocabularyStagnation(student._id, new Date(), student.createdAt),
     checkGrammarDecline(student._id),
+    checkOverallScoreDecline(student._id),
+    checkMissedAssignmentDeadlines(student._id),
   ])
 
   if (vocabulary.isStagnant) {
@@ -250,6 +330,27 @@ async function scanStudent(student) {
       'critical',
       'grammar_decline',
       `Độ chính xác ngữ pháp giảm liên tiếp qua 3 bài viết gần nhất (${scores[2].toFixed(1)} -> ${scores[1].toFixed(1)} -> ${scores[0].toFixed(1)}).`
+    )) created++
+  }
+
+  if (overallScore.isDeclining) {
+    const scores = overallScore.scores
+    if (await createAndNotifyAlert(
+      student,
+      'critical',
+      'overall_score_decline',
+      `Overall writing score declined across the latest three reviewed essays (${scores[2].toFixed(1)} -> ${scores[1].toFixed(1)} -> ${scores[0].toFixed(1)}).`
+    )) created++
+  }
+
+  if (missedDeadlines.hasMissed) {
+    const [latestMissed] = missedDeadlines.assignments
+    const additionalCount = missedDeadlines.assignments.length - 1
+    if (await createAndNotifyAlert(
+      student,
+      'warning',
+      'missed_assignment_deadline',
+      `Assignment "${latestMissed.title}" passed its deadline on ${latestMissed.dueDate.toLocaleDateString('en-GB')}${additionalCount > 0 ? `, with ${additionalCount} more overdue assignment${additionalCount === 1 ? '' : 's'}` : ''}, without a submission.`
     )) created++
   }
 

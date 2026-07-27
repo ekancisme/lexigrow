@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import api from '../../services/api.js'
 import { useAuth } from '../../contexts/AuthContext.jsx'
+import { useModal } from '../../contexts/ModalContext.jsx'
 import './ProfileSettings.css'
 
 export default function ProfileSettings() {
   const { user: authUser } = useAuth()
+  const { showAlert, showConfirm } = useModal()
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [institution, setInstitution] = useState('')
@@ -20,6 +22,12 @@ export default function ProfileSettings() {
   const [updatingPassword, setUpdatingPassword] = useState(false)
   const [linkCode, setLinkCode] = useState(null)
   const [generatingLinkCode, setGeneratingLinkCode] = useState(false)
+  const [linkCodeSecondsLeft, setLinkCodeSecondsLeft] = useState(0)
+  const [linkCodeCopied, setLinkCodeCopied] = useState(false)
+  const [guardians, setGuardians] = useState([])
+  const [guardiansLoading, setGuardiansLoading] = useState(false)
+  const [guardiansError, setGuardiansError] = useState('')
+  const [removingGuardianId, setRemovingGuardianId] = useState(null)
 
   useEffect(() => {
     async function loadProfile() {
@@ -45,6 +53,38 @@ export default function ProfileSettings() {
     }
     loadProfile()
   }, [])
+
+  useEffect(() => {
+    if (authUser?.role === 'student') {
+      loadGuardians()
+    }
+  }, [authUser?._id, authUser?.role])
+
+  useEffect(() => {
+    if (!linkCode?.expiresAt) return undefined
+
+    const updateCountdown = () => {
+      const secondsLeft = Math.max(0, Math.ceil((new Date(linkCode.expiresAt).getTime() - Date.now()) / 1000))
+      setLinkCodeSecondsLeft(secondsLeft)
+    }
+
+    updateCountdown()
+    const timer = window.setInterval(updateCountdown, 1000)
+    return () => window.clearInterval(timer)
+  }, [linkCode])
+
+  async function loadGuardians() {
+    setGuardiansLoading(true)
+    setGuardiansError('')
+    try {
+      const response = await api.get('/parent/guardians')
+      setGuardians(response.data || [])
+    } catch (err) {
+      setGuardiansError(err.message || 'Could not load linked guardians.')
+    } finally {
+      setGuardiansLoading(false)
+    }
+  }
 
   async function handleSaveProfile() {
     setSavingProfile(true)
@@ -100,14 +140,57 @@ export default function ProfileSettings() {
 
   async function handleGenerateLinkCode() {
     setGeneratingLinkCode(true)
+    setLinkCodeCopied(false)
     try {
       const response = await api.post('/parent/link-code')
+      if (!response.data?.code || !response.data?.expiresAt) {
+        throw new Error('The server returned an invalid link code.')
+      }
       setLinkCode(response.data)
     } catch (err) {
-      alert('Error generating link code: ' + err.message)
+      showAlert('Could not generate code', err.message, 'error')
     } finally {
       setGeneratingLinkCode(false)
     }
+  }
+
+  async function handleCopyLinkCode() {
+    try {
+      await navigator.clipboard.writeText(linkCode.code)
+      setLinkCodeCopied(true)
+      window.setTimeout(() => setLinkCodeCopied(false), 2000)
+    } catch {
+      showAlert('Could not copy code', 'Please select and copy the code manually.', 'error')
+    }
+  }
+
+  function handleRemoveGuardian(guardian) {
+    showConfirm(
+      'Remove guardian access?',
+      `${guardian.parent.name} will no longer be able to view your essays, progress, goals, or learning alerts.`,
+      async () => {
+        setRemovingGuardianId(guardian.linkId)
+        try {
+          await api.delete(`/parent/guardians/${guardian.linkId}`)
+          setGuardians(current => current.filter(item => item.linkId !== guardian.linkId))
+          showAlert('Access removed', `${guardian.parent.name} no longer has access to your learning progress.`, 'success')
+        } catch (err) {
+          showAlert('Could not remove access', err.message, 'error')
+        } finally {
+          setRemovingGuardianId(null)
+        }
+      }
+    )
+  }
+
+  function formatRelationship(relationship) {
+    return relationship ? relationship.charAt(0).toUpperCase() + relationship.slice(1) : 'Guardian'
+  }
+
+  function formatCountdown(totalSeconds) {
+    const minutes = Math.floor(totalSeconds / 60)
+    const seconds = totalSeconds % 60
+    return `${minutes}:${String(seconds).padStart(2, '0')}`
   }
 
   if (loading) {
@@ -129,27 +212,104 @@ export default function ProfileSettings() {
 
       <div className="profile-settings__layout">
         {authUser?.role === 'student' && (
-          <section className="card-base profile-settings__link-code">
-            <div>
-              <h3 className="text-title-lg">Parent link code</h3>
-              <p className="text-body-sm profile-settings__link-code-copy">
-                Generate a one-time code and share it directly with your parent or guardian. Creating a new code invalidates the previous one.
-              </p>
+          <section className="card-base profile-settings__guardians">
+            <div className="profile-settings__guardians-header">
+              <div>
+                <h3 className="text-title-lg">Parents &amp; Guardians</h3>
+                <p className="text-body-sm profile-settings__link-code-copy">
+                  Manage the people who can view your learning progress.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="profile-settings__save-btn profile-settings__add-guardian-btn"
+                onClick={handleGenerateLinkCode}
+                disabled={generatingLinkCode}
+              >
+                <span className="material-symbols-outlined" aria-hidden="true">person_add</span>
+                {generatingLinkCode ? 'Generating...' : linkCode ? 'New code' : 'Add guardian'}
+              </button>
             </div>
+
             {linkCode ? (
-              <div className="profile-settings__link-code-result" role="status">
-                <strong aria-label={`Parent link code ${linkCode.code}`}>{linkCode.code}</strong>
-                <span>Expires {new Date(linkCode.expiresAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+              <div className={`profile-settings__link-code-panel ${linkCodeSecondsLeft === 0 ? 'profile-settings__link-code-panel--expired' : ''}`} role="status">
+                <div>
+                  <p className="text-label-md">One-time guardian code</p>
+                  <strong aria-label={`Parent link code ${linkCode.code}`}>{linkCode.code}</strong>
+                  <p className="text-label-sm">
+                    {linkCodeSecondsLeft > 0 ? `Expires in ${formatCountdown(linkCodeSecondsLeft)}` : 'Code expired'}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="profile-settings__copy-code-btn"
+                  onClick={handleCopyLinkCode}
+                  disabled={linkCodeSecondsLeft === 0}
+                >
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    {linkCodeCopied ? 'check' : 'content_copy'}
+                  </span>
+                  {linkCodeCopied ? 'Copied' : 'Copy'}
+                </button>
               </div>
             ) : null}
-            <button
-              type="button"
-              className="profile-settings__save-btn"
-              onClick={handleGenerateLinkCode}
-              disabled={generatingLinkCode}
-            >
-              {generatingLinkCode ? 'Generating...' : linkCode ? 'Generate new code' : 'Generate code'}
-            </button>
+
+            {linkCode ? (
+              <p className="text-label-sm profile-settings__link-code-note">
+                Share this code directly with your parent or guardian. Creating a new code invalidates this one.
+              </p>
+            ) : null}
+
+            <div className="profile-settings__guardian-list" aria-live="polite">
+              {guardiansLoading ? (
+                <div className="profile-settings__guardians-loading">
+                  <span className="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>
+                  Loading linked guardians...
+                </div>
+              ) : guardiansError ? (
+                <div className="profile-settings__guardians-error">
+                  <span>{guardiansError}</span>
+                  <button type="button" onClick={loadGuardians}>Retry</button>
+                </div>
+              ) : guardians.length === 0 ? (
+                <div className="profile-settings__guardians-empty">
+                  <span className="material-symbols-outlined" aria-hidden="true">family_restroom</span>
+                  <div>
+                    <p className="text-label-md">No guardians linked yet</p>
+                    <p className="text-body-sm">Generate a one-time code to invite a parent or guardian.</p>
+                  </div>
+                </div>
+              ) : (
+                guardians.map(guardian => (
+                  <div className="profile-settings__guardian-row" key={guardian.linkId}>
+                    <div className="profile-settings__guardian-avatar" aria-hidden="true">
+                      {guardian.parent.avatar ? (
+                        <img src={guardian.parent.avatar} alt="" />
+                      ) : (
+                        <span className="material-symbols-outlined">person</span>
+                      )}
+                    </div>
+                    <div className="profile-settings__guardian-identity">
+                      <p className="text-label-md">{guardian.parent.name}</p>
+                      <p className="text-body-sm">{guardian.parent.email}</p>
+                    </div>
+                    <div className="profile-settings__guardian-meta">
+                      <span>{formatRelationship(guardian.relationship)}</span>
+                      <span>Linked {new Date(guardian.linkedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                    </div>
+                    <button
+                      type="button"
+                      className="profile-settings__remove-guardian-btn"
+                      onClick={() => handleRemoveGuardian(guardian)}
+                      disabled={removingGuardianId === guardian.linkId}
+                    >
+                      <span className="material-symbols-outlined" aria-hidden="true">person_remove</span>
+                      {removingGuardianId === guardian.linkId ? 'Removing...' : 'Remove access'}
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
           </section>
         )}
 

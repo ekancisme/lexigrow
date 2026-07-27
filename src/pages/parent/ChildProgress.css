@@ -71,6 +71,10 @@
 .child-progress__essay-body { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-md); padding: var(--spacing-md); border-left: 1px solid var(--color-outline-variant); }
 .child-progress__essay-body h3 { font-size: var(--text-title-md-size); }
 .child-progress__essay-body p { margin-top: 4px; color: var(--color-on-surface-variant); }
+.child-progress__essay-body .child-progress__essay-deadline { display: flex; align-items: center; gap: 5px; font-size: var(--text-label-sm-size); font-weight: 600; }
+.child-progress__essay-deadline .material-symbols-outlined { font-size: 16px; }
+.child-progress__essay-deadline.is-on-time { color: #17643a; }
+.child-progress__essay-deadline.is-late { color: var(--color-error); }
 .child-progress__essay-meta { display: flex; align-items: center; gap: 12px; white-space: nowrap; }
 .child-progress__essay-meta button { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; }
 .child-progress__essay-meta button:hover { background: var(--color-surface-container-high); }
