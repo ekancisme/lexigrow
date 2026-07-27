@@ -38,7 +38,8 @@ vi.mock('../src/models/Essay.js', () => {
   })
   return {
     default: {
-      find: findMock
+      find: findMock,
+      distinct: vi.fn(),
     }
   }
 })
@@ -68,16 +69,31 @@ vi.mock('../src/models/Alert.js', () => {
 
 vi.mock('../src/models/Class.js', () => ({
   default: {
+    find: vi.fn(),
     findOne: vi.fn()
   }
 }))
 
-import { checkVocabularyStagnation, checkGrammarDecline, createAndNotifyAlert, runEarlyWarningScan } from '../src/services/earlyWarning.service.js'
+vi.mock('../src/models/Assignment.js', () => ({
+  default: {
+    find: vi.fn(),
+  }
+}))
+
+import {
+  checkVocabularyStagnation,
+  checkGrammarDecline,
+  checkOverallScoreDecline,
+  checkMissedAssignmentDeadlines,
+  createAndNotifyAlert,
+  runEarlyWarningScan,
+} from '../src/services/earlyWarning.service.js'
 import Vocabulary from '../src/models/Vocabulary.js'
 import Essay from '../src/models/Essay.js'
 import AIAnalysis from '../src/models/AIAnalysis.js'
 import User from '../src/models/User.js'
 import Class from '../src/models/Class.js'
+import Assignment from '../src/models/Assignment.js'
 import sendEmail from '../src/utils/sendEmail.js'
 import { createManyNotifications } from '../src/services/notification.service.js'
 
@@ -86,9 +102,32 @@ describe('Early Warning System Service', () => {
     vi.clearAllMocks()
     mockSave.mockClear()
     mockFindOne.mockClear()
+    Class.find.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        lean: vi.fn().mockResolvedValue([]),
+      }),
+    })
+    Assignment.find.mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        sort: vi.fn().mockReturnValue({
+          lean: vi.fn().mockResolvedValue([]),
+        }),
+      }),
+    })
+    Essay.distinct.mockResolvedValue([])
   })
 
   describe('checkVocabularyStagnation', () => {
+    it('should not flag a student whose account is less than 4 weeks old', async () => {
+      const now = new Date('2026-07-27T08:00:00.000Z')
+      const createdAt = new Date('2026-07-25T08:00:00.000Z')
+
+      const result = await checkVocabularyStagnation('student_123', now, createdAt)
+
+      expect(result).toEqual({ isStagnant: false, counts: [] })
+      expect(Vocabulary.countDocuments).not.toHaveBeenCalled()
+    })
+
     it('should return isStagnant: true if all 4 weeks have 0 vocabulary items created', async () => {
       Vocabulary.countDocuments.mockResolvedValue(0)
 
@@ -181,6 +220,101 @@ describe('Early Warning System Service', () => {
 
       const result = await checkGrammarDecline('student_123')
       expect(result.isDeclining).toBe(false)
+    })
+  })
+
+  describe('checkOverallScoreDecline', () => {
+    it('should flag a steady overall score drop of at least one point', async () => {
+      Essay.find.mockReturnValue({
+        sort: vi.fn().mockReturnValue({
+          limit: vi.fn().mockResolvedValue([{ _id: 'e1' }, { _id: 'e2' }, { _id: 'e3' }])
+        })
+      })
+      AIAnalysis.find.mockResolvedValue([
+        { essay: 'e1', overallScore: 6.8 },
+        { essay: 'e2', overallScore: 7.5 },
+        { essay: 'e3', overallScore: 8.2 },
+      ])
+
+      const result = await checkOverallScoreDecline('student_123')
+
+      expect(result).toEqual({ isDeclining: true, scores: [6.8, 7.5, 8.2] })
+    })
+
+    it('should ignore an overall score drop below one point', async () => {
+      Essay.find.mockReturnValue({
+        sort: vi.fn().mockReturnValue({
+          limit: vi.fn().mockResolvedValue([{ _id: 'e1' }, { _id: 'e2' }, { _id: 'e3' }])
+        })
+      })
+      AIAnalysis.find.mockResolvedValue([
+        { essay: 'e1', overallScore: 7.4 },
+        { essay: 'e2', overallScore: 7.7 },
+        { essay: 'e3', overallScore: 8.0 },
+      ])
+
+      const result = await checkOverallScoreDecline('student_123')
+
+      expect(result.isDeclining).toBe(false)
+    })
+  })
+
+  describe('checkMissedAssignmentDeadlines', () => {
+    it('should return overdue assignments without a submitted essay', async () => {
+      const overdueAssignment = {
+        _id: { toString: () => 'assignment_1' },
+        title: 'Weekly reflection',
+        dueDate: new Date('2026-07-21T08:00:00.000Z'),
+      }
+      Class.find.mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          lean: vi.fn().mockResolvedValue([{ _id: 'class_1' }]),
+        }),
+      })
+      Assignment.find.mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          sort: vi.fn().mockReturnValue({
+            lean: vi.fn().mockResolvedValue([overdueAssignment]),
+          }),
+        }),
+      })
+      Essay.distinct.mockResolvedValue([])
+
+      const result = await checkMissedAssignmentDeadlines(
+        'student_123',
+        new Date('2026-07-27T08:00:00.000Z')
+      )
+
+      expect(result).toEqual({ hasMissed: true, assignments: [overdueAssignment] })
+      expect(Essay.distinct).toHaveBeenCalledWith('assignment', expect.objectContaining({
+        student: 'student_123',
+        status: { $in: ['submitted', 'reviewed', 'needs_revision'] },
+      }))
+    })
+
+    it('should ignore an overdue assignment that has been submitted', async () => {
+      const overdueAssignment = {
+        _id: { toString: () => 'assignment_1' },
+        title: 'Weekly reflection',
+        dueDate: new Date('2026-07-21T08:00:00.000Z'),
+      }
+      Class.find.mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          lean: vi.fn().mockResolvedValue([{ _id: 'class_1' }]),
+        }),
+      })
+      Assignment.find.mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          sort: vi.fn().mockReturnValue({
+            lean: vi.fn().mockResolvedValue([overdueAssignment]),
+          }),
+        }),
+      })
+      Essay.distinct.mockResolvedValue([{ toString: () => 'assignment_1' }])
+
+      const result = await checkMissedAssignmentDeadlines('student_123')
+
+      expect(result).toEqual({ hasMissed: false, assignments: [] })
     })
   })
 

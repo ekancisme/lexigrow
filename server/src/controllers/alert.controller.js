@@ -1,6 +1,5 @@
 import Alert from '../models/Alert.js'
 import { createNotification, createManyNotifications } from '../services/notification.service.js'
-import User from '../models/User.js'
 import Class from '../models/Class.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
@@ -114,8 +113,8 @@ export const markAsResolved = asyncHandler(async (req, res) => {
         alert: alert._id,
         title: 'Thông báo học tập từ giáo viên',
         message: `Giáo viên ${teacher.name} vừa can thiệp hỗ trợ con bạn — ${student.name} — do phát hiện cảnh báo về chỉ số "${alert.metric}". Chi tiết: ${alert.detail}`,
-        type: 'parent_notice',
-        link: '',
+        type: 'academic_alert',
+        link: `/parent/children/${student._id}/alerts`,
       }))
       await createManyNotifications(parentNotifications)
     }
