@@ -14,6 +14,9 @@ Nhiệm vụ cụ thể:
 4. [UC34] Phân tích hành vi viết bài nâng cao (Phát hiện padding nhồi từ để tăng độ dài, phát hiện đạo văn).
 5. [API Translation] Xây dựng API tiếp nhận văn bản bôi đen để dịch sang tiếng Việt bằng LLM.
 6. [Admin - AI Monitoring] Trang Admin giám sát logs API Groq, thống kê request, độ trễ (latency), tỷ lệ thành công của AI (AdminAIMonitoring.jsx).
+7. [Realtime Services] Xây dựng máy chủ Socket (socket.service.js) và tích hợp các tính năng truyền tin thời gian thực:
+   - Giao diện & logic Quả chuông thông báo (NotificationBell.jsx).
+   - Khung chat thảo luận thời gian thực dưới bài luận (EssayDiscussion.jsx) cho cả Học sinh và Giáo viên.
 
 ================================================================================
 NGƯỜI 2: AUTHENTICATION & STUDENT ESSAY FLOW (FRONTEND + API)
@@ -64,10 +67,7 @@ Nhiệm vụ cụ thể:
    - Đăng ký, đăng nhập của Phụ huynh.
    - Liên kết tài khoản con qua mã định danh, xem dashboard tiến trình học của con, nhận email/thông báo cảnh báo sớm.
 2. [Background Worker - UC33] Viết Cronjob quét dữ liệu hàng tuần để tự động phát hiện học sinh bị chững học lực hoặc tụt dốc điểm số, tạo cảnh báo gửi cho phụ huynh/giáo viên.
-3. [Realtime Services] Xây dựng máy chủ Socket (socket.service.js) và tích hợp các tính năng truyền tin thời gian thực:
-   - Giao diện & logic Quả chuông thông báo (NotificationBell.jsx).
-   - Khung chat thảo luận thời gian thực dưới bài luận (EssayDiscussion.jsx) cho cả Học sinh và Giáo viên.
-4. [Admin Core] Xây dựng các trang quản trị hệ thống chính:
+3. [Admin Core] Xây dựng các trang quản trị hệ thống chính:
    - Quản trị danh sách tài khoản người dùng và phân quyền (AdminUsers.jsx).
    - Trang logs hệ thống & lịch sử hoạt động (AdminLogs.jsx, AdminAuditLogs.jsx, AdminDashboard.jsx).
    - Trang cấu hình API keys và tham số hệ thống (AdminSettings.jsx).

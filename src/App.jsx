@@ -60,7 +60,11 @@ function AdminProtectedRoute({ children }) {
     )
   }
 
-  if (!isAuthenticated || user?.role !== 'admin') {
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+
+  if (user?.role !== 'admin') {
     return <Navigate to="/login" replace state={{ infoMessage: 'Bạn không có quyền truy cập trang quản trị.' }} />
   }
 
@@ -80,7 +84,11 @@ function ParentProtectedRoute({ children }) {
     )
   }
 
-  if (!isAuthenticated || user?.role !== 'parent') {
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+
+  if (user?.role !== 'parent') {
     return <Navigate to="/login" replace state={{ infoMessage: 'You do not have access to the parent workspace.' }} />
   }
 
