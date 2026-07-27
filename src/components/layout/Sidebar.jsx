@@ -16,6 +16,7 @@ const studentNavItems = [
 const teacherNavItems = [
   { icon: 'dashboard', label: 'Dashboard', path: '/teacher/dashboard' },
   { icon: 'school', label: 'My Classes', path: '/teacher/classes' },
+  { icon: 'assignment', label: 'Assignments', path: '/teacher/assignments' },
   { icon: 'warning', label: 'Early Warnings', path: '/teacher/alerts' },
   { icon: 'smart_toy', label: 'System Prompts', path: '/teacher/prompts' },
 ]

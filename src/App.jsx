@@ -34,6 +34,7 @@ import EarlyWarningAlerts from './pages/teacher/EarlyWarningAlerts'
 import SystemPromptsManagement from './pages/teacher/SystemPromptsManagement'
 import ProfileSettings from './pages/teacher/ProfileSettings'
 import AssignmentDetail from './pages/teacher/AssignmentDetail'
+import AssignmentManagement from './pages/teacher/AssignmentManagement'
 
 /* Admin Pages */
 import AdminDashboard from './pages/admin/AdminDashboard'
@@ -99,26 +100,40 @@ function App() {
   return (
     <>
       <Routes>
-      {/* Auth routes (no sidebar) */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+        {/* Auth routes (no sidebar) */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
 
-      {/* Student routes */}
-      <Route path="/student" element={<AppLayout role="student" />}>
-        <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<StudentDashboard />} />
-        <Route path="write-essay" element={<WriteEssay />} />
-        <Route path="vocabulary" element={<VocabularyLibrary />} />
-        <Route path="vocabulary/review" element={<FlashcardReview />} />
-        <Route path="essays" element={<EssayHistory />} />
-        <Route path="progress" element={<MyProgress />} />
-        <Route path="goals" element={<SetWeeklyGoals />} />
-        <Route path="feedback" element={<AIFeedbackReview />} />
-        <Route path="class" element={<StudentClassDetail />} />
-        <Route path="class/:classId" element={<StudentClassDetail />} />
-      </Route>
+        {/* Student routes */}
+        <Route path="/student" element={<AppLayout role="student" />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<StudentDashboard />} />
+          <Route path="write-essay" element={<WriteEssay />} />
+          <Route path="vocabulary" element={<VocabularyLibrary />} />
+          <Route path="vocabulary/review" element={<FlashcardReview />} />
+          <Route path="essays" element={<EssayHistory />} />
+          <Route path="progress" element={<MyProgress />} />
+          <Route path="goals" element={<SetWeeklyGoals />} />
+          <Route path="feedback" element={<AIFeedbackReview />} />
+          <Route path="class" element={<StudentClassDetail />} />
+          <Route path="class/:classId" element={<StudentClassDetail />} />
+        </Route>
+
+        {/* Teacher routes */}
+        <Route path="/teacher" element={<AppLayout role="teacher" />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<TeacherDashboard />} />
+          <Route path="class/:id" element={<ClassOverview />} />
+          <Route path="classes" element={<ClassManagement />} />
+          <Route path="assignments" element={<AssignmentManagement />} />
+          <Route path="student/:id" element={<StudentAnalyticsDetail />} />
+          <Route path="feedback/:id" element={<ManualFeedbackReview />} />
+          <Route path="assignment/:id" element={<AssignmentDetail />} />
+          <Route path="alerts" element={<EarlyWarningAlerts />} />
+          <Route path="prompts" element={<SystemPromptsManagement />} />
+        </Route>
 
       {/* Parent routes */}
       <Route path="/parent" element={
@@ -136,43 +151,31 @@ function App() {
         <Route path="children/:id/alerts" element={<ChildProgress view="alerts" />} />
       </Route>
 
-      {/* Teacher routes */}
-      <Route path="/teacher" element={<AppLayout role="teacher" />}>
-        <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<TeacherDashboard />} />
-        <Route path="class/:id" element={<ClassOverview />} />
-        <Route path="classes" element={<ClassManagement />} />
-        <Route path="student/:id" element={<StudentAnalyticsDetail />} />
-        <Route path="feedback/:id" element={<ManualFeedbackReview />} />
-        <Route path="assignment/:id" element={<AssignmentDetail />} />
-        <Route path="alerts" element={<EarlyWarningAlerts />} />
-        <Route path="prompts" element={<SystemPromptsManagement />} />
-      </Route>
 
-      {/* Admin routes */}
-      <Route path="/admin" element={
-        <AdminProtectedRoute>
-          <AppLayout role="admin" />
-        </AdminProtectedRoute>
-      }>
-        <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<AdminDashboard />} />
-        <Route path="users" element={<AdminUsers />} />
-        <Route path="classes" element={<AdminClassManagement />} />
-        <Route path="ai-monitoring" element={<AdminAIMonitoring />} />
-        <Route path="vocabulary" element={<AdminVocabulary />} />
-        <Route path="logs" element={<AdminLogs />} />
-      </Route>
+        {/* Admin routes */}
+        <Route path="/admin" element={
+          <AdminProtectedRoute>
+            <AppLayout role="admin" />
+          </AdminProtectedRoute>
+        }>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="classes" element={<AdminClassManagement />} />
+          <Route path="ai-monitoring" element={<AdminAIMonitoring />} />
+          <Route path="vocabulary" element={<AdminVocabulary />} />
+          <Route path="logs" element={<AdminLogs />} />
+        </Route>
 
-      {/* Shared routes */}
-      <Route path="/settings" element={<AppLayout />}>
-        <Route index element={<ProfileSettings />} />
-      </Route>
+        {/* Shared routes */}
+        <Route path="/settings" element={<AppLayout />}>
+          <Route index element={<ProfileSettings />} />
+        </Route>
 
-      {/* Default redirect */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
-      <Route path="*" element={<Navigate to="/login" replace />} />
-    </Routes>
+        {/* Default redirect */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
       <TextTranslator />
     </>
   )

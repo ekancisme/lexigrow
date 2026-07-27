@@ -452,12 +452,13 @@ export default function ClassOverview() {
               </tr>
             </thead>
             <tbody>
-               {assignments.map(a => {
-                const isPast = new Date(a.dueDate) < new Date()
+              {assignments.map(a => {
+                const isClosed = a.status === 'closed'
+                const isPast = !isClosed && new Date(a.dueDate) < new Date()
                 return (
-                  <tr key={a._id} onClick={() => navigate(`/teacher/assignment/${a._id}`)} style={{ cursor: 'pointer' }}>
+                  <tr key={a._id} onClick={() => navigate(`/teacher/assignment/${a._id}`)} style={{ cursor: 'pointer', opacity: isClosed ? 0.75 : 1 }}>
                     <td style={{ fontWeight: 700 }}>{a.title}</td>
-                    <td style={{ color: isPast ? 'var(--color-error)' : 'inherit' }}>
+                    <td style={{ color: (isPast || isClosed) ? 'var(--color-error)' : 'inherit' }}>
                       {new Date(a.dueDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
                     </td>
                     <td>
@@ -467,8 +468,8 @@ export default function ClassOverview() {
                       }
                     </td>
                     <td>
-                      <span className={`class-overview__status class-overview__status--${a.status === 'active' ? 'growing' : 'stagnating'}`}>
-                        {a.status}
+                      <span className={`class-overview__status class-overview__status--${isClosed ? 'stagnating' : (isPast ? 'stagnating' : 'growing')}`} style={{ background: isClosed ? 'rgba(100,116,139,0.15)' : undefined, color: isClosed ? '#64748b' : undefined }}>
+                        {isClosed ? 'Closed' : (isPast ? 'Past Due' : 'Active')}
                       </span>
                     </td>
                     <td onClick={(e) => e.stopPropagation()}>

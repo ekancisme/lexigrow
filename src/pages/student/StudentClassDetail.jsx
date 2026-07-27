@@ -461,13 +461,13 @@ export default function StudentClassDetail() {
                 <tbody>
                   {assignments.map(a => {
                     const { status, label, essay } = getAssignmentStatus(a._id)
-                    const isPast = new Date(a.dueDate) < new Date()
+                    const isClosed = a.status === 'closed' || new Date(a.dueDate) < new Date()
 
                     return (
                       <tr 
                         key={a._id}
                         onClick={() => setSelectedAssignment(a)}
-                        style={{ cursor: 'pointer' }}
+                        style={{ cursor: 'pointer', opacity: isClosed && status === 'not_started' ? 0.75 : 1 }}
                       >
                         <td>
                           <div className="student-class__student-name">{a.title}</div>
@@ -475,8 +475,13 @@ export default function StudentClassDetail() {
                             {a.description || 'No task brief details.'}
                           </div>
                         </td>
-                        <td style={{ color: isPast && status !== 'reviewed' && status !== 'submitted' ? 'var(--color-error)' : 'inherit' }}>
+                        <td style={{ color: isClosed && status !== 'reviewed' && status !== 'submitted' ? 'var(--color-error)' : 'inherit' }}>
                           {new Date(a.dueDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                          {a.status === 'closed' && (
+                            <span style={{ fontSize: '10px', fontWeight: 700, background: 'rgba(239,68,68,0.1)', color: 'var(--color-error)', padding: '2px 6px', borderRadius: '4px', marginLeft: '6px' }}>
+                              CLOSED
+                            </span>
+                          )}
                         </td>
                         <td>
                           {a.keywords?.length > 0 
@@ -489,15 +494,15 @@ export default function StudentClassDetail() {
                           }
                         </td>
                         <td>
-                          <span className={`student-class__badge student-class__badge--${status}`}>
-                            {label}
+                          <span className={`student-class__badge student-class__badge--${isClosed && status === 'not_started' ? 'closed' : status}`}>
+                            {a.status === 'closed' ? 'Closed' : (isClosed && status === 'not_started' ? 'Past Due' : label)}
                           </span>
                         </td>
                         <td>
                           {status === 'not_started' && (
                             <button
                               className="class-overview__action-btn"
-                              disabled={isPast}
+                              disabled={isClosed}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigate(`/student/write-essay?assignmentId=${a._id}`);
@@ -509,6 +514,7 @@ export default function StudentClassDetail() {
                           {status === 'draft' && (
                             <button
                               className="class-overview__action-btn"
+                              disabled={isClosed}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 navigate(`/student/write-essay?id=${essay._id}`);
@@ -628,12 +634,13 @@ export default function StudentClassDetail() {
               <button className="class-mgmt__cancel-btn" onClick={() => setSelectedAssignment(null)}>Close</button>
               {(() => {
                 const { status, essay } = getAssignmentStatus(selectedAssignment._id)
-                const isPast = new Date(selectedAssignment.dueDate) < new Date()
+                const isClosed = selectedAssignment.status === 'closed' || new Date(selectedAssignment.dueDate) < new Date()
 
-                if (status === 'not_started' && !isPast) {
+                if (status === 'not_started') {
                   return (
                     <button 
                       className="class-mgmt__submit-btn"
+                      disabled={isClosed}
                       onClick={() => {
                         setSelectedAssignment(null)
                         navigate(`/student/write-essay?assignmentId=${selectedAssignment._id}`)

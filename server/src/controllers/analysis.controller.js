@@ -1,5 +1,7 @@
 import AIAnalysis from '../models/AIAnalysis.js'
 import Essay from '../models/Essay.js'
+import Class from '../models/Class.js'
+import SystemPrompt from '../models/SystemPrompt.js'
 import { processEssayAnalysis, translateTextToVietnamese } from '../services/ai.service.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
@@ -36,7 +38,31 @@ export const reanalyze = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Cannot analyze a draft essay', 400)
   }
 
-  const analysis = await processEssayAnalysis(essay._id, essay.student, essay.content)
+  // Load teacher's active system prompt (if any)
+  let customPrompt = null
+  let promptMeta = null
+  try {
+    let teacherId = null
+    if (essay.class) {
+      const cls = await Class.findById(essay.class).select('teacher')
+      if (cls) teacherId = cls.teacher
+    }
+    if (!teacherId) {
+      const cls = await Class.findOne({ students: essay.student, status: 'active' }).select('teacher').sort({ updatedAt: -1 })
+      if (cls) teacherId = cls.teacher
+    }
+    if (teacherId) {
+      const activePrompt = await SystemPrompt.findOne({ teacher: teacherId, status: 'active' }).sort({ updatedAt: -1 })
+      if (activePrompt) {
+        customPrompt = activePrompt.template
+        promptMeta = { name: activePrompt.name, promptId: activePrompt._id }
+      }
+    }
+  } catch (promptErr) {
+    console.error('[Reanalyze] Error loading custom prompt (falling back to default):', promptErr.message)
+  }
+
+  const analysis = await processEssayAnalysis(essay._id, essay.student, essay.content, customPrompt, promptMeta)
 
   // Mark essay as reviewed
   essay.status = 'reviewed'

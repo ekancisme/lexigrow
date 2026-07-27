@@ -87,6 +87,47 @@ export const deletePrompt = asyncHandler(async (req, res) => {
 })
 
 /**
+ * @desc    Set prompt as active (deactivate all others for this teacher)
+ * @route   POST /api/prompts/:id/activate
+ * @access  Private (teacher)
+ */
+export const activatePrompt = asyncHandler(async (req, res) => {
+  const prompt = await SystemPrompt.findOne({ _id: req.params.id, teacher: req.user._id })
+  if (!prompt) throw new ErrorResponse('Prompt not found', 404)
+
+  // Deactivate all other prompts of this teacher first
+  await SystemPrompt.updateMany(
+    { teacher: req.user._id, _id: { $ne: prompt._id } },
+    { $set: { status: 'draft' } }
+  )
+
+  // Activate this prompt
+  prompt.status = 'active'
+  await prompt.save()
+
+  await logAction(req.user._id, 'ACTIVATE_PROMPT', 'SystemPrompt', prompt._id, { name: prompt.name })
+
+  res.status(200).json({ success: true, data: prompt, message: `"${prompt.name}" is now active and will be used for student essay analysis.` })
+})
+
+/**
+ * @desc    Deactivate a prompt (set to draft)
+ * @route   POST /api/prompts/:id/deactivate
+ * @access  Private (teacher)
+ */
+export const deactivatePrompt = asyncHandler(async (req, res) => {
+  const prompt = await SystemPrompt.findOne({ _id: req.params.id, teacher: req.user._id })
+  if (!prompt) throw new ErrorResponse('Prompt not found', 404)
+
+  prompt.status = 'draft'
+  await prompt.save()
+
+  await logAction(req.user._id, 'DEACTIVATE_PROMPT', 'SystemPrompt', prompt._id, { name: prompt.name })
+
+  res.status(200).json({ success: true, data: prompt, message: `"${prompt.name}" deactivated. System default prompt will be used.` })
+})
+
+/**
  * @desc    Test prompt with sample text
  * @route   POST /api/prompts/:id/test
  * @access  Private (teacher)
