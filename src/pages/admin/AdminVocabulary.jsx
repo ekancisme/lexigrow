@@ -220,19 +220,36 @@ export default function AdminVocabulary() {
       if (!response.ok) {
         throw new Error('Server error exporting data.')
       }
-      const blob = await response.blob()
+      const csvText = await response.text()
+      
+      // Parse CSV to rows
+      let rows = parseCSV(csvText)
+      if (rows.length > 0 && rows[0][0] && rows[0][0].trim().toLowerCase().startsWith('sep=')) {
+        rows = rows.slice(1)
+      }
+      
+      // Dynamically import xlsx and write workbook
+      const XLSX = await import('xlsx')
+      const worksheet = XLSX.utils.aoa_to_sheet(rows)
+      const workbook = XLSX.utils.book_new()
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Vocabulary')
+      
+      const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
+      const blob = new Blob([wbout], { type: 'application/octet-stream' })
+      
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `global_vocabulary_${new Date().toISOString().slice(0,10)}.csv`
+      a.download = `global_vocabulary_${new Date().toISOString().slice(0,10)}.xlsx`
       document.body.appendChild(a)
       a.click()
       a.remove()
       window.URL.revokeObjectURL(url)
-      setSuccessMsg('CSV data exported successfully!')
+      
+      setSuccessMsg('Excel data exported successfully!')
       setTimeout(() => setSuccessMsg(''), 4000)
     } catch (err) {
-      setError(err.message || 'Failed to export CSV file.')
+      setError(err.message || 'Failed to export Excel file.')
     }
   }
 
@@ -486,7 +503,7 @@ export default function AdminVocabulary() {
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           <button className="admin-task-item__btn" onClick={handleExport} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>download</span>
-            <span>Export CSV</span>
+            <span>Export Excel</span>
           </button>
           <button className="admin-task-item__btn" onClick={() => { setShowUploadModal(true); setImportResults(null); setSelectedFile(null); setImportError(''); }} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>upload_file</span>

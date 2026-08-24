@@ -215,9 +215,7 @@ export default function ManualFeedbackReview() {
             <p className="text-label-sm" style={{ color: 'var(--color-outline)', marginBottom: 16 }}>
               Submitted {new Date(essay?.submittedAt || essay?.createdAt).toLocaleDateString()} • {essay?.wordCount || 0} words
             </p>
-            <div className="manual-feedback__essay-text text-body-md" style={{ whiteSpace: 'pre-wrap' }}>
-              {essay?.content}
-            </div>
+            <div className="manual-feedback__essay-text text-body-md" style={{ whiteSpace: 'pre-wrap' }} dangerouslySetInnerHTML={{ __html: essay?.content || '' }} />
           </div>
 
           {/* AI Analysis Result Card */}

@@ -385,7 +385,7 @@ export const getConfigs = asyncHandler(async (req, res) => {
   
   // Mask API Keys for security
   const maskedConfigs = configs.map(c => {
-    const isApiKey = c.key.endsWith('_API_KEY')
+    const isApiKey = c.key.endsWith('_API_KEY') || c.key.endsWith('_TOKEN')
     return {
       key: c.key,
       value: isApiKey && c.value ? `${c.value.substring(0, 6)}...${c.value.substring(c.value.length - 4)}` : c.value,
@@ -419,7 +419,7 @@ export const updateConfigs = asyncHandler(async (req, res) => {
     
     const config = await Config.findOne({ key })
     if (config) {
-      const isApiKey = key.endsWith('_API_KEY')
+      const isApiKey = key.endsWith('_API_KEY') || key.endsWith('_TOKEN')
       if (isApiKey && (value.includes('...') || value.includes('***'))) {
         continue
       }

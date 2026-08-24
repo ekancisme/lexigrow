@@ -33,7 +33,7 @@ export default function AdminAIMonitoring() {
       setAnalytics(res.data)
     } catch (err) {
       console.error('Error fetching AI analytics:', err)
-      setErrorAnalytics(err.message || 'Không thể tải số liệu giám sát AI')
+      setErrorAnalytics(err.message || 'Unable to load AI monitoring data')
     } finally {
       setLoadingAnalytics(false)
     }
@@ -56,7 +56,7 @@ export default function AdminAIMonitoring() {
       setTotalPages(res.pagination?.pages || 1)
     } catch (err) {
       console.error('Error fetching AI logs:', err)
-      setErrorLogs(err.message || 'Không thể tải lịch sử gọi AI')
+      setErrorLogs(err.message || 'Unable to load AI call history')
     } finally {
       setLoadingLogs(false)
     }
@@ -121,7 +121,7 @@ export default function AdminAIMonitoring() {
       <div className="admin-page__header" style={{ borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: '12px', marginBottom: '8px' }}>
         <div>
           <h2 className="admin-page__title">AI Config & Monitoring</h2>
-          <p className="admin-page__subtitle">Giám sát hiệu suất hoạt động, thống kê chi phí token và cấu hình tham số mô hình AI.</p>
+          <p className="admin-page__subtitle">Monitor operational performance, token costs, and configure AI model parameters.</p>
         </div>
 
         {activeTab === 'monitoring' && (
@@ -143,7 +143,7 @@ export default function AdminAIMonitoring() {
             }}
           >
             <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>refresh</span>
-            Làm Mới Số Liệu
+            Refresh Metrics
           </button>
         )}
       </div>
@@ -168,7 +168,7 @@ export default function AdminAIMonitoring() {
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>monitoring</span>
-          Giám Sát AI
+          AI Monitoring
         </button>
 
         <button
@@ -189,7 +189,7 @@ export default function AdminAIMonitoring() {
           }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>settings_accessibility</span>
-          Cấu Hình Hệ Thống
+          System Configuration
         </button>
       </div>
 
@@ -203,7 +203,7 @@ export default function AdminAIMonitoring() {
               <span className="material-symbols-outlined animate-spin" style={{ fontSize: 40, color: 'var(--color-primary)' }}>
                 progress_activity
               </span>
-              <p style={{ color: 'var(--color-outline)', fontSize: '14px' }}>Đang tải số liệu thống kê AI...</p>
+              <p style={{ color: 'var(--color-outline)', fontSize: '14px' }}>Loading AI statistics...</p>
             </div>
           ) : errorAnalytics ? (
             <div style={{ padding: '24px', textAlign: 'center', color: 'var(--color-error)' }}>
@@ -221,7 +221,7 @@ export default function AdminAIMonitoring() {
                   </div>
                   <div>
                     <p className="admin-stat-card__value">{metrics.totalCalls || 0}</p>
-                    <p className="admin-stat-card__label">Tổng lượt gọi AI</p>
+                    <p className="admin-stat-card__label">Total AI Calls</p>
                   </div>
                 </div>
 
@@ -231,7 +231,7 @@ export default function AdminAIMonitoring() {
                   </div>
                   <div>
                     <p className="admin-stat-card__value">{metrics.successRate || 100}%</p>
-                    <p className="admin-stat-card__label">Tỷ lệ thành công</p>
+                    <p className="admin-stat-card__label">Success Rate</p>
                   </div>
                 </div>
 
@@ -241,7 +241,7 @@ export default function AdminAIMonitoring() {
                   </div>
                   <div>
                     <p className="admin-stat-card__value">{metrics.totalTokens?.toLocaleString() || 0}</p>
-                    <p className="admin-stat-card__label">Tokens tiêu thụ</p>
+                    <p className="admin-stat-card__label">Tokens Consumed</p>
                   </div>
                 </div>
 
@@ -251,7 +251,7 @@ export default function AdminAIMonitoring() {
                   </div>
                   <div>
                     <p className="admin-stat-card__value">${metrics.totalCost?.toFixed(4) || '0.0000'}</p>
-                    <p className="admin-stat-card__label">Ước tính chi phí</p>
+                    <p className="admin-stat-card__label">Estimated Cost</p>
                   </div>
                 </div>
               </div>
@@ -261,10 +261,10 @@ export default function AdminAIMonitoring() {
                 
                 {/* Chart 1: AI Calls Stacked Bar */}
                 <div className="admin-card card-base" style={{ padding: '20px' }}>
-                  <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px' }}>Tần Suất Gọi API AI</h4>
-                  <p style={{ fontSize: '12px', color: 'var(--color-outline)', marginBottom: '16px' }}>Thành công và Thất bại theo ngày</p>
+                  <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px' }}>AI API Call Frequency</h4>
+                  <p style={{ fontSize: '12px', color: 'var(--color-outline)', marginBottom: '16px' }}>Success and Failure by day</p>
                   {dailyStats.length === 0 ? (
-                    <div style={{ height: `${chartHeight}px`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-outline)' }}>Chưa có dữ liệu</div>
+                    <div style={{ height: `${chartHeight}px`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-outline)' }}>No data available</div>
                   ) : (
                     <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} width="100%" height={chartHeight}>
                       <line x1={paddingX} y1={paddingY} x2={chartWidth - paddingX} y2={paddingY} stroke="var(--color-outline-variant)" strokeWidth="0.5" strokeDasharray="3,3" />
@@ -296,10 +296,10 @@ export default function AdminAIMonitoring() {
 
                 {/* Chart 2: Cost Area Chart */}
                 <div className="admin-card card-base" style={{ padding: '20px' }}>
-                  <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px' }}>Chi Phí Sử Dụng Token</h4>
-                  <p style={{ fontSize: '12px', color: 'var(--color-outline)', marginBottom: '16px' }}>Chi phí ước tính (USD) hàng ngày</p>
+                  <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px' }}>Token Usage Cost</h4>
+                  <p style={{ fontSize: '12px', color: 'var(--color-outline)', marginBottom: '16px' }}>Estimated cost (USD) daily</p>
                   {dailyStats.length === 0 ? (
-                    <div style={{ height: `${chartHeight}px`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-outline)' }}>Chưa có dữ liệu</div>
+                    <div style={{ height: `${chartHeight}px`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-outline)' }}>No data available</div>
                   ) : (
                     <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} width="100%" height={chartHeight}>
                       <defs>
@@ -328,10 +328,10 @@ export default function AdminAIMonitoring() {
 
                 {/* Chart 3: Failed Requests Chart */}
                 <div className="admin-card card-base" style={{ padding: '20px' }}>
-                  <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px' }}>Số Lượt Lỗi API</h4>
-                  <p style={{ fontSize: '12px', color: 'var(--color-outline)', marginBottom: '16px' }}>Các cuộc gọi lỗi/thất bại theo thời gian</p>
+                  <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-on-surface)', marginBottom: '4px' }}>API Errors</h4>
+                  <p style={{ fontSize: '12px', color: 'var(--color-outline)', marginBottom: '16px' }}>API failures over time</p>
                   {dailyStats.length === 0 ? (
-                    <div style={{ height: `${chartHeight}px`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-outline)' }}>Chưa có dữ liệu</div>
+                    <div style={{ height: `${chartHeight}px`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-outline)' }}>No data available</div>
                   ) : (
                     <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} width="100%" height={chartHeight}>
                       <line x1={paddingX} y1={paddingY} x2={chartWidth - paddingX} y2={paddingY} stroke="var(--color-outline-variant)" strokeWidth="0.5" strokeDasharray="3,3" />
@@ -356,7 +356,7 @@ export default function AdminAIMonitoring() {
               {/* Logs Filter & Logs List */}
               <div className="admin-card card-base" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-                  <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Lịch Sử Gọi AI Chi Tiết</h3>
+                  <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Detailed AI Call History</h3>
                   
                   {/* Filters Form */}
                   <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -367,7 +367,7 @@ export default function AdminAIMonitoring() {
                       onChange={(e) => { setFilterAction(e.target.value); setPage(1); }}
                       style={{ padding: '6px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-outline-variant)', fontSize: '13px', background: 'var(--color-surface-container-lowest)', color: 'var(--color-on-surface)' }}
                     >
-                      <option value="">Tất cả chức năng</option>
+                      <option value="">All functions</option>
                       <option value="essay_analysis">essay_analysis</option>
                       <option value="synonym_generation">synonym_generation</option>
                       <option value="topic_generation">topic_generation</option>
@@ -382,9 +382,9 @@ export default function AdminAIMonitoring() {
                       onChange={(e) => { setFilterStatus(e.target.value); setPage(1); }}
                       style={{ padding: '6px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-outline-variant)', fontSize: '13px', background: 'var(--color-surface-container-lowest)', color: 'var(--color-on-surface)' }}
                     >
-                      <option value="">Tất cả trạng thái</option>
-                      <option value="success">Thành công</option>
-                      <option value="failure">Lỗi/Thất bại</option>
+                      <option value="">All statuses</option>
+                      <option value="success">Success</option>
+                      <option value="failure">Failure</option>
                     </select>
 
                     {/* Model Filter */}
@@ -393,7 +393,7 @@ export default function AdminAIMonitoring() {
                       onChange={(e) => { setFilterModel(e.target.value); setPage(1); }}
                       style={{ padding: '6px 12px', borderRadius: 'var(--radius-md)', border: '1px solid var(--color-outline-variant)', fontSize: '13px', background: 'var(--color-surface-container-lowest)', color: 'var(--color-on-surface)' }}
                     >
-                      <option value="">Tất cả model</option>
+                      <option value="">All models</option>
                       <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile</option>
                       <option value="llama-3.1-8b-instant">llama-3.1-8b-instant</option>
                       <option value="gemma2-9b-it">gemma2-9b-it</option>
@@ -408,32 +408,32 @@ export default function AdminAIMonitoring() {
                     <span className="material-symbols-outlined animate-spin" style={{ fontSize: 32, color: 'var(--color-primary)' }}>
                       progress_activity
                     </span>
-                    <p style={{ color: 'var(--color-outline)', fontSize: '13px' }}>Đang tải lịch sử gọi AI...</p>
+                    <p style={{ color: 'var(--color-outline)', fontSize: '13px' }}>Loading AI call history...</p>
                   </div>
                 ) : errorLogs ? (
                   <div style={{ padding: '16px', color: 'var(--color-error)', textAlign: 'center' }}>{errorLogs}</div>
                 ) : logs.length === 0 ? (
-                  <div style={{ padding: '32px', color: 'var(--color-outline)', textAlign: 'center' }}>Không tìm thấy logs gọi AI nào phù hợp.</div>
+                  <div style={{ padding: '32px', color: 'var(--color-outline)', textAlign: 'center' }}>No matching AI call logs found.</div>
                 ) : (
                   <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '14px' }}>
                       <thead>
                         <tr style={{ borderBottom: '1.5px solid var(--color-outline-variant)', color: 'var(--color-outline)', fontWeight: 600 }}>
-                          <th style={{ padding: '12px 8px' }}>Thời gian</th>
-                          <th style={{ padding: '12px 8px' }}>Chức năng</th>
+                          <th style={{ padding: '12px 8px' }}>Timestamp</th>
+                          <th style={{ padding: '12px 8px' }}>Function</th>
                           <th style={{ padding: '12px 8px' }}>Model</th>
-                          <th style={{ padding: '12px 8px' }}>Trạng thái</th>
-                          <th style={{ padding: '12px 8px' }}>Thời gian xử lý</th>
+                          <th style={{ padding: '12px 8px' }}>Status</th>
+                          <th style={{ padding: '12px 8px' }}>Latency</th>
                           <th style={{ padding: '12px 8px' }}>Tokens</th>
-                          <th style={{ padding: '12px 8px' }}>Chi phí</th>
-                          <th style={{ padding: '12px 8px', textAlign: 'center' }}>Chi tiết</th>
+                          <th style={{ padding: '12px 8px' }}>Cost</th>
+                          <th style={{ padding: '12px 8px', textAlign: 'center' }}>Details</th>
                         </tr>
                       </thead>
                       <tbody>
                         {logs.map((log) => (
                           <tr key={log._id} style={{ borderBottom: '1px solid var(--color-outline-variant)', color: 'var(--color-on-surface)' }}>
                             <td style={{ padding: '12px 8px', whiteSpace: 'nowrap', fontSize: '13px' }}>
-                              {new Date(log.createdAt).toLocaleString('vi-VN')}
+                              {new Date(log.createdAt).toLocaleString('en-US')}
                             </td>
                             <td style={{ padding: '12px 8px', fontWeight: 600, color: 'var(--color-primary)' }}>{log.action}</td>
                             <td style={{ padding: '12px 8px', fontSize: '13px', color: 'var(--color-outline)' }}>{log.model}</td>
@@ -446,7 +446,7 @@ export default function AdminAIMonitoring() {
                                 background: log.status === 'success' ? 'rgba(40, 167, 69, 0.12)' : 'rgba(211, 47, 47, 0.12)',
                                 color: log.status === 'success' ? '#28a745' : 'var(--color-error)'
                               }}>
-                                {log.status === 'success' ? 'Thành công' : 'Lỗi'}
+                                {log.status === 'success' ? 'Success' : 'Error'}
                               </span>
                             </td>
                             <td style={{ padding: '12px 8px' }}>{log.processingTimeMs} ms</td>
@@ -479,7 +479,7 @@ export default function AdminAIMonitoring() {
                     {/* Pagination */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
                       <p style={{ fontSize: '13px', color: 'var(--color-outline)' }}>
-                        Trang {page} / {totalPages}
+                        Page {page} / {totalPages}
                       </p>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         <button
@@ -494,7 +494,7 @@ export default function AdminAIMonitoring() {
                             cursor: page === 1 ? 'not-allowed' : 'pointer'
                           }}
                         >
-                          Trước
+                          Prev
                         </button>
                         <button
                           onClick={() => setPage(p => Math.min(totalPages, p + 1))}
@@ -508,7 +508,7 @@ export default function AdminAIMonitoring() {
                             cursor: page === totalPages ? 'not-allowed' : 'pointer'
                           }}
                         >
-                          Sau
+                          Next
                         </button>
                       </div>
                     </div>
@@ -556,61 +556,61 @@ export default function AdminAIMonitoring() {
                       <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>close</span>
                     </button>
 
-                    <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '16px', color: 'var(--color-on-surface)' }}>Chi Tiết Lượt Gọi AI</h3>
+                    <h3 style={{ fontSize: '18px', fontWeight: 700, marginBottom: '16px', color: 'var(--color-on-surface)' }}>AI Call Details</h3>
                     
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       <div style={{ display: 'flex', borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: '8px' }}>
-                        <span style={{ width: '130px', fontWeight: 600, color: 'var(--color-outline)' }}>Mã ID:</span>
+                        <span style={{ width: '130px', fontWeight: 600, color: 'var(--color-outline)' }}>Call ID:</span>
                         <span style={{ fontFamily: 'monospace', fontSize: '13px' }}>{selectedLog._id}</span>
                       </div>
                       
                       <div style={{ display: 'flex', borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: '8px' }}>
-                        <span style={{ width: '130px', fontWeight: 600, color: 'var(--color-outline)' }}>Thời gian:</span>
-                        <span>{new Date(selectedLog.createdAt).toLocaleString('vi-VN')}</span>
+                        <span style={{ width: '130px', fontWeight: 600, color: 'var(--color-outline)' }}>Timestamp:</span>
+                        <span>{new Date(selectedLog.createdAt).toLocaleString('en-US')}</span>
                       </div>
 
                       <div style={{ display: 'flex', borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: '8px' }}>
-                        <span style={{ width: '130px', fontWeight: 600, color: 'var(--color-outline)' }}>Chức năng:</span>
+                        <span style={{ width: '130px', fontWeight: 600, color: 'var(--color-outline)' }}>Function:</span>
                         <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>{selectedLog.action}</span>
                       </div>
 
                       <div style={{ display: 'flex', borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: '8px' }}>
-                        <span style={{ width: '130px', fontWeight: 600, color: 'var(--color-outline)' }}>Model AI:</span>
+                        <span style={{ width: '130px', fontWeight: 600, color: 'var(--color-outline)' }}>AI Model:</span>
                         <span>{selectedLog.model}</span>
                       </div>
 
                       <div style={{ display: 'flex', borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: '8px' }}>
-                        <span style={{ width: '130px', fontWeight: 600, color: 'var(--color-outline)' }}>Trạng thái:</span>
+                        <span style={{ width: '130px', fontWeight: 600, color: 'var(--color-outline)' }}>Status:</span>
                         <span style={{
                           fontWeight: 700,
                           color: selectedLog.status === 'success' ? '#28a745' : 'var(--color-error)'
                         }}>
-                          {selectedLog.status === 'success' ? 'Thành công' : 'Lỗi'}
+                          {selectedLog.status === 'success' ? 'Success' : 'Error'}
                         </span>
                       </div>
 
                       <div style={{ display: 'flex', borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: '8px' }}>
-                        <span style={{ width: '130px', fontWeight: 600, color: 'var(--color-outline)' }}>Thời gian xử lý:</span>
+                        <span style={{ width: '130px', fontWeight: 600, color: 'var(--color-outline)' }}>Latency:</span>
                         <span>{selectedLog.processingTimeMs} ms</span>
                       </div>
 
                       <div style={{ display: 'flex', borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: '8px', flexDirection: 'column', gap: '6px' }}>
-                        <span style={{ fontWeight: 600, color: 'var(--color-outline)' }}>Tokens tiêu thụ:</span>
+                        <span style={{ fontWeight: 600, color: 'var(--color-outline)' }}>Tokens Consumed:</span>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', fontSize: '13px', background: 'var(--color-surface-container-low)', padding: '8px', borderRadius: 'var(--radius-sm)' }}>
                           <div>Prompt: {selectedLog.tokensUsed?.promptTokens || 0}</div>
                           <div>Completion: {selectedLog.tokensUsed?.completionTokens || 0}</div>
-                          <div>Tổng: {selectedLog.tokensUsed?.totalTokens || 0}</div>
+                          <div>Total: {selectedLog.tokensUsed?.totalTokens || 0}</div>
                         </div>
                       </div>
 
                       <div style={{ display: 'flex', borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: '8px' }}>
-                        <span style={{ width: '130px', fontWeight: 600, color: 'var(--color-outline)' }}>Chi phí (USD):</span>
+                        <span style={{ width: '130px', fontWeight: 600, color: 'var(--color-outline)' }}>Cost (USD):</span>
                         <span style={{ fontWeight: 'bold' }}>${selectedLog.costEstimate?.toFixed(5) || '0.00000'}</span>
                       </div>
 
                       {selectedLog.status === 'failure' && (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                          <span style={{ fontWeight: 600, color: 'var(--color-error)' }}>Thông báo lỗi:</span>
+                          <span style={{ fontWeight: 600, color: 'var(--color-error)' }}>Error Message:</span>
                           <div style={{
                             padding: '10px',
                             background: 'rgba(211, 47, 47, 0.08)',
@@ -621,7 +621,7 @@ export default function AdminAIMonitoring() {
                             color: 'var(--color-error)',
                             whiteSpace: 'pre-wrap'
                           }}>
-                            {selectedLog.errorMessage || 'Lỗi không xác định'}
+                            {selectedLog.errorMessage || 'Unknown error'}
                           </div>
                         </div>
                       )}

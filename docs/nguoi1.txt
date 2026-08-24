@@ -1,0 +1,224 @@
+================================================================================
+KỊCH BẢN THUYẾT TRÌNH CHI TIẾT - NGƯỜI 1: CORE AI, NLP & TRANSLATION ENGINE
+================================================================================
+
+Tài liệu này tổng hợp toàn bộ cách thuyết trình bằng lời cho 10 slide của bài thuyết 
+trình về Kiến trúc Luồng xử lý AI & Thuật toán của LexiGrow. 
+
+--------------------------------------------------------------------------------
+SLIDE 1: TỔNG QUAN LUỒNG CHẤM BÀI
+--------------------------------------------------------------------------------
+* Lời thoại thuyết trình:
+"Kính thưa các anh chị và thầy cô, đầu tiên em xin phép trình bày về kiến trúc 
+luồng xử lý chấm bài của LexiGrow. Đây là xương sống công nghệ của dự án, được 
+thiết kế để tự động hóa toàn bộ quy trình phân tích bài luận từ lúc học sinh nhấn 
+nộp bài cho đến khi hệ thống lưu kết quả chấm vào Database và trả phản hồi.
+
+Nhìn vào sơ đồ tổng quan này, luồng đi của chúng ta gồm 4 bước khép kín:
+- Bước 1 (Submit Essay): Học sinh gửi bài viết qua API, lưu trạng thái bài luận.
+- Bước 2 (Orchestrator): Bộ điều phối trung tâm là hàm 'processEssayAnalysis' 
+  được kích hoạt để quản lý và kiểm soát toàn bộ luồng chấm bài.
+- Bước 3 (Parallel Engines): Bộ điều phối kích hoạt chạy song song đồng thời cả 4 
+  động cơ độc lập bao gồm: Groq LLM (Chấm bài), Python & spaCy (Ngữ pháp), Jaccard 
+  3-Gram (Đạo văn) và Hugging Face (Phát hiện AI).
+- Bước 4 (Enrich & Save DB): Hệ thống thực hiện làm giàu tri thức, tra cứu IPA, 
+  đặt ví dụ theo ngữ cảnh và cập nhật các bản ghi vào MongoDB.
+
+Sau đây, em xin phép đi sâu vào chi tiết của từng bước xử lý..."
+
+--------------------------------------------------------------------------------
+SLIDE 2: CLIENT SUBMIT & ORCHESTRATION
+--------------------------------------------------------------------------------
+* Lời thoại thuyết trình:
+"Tiếp theo, em xin đi sâu vào chi tiết của hai bước đầu tiên trong luồng xử lý: 
+đó là Nhận bài viết (Submit) và Điều hành trung tâm (Orchestration).
+
+- Mục số 1: 'Nộp bài luận & Làm sạch HTML'
+  Khi học sinh nộp bài viết lên từ trình soạn thảo rich-text, nội dung sẽ chứa 
+  các thẻ HTML như thẻ xuống dòng hay thẻ đoạn văn. Như các thầy cô thấy ở khối 
+  code đầu tiên bên phải, hệ thống sử dụng Regex để làm sạch hoàn toàn các thẻ 
+  này, đưa bài viết về dạng văn bản thô để đảm bảo độ chính xác cho bộ đếm từ và 
+  các bộ phân tích NLP.
+- Mục số 2: 'Phân tích điểm lịch sử'
+  Tại khối code thứ 2, hệ thống truy vấn cơ sở dữ liệu để tìm tối đa 4 bài viết 
+  gần nhất đã được chấm của chính học sinh đó. Chúng ta trích xuất điểm số của 
+  các bài cũ để tạo thành chuỗi thông tin 'pastScoresSummary' gửi kèm sang mô hình 
+  AI. Cách này giúp AI nắm được quỹ đạo học tập để đưa ra nhận xét cá nhân hóa tốt nhất.
+- Mục số 3: 'Triển khai phân tích song song'
+  Sau khi đã chuẩn bị xong bài viết sạch và lịch sử học tập, bộ điều phối trung 
+  tâm sẽ chạy lệnh 'Promise.all' như khối code cuối cùng ở góc phải. Lệnh này kích 
+  hoạt chạy song song đồng thời cả 4 tác vụ chấm điểm, phân tích ngữ pháp, kiểm 
+  tra đạo văn và phát hiện AI viết bài. Việc chạy song song giúp tối ưu hóa tài 
+  nguyên máy chủ và giảm thời gian chờ của học sinh xuống mức thấp nhất."
+
+--------------------------------------------------------------------------------
+SLIDE 3: PHÂN TÍCH CHI TIẾT QUA LLM
+--------------------------------------------------------------------------------
+* Lời thoại thuyết trình:
+"Bây giờ, chúng ta sẽ đi sâu vào bộ máy phân tích đầu tiên và cũng là bộ máy thông 
+minh nhất: Bộ chấm điểm chi tiết qua LLM sử dụng dịch vụ Groq.
+
+- Mục số 1: 'Chiến lược Prompt lai (Hybrid Prompt)'
+  Khi giáo viên muốn tạo tiêu chí chấm bài riêng cho lớp học của mình, hệ thống sẽ 
+  kết hợp chỉ thị riêng đó của giáo viên với chỉ thị mặc định của hệ thống. Nhìn 
+  vào code bên phải, hàm 'buildHybridPrompt' sẽ ghép nối hai phần này lại với 
+  nhau, đảm bảo mô hình AI vừa hiểu được tiêu chí chấm điểm của giáo viên, vừa tuân 
+  thủ đúng định dạng JSON đầu ra mà hệ thống yêu cầu.
+- Mục số 2: 'Chấm điểm & Đánh giá xu hướng học tập'
+  Tại phần khai báo cấu trúc JSON mặc định, chúng ta yêu cầu mô hình Llama 3.3 
+  chấm điểm thang 10 trên nhiều tiêu chí (Ngữ pháp, Độ mạch lạc), đồng thời phát 
+  hiện xem học sinh có viết nhồi từ (paddedSentences) hay không. Đặc biệt, thông 
+  qua tham số lịch sử điểm số truyền vào tin nhắn của người dùng, AI sẽ so sánh 
+  bài viết hiện tại với lịch sử để tự động đánh giá xu hướng tiến bộ của học sinh 
+  dưới dạng trạng thái như: progressing (đang tiến bộ), stable (ổn định) hay 
+  regression (sa sút)."
+
+--------------------------------------------------------------------------------
+SLIDE 4: XỬ LÝ NGÔN NGỮ TỰ NHIÊN & ĐO LƯỜNG ĐỘ ĐA DẠNG
+--------------------------------------------------------------------------------
+* Lời thoại thuyết trình:
+"Tiếp theo, chúng ta sẽ chuyển sang động cơ phân tích thứ hai: Xử lý ngôn ngữ tự 
+nhiên bằng thư viện spaCy trên Python để tính toán các cấu trúc ngữ pháp nâng cao.
+
+- Mục số 1: 'Gọi Tiến Trình Python Cục Bộ'
+  Vì Node.js xử lý các tác vụ tính toán ngôn ngữ học không mạnh bằng Python, hệ 
+  thống sẽ gọi một tiến trình Python cục bộ chạy ngầm ngay trên máy chủ để thực 
+  thi kịch bản 'nlp_processor.py' sử dụng thư viện NLP chuyên sâu spaCy.
+- Mục số 2: 'Phân Tích Cấu Trúc Ngữ Pháp Phức Tạp'
+  Để phân tích độ phức tạp của bài luận, thuật toán phân tích chính xác dựa trên 
+  cấu trúc cú pháp của câu (Dependency Parsing) hiển thị ở khối code bên phải:
+  * Để đếm Câu bị động, thuật toán sẽ đếm các từ có nhãn liên kết là 'auxpass'.
+  * Để đếm Mệnh đề phụ, thuật toán sẽ tìm các nhãn mệnh đề liên kết như 'advcl', 
+    'acl' và 'ccomp' để xác định xem học sinh có sử dụng các cấu trúc câu phức hay không.
+- Mục số 3: 'Chỉ số Đa dạng Từ vựng MTLD & HD-D'
+  Tại phần cuối của hàm xử lý Python, hệ thống sẽ thực thi các thuật toán toán 
+  học phức tạp là MTLD (quét TTR theo ngưỡng 0.72) và HD-D (tính toán tổ hợp xác 
+  suất với cỡ mẫu draws N=42). Kết quả đầu ra là một đối tượng JSON chuẩn hóa như 
+  ví dụ hiển thị ở dưới cùng cột phải."
+
+--------------------------------------------------------------------------------
+SLIDE 5: THUẬT TOÁN PHÁT HIỆN ĐẠO VĂN CHÉO
+--------------------------------------------------------------------------------
+* Lời thoại thuyết trình:
+"Bây giờ, chúng ta sẽ bước sang động cơ phân tích thứ ba: Thuật toán phát hiện 
+hành vi đạo văn chéo giữa các học sinh trong hệ thống.
+
+- Mục số 1: 'Tokenization & 3-Gram (Trigrams)'
+  Nếu chỉ so sánh từng từ đơn lẻ, học sinh rất dễ qua mặt hệ thống bằng cách tráo 
+  đổi từ đồng nghĩa. Vì vậy, bước đầu tiên, hệ thống sẽ chia văn bản thành các cụm 
+  3 từ liên tiếp (Trigrams). Bằng cách so khớp các cụm 3 từ liên tiếp này, chúng ta 
+  sẽ bắt được chính xác các hành vi copy-paste cả câu hoặc cả đoạn văn.
+- Mục số 2: 'Hệ số Tương đồng Jaccard'
+  Tại phần code bên phải, hàm 'computeJaccard' thực thi thuật toán so khớp tập hợp. 
+  Hệ số tương đồng Jaccard được tính bằng tỷ lệ giữa số lượng cụm trigram trùng 
+  nhau (giao của 2 tập hợp) chia cho tổng số lượng cụm trigram của cả hai bài viết 
+  (hợp của 2 tập hợp).
+- Mục số 3: 'Ngưỡng Cảnh Báo'
+  Dựa trên thực tế thử nghiệm, chúng ta đặt ra một Ngưỡng cảnh báo là 0.25. Nghĩa 
+  ai, nếu hai bài luận có độ trùng lắp từ 25% số lượng Trigrams trở lên, bài luận 
+  mới nộp sẽ ngay lập tức bị cắm cờ cảnh báo Đạo văn (isPlagiarized = true) và 
+  liên kết trực tiếp đến ID của bài viết gốc để giáo viên đối chiếu."
+
+--------------------------------------------------------------------------------
+SLIDE 6: XÁC ĐỊNH BÀI VIẾT SINH BỞI AI
+--------------------------------------------------------------------------------
+* Lời thoại thuyết trình:
+"Bên cạnh việc chép bài của bạn học, học sinh ngày nay còn rất hay dùng ChatGPT 
+để viết bài hộ. Slide này sẽ trình bày động cơ phân tích thứ tư: Nhận diện bài 
+viết do AI tạo ra.
+
+- Mục số 1: 'Kiểm tra qua Hello-SimpleAI RoBERTa'
+  Khi học sinh nộp bài, hệ thống sẽ gọi API Hugging Face (sử dụng model chuyên sâu 
+  'chatgpt-detector-roberta'). Nếu mô hình trả về điểm xác suất AI viết từ 70% trở 
+  lên, bài viết sẽ bị cắm cờ cảnh báo là bài viết sinh bởi AI.
+- Mục số 2: 'Thuật toán Heuristics Dự phòng (Local Fallback)'
+  Như quý vị thấy ở dòng code thứ 3 bên phải, nếu không cấu hình API Token hoặc 
+  kết nối API Hugging Face gặp lỗi, hệ thống sẽ tự động chuyển sang cơ chế dự 
+  phòng Heuristics cục bộ chạy ngay trên máy chủ không cần mạng.
+- Mục số 3: 'Phân tích từ chỉ dấu & Độ biến động câu'
+  Cơ chế Heuristics cục bộ hoạt động dựa trên việc phân tích đặc trưng văn phong:
+  * Một là quét các Marker Words – những từ chỉ dấu mà ChatGPT cực kỳ ưa chuộng 
+    (như delve, tapestry, beacon, furthermore...).
+  * Hai là đo Burstiness – độ biến động chiều dài câu. Nếu độ lệch chuẩn độ dài 
+    câu nhỏ hơn 4.0, hệ thống sẽ nghi vấn và cảnh báo AI viết."
+
+--------------------------------------------------------------------------------
+SLIDE 7: LÀM GIÀU TỪ VỰNG & ĐỀ XUẤT TỪ ĐỒNG NGHĨA
+--------------------------------------------------------------------------------
+* Lời thoại thuyết trình:
+"Sau khi hoàn thành 4 công cụ phân tích song song ở Bước 3, hệ thống sẽ chuyển 
+sang bước cuối cùng là Làm giàu từ vựng & Đề xuất từ đồng nghĩa.
+
+- Mục số 1: 'Tra Cứu IPA & Giải Nghĩa Tự Động'
+  Khi có danh sách các từ vựng nâng cao được AI phát hiện từ bài viết, hệ thống 
+  truy vấn bảng Vocabulary của học sinh để lọc đi những từ đã học. Đối với những 
+  từ mới hoàn toàn, chúng ta gọi hàm 'enrichWordsList' ở cột code bên phải để gửi 
+  lên Groq LLM tự động tra cứu ký tự phiên âm quốc tế IPA, từ loại và giải nghĩa.
+- Mục số 2: 'Đồng Bộ Hóa Ví Dụ Theo Ngữ Cảnh'
+  AI sẽ dựa vào ngữ cảnh bài viết (contextText) học sinh nộp để đặt câu ví dụ đồng 
+  bộ. Nhờ vậy, câu ví dụ trong flashcard sẽ liên kết trực tiếp với chính bài viết 
+  của họ, giúp họ ghi nhớ từ vựng sâu sắc hơn rất nhiều.
+- Mục số 3: 'Gợi ý từ đồng nghĩa học thuật'
+  Hệ thống cũng tìm ra các từ bị học sinh lặp lại quá nhiều lần trong bài và gọi 
+  AI đề xuất các từ đồng nghĩa cao cấp hơn (trình độ C1/C2) rồi lưu vào cơ sở dữ 
+  liệu bằng lệnh 'bulkWrite' ở cuối khối code bên phải."
+
+--------------------------------------------------------------------------------
+SLIDE 8: DỊCH THUẬT VĂN BẢN BÔI ĐEN QUA LLM
+--------------------------------------------------------------------------------
+* Lời thoại thuyết trình:
+"Bên cạnh các tính năng phân tích tự động, em xin giới thiệu tính năng dịch thuật 
+cho học sinh, đó là Động cơ dịch thuật văn bản bôi đen bằng LLM.
+
+- Mục số 1: 'Lắng nghe sự kiện bôi đen (Highlight Event)'
+  Trên giao diện học sinh, khi đọc lại bài luận cũ hoặc xem phần nhận xét chi 
+  tiết, nếu bôi đen một từ hoặc câu khó hiểu, hệ thống sẽ hiển thị một Tooltip 
+  nhỏ hỏi xem học sinh có muốn dịch đoạn này không.
+- Mục số 2: 'API Dịch Thuật Cận Thời Gian Thực'
+  Khi học sinh chọn dịch, client gọi API để chạy hàm 'translateTextToVietnamese' 
+  như code bên phải. Hàm này lấy mô hình AI mặc định (Llama 3.3) qua Groq và phản 
+  hồi kết quả dịch siêu nhanh dưới 0.5 giây.
+- Mục số 3: 'Bảo toàn ngữ cảnh & Văn phong giáo dục'
+  Prompt chỉ thị cho LLM dịch một cách tự nhiên và chính xác dựa trên ngữ cảnh 
+  giáo dục. Bằng cách ép LLM chạy dưới định dạng JSON (json_object), chúng ta bảo 
+  đản phản hồi trả về luôn là một đối tượng JSON chứa trường 'translation', giúp 
+  frontend hiển thị an toàn."
+
+--------------------------------------------------------------------------------
+SLIDE 9: GIÁM SÁT HIỆU NĂNG & LOGS GỌI API AI
+--------------------------------------------------------------------------------
+* Lời thoại thuyết trình:
+"Một hệ thống AI chuyên nghiệp cần phải có cơ chế giám sát chặt chẽ. Ở slide này, 
+em xin giới thiệu hệ thống Giám sát hiệu năng và Logs hoạt động của AI.
+
+- Mục số 1: 'Tự động ghi nhận Nhật ký (AILog Model)'
+  Tại khối code phía trên bên phải, chúng ta xây dựng hàm tiện ích 'logAICall'. Mỗi 
+  khi gọi đến mô hình AI, hàm này sẽ được gọi để lưu trữ thông tin: mô hình sử 
+  dụng, số token tiêu thụ, thời gian xử lý thực tế, trạng thái thành công/thất bại 
+  và tự động tính toán chi phí gọi API theo giá thị trường để lưu vào MongoDB.
+- Mục số 2: 'Trang Dashboard Giám Sát Của Quản Trị'
+  Khi quản trị viên truy cập trang Admin, hệ thống sẽ thực thi câu lệnh gom nhóm 
+  dữ liệu (Aggregation) như dòng code cuối ở góc phải để tính toán thời gian phản 
+  hồi trung bình và đếm tổng số lần gọi để vẽ lên biểu đồ thời gian thực.
+- Mục số 3: 'Phát hiện lỗi sớm & Tối ưu hóa'
+  Việc theo dõi chi tiết các logs này giúp quản trị viên phát hiện rất sớm các 
+  bất thường về thời gian xử lý hoặc tỷ lệ cuộc gọi lỗi để chuyển đổi sang mô 
+  hình dự phòng kịp thời."
+
+--------------------------------------------------------------------------------
+SLIDE 10: TÓM TẮT TOÀN BỘ TIẾN TRÌNH CHẤM BÀI
+--------------------------------------------------------------------------------
+* Lời thoại thuyết trình:
+"Cuối cùng, em xin tóm tắt lại toàn bộ tiến trình chấm bài tự động hóa khép kín:
+- Phần 1: Bài viết được làm sạch HTML và lấy thông tin lịch sử điểm học sinh để 
+  chuẩn hóa dữ liệu đầu vào.
+- Phần 2: Sử dụng bộ điều phối kích hoạt song song động cơ chấm bài qua LLM (Groq) 
+  và bộ phân tích ngữ pháp spaCy bằng Python.
+- Phần 3: Chạy song song bộ quét đạo văn Jaccard 3-Gram và mô hình nhận diện AI 
+  RoBERTa để kiểm soát tính trung thực của bài viết.
+- Phần 4: Làm giàu tri thức từ vựng theo ngữ cảnh bài luận và ghi logs hoạt động 
+  để lưu trữ lâu dài.
+
+Nhờ thiết kế song song và tối ưu hiệu năng này, hệ thống đem lại trải nghiệm phản 
+hồi lập tức trong vài giây cho học sinh. Em xin chân thành cảm ơn!"
+================================================================================

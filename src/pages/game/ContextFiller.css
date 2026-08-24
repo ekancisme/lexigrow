@@ -1,0 +1,267 @@
+/* ==========================================================================
+   Context Filler Stylesheet
+   ========================================================================== */
+
+.filler-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
+  padding: var(--spacing-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.filler-card {
+  max-width: 600px;
+  width: 100%;
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-surface-variant);
+  box-shadow: var(--shadow-md);
+  animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.config-icon-filler {
+  font-size: 56px;
+  color: #3B4858;
+  margin-bottom: var(--spacing-sm);
+}
+
+.round-btn-filler {
+  padding: var(--spacing-md) var(--spacing-sm);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-surface-variant);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  font-weight: var(--weight-semibold);
+  transition: all var(--transition-fast);
+}
+
+.round-btn-filler:hover {
+  background: var(--color-surface-container);
+  border-color: var(--color-tertiary-fixed);
+}
+
+.round-btn-filler--active {
+  background: var(--color-tertiary-fixed);
+  border-color: #3B4858;
+  color: var(--color-on-tertiary-fixed);
+}
+
+.start-game-btn-filler {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+  padding: 14px;
+  background: #3B4858;
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-title-md);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.start-game-btn-filler:hover {
+  background: #525F70;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+/* Gameplay Layout */
+.filler-gameplay-container {
+  width: 100%;
+  max-width: 740px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  animation: fade-in 0.3s ease-out;
+}
+
+.filler-card-playing {
+  width: 100%;
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-surface-variant);
+  box-shadow: var(--shadow-md);
+}
+
+.sentence-display-box {
+  background: var(--color-surface-container);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-xl);
+  border-left: 5px solid #3B4858;
+  min-height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sentence-text {
+  font-size: var(--font-title-md);
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--color-on-surface);
+  text-align: center;
+}
+
+.options-grid {
+  display: grid;
+  grid-template-cols: repeat(2, 1fr);
+  gap: var(--spacing-md);
+}
+
+@media (max-width: 480px) {
+  .options-grid {
+    grid-template-cols: 1fr;
+  }
+}
+
+.option-button-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background: var(--color-surface-container-lowest);
+  border: 1.5px solid var(--color-surface-variant);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.option-button-item:hover:not(:disabled) {
+  background: var(--color-surface-container-low);
+  border-color: var(--color-primary-fixed-dim);
+}
+
+.option-button-item:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.option-letter {
+  font-size: var(--font-title-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-on-surface-variant);
+}
+
+.option-text {
+  font-size: var(--font-title-sm);
+  color: var(--color-on-surface);
+}
+
+/* Choice validation states */
+.opt-btn--correct {
+  background: rgba(46, 125, 50, 0.08) !important;
+  border-color: #2E7D32 !important;
+}
+
+.opt-btn--correct .option-letter,
+.opt-btn--correct .option-text {
+  color: #2E7D32 !important;
+}
+
+.opt-btn--wrong {
+  background: rgba(186, 26, 26, 0.08) !important;
+  border-color: var(--color-error) !important;
+  animation: shake 0.4s ease;
+}
+
+.opt-btn--wrong .option-letter,
+.opt-btn--wrong .option-text {
+  color: var(--color-error) !important;
+}
+
+/* Next panel */
+.filler-next-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+  background: rgba(26, 115, 232, 0.03);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-xl);
+  border: 1.5px dashed var(--color-primary-fixed);
+  animation: scale-up-filler 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.definition-explanation {
+  font-size: var(--font-body-md);
+  line-height: 1.5;
+  color: var(--color-on-surface-variant);
+}
+
+.next-round-btn-filler {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
+  padding: 12px 28px;
+  background: #3B4858;
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-weight: var(--weight-bold);
+  font-size: var(--font-title-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.next-round-btn-filler:hover {
+  background: #525F70;
+}
+
+/* Victory Section */
+.crown-icon-filler {
+  font-size: 72px;
+  color: #FFB300;
+  filter: drop-shadow(0px 4px 10px rgba(255, 179, 0, 0.4));
+  animation: bounce-slow 2s infinite ease-in-out;
+}
+
+.play-again-btn-filler {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xxs);
+  padding: 12px;
+  background: #3B4858;
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-title-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.play-again-btn-filler:hover {
+  background: #525F70;
+}
+
+@keyframes scale-up-filler {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

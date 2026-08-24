@@ -44,7 +44,7 @@ Dưới đây là danh sách các tính năng chưa được thực hiện hoặ
 ### 5. Learning Pattern Detection (Chưa hoàn thiện)
 - [ ] Phát hiện học sinh đang mở rộng từ vựng thật hay chỉ cố tinh kéo dài câu.
 - [ ] Phát hiện lặp lại từ quen thuộc.
-- [ ] Phát hiện đạo văn (plagiarism), chép bài bạn...
+- [x] Phát hiện đạo văn (plagiarism), chép bài bạn... (Hoàn thành: 3-grams Jaccard & Hugging Face)
 
 ### 6. Recommendation Engine & Topic Suggestions (ĐÃ HOÀN THÀNH MỘT PHẦN)
 - [x] Chọn chủ đề chính (Theme) và gọi AI gợi ý 4 đề tài tương ứng bằng Groq API (Đã làm).

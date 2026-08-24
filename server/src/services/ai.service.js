@@ -6,6 +6,8 @@ import AIAnalysis from '../models/AIAnalysis.js'
 import Vocabulary from '../models/Vocabulary.js'
 import Config from '../models/Config.js'
 import AILog from '../models/AILog.js'
+import { checkCrossStudentPlagiarism } from './plagiarism.service.js'
+import { detectAIWriting } from './huggingface.service.js'
 
 /**
  * Retrieve configuration value from database
@@ -65,36 +67,62 @@ const __dirname = path.dirname(__filename)
 export const runNLPAnalysis = (text) => {
   return new Promise((resolve) => {
     const scriptPath = path.resolve(__dirname, '../utils/nlp_processor.py')
-    const pythonProcess = spawn('python', [scriptPath])
     
-    let stdoutData = ''
-    let stderrData = ''
+    // In production (Ubuntu/Linux), 'python3' is standard, while 'python' is standard on Windows/local
+    const pythonCommand = globalThis.process.platform === 'win32' ? 'python' : 'python3'
+    const pythonProcess = spawn(pythonCommand, [scriptPath])
     
-    pythonProcess.stdout.on('data', (data) => {
-      stdoutData += data.toString()
-    })
-    
-    pythonProcess.stderr.on('data', (data) => {
-      stderrData += data.toString()
-    })
-    
-    pythonProcess.on('close', (code) => {
-      if (code !== 0) {
-        console.error(`Python NLP script failed with code ${code}. Stderr: ${stderrData}`)
-        return resolve(null)
-      }
-      try {
-        const result = JSON.parse(stdoutData.trim())
-        resolve(result)
-      } catch (err) {
-        console.error('Failed to parse Python script output:', err.message, 'Output was:', stdoutData)
+    pythonProcess.on('error', (err) => {
+      console.error(`Failed to start Python process (${pythonCommand}):`, err.message)
+      
+      // If python3 failed on non-windows, we can fallback to python just in case
+      if (pythonCommand === 'python3') {
+        console.log("Attempting fallback to 'python' command...")
+        const fallbackProcess = spawn('python', [scriptPath])
+        
+        fallbackProcess.on('error', (fallbackErr) => {
+          console.error("Fallback to 'python' also failed:", fallbackErr.message)
+          resolve(null)
+        })
+        
+        setupProcessListeners(fallbackProcess, text, resolve)
+      } else {
         resolve(null)
       }
     })
     
-    pythonProcess.stdin.write(text)
-    pythonProcess.stdin.end()
+    setupProcessListeners(pythonProcess, text, resolve)
   })
+}
+
+function setupProcessListeners(subprocess, text, resolve) {
+  let stdoutData = ''
+  let stderrData = ''
+  
+  subprocess.stdout.on('data', (data) => {
+    stdoutData += data.toString()
+  })
+  
+  subprocess.stderr.on('data', (data) => {
+    stderrData += data.toString()
+  })
+  
+  subprocess.on('close', (code) => {
+    if (code !== 0) {
+      console.error(`Python NLP script failed with code ${code}. Stderr: ${stderrData}`)
+      return resolve(null)
+    }
+    try {
+      const result = JSON.parse(stdoutData.trim())
+      resolve(result)
+    } catch (err) {
+      console.error('Failed to parse Python script output:', err.message, 'Output was:', stdoutData)
+      resolve(null)
+    }
+  })
+  
+  subprocess.stdin.write(text)
+  subprocess.stdin.end()
 }
 
 /**
@@ -404,6 +432,13 @@ Return ONLY valid JSON, no markdown formatting.`
 }
 
 export const processEssayAnalysis = async (essayId, studentId, essayContent, customPrompt, promptMeta = null) => {
+  const cleanContent = (essayContent || '')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n\n')
+    .replace(/<\/div>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .trim();
   const Essay = (await import('../models/Essay.js')).default
   const essayDoc = await Essay.findById(essayId)
   const essayTheme = essayDoc?.theme || 'General'
@@ -425,10 +460,12 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
     console.error('Error fetching past analyses for pattern detection:', err.message)
   }
 
-  // Run both Gemini AI and spaCy Python NLP analysis concurrently
-  const [analysisData, nlpData] = await Promise.all([
-    analyzeEssay(essayContent, customPrompt, pastScoresSummary),
-    runNLPAnalysis(essayContent)
+  // Run Gemini AI, spaCy Python NLP, cross-student plagiarism check, and AI writing detection concurrently
+  const [analysisData, nlpData, plagiarismCheck, aiCheck] = await Promise.all([
+    analyzeEssay(cleanContent, customPrompt, pastScoresSummary),
+    runNLPAnalysis(cleanContent),
+    checkCrossStudentPlagiarism(essayId, cleanContent),
+    detectAIWriting(cleanContent)
   ])
 
   let nlpStats;
@@ -440,7 +477,7 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
     }
   } else {
     // JavaScript fallback for NLP statistics (especially repeated words) when Python/spaCy is unavailable
-    const words = essayContent.toLowerCase().match(/[a-z']+/g) || []
+    const words = cleanContent.toLowerCase().match(/[a-z']+/g) || []
     const wordCount = words.length
     
     const stopWords = new Set([
@@ -478,10 +515,10 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
     repeatedWords.sort((a, b) => b.count - a.count)
     
     const passiveRegex = /\b(am|is|are|was|were|be|been|being)\s+(?:[a-z]+ly\s+)?(written|done|taken|seen|known|made|met|built|chosen|drawn|driven|eaten|fallen|given|grown|held|kept|lost|paid|sent|shown|told|understood|worn|[a-z]+ed)\b/gi
-    const passiveVoiceCount = (essayContent.match(passiveRegex) || []).length
+    const passiveVoiceCount = (cleanContent.match(passiveRegex) || []).length
 
     const subordinateRegex = /\b(although|because|since|unless|while|whereas|if|though)\b/gi
-    const subordinateClausesCount = (essayContent.match(subordinateRegex) || []).length
+    const subordinateClausesCount = (cleanContent.match(subordinateRegex) || []).length
 
     nlpStats = {
       passiveVoiceCount,
@@ -492,13 +529,13 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
 
   const lexicalDiversity = (nlpData && nlpData.lexicalDiversity)
     ? nlpData.lexicalDiversity
-    : calculateLexicalDiversity(essayContent)
+    : calculateLexicalDiversity(cleanContent)
 
   // Generate advanced suggestions and synonyms for repeated words if any exist
   if (nlpStats && nlpStats.repeatedWords && nlpStats.repeatedWords.length > 0) {
     try {
       const repeatedWordsList = nlpStats.repeatedWords.map(item => item.word)
-      const synonymsMap = await getSynonymsForRepeatedWords(repeatedWordsList, essayContent)
+      const synonymsMap = await getSynonymsForRepeatedWords(repeatedWordsList, cleanContent)
       nlpStats.repeatedWords = nlpStats.repeatedWords.map(item => {
         const lowerWord = item.word.toLowerCase()
         const wordSynonyms = synonymsMap[lowerWord] || synonymsMap[item.word] || []
@@ -512,6 +549,33 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
     } catch (err) {
       console.error('Failed to populate synonym suggestions for repeated words:', err.message)
     }
+  }
+
+  // Merge plagiarism and AI checks results
+  const lp = analysisData.learningPatterns || {
+    paddedSentences: false,
+    plagiarismDetected: false,
+    learningStatus: 'stable',
+    feedback: 'Insufficient historical data to analyze detailed progress trajectory.'
+  }
+
+  const isPlagiarized = lp.plagiarismDetected || (plagiarismCheck && plagiarismCheck.isPlagiarized) || (aiCheck && aiCheck.isAI)
+  lp.plagiarismDetected = isPlagiarized
+
+  let plagiarismType = 'none'
+  if (plagiarismCheck?.isPlagiarized && aiCheck?.isAI) {
+    plagiarismType = 'both'
+  } else if (plagiarismCheck?.isPlagiarized) {
+    plagiarismType = 'cross_student'
+  } else if (aiCheck?.isAI) {
+    plagiarismType = 'ai_generated'
+  }
+
+  const plagiarismDetails = {
+    isPlagiarized,
+    matchedEssay: plagiarismCheck?.matchedEssay || null,
+    similarityScore: plagiarismCheck?.isPlagiarized ? plagiarismCheck.similarityScore : (aiCheck?.isAI ? aiCheck.score : 0),
+    plagiarismType
   }
 
   // Save or update AIAnalysis document
@@ -533,12 +597,8 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
         uniqueWords: nlpData ? nlpData.uniqueWordCount : (analysisData.writingStats?.uniqueWords || 0)
       },
       nlpStats,
-      learningPatterns: analysisData.learningPatterns || {
-        paddedSentences: false,
-        plagiarismDetected: false,
-        learningStatus: 'stable',
-        feedback: 'Insufficient historical data to analyze detailed progress trajectory.'
-      },
+      learningPatterns: lp,
+      plagiarismDetails,
       nextEssaySuggestions: analysisData.nextEssaySuggestions || {
         transitionWords: ['Therefore', 'Moreover', 'In addition', 'However'],
         sentenceStructures: ['Relative clauses', 'Conditional sentence (Type 2)', 'Passive voice variation'],
@@ -568,7 +628,7 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
 
       let enrichedMap = new Map()
       if (wordsToEnrich.length > 0) {
-        const enrichedList = await enrichWordsList(wordsToEnrich, essayContent)
+        const enrichedList = await enrichWordsList(wordsToEnrich, cleanContent)
         enrichedList.forEach(item => {
           if (item && item.word) {
             enrichedMap.set(item.word.toLowerCase(), item)
@@ -1059,6 +1119,94 @@ export const calculateLexicalDiversity = (text) => {
     ttr: Math.round(ttr * 100) / 100,
     hdd: Math.round(hdd * 100) / 100,
     mtld: Math.round(mtld * 10) / 10
+  }
+}
+
+/**
+ * Run AI Helper (Spellcheck / Improve) on text using Groq
+ */
+export const runAIHelperService = async (text, action) => {
+  const activeModel = await getConfigValue('DEFAULT_AI_MODEL', 'llama-3.3-70b-versatile')
+  const apiKey = await getConfigValue('GROQ_API_KEY', process.env.GROQ_API_KEY)
+  const startTime = Date.now()
+
+  try {
+    const Groq = (await import('groq-sdk')).default
+    if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
+      throw new Error('Groq API key is not configured')
+    }
+
+    const groq = new Groq({ apiKey })
+
+    let systemPrompt = ''
+    let userPrompt = text
+
+    if (action === 'improve') {
+      systemPrompt = `You are an expert English writing tutor. Improve/polish the text provided by the student to make it more academic, professional, and coherent. Maintain the same general vocabulary level and meaning but correct awkward phrasing and enhance flow.
+Return ONLY the polished/improved text, without any introductory or explanatory text. Do NOT wrap it in quotes.`
+    } else if (action === 'spellcheck') {
+      systemPrompt = `You are an expert English writing editor. Analyze the student's text for spelling, grammar, punctuation, and usage errors.
+Return a JSON object containing a key "errors" which is an array of error objects. Each object has EXACTLY this format:
+{
+  "error": "<the exact incorrect word/phrase in the text>",
+  "correction": "<the suggested correct version>",
+  "explanation": "<a brief explanation in English of why it is wrong and why the correction is better>"
+}
+
+If there are no errors, return a JSON object with empty errors array: {"errors": []}.
+Return ONLY valid JSON. No markdown formatting, no code blocks.`
+    }
+
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+      model: activeModel,
+      response_format: action === 'spellcheck' ? { type: 'json_object' } : undefined
+    })
+
+    const responseText = chatCompletion.choices[0].message.content.trim()
+
+    let result
+    if (action === 'spellcheck') {
+      let jsonStr = responseText
+      const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
+      if (jsonMatch) {
+        jsonStr = jsonMatch[1].trim()
+      }
+      
+      const parsed = JSON.parse(jsonStr)
+      result = parsed.errors || parsed.errorList || parsed.error || []
+    } else {
+      result = responseText
+    }
+
+    await logAICall({
+      model: activeModel,
+      action: `ai_helper_${action}`,
+      duration: Date.now() - startTime,
+      status: 'success',
+      usage: chatCompletion.usage
+    })
+
+    return result
+  } catch (err) {
+    console.error(`Error in runAIHelperService (${action}):`, err.message)
+    await logAICall({
+      model: activeModel,
+      action: `ai_helper_${action}`,
+      duration: Date.now() - startTime,
+      status: 'failure',
+      errorMessage: err.message
+    })
+    
+    // Fallback response
+    if (action === 'spellcheck') {
+      return []
+    } else {
+      return text
+    }
   }
 }
 

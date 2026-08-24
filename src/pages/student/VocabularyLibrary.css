@@ -84,6 +84,32 @@
   line-height: 1;
 }
 
+/* Game button */
+.vocab-lib__game-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  background-color: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
+  padding: 10px 20px;
+  border-radius: var(--radius-lg);
+  font-weight: 500;
+  border: 1.5px solid transparent;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+}
+
+.vocab-lib__game-btn:hover {
+  background-color: var(--color-secondary-fixed);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.vocab-lib__game-btn:active {
+  transform: translateY(0);
+}
+
 /* Search and Filters */
 .vocab-lib__search {
   display: grid;

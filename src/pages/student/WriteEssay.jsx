@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
 import { useModal } from '../../contexts/ModalContext.jsx'
@@ -33,8 +33,18 @@ export default function WriteEssay() {
   const [assignmentData, setAssignmentData] = useState(null)
   const [allowPaste, setAllowPaste] = useState(true)
   const { showAlert } = useModal()
+  const [aiHelperLoading, setAiHelperLoading] = useState(false)
+  const [spellErrors, setSpellErrors] = useState([])
+  const [wordCount, setWordCount] = useState(0)
+  const editorRef = useRef(null)
 
-  const wordCount = essayText.trim() ? essayText.trim().split(/\s+/).length : 0
+  useEffect(() => {
+    if (editorRef.current && essayText !== undefined && editorRef.current.innerHTML !== essayText) {
+      editorRef.current.innerHTML = essayText
+      const text = editorRef.current.innerText || ''
+      setWordCount(text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0)
+    }
+  }, [essayText])
 
   // Load classes student might be enrolled in (or just list student classes)
   useEffect(() => {
@@ -67,6 +77,11 @@ export default function WriteEssay() {
         const essay = res.data
         setTitle(essay.title)
         setEssayText(essay.content)
+        if (editorRef.current) {
+          editorRef.current.innerHTML = essay.content || ''
+          const text = editorRef.current.innerText || ''
+          setWordCount(text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0)
+        }
         if (essay.class) setSelectedClass(essay.class)
         if (essay.theme) setSelectedTheme(essay.theme)
         if (essay.status) setStatus(essay.status)
@@ -125,7 +140,11 @@ export default function WriteEssay() {
     if (!allowPaste) {
       e.preventDefault()
       showAlert('Paste Restricted', 'Pasting content is not allowed for this essay. Please type your essay manually.', 'warning')
+      return
     }
+    e.preventDefault()
+    const text = e.clipboardData.getData('text/plain')
+    document.execCommand('insertText', false, text)
   }
 
   async function handleSaveDraft() {
@@ -196,6 +215,106 @@ export default function WriteEssay() {
       (assignmentData.dueDate && new Date(assignmentData.dueDate) < new Date())
     )
   )
+
+  const handleEditorInput = () => {
+    if (editorRef.current) {
+      const html = editorRef.current.innerHTML
+      const text = editorRef.current.innerText || ''
+      setEssayText(html)
+      setWordCount(text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0)
+    }
+  }
+
+  const applyFormat = (type) => {
+    if (editorRef.current) {
+      editorRef.current.focus()
+    }
+
+    switch (type) {
+      case 'bold':
+        document.execCommand('bold', false, null)
+        break
+      case 'italic':
+        document.execCommand('italic', false, null)
+        break
+      case 'underline':
+        document.execCommand('underline', false, null)
+        break
+      case 'bullet':
+        document.execCommand('insertUnorderedList', false, null)
+        break
+      case 'number':
+        document.execCommand('insertOrderedList', false, null)
+        break
+      case 'quote':
+        document.execCommand('formatBlock', false, 'blockquote')
+        break
+      default:
+        return
+    }
+    handleEditorInput()
+  }
+
+  const handleAIHelper = async (action) => {
+    if (!editorRef.current) return
+
+    editorRef.current.focus()
+    const selection = window.getSelection()
+    const selectedText = selection.toString().trim()
+    const fullText = editorRef.current.innerText || ''
+
+    const targetText = selectedText || fullText
+    if (!targetText.trim()) {
+      showAlert('No Text', 'Please write something first before using AI Help.', 'warning')
+      return
+    }
+
+    setAiHelperLoading(true)
+    try {
+      const res = await api.post('/essays/ai-helper', { text: targetText, action })
+      
+      if (action === 'improve') {
+        const improvedText = res.data
+        if (selectedText && selection.rangeCount > 0) {
+          const range = selection.getRangeAt(0)
+          range.deleteContents()
+          const textNode = document.createTextNode(improvedText)
+          range.insertNode(textNode)
+          
+          range.setStartAfter(textNode)
+          range.setEndAfter(textNode)
+          selection.removeAllRanges()
+          selection.addRange(range)
+        } else {
+          editorRef.current.innerHTML = improvedText.replace(/\n/g, '<br>')
+        }
+        handleEditorInput()
+        showAlert('AI Improved', 'AI has successfully enhanced your writing style!', 'success')
+      } else if (action === 'spellcheck') {
+        const errors = res.data || []
+        setSpellErrors(errors)
+        if (errors.length === 0) {
+          showAlert('Great Job!', 'No spelling or grammar errors found!', 'success')
+        } else {
+          showAlert('Review Errors', `AI found ${errors.length} grammar/spelling errors. Check the sidebar for suggestions!`, 'info')
+        }
+      }
+    } catch (err) {
+      console.error('AI Helper error:', err)
+      showAlert('AI Helper Failed', err.message || 'Failed to process with AI helper.', 'error')
+    } finally {
+      setAiHelperLoading(false)
+    }
+  }
+
+  const applyCorrection = (errorText, correctionText) => {
+    if (!editorRef.current) return
+    const html = editorRef.current.innerHTML
+    const newHtml = html.replace(new RegExp(`\\b${errorText}\\b`, 'g'), correctionText)
+    editorRef.current.innerHTML = newHtml
+    handleEditorInput()
+    setSpellErrors(prev => prev.filter(e => e.error !== errorText))
+  }
 
   return (
     <div className="write-essay">
@@ -294,33 +413,46 @@ export default function WriteEssay() {
           {/* Editor */}
           <div className="write-essay__editor card-base">
             {/* Toolbar */}
-            <div className="write-essay__toolbar">
+            <div className="write-essay__toolbar" style={{ pointerEvents: aiHelperLoading ? 'none' : 'auto', opacity: aiHelperLoading ? 0.6 : 1 }}>
               <div className="write-essay__toolbar-group">
-                <button className="write-essay__tool-btn"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>format_bold</span></button>
-                <button className="write-essay__tool-btn"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>format_italic</span></button>
-                <button className="write-essay__tool-btn"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>format_underlined</span></button>
+                <button type="button" className="write-essay__tool-btn" onClick={() => applyFormat('bold')} title="Bold"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>format_bold</span></button>
+                <button type="button" className="write-essay__tool-btn" onClick={() => applyFormat('italic')} title="Italic"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>format_italic</span></button>
+                <button type="button" className="write-essay__tool-btn" onClick={() => applyFormat('underline')} title="Underline"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>format_underlined</span></button>
               </div>
+
               <div className="write-essay__toolbar-divider" />
               <div className="write-essay__toolbar-group">
-                <button className="write-essay__tool-btn"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>format_list_bulleted</span></button>
-                <button className="write-essay__tool-btn"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>format_list_numbered</span></button>
-                <button className="write-essay__tool-btn"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>format_quote</span></button>
+                <button type="button" className="write-essay__tool-btn" onClick={() => handleAIHelper('spellcheck')} title="AI Spellcheck & Grammar"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>spellcheck</span></button>
+                <button type="button" className="write-essay__tool-btn" onClick={() => handleAIHelper('improve')} title="AI Auto-Fix / Improve"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>auto_fix_high</span></button>
               </div>
-              <div className="write-essay__toolbar-divider" />
-              <div className="write-essay__toolbar-group">
-                <button className="write-essay__tool-btn"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>spellcheck</span></button>
-                <button className="write-essay__tool-btn"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>auto_fix_high</span></button>
-              </div>
+              {aiHelperLoading && (
+                <span className="text-label-sm" style={{ color: 'var(--color-primary)', marginLeft: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <span className="material-symbols-outlined animate-spin" style={{ fontSize: 16 }}>sync</span>
+                  AI processing...
+                </span>
+              )}
             </div>
 
             {/* Text Area */}
-            <textarea
+            {/* Rich Editor Area */}
+            <div
+              ref={editorRef}
               className="write-essay__textarea"
-              placeholder="Start writing your essay here..."
-              value={essayText}
-              onChange={(e) => setEssayText(e.target.value)}
+              contentEditable="true"
+              onInput={handleEditorInput}
               onPaste={handlePaste}
-              rows={16}
+              style={{
+                outline: 'none',
+                minHeight: '400px',
+                padding: '16px',
+                border: '1px solid var(--color-outline-variant)',
+                borderRadius: '8px',
+                backgroundColor: 'var(--color-surface-container-lowest)',
+                color: 'var(--color-on-surface)',
+                overflowY: 'auto',
+                textAlign: 'left'
+              }}
+              placeholder="Start writing your essay here..."
             />
 
             {/* Footer */}
@@ -337,6 +469,52 @@ export default function WriteEssay() {
 
         {/* Side Panel */}
         <div className="write-essay__side">
+          {/* AI Spellcheck & Grammar Results */}
+          {spellErrors.length > 0 && (
+            <div className="card-base" style={{ borderLeft: '4px solid var(--color-error)' }}>
+              <h3 className="text-title-lg" style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-error)' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: 22 }}>spellcheck</span>
+                Grammar & Spelling ({spellErrors.length})
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxHeight: '350px', overflowY: 'auto', paddingRight: '4px' }}>
+                {spellErrors.map((err, idx) => (
+                  <div key={idx} style={{ 
+                    padding: '10px 12px', 
+                    borderRadius: '8px', 
+                    backgroundColor: 'var(--color-surface-container-low)', 
+                    border: '1px solid var(--color-outline-variant)' 
+                  }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center', marginBottom: 6 }}>
+                      <span style={{ textDecoration: 'line-through', color: 'var(--color-error)', fontSize: '13px', fontWeight: 600 }}>
+                        {err.error}
+                      </span>
+                      <span className="material-symbols-outlined" style={{ fontSize: 14, color: 'var(--color-outline)' }}>
+                        arrow_forward
+                      </span>
+                      <span style={{ color: 'var(--color-success)', fontSize: '13px', fontWeight: 700, backgroundColor: 'rgba(22, 163, 74, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>
+                        {err.correction}
+                      </span>
+                    </div>
+                    {err.explanation && (
+                      <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)', fontSize: '12px', lineHeight: 1.4, marginBottom: 8 }}>
+                        {err.explanation}
+                      </p>
+                    )}
+                    <button 
+                      type="button"
+                      className="write-essay__btn-secondary" 
+                      style={{ padding: '4px 8px', fontSize: '11px', width: '100%', justifyContent: 'center' }}
+                      onClick={() => applyCorrection(err.error, err.correction)}
+                    >
+                      <span className="material-symbols-outlined" style={{ fontSize: 13 }}>done</span>
+                      Apply Suggestion
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Assignment Brief Card — shown only in assignment mode */}
           {assignmentData && (
             <div className="card-base" style={{ borderLeft: '4px solid var(--color-primary)' }}>

@@ -4,6 +4,7 @@ import {
   updateEssay, submitEssay, deleteEssay,
   getEssaysByStudent, getSuggestedTopics,
   requestRevision, getPasteConfig,
+  runAIHelper,
 } from '../controllers/essay.controller.js'
 import { protect, authorize } from '../middleware/auth.middleware.js'
 
@@ -15,6 +16,7 @@ router.route('/')
   .post(authorize('student'), createEssay)
   .get(authorize('student'), getEssays)
 
+router.post('/ai-helper', authorize('student'), runAIHelper)
 router.get('/paste-config', authorize('student'), getPasteConfig)
 router.get('/suggest-topics', authorize('student'), getSuggestedTopics)
 

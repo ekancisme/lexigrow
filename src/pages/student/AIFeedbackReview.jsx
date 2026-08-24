@@ -461,9 +461,7 @@ export default function AIFeedbackReview() {
                   color: 'var(--color-on-surface)',
                   fontSize: 'var(--text-body-md-size)',
                   textAlign: 'left'
-                }}>
-                  {essay?.content}
-                </div>
+                }} dangerouslySetInnerHTML={{ __html: essay?.content || '' }} />
               </div>
             )}
           </div>
@@ -584,21 +582,47 @@ export default function AIFeedbackReview() {
                 }}>
                   <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>Plagiarism / Copy-Paste Check</span>
                   {analysis.learningPatterns.plagiarismDetected ? (
-                    <span style={{ 
-                      display: 'inline-flex', 
-                      alignItems: 'center', 
-                      gap: 6, 
-                      padding: '6px 12px', 
-                      borderRadius: '20px', 
-                      backgroundColor: 'var(--color-error-container)', 
-                      color: 'var(--color-error)', 
-                      fontSize: '13px', 
-                      fontWeight: 700,
-                      alignSelf: 'flex-start'
-                    }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: 16 }}>gavel</span>
-                      Potential copy-paste detected
-                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
+                      <span style={{ 
+                        display: 'inline-flex', 
+                        alignItems: 'center', 
+                        gap: 6, 
+                        padding: '6px 12px', 
+                        borderRadius: '20px', 
+                        backgroundColor: 'var(--color-error-container)', 
+                        color: 'var(--color-error)', 
+                        fontSize: '13px', 
+                        fontWeight: 700,
+                        alignSelf: 'flex-start'
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>gavel</span>
+                        Potential copy-paste detected
+                      </span>
+                      {analysis.plagiarismDetails && analysis.plagiarismDetails.plagiarismType !== 'none' && (
+                        <div style={{ 
+                          fontSize: '12px', 
+                          color: 'var(--color-error)', 
+                          fontWeight: 500,
+                          textAlign: 'left',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4
+                        }}>
+                          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>info</span>
+                          <span>
+                            {analysis.plagiarismDetails.plagiarismType === 'cross_student' && (
+                              `Matches another student's essay (${Math.round(analysis.plagiarismDetails.similarityScore * 100)}% similarity).`
+                            )}
+                            {analysis.plagiarismDetails.plagiarismType === 'ai_generated' && (
+                              `Likely AI-generated content (Confidence: ${Math.round(analysis.plagiarismDetails.similarityScore * 100)}%).`
+                            )}
+                            {analysis.plagiarismDetails.plagiarismType === 'both' && (
+                              `Plagiarized from student & AI detected (Similarity: ${Math.round(analysis.plagiarismDetails.similarityScore * 100)}%).`
+                            )}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     <span style={{ 
                       display: 'inline-flex', 

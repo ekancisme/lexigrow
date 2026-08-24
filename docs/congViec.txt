@@ -11,7 +11,7 @@ Nhiệm vụ cụ thể:
 1. [UC31] Phân tích cú pháp văn bản (SpaCy parser: POS tagging, auxpass, clauses).
 2. [UC35] Đo lường độ đa dạng từ vựng thực sự (Thuật toán MTLD và HD-D).
 3. [UC32] Làm giàu từ vựng tự động qua AI (API tra cứu phiên âm IPA, định nghĩa, ví dụ ngữ cảnh, synonyms/antonyms).
-4. [UC34] Phân tích hành vi viết bài nâng cao (Phát hiện padding nhồi từ để tăng độ dài, phát hiện đạo văn).
+4. [UC34] Phân tích hành vi viết bài nâng cao (Phát hiện padding nhồi từ để tăng độ dài, phát hiện đạo văn - HOÀN THÀNH).
 5. [API Translation] Xây dựng API tiếp nhận văn bản bôi đen để dịch sang tiếng Việt bằng LLM.
 6. [Admin - AI Monitoring] Trang Admin giám sát logs API Groq, thống kê request, độ trễ (latency), tỷ lệ thành công của AI (AdminAIMonitoring.jsx).
 7. [Realtime Services] Xây dựng máy chủ Socket (socket.service.js) và tích hợp các tính năng truyền tin thời gian thực:

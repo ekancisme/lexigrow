@@ -1,0 +1,504 @@
+/* ==========================================================================
+   Word Matching Game Stylesheet
+   Theme: LexiGrow Material Design 3 (Blue)
+   ========================================================================== */
+
+.word-match-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
+  padding: var(--spacing-md);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── 1. Configuration Panel & Victory Card ── */
+.match-card {
+  max-width: 580px;
+  width: 100%;
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-surface-variant);
+  box-shadow: var(--shadow-md);
+  animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.config-icon {
+  font-size: 56px;
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.config-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.pair-count-selector {
+  display: grid;
+  grid-template-cols: repeat(3, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.pair-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md) var(--spacing-sm);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-surface-variant);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.pair-btn:hover {
+  background: var(--color-surface-container);
+  border-color: var(--color-primary-fixed);
+}
+
+.pair-btn--active {
+  background: var(--color-primary-fixed);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary-fixed);
+}
+
+.pair-number {
+  font-size: var(--font-headline-sm);
+  font-weight: var(--weight-bold);
+}
+
+.pair-label {
+  font-size: var(--font-label-sm);
+  opacity: 0.8;
+}
+
+.category-select {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--color-surface-variant);
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  font-size: var(--font-body-md);
+  outline: none;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.category-select:focus {
+  border-color: var(--color-primary);
+}
+
+.start-game-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+  padding: 14px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-title-md);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.start-game-btn:hover {
+  background: var(--color-primary-container);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+/* ── 2. Loading State ── */
+.loading-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.loading-spinner {
+  font-size: 48px;
+  color: var(--color-primary);
+}
+
+/* ── 3. Gameplay Layout ── */
+.gameplay-container {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  animation: fade-in 0.3s ease-out;
+}
+
+.gameplay-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 1.5px dashed var(--color-surface-variant);
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
+  background: transparent;
+  border: 1px solid var(--color-surface-variant);
+  color: var(--color-on-surface-variant);
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-weight: var(--weight-medium);
+  transition: all var(--transition-fast);
+}
+
+.back-btn:hover {
+  background: var(--color-surface-container);
+  color: var(--color-on-surface);
+}
+
+.stats-row {
+  display: flex;
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+.stat-pill {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
+  background: var(--color-surface-container-high);
+  border: 1.5px solid var(--color-surface-variant);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-label-md);
+  font-weight: var(--weight-medium);
+  color: var(--color-on-surface-variant);
+}
+
+/* ── 4. Card Grids ── */
+.cards-grid {
+  display: grid;
+  gap: var(--spacing-sm);
+  width: 100%;
+  margin-top: var(--spacing-sm);
+}
+
+.grid-cols-4 {
+  grid-template-cols: repeat(4, 1fr);
+}
+
+.grid-cols-5 {
+  grid-template-cols: repeat(5, 1fr);
+}
+
+@media (max-width: 768px) {
+  .grid-cols-4, .grid-cols-5 {
+    grid-template-cols: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .grid-cols-4, .grid-cols-5 {
+    grid-template-cols: repeat(2, 1fr);
+  }
+}
+
+/* ── 5. Card Component & Flip Effects ── */
+.match-card-item {
+  height: 140px;
+  perspective: 1000px; /* 3D effect container */
+  cursor: pointer;
+}
+
+.card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-xl);
+}
+
+/* When flipped, rotate the card inner */
+.match-card-item.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+.card-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden; /* Hide the reverse face during flip */
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: var(--spacing-sm);
+  box-sizing: border-box;
+}
+
+/* Front face (Face Down) */
+.card-front {
+  background: linear-gradient(135deg, var(--color-primary-container), var(--color-primary));
+  color: var(--color-on-primary);
+  border: 1px solid var(--color-primary);
+}
+
+.card-logo {
+  font-size: 36px;
+  animation: pulse-slow 3s infinite ease-in-out;
+}
+
+/* Back face (Face Up) */
+.card-back {
+  background: var(--color-surface-container-lowest);
+  border: 2px solid var(--color-primary-fixed);
+  color: var(--color-on-surface);
+  transform: rotateY(180deg); /* Pre-rotated back side */
+  overflow: hidden;
+  box-shadow: inset 0 0 10px rgba(0, 91, 191, 0.03);
+}
+
+/* Distinctive highlights for Word vs Definition */
+.card-back.word {
+  border-color: var(--color-primary);
+  background: var(--color-primary-fixed);
+  color: var(--color-on-primary-fixed);
+}
+
+.card-back.def {
+  border-color: var(--color-secondary);
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+}
+
+/* Match states */
+.match-card-item.matched {
+  cursor: default;
+  pointer-events: none;
+}
+
+.match-card-item.matched .card-back {
+  border-color: var(--color-secondary-fixed);
+  background: var(--color-surface-container);
+  opacity: 0.65;
+  transition: opacity 0.5s ease;
+}
+
+.card-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  gap: var(--spacing-xxs);
+}
+
+.card-type-indicator {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  opacity: 0.6;
+  font-weight: var(--weight-bold);
+}
+
+.word-text {
+  font-size: var(--font-title-md);
+  word-break: break-word;
+}
+
+.word-ipa {
+  font-size: var(--font-body-xs);
+  font-family: monospace;
+  opacity: 0.8;
+  color: var(--color-on-primary-fixed-variant);
+}
+
+.definition-text {
+  font-size: var(--font-body-sm);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+/* ── 6. Victory Panel ── */
+.victory-panel {
+  max-width: 620px;
+}
+
+.victory-crown {
+  margin-top: -40px;
+}
+
+.crown-icon {
+  font-size: 72px;
+  color: #FFB300;
+  filter: drop-shadow(0px 4px 10px rgba(255, 179, 0, 0.4));
+  animation: bounce-slow 2s infinite ease-in-out;
+}
+
+.score-summary-grid {
+  display: grid;
+  grid-template-cols: repeat(4, 1fr);
+  gap: var(--spacing-sm);
+  margin: var(--spacing-md) 0;
+}
+
+.summary-item {
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-variant);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-sm) var(--spacing-xxs);
+}
+
+.summary-value {
+  display: block;
+  font-size: var(--font-title-lg);
+  font-weight: var(--weight-bold);
+  color: var(--color-primary);
+}
+
+.summary-label {
+  display: block;
+  font-size: var(--font-label-sm);
+  color: var(--color-on-surface-variant);
+}
+
+.victory-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.play-again-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xxs);
+  padding: 12px;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-title-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.play-again-btn:hover {
+  background: var(--color-primary-container);
+}
+
+.return-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xxs);
+  padding: 12px;
+  background: transparent;
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-title-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.return-btn:hover {
+  background: rgba(0, 91, 191, 0.05);
+}
+
+/* ── 7. Confetti Keyframes ── */
+.confetti-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.confetti-particle {
+  position: absolute;
+  top: -20px;
+  border-radius: 2px;
+  animation: fall 4s infinite linear;
+}
+
+@keyframes fall {
+  0% {
+    top: -20px;
+    transform: translateY(0) rotate(0deg) translateX(0);
+    opacity: 1;
+  }
+  80% {
+    opacity: 0.8;
+  }
+  100% {
+    top: 100%;
+    transform: translateY(100vh) rotate(720deg) translateX(100px);
+    opacity: 0;
+  }
+}
+
+/* ── 8. Utility animations ── */
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes bounce-slow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}

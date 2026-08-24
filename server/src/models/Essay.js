@@ -63,10 +63,16 @@ const essaySchema = new mongoose.Schema({
 // Calculate text stats before saving
 essaySchema.pre('save', function () {
   if (this.isModified('content') && this.content) {
-    const text = this.content.trim()
-    this.wordCount = text ? text.split(/\s+/).length : 0
-    this.paragraphCount = text ? text.split(/\n\n+/).filter(Boolean).length : 0
-    this.sentenceCount = text ? text.split(/[.!?]+/).filter(Boolean).length : 0
+    const cleanText = this.content
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>/gi, '\n\n')
+      .replace(/<\/div>/gi, '\n')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .trim();
+    this.wordCount = cleanText ? cleanText.split(/\s+/).filter(Boolean).length : 0
+    this.paragraphCount = cleanText ? cleanText.split(/\n\n+/).filter(Boolean).length : 0
+    this.sentenceCount = cleanText ? cleanText.split(/[.!?]+/).filter(Boolean).length : 0
     this.readingTime = Math.max(1, Math.ceil(this.wordCount / 200))
   }
 })

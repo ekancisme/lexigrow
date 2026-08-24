@@ -154,6 +154,13 @@ export default function VocabularyLibrary() {
             </button>
           )}
           <button 
+            className="vocab-lib__game-btn"
+            onClick={() => navigate('/student/game')}
+          >
+            <span className="material-symbols-outlined">sports_esports</span>
+            <span>Play Games</span>
+          </button>
+          <button 
             className="vocab-lib__add-btn" 
             onClick={() => setIsAddModalOpen(true)}
           >

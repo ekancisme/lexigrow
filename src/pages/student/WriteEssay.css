@@ -202,3 +202,20 @@
   color: #fff;
   font-weight: 600;
 }
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1.5s linear infinite;
+  display: inline-block;
+}
+
+/* Placeholder style for contenteditable */
+.write-essay__textarea[contentEditable="true"]:empty:before {
+  content: attr(placeholder);
+  color: var(--color-outline);
+  cursor: text;
+}

@@ -68,6 +68,16 @@ const aiAnalysisSchema = new mongoose.Schema({
     sentenceStructures: [{ type: String, trim: true }],
     generalTips: { type: String, default: '' }
   },
+  plagiarismDetails: {
+    isPlagiarized: { type: Boolean, default: false },
+    matchedEssay: { type: mongoose.Schema.Types.ObjectId, ref: 'Essay', default: null },
+    similarityScore: { type: Number, default: 0 },
+    plagiarismType: { 
+      type: String, 
+      enum: ['ai_generated', 'cross_student', 'both', 'none'], 
+      default: 'none' 
+    }
+  },
   // Track which system prompt was used for this analysis
   promptUsed: {
     name: { type: String, default: 'Default System Prompt' },

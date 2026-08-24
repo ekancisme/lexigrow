@@ -17,6 +17,11 @@ import SetWeeklyGoals from './pages/student/SetWeeklyGoals'
 import AIFeedbackReview from './pages/student/AIFeedbackReview'
 import VocabularyLibrary from './pages/student/VocabularyLibrary'
 import FlashcardReview from './pages/student/FlashcardReview'
+import GameHub from './pages/game/GameHub'
+import WordMatching from './pages/game/WordMatching'
+import WordScramble from './pages/game/WordScramble'
+import ContextFiller from './pages/game/ContextFiller'
+import VocabHunter from './pages/game/VocabHunter'
 import EssayHistory from './pages/student/EssayHistory'
 import StudentClassDetail from './pages/student/StudentClassDetail'
 
@@ -113,6 +118,11 @@ function App() {
           <Route path="write-essay" element={<WriteEssay />} />
           <Route path="vocabulary" element={<VocabularyLibrary />} />
           <Route path="vocabulary/review" element={<FlashcardReview />} />
+          <Route path="game" element={<GameHub />} />
+          <Route path="game/matching" element={<WordMatching />} />
+          <Route path="game/scramble" element={<WordScramble />} />
+          <Route path="game/filler" element={<ContextFiller />} />
+          <Route path="game/hunter" element={<VocabHunter />} />
           <Route path="essays" element={<EssayHistory />} />
           <Route path="progress" element={<MyProgress />} />
           <Route path="goals" element={<SetWeeklyGoals />} />

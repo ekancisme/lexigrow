@@ -12,11 +12,13 @@ export default function AdminSettings() {
   const [showGroq, setShowGroq] = useState(false)
   const [showOpenAI, setShowOpenAI] = useState(false)
   const [showLlama, setShowLlama] = useState(false)
+  const [showHf, setShowHf] = useState(false)
 
   // Local state variables for form inputs
   const [groqKey, setGroqKey] = useState('')
   const [openAIKey, setOpenAIKey] = useState('')
   const [llamaKey, setLlamaKey] = useState('')
+  const [hfToken, setHfToken] = useState('')
   const [defaultModel, setDefaultModel] = useState('llama-3.3-70b-versatile')
   const [systemPrompt, setSystemPrompt] = useState('')
   const [allowPasteEssay, setAllowPasteEssay] = useState(true)
@@ -32,19 +34,21 @@ export default function AdminSettings() {
         const groq = data.find(c => c.key === 'GROQ_API_KEY')
         const openai = data.find(c => c.key === 'OPENAI_API_KEY')
         const llama = data.find(c => c.key === 'LLAMA_API_KEY')
+        const hf = data.find(c => c.key === 'HF_API_TOKEN')
         const model = data.find(c => c.key === 'DEFAULT_AI_MODEL')
         const prompt = data.find(c => c.key === 'SYSTEM_ANALYSIS_PROMPT')
 
         if (groq) setGroqKey(groq.value || '')
         if (openai) setOpenAIKey(openai.value || '')
         if (llama) setLlamaKey(llama.value || '')
+        if (hf) setHfToken(hf.value || '')
         if (model) setDefaultModel(model.value || 'llama-3.3-70b-versatile')
         if (prompt) setSystemPrompt(prompt.value || '')
         const paste = data.find(c => c.key === 'ALLOW_PASTE_ESSAY')
         if (paste) setAllowPasteEssay(paste.value === 'true' || paste.value === true)
       } catch (err) {
         console.error('Error fetching system settings:', err)
-        setError(err.message || 'Không thể tải cấu hình hệ thống')
+        setError(err.message || 'Could not load system configuration')
       } finally {
         setLoading(false)
       }
@@ -63,13 +67,14 @@ export default function AdminSettings() {
         { key: 'GROQ_API_KEY', value: groqKey },
         { key: 'OPENAI_API_KEY', value: openAIKey },
         { key: 'LLAMA_API_KEY', value: llamaKey },
+        { key: 'HF_API_TOKEN', value: hfToken },
         { key: 'DEFAULT_AI_MODEL', value: defaultModel },
         { key: 'SYSTEM_ANALYSIS_PROMPT', value: systemPrompt },
         { key: 'ALLOW_PASTE_ESSAY', value: allowPasteEssay.toString() }
       ]
 
       await api.put('/admin/config', { settings: payload })
-      setSuccessMsg('Đã lưu cấu hình hệ thống thành công!')
+      setSuccessMsg('System configuration saved successfully!')
       
       // Auto clear success message after 3 seconds
       setTimeout(() => {
@@ -77,7 +82,7 @@ export default function AdminSettings() {
       }, 3000)
     } catch (err) {
       console.error('Error saving settings:', err)
-      setError(err.message || 'Không thể cập nhật cấu hình hệ thống')
+      setError(err.message || 'Could not update system configuration')
     } finally {
       setSaving(false)
     }
@@ -137,7 +142,7 @@ Rules:
         <span className="material-symbols-outlined animate-spin" style={{ fontSize: 32, color: 'var(--color-primary)' }}>
           progress_activity
         </span>
-        <p style={{ color: 'var(--color-outline)', fontSize: '14px' }}>Đang tải thông tin cấu hình...</p>
+        <p style={{ color: 'var(--color-outline)', fontSize: '14px' }}>Loading configuration details...</p>
       </div>
     )
   }
@@ -145,8 +150,8 @@ Rules:
   return (
     <div className="admin-card card-base" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div className="admin-card__header" style={{ marginBottom: 0, paddingBottom: '16px' }}>
-        <h3 className="admin-card__title">Cấu hình Hệ thống</h3>
-        <p className="admin-card__desc">Quản lý API Keys, mô hình AI mặc định và mẫu System Prompt dùng để chấm điểm bài viết toàn hệ thống.</p>
+        <h3 className="admin-card__title">System Configuration</h3>
+        <p className="admin-card__desc">Manage API Keys, default AI model, and the AI System Prompt template used for grading student essays across the system.</p>
       </div>
 
       <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -164,7 +169,7 @@ Rules:
                   type={showGroq ? 'text' : 'password'}
                   value={groqKey}
                   onChange={(e) => setGroqKey(e.target.value)}
-                  placeholder="Nhập Groq API Key..."
+                  placeholder="Enter Groq API Key..."
                   style={{
                     width: '100%',
                     padding: '10px 40px 10px 12px',
@@ -199,13 +204,13 @@ Rules:
 
             {/* OpenAI Key */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface)' }}>OpenAI API Key (Tùy chọn)</label>
+              <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface)' }}>OpenAI API Key (Optional)</label>
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <input
                   type={showOpenAI ? 'text' : 'password'}
                   value={openAIKey}
                   onChange={(e) => setOpenAIKey(e.target.value)}
-                  placeholder="Nhập OpenAI API Key..."
+                  placeholder="Enter OpenAI API Key..."
                   style={{
                     width: '100%',
                     padding: '10px 40px 10px 12px',
@@ -240,13 +245,13 @@ Rules:
 
             {/* Llama Key */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface)' }}>Llama API Key (Tùy chọn)</label>
+              <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface)' }}>Llama API Key (Optional)</label>
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <input
                   type={showLlama ? 'text' : 'password'}
                   value={llamaKey}
                   onChange={(e) => setLlamaKey(e.target.value)}
-                  placeholder="Nhập Llama API Key..."
+                  placeholder="Enter Llama API Key..."
                   style={{
                     width: '100%',
                     padding: '10px 40px 10px 12px',
@@ -278,13 +283,54 @@ Rules:
                 </button>
               </div>
             </div>
+
+            {/* Hugging Face Token */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <label style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-on-surface)' }}>Hugging Face API Token (Optional)</label>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <input
+                  type={showHf ? 'text' : 'password'}
+                  value={hfToken}
+                  onChange={(e) => setHfToken(e.target.value)}
+                  placeholder="Enter Hugging Face API Token..."
+                  style={{
+                    width: '100%',
+                    padding: '10px 40px 10px 12px',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--color-outline-variant)',
+                    background: 'var(--color-surface-container-lowest)',
+                    color: 'var(--color-on-surface)',
+                    fontSize: '14px'
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowHf(!showHf)}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--color-outline)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                    {showHf ? 'visibility_off' : 'visibility'}
+                  </span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
         {/* Row 2: Default AI Model */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <label style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Mô hình AI Mặc định</label>
-          <p style={{ fontSize: '12px', color: 'var(--color-outline)', marginTop: '-4px' }}>Chọn LLM model chính để xử lý phân tích và chấm điểm bài luận.</p>
+          <label style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-on-surface)' }}>Default AI Model</label>
+          <p style={{ fontSize: '12px', color: 'var(--color-outline)', marginTop: '-4px' }}>Select the primary LLM model to handle essay analysis and scoring.</p>
           <select
             value={defaultModel}
             onChange={(e) => setDefaultModel(e.target.value)}
@@ -300,9 +346,9 @@ Rules:
               cursor: 'pointer'
             }}
           >
-            <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile (Khuyên dùng - Nhanh & Chính xác)</option>
-            <option value="llama-3.1-8b-instant">llama-3.1-8b-instant (Cực nhanh - Chi phí thấp)</option>
-            <option value="mixtral-8x7b-32768">mixtral-8x7b-32768 (Xử lý ngữ cảnh dài)</option>
+            <option value="llama-3.3-70b-versatile">llama-3.3-70b-versatile (Recommended - Fast & Accurate)</option>
+            <option value="llama-3.1-8b-instant">llama-3.1-8b-instant (Extremely Fast - Low Cost)</option>
+            <option value="mixtral-8x7b-32768">mixtral-8x7b-32768 (Long Context Handling)</option>
             <option value="gemma2-9b-it">gemma2-9b-it (Google Gemma 2)</option>
           </select>
         </div>
@@ -310,9 +356,9 @@ Rules:
         {/* Row 2.5: Student Paste Essay Policy Switch */}
         <div className="switch-container" style={{ maxWidth: '400px' }}>
           <div className="switch-label-group">
-            <span className="switch-title">Cho phép học sinh paste bài viết</span>
+            <span className="switch-title">Allow students to paste essays</span>
             <span className="switch-description">
-              Bật để cho phép học sinh copy-paste bài luận. Tắt để chặn sự kiện paste, buộc học sinh phải tự gõ.
+              Enable to allow students to copy-paste essays. Disable to block paste events and force manual typing.
             </span>
           </div>
           <label className="switch-toggle">
@@ -345,11 +391,11 @@ Rules:
               }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>restore</span>
-              Khôi phục mẫu mặc định
+              Restore default template
             </button>
           </div>
           <p style={{ fontSize: '12px', color: 'var(--color-outline)', marginTop: '-4px' }}>
-            Điều chỉnh prompt chỉ thị hệ thống. Prompt này quy định tiêu chí chấm điểm IELTS, cấu trúc phân tích JSON và cách phát hiện lỗi đạo văn/độn chữ.
+            Adjust the system instruction prompt. This prompt dictates IELTS grading criteria, JSON analysis structure, and plagiarism/word padding detection methods.
           </p>
           <textarea
             value={systemPrompt}
@@ -409,12 +455,12 @@ Rules:
           {saving ? (
             <>
               <span className="material-symbols-outlined animate-spin" style={{ fontSize: '18px' }}>autorenew</span>
-              Đang lưu cấu hình...
+              Saving configuration...
             </>
           ) : (
             <>
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>save</span>
-              Lưu Cấu Hình
+              Save Configuration
             </>
           )}
         </button>

@@ -29,6 +29,7 @@ const connectDB = async () => {
         { key: 'GROQ_API_KEY', value: process.env.GROQ_API_KEY || '', description: 'Groq API Key' },
         { key: 'OPENAI_API_KEY', value: process.env.OPENAI_API_KEY || '', description: 'OpenAI API Key' },
         { key: 'LLAMA_API_KEY', value: process.env.LLAMA_API_KEY || '', description: 'Llama API Key' },
+        { key: 'HF_API_TOKEN', value: process.env.HF_API_TOKEN || '', description: 'Hugging Face API Token' },
         { key: 'DEFAULT_AI_MODEL', value: 'llama-3.3-70b-versatile', description: 'Default AI Model for Analysis' },
         { key: 'SYSTEM_ANALYSIS_PROMPT', value: DEFAULT_ANALYSIS_PROMPT, description: 'System Analysis Prompt Template' },
         { key: 'ALLOW_PASTE_ESSAY', value: 'true', description: 'Cho phép học sinh paste bài viết essay (true/false)' },

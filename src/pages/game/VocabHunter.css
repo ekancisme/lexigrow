@@ -1,0 +1,242 @@
+/* ==========================================================================
+   Vocab Hunter Stylesheet
+   ========================================================================== */
+
+.hunter-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
+  padding: var(--spacing-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.hunter-card {
+  max-width: 600px;
+  width: 100%;
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-surface-variant);
+  box-shadow: var(--shadow-md);
+  animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.config-icon-hunter {
+  font-size: 56px;
+  color: #B35C00;
+  margin-bottom: var(--spacing-sm);
+}
+
+.speed-selector {
+  display: grid;
+  grid-template-cols: repeat(3, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.speed-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md) var(--spacing-sm);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-surface-variant);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.speed-btn:hover {
+  background: var(--color-surface-container);
+  border-color: var(--color-primary-fixed);
+}
+
+.speed-btn--active {
+  background: var(--color-primary-fixed);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary-fixed);
+}
+
+.speed-title {
+  font-size: var(--font-title-sm);
+  font-weight: var(--weight-bold);
+}
+
+.speed-desc {
+  font-size: var(--font-label-sm);
+  opacity: 0.8;
+}
+
+.start-game-btn-hunter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  width: 100%;
+  padding: 14px;
+  background: #B35C00;
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-title-md);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.start-game-btn-hunter:hover {
+  background: #CC6A00;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+/* Gameplay Layout */
+.hunter-gameplay-container {
+  width: 100%;
+  max-width: 660px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  animation: fade-in 0.3s ease-out;
+}
+
+.lives-display {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--color-surface-container-high);
+  border: 1.5px solid var(--color-surface-variant);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+}
+
+.heart-icon {
+  font-size: 20px;
+  transition: transform 0.2s ease;
+}
+
+.target-definition-box {
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--color-surface-container);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-surface-variant);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.definition-tag-hunter {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #B35C00;
+  font-weight: var(--weight-bold);
+}
+
+.definition-phrase {
+  font-size: var(--font-title-md);
+  line-height: 1.45;
+  color: var(--color-on-surface);
+}
+
+/* Falling Bubbles Canvas Area */
+.hunter-canvas-area {
+  position: relative;
+  width: 100%;
+  height: 400px;
+  background: radial-gradient(circle at bottom, var(--color-surface-container-low), var(--color-surface-container-lowest));
+  border-radius: var(--radius-2xl);
+  border: 2.5px solid var(--color-surface-variant);
+  overflow: hidden;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.word-bubble {
+  position: absolute;
+  padding: 10px 18px;
+  background: radial-gradient(circle at 30% 30%, #FFFFFF, var(--color-primary-fixed));
+  color: var(--color-on-primary-fixed);
+  border: 1.5px solid var(--color-primary);
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 91, 191, 0.15);
+  font-size: var(--font-label-lg);
+  font-weight: var(--weight-bold);
+  transition: background 0.1s, transform 0.1s;
+  user-select: none;
+  min-width: 100px;
+  text-align: center;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.word-bubble:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 14px rgba(0, 91, 191, 0.25);
+}
+
+.bubble-wrong {
+  background: radial-gradient(circle at 30% 30%, #FFDAD6, var(--color-error-container)) !important;
+  color: var(--color-on-error-container) !important;
+  border-color: var(--color-error) !important;
+  box-shadow: 0 4px 10px rgba(186, 26, 26, 0.2) !important;
+}
+
+/* Safe zone danger indicator */
+.danger-zone-line {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--color-error);
+  opacity: 0.35;
+  border-style: dashed;
+  border-width: 1.5px 0 0 0;
+  pointer-events: none;
+}
+
+/* Gameover panel */
+.gameover-icon-wrap {
+  margin-top: -30px;
+}
+
+.skull-icon {
+  font-size: 72px;
+  color: var(--color-error);
+  animation: pulse-slow 2s infinite ease-in-out;
+}
+
+.play-again-btn-hunter {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xxs);
+  padding: 12px;
+  background: #B35C00;
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-title-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.play-again-btn-hunter:hover {
+  background: #CC6A00;
+}
+
+.animate-shake {
+  animation: shake 0.4s ease;
+}

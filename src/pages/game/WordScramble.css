@@ -1,0 +1,324 @@
+/* ==========================================================================
+   Word Scramble Stylesheet
+   ========================================================================== */
+
+.scramble-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 120px);
+  padding: var(--spacing-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.scramble-card {
+  max-width: 580px;
+  width: 100%;
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-surface-variant);
+  box-shadow: var(--shadow-md);
+  animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.config-icon-scramble {
+  font-size: 56px;
+  color: var(--color-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.round-selector {
+  display: grid;
+  grid-template-cols: repeat(3, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.round-btn {
+  padding: var(--spacing-md) var(--spacing-sm);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-surface-variant);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  font-weight: var(--weight-semibold);
+  transition: all var(--transition-fast);
+}
+
+.round-btn:hover {
+  background: var(--color-surface-container);
+  border-color: var(--color-secondary-fixed);
+}
+
+.round-btn--active {
+  background: var(--color-secondary-fixed);
+  border-color: var(--color-secondary);
+  color: var(--color-on-secondary-fixed);
+}
+
+/* Gameplay Screen */
+.scramble-gameplay-container {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  animation: fade-in 0.3s ease-out;
+}
+
+.scramble-card-playing {
+  width: 100%;
+  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-surface-variant);
+  box-shadow: var(--shadow-md);
+}
+
+.scrambled-letters-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+  background: var(--color-surface-container);
+  border-radius: var(--radius-xl);
+  min-height: 80px;
+  align-items: center;
+}
+
+.letter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--color-secondary-fixed-dim), var(--color-secondary-container));
+  color: var(--color-on-secondary-container);
+  font-size: var(--font-headline-sm);
+  font-weight: var(--weight-bold);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-secondary);
+  text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4);
+}
+
+.clues-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  background: var(--color-surface-container-lowest);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--color-surface-variant);
+}
+
+.clue-tag-row {
+  display: flex;
+  gap: var(--spacing-xs);
+}
+
+.clue-tag {
+  font-size: var(--font-label-sm);
+  font-weight: var(--weight-bold);
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+}
+
+.clue-tag.part-of-speech {
+  background: rgba(61, 96, 142, 0.1);
+  color: var(--color-secondary);
+}
+
+.clue-tag.ipa {
+  background: rgba(0, 91, 191, 0.08);
+  color: var(--color-primary);
+  font-family: monospace;
+}
+
+.clue-definition {
+  font-size: var(--font-body-md);
+  color: var(--color-on-surface);
+  line-height: 1.5;
+}
+
+.clue-hint-text {
+  color: #B35C00;
+  font-weight: var(--weight-semibold);
+  margin-top: var(--spacing-xxs);
+}
+
+/* Form and inputs */
+.scramble-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.scramble-input {
+  width: 100%;
+  padding: 14px 20px;
+  font-size: var(--font-title-lg);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.5px;
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--color-surface-variant);
+  outline: none;
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  text-align: center;
+  transition: all var(--transition-fast);
+}
+
+.scramble-input:focus {
+  border-color: var(--color-secondary);
+}
+
+.scramble-actions {
+  display: grid;
+  grid-template-cols: 2fr 1fr 1fr;
+  gap: var(--spacing-sm);
+}
+
+.submit-btn {
+  background: var(--color-secondary);
+  color: var(--color-on-secondary);
+  border: none;
+  font-weight: var(--weight-bold);
+  font-size: var(--font-title-sm);
+  border-radius: var(--radius-pill);
+  padding: 12px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.submit-btn:hover {
+  background: var(--color-secondary-container);
+  color: var(--color-on-secondary-container);
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hint-btn {
+  background: transparent;
+  border: 1.5px solid #B35C00;
+  color: #B35C00;
+  font-weight: var(--weight-bold);
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.hint-btn:hover:not(:disabled) {
+  background: rgba(179, 92, 0, 0.05);
+}
+
+.hint-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.skip-btn {
+  background: transparent;
+  border: 1.5px solid var(--color-on-surface-variant);
+  color: var(--color-on-surface-variant);
+  font-weight: var(--weight-bold);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.skip-btn:hover {
+  background: var(--color-surface-container);
+  color: var(--color-on-surface);
+}
+
+/* Success Result Panel */
+.result-success-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-xl);
+  background: rgba(46, 125, 50, 0.05);
+  border: 1.5px solid #2E7D32;
+  animation: scale-up 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.check-icon-success {
+  font-size: 56px;
+  color: #2E7D32;
+}
+
+.text-success {
+  color: #2E7D32;
+}
+
+.next-round-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xxs);
+  padding: 12px 28px;
+  background: #2E7D32;
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-weight: var(--weight-bold);
+  font-size: var(--font-title-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.next-round-btn:hover {
+  background: #1B5E20;
+}
+
+/* Victory Section */
+.crown-icon-scramble {
+  font-size: 72px;
+  color: #FFB300;
+  filter: drop-shadow(0px 4px 10px rgba(255, 179, 0, 0.4));
+  animation: bounce-slow 2s infinite ease-in-out;
+}
+
+/* Shake Animation */
+.shake-animation {
+  animation: shake 0.4s ease;
+}
+
+.border-error {
+  border-color: var(--color-error) !important;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+@keyframes scale-up {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

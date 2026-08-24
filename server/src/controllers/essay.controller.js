@@ -2,7 +2,7 @@ import Essay from '../models/Essay.js'
 import Config from '../models/Config.js'
 import SystemPrompt from '../models/SystemPrompt.js'
 import Class from '../models/Class.js'
-import { processEssayAnalysis, generateTopicsByTheme } from '../services/ai.service.js'
+import { processEssayAnalysis, generateTopicsByTheme, runAIHelperService } from '../services/ai.service.js'
 import { getIO } from '../services/socket.service.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
@@ -321,4 +321,24 @@ export const getPasteConfig = asyncHandler(async (req, res) => {
     success: true,
     allowPaste: config ? config.value === 'true' || config.value === true : true
   })
+})
+
+/**
+ * @desc    Run AI Helper (Spellcheck / Improve) on text
+ * @route   POST /api/essays/ai-helper
+ * @access  Private (student)
+ */
+export const runAIHelper = asyncHandler(async (req, res) => {
+  const { text, action } = req.body
+
+  if (!text) {
+    throw new ErrorResponse('Please provide text to process', 400)
+  }
+
+  if (!action || !['spellcheck', 'improve'].includes(action)) {
+    throw new ErrorResponse('Please provide a valid action (spellcheck or improve)', 400)
+  }
+
+  const result = await runAIHelperService(text, action)
+  res.status(200).json({ success: true, data: result })
 })
