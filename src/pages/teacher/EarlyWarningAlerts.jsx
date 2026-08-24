@@ -33,6 +33,8 @@ function metricLabel(metric) {
   const map = {
     vocabulary_stagnation: 'Vocabulary Stagnation',
     grammar_decline: 'Grammar Decline',
+    overall_score_decline: 'Overall Score Decline',
+    missed_assignment_deadline: 'Missed Assignment Deadline',
   }
   return map[metric] || metric.replace(/_/g, ' ')
 }

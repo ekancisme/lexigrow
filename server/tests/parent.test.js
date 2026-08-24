@@ -1,4 +1,4 @@
-import { vi, describe, it, expect } from 'vitest'
+import { vi, describe, it, expect, beforeEach } from 'vitest'
 
 // Helper for mongoose query builder chain
 const mockQuery = (val) => {
@@ -40,6 +40,7 @@ vi.mock('../src/models/ChildLinkCode.js', () => ({
 vi.mock('../src/models/ParentStudentLink.js', () => ({
   default: {
     create: vi.fn(),
+    find: vi.fn(),
     findOne: vi.fn(),
   }
 }))
@@ -100,6 +101,10 @@ import ChildLinkCode from '../src/models/ChildLinkCode.js'
 import ParentStudentLink from '../src/models/ParentStudentLink.js'
 
 describe('Parent API', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it('should generate a one-time child link code without storing the raw code', async () => {
     ChildLinkCode.deleteMany.mockResolvedValue({ deletedCount: 0 })
     ChildLinkCode.create.mockResolvedValue({ _id: 'code_id' })
@@ -114,6 +119,74 @@ describe('Parent API', () => {
       student: 'mock_parent_id',
       codeHash: expect.not.stringContaining(res.body.data.code),
     }))
+  })
+
+  it('should return active guardians linked to the current student', async () => {
+    ParentStudentLink.find.mockReturnValue(mockQuery([
+      {
+        _id: 'link_id',
+        parent: {
+          _id: 'guardian_id',
+          name: 'Mock Guardian',
+          email: 'guardian@example.com',
+          avatar: 'avatar.png',
+        },
+        relationship: 'guardian',
+        linkedAt: new Date('2026-07-20T10:00:00.000Z'),
+      },
+    ]))
+
+    const res = await request(app)
+      .get('/api/parent/guardians')
+      .expect(200)
+
+    expect(ParentStudentLink.find).toHaveBeenCalledWith({
+      student: 'mock_parent_id',
+      status: 'active',
+    })
+    expect(res.body.data).toEqual([
+      expect.objectContaining({
+        linkId: 'link_id',
+        relationship: 'guardian',
+        parent: expect.objectContaining({
+          name: 'Mock Guardian',
+          email: 'gua***@example.com',
+        }),
+      }),
+    ])
+  })
+
+  it('should let the current student revoke a guardian link', async () => {
+    const linkMock = {
+      parent: 'guardian_id',
+      status: 'active',
+      revokedAt: null,
+      revokedBy: null,
+      save: vi.fn().mockResolvedValue(true),
+    }
+    ParentStudentLink.findOne.mockResolvedValue(linkMock)
+    User.updateOne.mockResolvedValue({ modifiedCount: 1 })
+
+    const res = await request(app)
+      .delete('/api/parent/guardians/link_id')
+      .expect(200)
+
+    expect(ParentStudentLink.findOne).toHaveBeenCalledWith({
+      _id: 'link_id',
+      student: 'mock_parent_id',
+      status: 'active',
+    })
+    expect(linkMock.status).toBe('revoked')
+    expect(linkMock.revokedBy).toBe('mock_parent_id')
+    expect(User.updateOne).toHaveBeenCalledWith(
+      { _id: 'mock_parent_id' },
+      { $pull: { parents: 'guardian_id' } }
+    )
+    expect(User.updateOne).toHaveBeenCalledWith(
+      { _id: 'guardian_id' },
+      { $pull: { children: 'mock_parent_id' } }
+    )
+    expect(res.body.message).toBe('Guardian access removed successfully')
   })
 
   it('should successfully link a student using a one-time code', async () => {
@@ -368,7 +441,17 @@ describe('Parent API', () => {
       children: ['mock_student_id'],
     }
     User.findById.mockReturnValue(mockQuery(parentMock))
-    Essay.find.mockReturnValue(mockQuery([{ _id: 'essay_id', title: 'My Holiday' }]))
+    const essayQuery = mockQuery([{
+      _id: 'essay_id',
+      title: 'My Holiday',
+      assignment: {
+        _id: 'assignment_id',
+        title: 'Holiday Writing',
+        dueDate: '2026-08-01T10:00:00.000Z',
+        status: 'active',
+      },
+    }])
+    Essay.find.mockReturnValue(essayQuery)
     AIAnalysis.find.mockReturnValue(mockQuery([{
       essay: { toString: () => 'essay_id' },
       overallScore: 8.2,
@@ -381,6 +464,8 @@ describe('Parent API', () => {
     expect(res.body.success).toBe(true)
     expect(res.body.data.length).toBe(1)
     expect(res.body.data[0].title).toBe('My Holiday')
+    expect(res.body.data[0].assignment.dueDate).toBe('2026-08-01T10:00:00.000Z')
     expect(res.body.data[0].analysis.overallScore).toBe(8.2)
+    expect(essayQuery.populate).toHaveBeenCalledWith('assignment', 'title dueDate status')
   })
 })

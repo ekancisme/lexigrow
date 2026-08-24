@@ -1,7 +1,9 @@
 import { Router } from 'express'
 import {
   createChildLinkCode,
+  getLinkedGuardians,
   linkChild,
+  unlinkGuardian,
   unlinkChild,
   getChildren,
   getChildGoals,
@@ -26,6 +28,8 @@ const linkAttemptLimiter = rateLimit({
 router.use(protect)
 
 router.post('/link-code', authorize('student'), createChildLinkCode)
+router.get('/guardians', authorize('student'), getLinkedGuardians)
+router.delete('/guardians/:linkId', authorize('student'), unlinkGuardian)
 router.post('/link', authorize('parent'), linkAttemptLimiter, linkChild)
 
 router.use(authorize('parent'))

@@ -19,13 +19,46 @@
 .profile-settings__toggle-slider::before { content: ''; position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: all var(--transition-normal); }
 .profile-settings__toggle input:checked + .profile-settings__toggle-slider { background: var(--color-primary); }
 .profile-settings__toggle input:checked + .profile-settings__toggle-slider::before { transform: translateX(22px); }
-.profile-settings__link-code { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.profile-settings__guardians { display: flex; flex-direction: column; gap: var(--spacing-md); }
+.profile-settings__guardians-header { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--spacing-md); }
 .profile-settings__link-code-copy { color: var(--color-on-surface-variant); margin-top: 6px; max-width: 60ch; }
-.profile-settings__link-code-result { display: flex; align-items: baseline; gap: var(--spacing-md); padding: var(--spacing-md); border: 1px solid var(--color-outline-variant); border-radius: var(--radius-md); background: var(--color-surface-container-low); }
-.profile-settings__link-code-result strong { font-size: 28px; letter-spacing: 3px; color: var(--color-primary); }
-.profile-settings__link-code-result span { color: var(--color-on-surface-variant); font-size: var(--text-label-md-size); }
+.profile-settings__add-guardian-btn { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.profile-settings__add-guardian-btn .material-symbols-outlined { font-size: 19px; }
+.profile-settings__link-code-panel { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-md); padding: var(--spacing-md); border: 1px solid color-mix(in srgb, var(--color-primary) 32%, var(--color-outline-variant)); border-radius: var(--radius-md); background: color-mix(in srgb, var(--color-primary) 7%, var(--color-surface)); }
+.profile-settings__link-code-panel strong { display: block; margin: 5px 0 3px; font-size: 28px; letter-spacing: 0; color: var(--color-primary); }
+.profile-settings__link-code-panel p { color: var(--color-on-surface-variant); }
+.profile-settings__link-code-panel--expired { border-color: var(--color-outline-variant); background: var(--color-surface-container-low); }
+.profile-settings__link-code-panel--expired strong { color: var(--color-outline); }
+.profile-settings__copy-code-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 14px; border: 1px solid var(--color-primary); border-radius: var(--radius-md); color: var(--color-primary); font-weight: 600; }
+.profile-settings__copy-code-btn:hover:not(:disabled) { background: var(--color-primary); color: var(--color-on-primary); }
+.profile-settings__copy-code-btn:disabled { cursor: not-allowed; opacity: 0.5; }
+.profile-settings__copy-code-btn .material-symbols-outlined { font-size: 18px; }
+.profile-settings__link-code-note { color: var(--color-on-surface-variant); }
+.profile-settings__guardian-list { border-top: 1px solid var(--color-outline-variant); }
+.profile-settings__guardians-loading, .profile-settings__guardians-error, .profile-settings__guardians-empty { min-height: 96px; display: flex; align-items: center; gap: var(--spacing-md); color: var(--color-on-surface-variant); }
+.profile-settings__guardians-loading .material-symbols-outlined, .profile-settings__guardians-empty > .material-symbols-outlined { color: var(--color-primary); font-size: 30px; }
+.profile-settings__guardians-empty p + p { margin-top: 3px; color: var(--color-on-surface-variant); }
+.profile-settings__guardians-error { justify-content: space-between; color: var(--color-error); }
+.profile-settings__guardians-error button { color: var(--color-primary); font-weight: 600; }
+.profile-settings__guardian-row { display: grid; grid-template-columns: 44px minmax(0, 1fr) auto auto; align-items: center; gap: var(--spacing-md); padding: var(--spacing-md) 0; border-bottom: 1px solid var(--color-outline-variant); }
+.profile-settings__guardian-row:last-child { border-bottom: none; padding-bottom: 0; }
+.profile-settings__guardian-avatar { width: 44px; height: 44px; overflow: hidden; border-radius: var(--radius-full); display: grid; place-items: center; background: var(--color-surface-container-high); color: var(--color-primary); }
+.profile-settings__guardian-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.profile-settings__guardian-identity { min-width: 0; }
+.profile-settings__guardian-identity p { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.profile-settings__guardian-identity p + p { margin-top: 3px; color: var(--color-on-surface-variant); }
+.profile-settings__guardian-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; color: var(--color-on-surface-variant); font-size: var(--text-label-sm-size); }
+.profile-settings__guardian-meta span:first-child { color: var(--color-on-surface); font-weight: 600; }
+.profile-settings__remove-guardian-btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 10px; border-radius: var(--radius-md); color: var(--color-error); font-size: var(--text-label-sm-size); font-weight: 600; }
+.profile-settings__remove-guardian-btn:hover:not(:disabled) { background: color-mix(in srgb, var(--color-error) 9%, transparent); }
+.profile-settings__remove-guardian-btn:disabled { cursor: not-allowed; opacity: 0.5; }
+.profile-settings__remove-guardian-btn .material-symbols-outlined { font-size: 18px; }
 
 @media (max-width: 600px) {
-	.profile-settings__link-code-result { align-items: flex-start; flex-direction: column; }
-	.profile-settings__link-code-result strong { font-size: 24px; }
+	.profile-settings__guardians-header { flex-direction: column; }
+	.profile-settings__link-code-panel { align-items: flex-start; flex-direction: column; }
+	.profile-settings__link-code-panel strong { font-size: 24px; }
+	.profile-settings__guardian-row { grid-template-columns: 44px minmax(0, 1fr); }
+	.profile-settings__guardian-meta { grid-column: 2; align-items: flex-start; }
+	.profile-settings__remove-guardian-btn { grid-column: 2; justify-self: start; }
 }
