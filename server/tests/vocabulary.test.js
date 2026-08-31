@@ -4,6 +4,10 @@ import { vi, describe, it, expect } from 'vitest'
 const mockQuery = (val) => {
   const q = {
     select: vi.fn().mockImplementation(() => q),
+    sort: vi.fn().mockImplementation(() => q),
+    skip: vi.fn().mockImplementation(() => q),
+    limit: vi.fn().mockImplementation(() => q),
+    lean: vi.fn().mockImplementation(() => q),
     then: (resolve) => resolve(val),
     catch: () => {}
   }
@@ -18,8 +22,11 @@ vi.mock('../src/config/db.js', () => ({
 // Mock models
 vi.mock('../src/models/Vocabulary.js', () => ({
   default: {
+    find: vi.fn(),
     findOne: vi.fn(),
     create: vi.fn(),
+    countDocuments: vi.fn(),
+    distinct: vi.fn(),
   }
 }))
 
@@ -91,5 +98,34 @@ describe('Vocabulary API - Add to Study List', () => {
 
     expect(res.body.success).toBe(false)
     expect(res.body.error).toContain('already exists')
+  })
+})
+
+describe('GET /api/vocabulary - Paginated Vocabulary Library', () => {
+  it('should return paginated vocabulary words with metadata, themes and dueCount', async () => {
+    const mockWords = [
+      { _id: 'word1', word: 'articulate', category: 'academic', theme: 'Language' },
+      { _id: 'word2', word: 'benchmark', category: 'business', theme: 'Tech' }
+    ]
+
+    Vocabulary.find.mockReturnValue(mockQuery(mockWords))
+    Vocabulary.countDocuments
+      .mockResolvedValueOnce(50) // total matching
+      .mockResolvedValueOnce(5)  // due count
+    Vocabulary.distinct.mockResolvedValue(['Language', 'Tech', 'Environment'])
+
+    const res = await request(app)
+      .get('/api/vocabulary?page=2&limit=24&category=academic&search=articulate')
+      .expect(200)
+
+    expect(res.body.success).toBe(true)
+    expect(res.body.count).toBe(2)
+    expect(res.body.total).toBe(50)
+    expect(res.body.page).toBe(2)
+    expect(res.body.pages).toBe(3)
+    expect(res.body.limit).toBe(24)
+    expect(res.body.themes).toEqual(['Language', 'Tech', 'Environment'])
+    expect(res.body.dueCount).toBe(5)
+    expect(res.body.data).toHaveLength(2)
   })
 })

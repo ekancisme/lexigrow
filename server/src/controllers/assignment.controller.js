@@ -206,7 +206,7 @@ export const updateAssignment = asyncHandler(async (req, res) => {
   const { title, description, dueDate, keywords, status } = req.body
   if (title !== undefined) assignment.title = title
   if (description !== undefined) assignment.description = description
-  if (dueDate !== undefined) assignment.dueDate = parseFutureDueDate(dueDate, true)
+  if (dueDate !== undefined) assignment.dueDate = parseFutureDueDate(dueDate)
   if (keywords !== undefined) assignment.keywords = keywords
   if (status !== undefined) assignment.status = status
 

@@ -8,27 +8,51 @@ import { calculateSM2 } from '../services/srs.service.js'
  * @access  Private (student)
  */
 export const getVocabulary = asyncHandler(async (req, res) => {
-  const { category, mastery, theme, search, page = 1, limit = 50 } = req.query
+  const { category, mastery, theme, search, page = 1, limit = 24 } = req.query
   const query = { student: req.user._id }
 
   if (category) query.category = category
   if (mastery) query.masteryLevel = mastery
   if (theme) query.theme = { $regex: theme, $options: 'i' }
-  if (search) query.word = { $regex: search, $options: 'i' }
+  if (search) {
+    query.$or = [
+      { word: { $regex: search, $options: 'i' } },
+      { definition: { $regex: search, $options: 'i' } }
+    ]
+  }
 
-  const words = await Vocabulary.find(query)
-    .sort({ createdAt: -1 })
-    .skip((page - 1) * limit)
-    .limit(Number(limit))
+  const pageNum = Math.max(1, parseInt(page, 10) || 1)
+  const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 24))
 
-  const total = await Vocabulary.countDocuments(query)
+  const now = new Date()
+
+  const [words, total, themes, dueCount] = await Promise.all([
+    Vocabulary.find(query)
+      .sort({ createdAt: -1 })
+      .skip((pageNum - 1) * limitNum)
+      .limit(limitNum)
+      .lean(),
+    Vocabulary.countDocuments(query),
+    Vocabulary.distinct('theme', { student: req.user._id }),
+    Vocabulary.countDocuments({
+      student: req.user._id,
+      ...(category ? { category } : {}),
+      $or: [
+        { nextReviewDate: null },
+        { nextReviewDate: { $lte: now } },
+      ],
+    }),
+  ])
 
   res.status(200).json({
     success: true,
     count: words.length,
     total,
-    page: Number(page),
-    pages: Math.ceil(total / limit),
+    page: pageNum,
+    pages: Math.ceil(total / limitNum) || 1,
+    limit: limitNum,
+    themes: (themes || []).filter(Boolean),
+    dueCount: dueCount || 0,
     data: words,
   })
 })

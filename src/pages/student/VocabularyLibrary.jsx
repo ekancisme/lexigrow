@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
@@ -8,9 +8,17 @@ export default function VocabularyLibrary() {
   const navigate = useNavigate()
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
-  
-  // Filters
+
+  // Pagination states
+  const [page, setPage] = useState(1)
+  const [limit] = useState(24)
+  const [totalPages, setTotalPages] = useState(1)
+  const [totalCount, setTotalCount] = useState(0)
+  const [dueCount, setDueCount] = useState(0)
+
+  // Filter states
   const [searchTerm, setSearchTerm] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [selectedMastery, setSelectedMastery] = useState('')
   const [selectedTheme, setSelectedTheme] = useState('')
@@ -27,36 +35,59 @@ export default function VocabularyLibrary() {
   const [isAdding, setIsAdding] = useState(false)
   const [addError, setAddError] = useState('')
 
-  // Load vocabulary
-  const fetchVocabulary = async () => {
+  // Search input debounce (300ms)
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchTerm)
+    }, 300)
+    return () => clearTimeout(handler)
+  }, [searchTerm])
+
+  // Reset to page 1 whenever filters change
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearch, selectedCategory, selectedMastery, selectedTheme])
+
+  // Fetch paginated vocabulary from server
+  const fetchVocabulary = useCallback(async () => {
     try {
       setLoading(true)
-      // We fetch all to let the client extract themes dynamically
-      // or we can query with filters
-      const response = await api.get('/vocabulary?limit=500')
+      const params = new URLSearchParams()
+      params.append('page', page)
+      params.append('limit', limit)
+      if (debouncedSearch.trim()) params.append('search', debouncedSearch.trim())
+      if (selectedCategory) params.append('category', selectedCategory)
+      if (selectedMastery) params.append('mastery', selectedMastery)
+      if (selectedTheme) params.append('theme', selectedTheme)
+
+      const response = await api.get(`/vocabulary?${params.toString()}`)
       if (response.success) {
         setWords(response.data || [])
-        // Extract unique themes
-        const themes = Array.from(new Set((response.data || []).map(w => w.theme).filter(Boolean)))
-        setThemesList(themes)
+        setTotalCount(response.total || 0)
+        setTotalPages(response.pages || 1)
+        if (response.themes && response.themes.length > 0) {
+          setThemesList(response.themes)
+        }
+        if (response.dueCount !== undefined) {
+          setDueCount(response.dueCount)
+        }
       }
     } catch (err) {
       console.error('Error fetching vocabulary:', err)
     } finally {
       setLoading(false)
     }
-  }
+  }, [page, limit, debouncedSearch, selectedCategory, selectedMastery, selectedTheme])
 
   useEffect(() => {
     fetchVocabulary()
-  }, [])
+  }, [fetchVocabulary])
 
   // Handle Mastery level update
   const handleUpdateMastery = async (wordId, newMastery) => {
     try {
       const response = await api.patch(`/vocabulary/${wordId}`, { masteryLevel: newMastery })
       if (response.success) {
-        // Update local state
         setWords(prev => prev.map(w => w._id === wordId ? { ...w, masteryLevel: newMastery } : w))
         if (selectedWord && selectedWord._id === wordId) {
           setSelectedWord(prev => ({ ...prev, masteryLevel: newMastery }))
@@ -79,7 +110,7 @@ export default function VocabularyLibrary() {
       if (response.success) {
         setIsAddModalOpen(false)
         setNewWordData({ word: '', category: 'daily', theme: 'General' })
-        fetchVocabulary() // Refresh list
+        fetchVocabulary()
       }
     } catch (err) {
       setAddError(err.message || 'Failed to add word')
@@ -106,27 +137,36 @@ export default function VocabularyLibrary() {
     setSelectedWord(null)
   }
 
-  // Filtered words to display
-  const filteredWords = words.filter(item => {
-    const matchesSearch = item.word.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          (item.definition && item.definition.toLowerCase().includes(searchTerm.toLowerCase()))
-    const matchesCategory = !selectedCategory || item.category === selectedCategory
-    const matchesMastery = !selectedMastery || item.masteryLevel === selectedMastery
-    const matchesTheme = !selectedTheme || item.theme === selectedTheme
-    return matchesSearch && matchesCategory && matchesMastery && matchesTheme
-  })
-
-  // Đếm số từ cần ôn (new + learning) theo Category đang chọn
-  const reviewCount = words.filter(w => {
-    const matchesCategory = !selectedCategory || w.category === selectedCategory
-    const matchesMastery = w.masteryLevel === 'new' || w.masteryLevel === 'learning'
-    return matchesCategory && matchesMastery
-  }).length
+  const handlePageChange = (newPage) => {
+    if (newPage < 1 || newPage > totalPages || newPage === page) return
+    setPage(newPage)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const getCategoryLabel = (cat) => {
     if (!cat) return 'All'
     return cat.charAt(0).toUpperCase() + cat.slice(1)
   }
+
+  // Generate numeric page pagination items with ellipsis
+  const getPageNumbers = () => {
+    const pages = []
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+    } else {
+      if (page <= 4) {
+        pages.push(1, 2, 3, 4, 5, '...', totalPages)
+      } else if (page >= totalPages - 3) {
+        pages.push(1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages)
+      } else {
+        pages.push(1, '...', page - 1, page, page + 1, '...', totalPages)
+      }
+    }
+    return pages
+  }
+
+  const startIndex = totalCount === 0 ? 0 : (page - 1) * limit + 1
+  const endIndex = Math.min(page * limit, totalCount)
 
   return (
     <div className="vocab-lib animate-fade-in">
@@ -140,7 +180,7 @@ export default function VocabularyLibrary() {
         </div>
         <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center', flexWrap: 'wrap' }}>
           {/* Start Review Button */}
-          {reviewCount > 0 && (
+          {dueCount > 0 && (
             <button
               className="vocab-lib__review-btn"
               onClick={() => {
@@ -150,18 +190,18 @@ export default function VocabularyLibrary() {
             >
               <span className="material-symbols-outlined">style</span>
               <span>Review {selectedCategory ? getCategoryLabel(selectedCategory) : 'All'}</span>
-              <span className="vocab-lib__review-badge">{reviewCount}</span>
+              <span className="vocab-lib__review-badge">{dueCount}</span>
             </button>
           )}
-          <button 
+          <button
             className="vocab-lib__game-btn"
             onClick={() => navigate('/student/game')}
           >
             <span className="material-symbols-outlined">sports_esports</span>
             <span>Play Games</span>
           </button>
-          <button 
-            className="vocab-lib__add-btn" 
+          <button
+            className="vocab-lib__add-btn"
             onClick={() => setIsAddModalOpen(true)}
           >
             <span className="material-symbols-outlined">add</span>
@@ -174,19 +214,29 @@ export default function VocabularyLibrary() {
       <section className="vocab-lib__search card-base">
         <div className="vocab-lib__search-input-wrapper">
           <span className="material-symbols-outlined vocab-lib__search-icon">search</span>
-          <input 
-            type="text" 
-            placeholder="Search word or definition..." 
+          <input
+            type="text"
+            placeholder="Search word or definition..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="vocab-lib__search-field"
           />
+          {searchTerm && (
+            <button
+              type="button"
+              className="vocab-lib__search-clear"
+              onClick={() => setSearchTerm('')}
+              aria-label="Clear search"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          )}
         </div>
         <div className="vocab-lib__filters">
           <div className="vocab-lib__filter-group">
             <label className="text-label-sm">Category</label>
-            <select 
-              value={selectedCategory} 
+            <select
+              value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="vocab-lib__select"
             >
@@ -200,8 +250,8 @@ export default function VocabularyLibrary() {
 
           <div className="vocab-lib__filter-group">
             <label className="text-label-sm">Mastery</label>
-            <select 
-              value={selectedMastery} 
+            <select
+              value={selectedMastery}
               onChange={(e) => setSelectedMastery(e.target.value)}
               className="vocab-lib__select"
             >
@@ -214,8 +264,8 @@ export default function VocabularyLibrary() {
 
           <div className="vocab-lib__filter-group">
             <label className="text-label-sm">Theme</label>
-            <select 
-              value={selectedTheme} 
+            <select
+              value={selectedTheme}
               onChange={(e) => setSelectedTheme(e.target.value)}
               className="vocab-lib__select"
             >
@@ -234,7 +284,7 @@ export default function VocabularyLibrary() {
           <span className="material-symbols-outlined animate-spin">progress_activity</span>
           <p className="text-body-md">Loading your library...</p>
         </div>
-      ) : filteredWords.length === 0 ? (
+      ) : words.length === 0 ? (
         <div className="vocab-lib__empty card-base">
           <span className="material-symbols-outlined vocab-lib__empty-icon">menu_book</span>
           <h3 className="text-title-lg">No words found</h3>
@@ -243,35 +293,98 @@ export default function VocabularyLibrary() {
           </p>
         </div>
       ) : (
-        <section className="vocab-lib__grid">
-          {filteredWords.map((item) => {
-            const mastery = item.masteryLevel || 'new'
-            return (
-              <div 
-                key={item._id} 
-                className={`vocab-card vocab-card--${mastery}`}
-                onClick={() => setSelectedWord(item)}
-              >
-                <div className="vocab-card__top">
-                  <span className={`vocab-card__tag vocab-card__tag--cat`}>{item.category}</span>
-                  <span className="vocab-card__tag vocab-card__tag--theme">{item.theme}</span>
-                </div>
-                <h3 className="vocab-card__word">{item.word}</h3>
-                {item.ipa && <p className="vocab-card__ipa">{item.ipa}</p>}
-                {item.partOfSpeech && <span className="vocab-card__pos">{item.partOfSpeech}</span>}
-                <p className="vocab-card__def truncate">{item.definition || 'No definition loaded yet.'}</p>
-                <div className="vocab-card__footer">
-                  <span className={`vocab-card__badge vocab-card__badge--${mastery}`}>
-                    <span className="material-symbols-outlined">
-                      {mastery === 'mastered' ? 'verified' : mastery === 'learning' ? 'school' : 'new_releases'}
+        <>
+          <div className="vocab-lib__meta-row">
+            <span className="vocab-lib__meta-count">
+              Showing <strong>{startIndex}–{endIndex}</strong> of <strong>{totalCount}</strong> words
+            </span>
+          </div>
+
+          <section className="vocab-lib__grid">
+            {words.map((item) => {
+              const mastery = item.masteryLevel || 'new'
+              return (
+                <div
+                  key={item._id}
+                  className={`vocab-card vocab-card--${mastery}`}
+                  onClick={() => setSelectedWord(item)}
+                >
+                  <div className="vocab-card__top">
+                    <span className={`vocab-card__tag vocab-card__tag--cat`}>{item.category}</span>
+                    <span className="vocab-card__tag vocab-card__tag--theme">{item.theme}</span>
+                  </div>
+                  <h3 className="vocab-card__word">{item.word}</h3>
+                  {item.ipa && <p className="vocab-card__ipa">{item.ipa}</p>}
+                  {item.partOfSpeech && <span className="vocab-card__pos">{item.partOfSpeech}</span>}
+                  <p className="vocab-card__def truncate">{item.definition || 'No definition loaded yet.'}</p>
+                  <div className="vocab-card__footer">
+                    <span className={`vocab-card__badge vocab-card__badge--${mastery}`}>
+                      <span className="material-symbols-outlined">
+                        {mastery === 'mastered' ? 'verified' : mastery === 'learning' ? 'school' : 'new_releases'}
+                      </span>
+                      <span>{mastery.toUpperCase()}</span>
                     </span>
-                    <span>{mastery.toUpperCase()}</span>
-                  </span>
+                  </div>
                 </div>
+              )
+            })}
+          </section>
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="vocab-lib__pagination card-base">
+              <div className="vocab-pagination__info">
+                Page <strong>{page}</strong> of <strong>{totalPages}</strong>
               </div>
-            )
-          })}
-        </section>
+
+              <div className="vocab-pagination__controls">
+                <button
+                  type="button"
+                  className="vocab-pagination__btn vocab-pagination__btn--nav"
+                  onClick={() => handlePageChange(page - 1)}
+                  disabled={page <= 1}
+                  aria-label="Previous page"
+                >
+                  <span className="material-symbols-outlined">chevron_left</span>
+                  <span>Prev</span>
+                </button>
+
+                <div className="vocab-pagination__numbers">
+                  {getPageNumbers().map((p, idx) => {
+                    if (p === '...') {
+                      return (
+                        <span key={`ellipsis-${idx}`} className="vocab-pagination__ellipsis">
+                          …
+                        </span>
+                      )
+                    }
+                    return (
+                      <button
+                        key={p}
+                        type="button"
+                        className={`vocab-pagination__btn vocab-pagination__btn--num ${p === page ? 'vocab-pagination__btn--active' : ''}`}
+                        onClick={() => handlePageChange(p)}
+                      >
+                        {p}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                <button
+                  type="button"
+                  className="vocab-pagination__btn vocab-pagination__btn--nav"
+                  onClick={() => handlePageChange(page + 1)}
+                  disabled={page >= totalPages}
+                  aria-label="Next page"
+                >
+                  <span>Next</span>
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* Word Detail Modal */}
@@ -281,7 +394,7 @@ export default function VocabularyLibrary() {
             <button className="vocab-modal__close" onClick={handleCloseDetail}>
               <span className="material-symbols-outlined">close</span>
             </button>
-            
+
             <div className="vocab-modal__header-row">
               <div>
                 <h2 className="vocab-modal__word">{selectedWord.word}</h2>
@@ -376,15 +489,15 @@ export default function VocabularyLibrary() {
               <span className="material-symbols-outlined">close</span>
             </button>
             <h3 className="text-title-lg" style={{ marginBottom: 16 }}>Add New Word</h3>
-            
+
             {addError && <div className="vocab-modal__error">{addError}</div>}
 
             <form onSubmit={handleAddWord}>
               <div className="vocab-modal__form-group">
                 <label className="text-label-sm">Word</label>
-                <input 
-                  type="text" 
-                  placeholder="Enter english word..." 
+                <input
+                  type="text"
+                  placeholder="Enter english word..."
                   value={newWordData.word}
                   onChange={(e) => setNewWordData(prev => ({ ...prev, word: e.target.value }))}
                   required
@@ -397,7 +510,7 @@ export default function VocabularyLibrary() {
               <div className="vocab-modal__form-row">
                 <div className="vocab-modal__form-group">
                   <label className="text-label-sm">Category</label>
-                  <select 
+                  <select
                     value={newWordData.category}
                     onChange={(e) => setNewWordData(prev => ({ ...prev, category: e.target.value }))}
                     disabled={isAdding}
@@ -412,9 +525,9 @@ export default function VocabularyLibrary() {
 
                 <div className="vocab-modal__form-group">
                   <label className="text-label-sm">Theme</label>
-                  <input 
-                    type="text" 
-                    placeholder="General, Travel, Tech..." 
+                  <input
+                    type="text"
+                    placeholder="General, Travel, Tech..."
                     value={newWordData.theme}
                     onChange={(e) => setNewWordData(prev => ({ ...prev, theme: e.target.value }))}
                     disabled={isAdding}
@@ -423,8 +536,8 @@ export default function VocabularyLibrary() {
                 </div>
               </div>
 
-              <button 
-                type="submit" 
+              <button
+                type="submit"
                 className="vocab-modal__submit-btn"
                 disabled={isAdding || !newWordData.word.trim()}
               >

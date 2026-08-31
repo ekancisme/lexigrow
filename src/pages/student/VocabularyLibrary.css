@@ -141,12 +141,36 @@
 
 .vocab-lib__search-field {
   width: 100%;
-  padding: 12px 12px 12px 44px;
+  padding: 12px 36px 12px 44px;
   border: 1px solid var(--color-outline-variant);
   border-radius: var(--radius-md);
   background-color: var(--color-surface);
   color: var(--color-on-surface);
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.vocab-lib__search-clear {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: var(--color-outline);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.vocab-lib__search-clear:hover {
+  color: var(--color-on-surface);
+  background-color: var(--color-surface-container-high);
+}
+
+.vocab-lib__search-clear span {
+  font-size: 18px;
 }
 
 .vocab-lib__search-field:focus {
@@ -680,6 +704,129 @@
 .vocab-modal__submit-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Meta count row */
+.vocab-lib__meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: -8px;
+  margin-bottom: 2px;
+}
+
+.vocab-lib__meta-count {
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+}
+
+.vocab-lib__meta-count strong {
+  color: var(--color-on-surface);
+  font-weight: 600;
+}
+
+/* Pagination */
+.vocab-lib__pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-sm);
+}
+
+@media (max-width: 600px) {
+  .vocab-lib__pagination {
+    justify-content: center;
+    flex-direction: column;
+  }
+}
+
+.vocab-pagination__info {
+  font-size: 14px;
+  color: var(--color-on-surface-variant);
+}
+
+.vocab-pagination__info strong {
+  color: var(--color-on-surface);
+}
+
+.vocab-pagination__controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vocab-pagination__numbers {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.vocab-pagination__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 500;
+  border: 1px solid var(--color-outline-variant);
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.vocab-pagination__btn:hover:not(:disabled) {
+  background-color: var(--color-surface-container-high);
+  border-color: var(--color-outline);
+}
+
+.vocab-pagination__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.vocab-pagination__btn--nav {
+  gap: 4px;
+  padding: 0 12px;
+}
+
+.vocab-pagination__btn--nav span.material-symbols-outlined {
+  font-size: 18px;
+}
+
+.vocab-pagination__btn--num {
+  padding: 0;
+}
+
+.vocab-pagination__btn--active {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-on-primary);
+  font-weight: 700;
+}
+
+.vocab-pagination__btn--active:hover:not(:disabled) {
+  background-color: var(--color-primary-container);
+  border-color: var(--color-primary-container);
+  color: var(--color-on-primary);
+}
+
+.vocab-pagination__ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 36px;
+  color: var(--color-outline);
+  font-size: 14px;
+  user-select: none;
 }
 
 @keyframes spin {
