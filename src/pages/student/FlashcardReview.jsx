@@ -19,26 +19,17 @@ export default function FlashcardReview() {
   const [cardAnim, setCardAnim] = useState('') // '' | 'exiting' | 'entering'
   const animTimeout = useRef(null)
 
-  // Session result tracking
-  const [masteredThisSession, setMasteredThisSession] = useState(0)
-  const [stillLearningThisSession, setStillLearningThisSession] = useState(0)
+  // Session result tracking: { again, hard, good, easy }
+  const [sessionStats, setSessionStats] = useState({ again: 0, hard: 0, good: 0, easy: 0 })
 
-  // Load cards: tất cả từ có mastery = new hoặc learning, lọc theo category nếu có
+  // Load cards due for review today via SRS endpoint
   useEffect(() => {
     async function loadCards() {
       try {
         setLoading(true)
         const categoryParam = categoryFilter ? `&category=${categoryFilter}` : ''
-        const [newRes, learningRes] = await Promise.all([
-          api.get(`/vocabulary?mastery=new&limit=200${categoryParam}`),
-          api.get(`/vocabulary?mastery=learning&limit=200${categoryParam}`),
-        ])
-        const newWords      = (newRes.data      || []).map(w => ({ ...w, _originalMastery: 'new' }))
-        const learningWords = (learningRes.data || []).map(w => ({ ...w, _originalMastery: 'learning' }))
-
-        // Ưu tiên: learning trước (cần ôn gấp), sau đó mới đến new
-        const combined = [...learningWords, ...newWords]
-        setCards(combined)
+        const res = await api.get(`/vocabulary/due-today?limit=50${categoryParam}`)
+        setCards(res.data.data || [])
       } catch (err) {
         console.error('Error loading flashcards:', err)
       } finally {
@@ -57,8 +48,8 @@ export default function FlashcardReview() {
   const currentCard = cards[currentIndex]
   const totalCards  = cards.length
   const progressPct = totalCards > 0 ? Math.round((currentIndex / totalCards) * 100) : 0
-  const newCount      = cards.filter(c => c._originalMastery === 'new').length
-  const learningCount = cards.filter(c => c._originalMastery === 'learning').length
+  const newCount      = cards.filter(c => c.masteryLevel === 'new').length
+  const learningCount = cards.filter(c => c.masteryLevel === 'learning').length
 
   // ── Voice: phát âm từ ──
   const handleSpeak = useCallback((e) => {
@@ -95,26 +86,15 @@ export default function FlashcardReview() {
     }, 280)
   }, [currentIndex, totalCards])
 
-  // ── "Still Learning" ──
-  const handleStillLearning = async () => {
+  // ── SRS rating handler ──
+  const handleRate = async (rating) => {
     if (!currentCard) return
+    const ratingKey = { 1: 'again', 2: 'hard', 3: 'good', 4: 'easy' }[rating]
     try {
-      await api.patch(`/vocabulary/${currentCard._id}`, { masteryLevel: 'learning' })
-      setStillLearningThisSession(prev => prev + 1)
+      await api.post('/vocabulary/review', { wordId: currentCard._id, rating })
+      setSessionStats(prev => ({ ...prev, [ratingKey]: prev[ratingKey] + 1 }))
     } catch (err) {
-      console.error('Error updating mastery:', err)
-    }
-    goToNext()
-  }
-
-  // ── "Mastered!" ──
-  const handleMastered = async () => {
-    if (!currentCard) return
-    try {
-      await api.patch(`/vocabulary/${currentCard._id}`, { masteryLevel: 'mastered' })
-      setMasteredThisSession(prev => prev + 1)
-    } catch (err) {
-      console.error('Error updating mastery:', err)
+      console.error('Error submitting review:', err)
     }
     goToNext()
   }
@@ -136,8 +116,7 @@ export default function FlashcardReview() {
     setCurrentIndex(0)
     setIsFlipped(false)
     setIsDone(false)
-    setMasteredThisSession(0)
-    setStillLearningThisSession(0)
+    setSessionStats({ again: 0, hard: 0, good: 0, easy: 0 })
     setCardAnim('')
   }
 
@@ -186,7 +165,7 @@ export default function FlashcardReview() {
             All caught up! 🎉
           </h2>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', maxWidth: 360, textAlign: 'center', lineHeight: 1.6 }}>
-            You have no words in <strong>New</strong> or <strong>Learning</strong> status right now. Keep writing essays to discover new vocabulary!
+            No words are due for review today. Come back tomorrow or add more words to your vocabulary library!
           </p>
           <button
             className="flashcard-complete__btn flashcard-complete__btn--primary"
@@ -229,16 +208,28 @@ export default function FlashcardReview() {
           {/* Session stats */}
           <div className="flashcard-complete__stats">
             <div className="flashcard-complete__stat">
-              <p className="flashcard-complete__stat-num flashcard-complete__stat-num--mastered">
-                {masteredThisSession}
+              <p className="flashcard-complete__stat-num" style={{ color: 'var(--color-danger)' }}>
+                {sessionStats.again}
               </p>
-              <p className="flashcard-complete__stat-label">Mastered</p>
+              <p className="flashcard-complete__stat-label">Again</p>
             </div>
             <div className="flashcard-complete__stat">
-              <p className="flashcard-complete__stat-num flashcard-complete__stat-num--learning">
-                {stillLearningThisSession}
+              <p className="flashcard-complete__stat-num" style={{ color: 'var(--color-warning)' }}>
+                {sessionStats.hard}
               </p>
-              <p className="flashcard-complete__stat-label">Still Learning</p>
+              <p className="flashcard-complete__stat-label">Hard</p>
+            </div>
+            <div className="flashcard-complete__stat">
+              <p className="flashcard-complete__stat-num" style={{ color: 'var(--color-primary)' }}>
+                {sessionStats.good}
+              </p>
+              <p className="flashcard-complete__stat-label">Good</p>
+            </div>
+            <div className="flashcard-complete__stat">
+              <p className="flashcard-complete__stat-num" style={{ color: 'var(--color-success)' }}>
+                {sessionStats.easy}
+              </p>
+              <p className="flashcard-complete__stat-label">Easy</p>
             </div>
             <div className="flashcard-complete__stat">
               <p className="flashcard-complete__stat-num" style={{ color: 'var(--color-primary)' }}>
@@ -328,8 +319,8 @@ export default function FlashcardReview() {
             {/* ═══ FRONT ═══ */}
             <div className="flashcard-face flashcard-face--front">
               {/* Mastery badge */}
-              <span className={`flashcard-mastery-badge flashcard-mastery-badge--${currentCard._originalMastery}`}>
-                {getMasteryLabel(currentCard._originalMastery)}
+              <span className={`flashcard-mastery-badge flashcard-mastery-badge--${currentCard.masteryLevel}`}>
+                {getMasteryLabel(currentCard.masteryLevel)}
               </span>
 
               {/* Word + voice button */}
@@ -370,9 +361,9 @@ export default function FlashcardReview() {
               {/* Back header: badge + word + voice + flip back */}
               <div className="flashcard-back-header">
                 <div className="flashcard-back-word-row">
-                  <span className={`flashcard-mastery-badge flashcard-mastery-badge--${currentCard._originalMastery}`}
+                  <span className={`flashcard-mastery-badge flashcard-mastery-badge--${currentCard.masteryLevel}`}
                     style={{ position: 'static', marginRight: 'var(--spacing-sm)' }}>
-                    {getMasteryLabel(currentCard._originalMastery)}
+                    {getMasteryLabel(currentCard.masteryLevel)}
                   </span>
                   <span className="flashcard-back-word">{currentCard.word}</span>
                   <button
@@ -448,15 +439,21 @@ export default function FlashcardReview() {
         {/* ── Action Buttons (chỉ hiện khi đã lật) ── */}
         {isFlipped ? (
           <div className="flashcard-actions">
-            <button className="flashcard-action-btn flashcard-action-btn--learning" onClick={handleStillLearning}>
-              <span className="material-symbols-outlined">school</span>
-              Still Learning
+            <button className="flashcard-action-btn flashcard-action-btn--again" onClick={() => handleRate(1)}>
+              <span className="material-symbols-outlined">replay</span>
+              Again
             </button>
-            <button className="flashcard-action-btn flashcard-action-btn--mastered" onClick={handleMastered}>
-              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
-                verified
-              </span>
-              Mastered!
+            <button className="flashcard-action-btn flashcard-action-btn--hard" onClick={() => handleRate(2)}>
+              <span className="material-symbols-outlined">sentiment_dissatisfied</span>
+              Hard
+            </button>
+            <button className="flashcard-action-btn flashcard-action-btn--good" onClick={() => handleRate(3)}>
+              <span className="material-symbols-outlined">sentiment_satisfied</span>
+              Good
+            </button>
+            <button className="flashcard-action-btn flashcard-action-btn--easy" onClick={() => handleRate(4)}>
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
+              Easy
             </button>
           </div>
         ) : (

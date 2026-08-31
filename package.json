@@ -13,6 +13,7 @@
     "axios": "^1.17.0",
     "chart.js": "^4.5.1",
     "lucide-react": "^1.17.0",
+    "puppeteer": "^25.8.0",
     "react": "^19.2.6",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.6",

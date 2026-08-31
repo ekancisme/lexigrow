@@ -1,5 +1,6 @@
 import Vocabulary from '../models/Vocabulary.js'
 import asyncHandler from '../utils/asyncHandler.js'
+import { calculateSM2 } from '../services/srs.service.js'
 
 /**
  * @desc    Get student's vocabulary library
@@ -232,6 +233,75 @@ export const updateMastery = asyncHandler(async (req, res) => {
   }
 
   word.masteryLevel = req.body.masteryLevel || word.masteryLevel
+  await word.save()
+
+  res.status(200).json({ success: true, data: word })
+})
+
+/**
+ * @desc    Get vocabulary words due for review today
+ * @route   GET /api/vocabulary/due-today
+ * @access  Private (student)
+ */
+export const getDueToday = asyncHandler(async (req, res) => {
+  const { limit = 20 } = req.query
+  const now = new Date()
+
+  const words = await Vocabulary.find({
+    student: req.user._id,
+    $or: [
+      { nextReviewDate: null },
+      { nextReviewDate: { $lte: now } },
+    ],
+  })
+    .sort({ nextReviewDate: 1 })
+    .limit(Number(limit))
+
+  res.status(200).json({
+    success: true,
+    count: words.length,
+    data: words,
+  })
+})
+
+/**
+ * @desc    Submit a review rating for a vocabulary word
+ * @route   POST /api/vocabulary/review
+ * @access  Private (student)
+ */
+export const reviewVocabulary = asyncHandler(async (req, res) => {
+  const { wordId, rating } = req.body
+  const ErrorResponse = (await import('../utils/ErrorResponse.js')).default
+
+  if (!wordId) {
+    throw new ErrorResponse('wordId is required', 400)
+  }
+
+  const numRating = Number(rating)
+  if (![1, 2, 3, 4].includes(numRating)) {
+    throw new ErrorResponse('rating must be 1 (Again), 2 (Hard), 3 (Good), or 4 (Easy)', 400)
+  }
+
+  const word = await Vocabulary.findOne({ _id: wordId, student: req.user._id })
+  if (!word) {
+    throw new ErrorResponse('Word not found', 404)
+  }
+
+  const next = calculateSM2(
+    {
+      easeFactor: word.easeFactor,
+      reviewInterval: word.reviewInterval,
+      reviewCount: word.reviewCount,
+    },
+    numRating,
+  )
+
+  word.nextReviewDate = next.nextReviewDate
+  word.easeFactor = next.easeFactor
+  word.reviewInterval = next.reviewInterval
+  word.reviewCount = next.reviewCount
+  word.masteryLevel = next.masteryLevel
+
   await word.save()
 
   res.status(200).json({ success: true, data: word })

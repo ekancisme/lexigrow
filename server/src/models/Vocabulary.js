@@ -59,6 +59,25 @@ const vocabularySchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
+
+  // SRS (Spaced Repetition System) — SM-2 algorithm fields
+  nextReviewDate: {
+    type: Date,
+    default: null, // null = never reviewed yet → always in due-today list
+  },
+  easeFactor: {
+    type: Number,
+    default: 2.5, // SM-2 default EF
+    min: 1.3,     // SM-2 minimum EF floor
+  },
+  reviewInterval: {
+    type: Number,
+    default: 1,   // days until next review
+  },
+  reviewCount: {
+    type: Number,
+    default: 0,
+  },
 }, {
   timestamps: true,
 })
@@ -67,6 +86,8 @@ const vocabularySchema = new mongoose.Schema({
 vocabularySchema.index({ student: 1, word: 1 }, { unique: true })
 vocabularySchema.index({ student: 1, category: 1 })
 vocabularySchema.index({ student: 1, createdAt: -1 })
+// Index for efficient due-today queries
+vocabularySchema.index({ student: 1, nextReviewDate: 1 })
 
 const Vocabulary = mongoose.model('Vocabulary', vocabularySchema)
 export default Vocabulary

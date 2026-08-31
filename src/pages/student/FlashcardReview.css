@@ -464,26 +464,52 @@
   transition: all var(--transition-fast);
 }
 
-.flashcard-action-btn--learning {
-  background: var(--color-surface-container-lowest);
-  border-color: var(--color-outline-variant);
-  color: var(--color-on-surface-variant);
+.flashcard-action-btn--again {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
 }
 
-.flashcard-action-btn--learning:hover {
-  background: var(--color-warning-bg);
+.flashcard-action-btn--again:hover {
+  background: var(--color-danger);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.35);
+}
+
+.flashcard-action-btn--hard {
+  background: rgba(234, 88, 12, 0.08);
   border-color: var(--color-warning);
   color: var(--color-warning);
-  transform: translateY(-1px);
 }
 
-.flashcard-action-btn--mastered {
+.flashcard-action-btn--hard:hover {
+  background: var(--color-warning);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.35);
+}
+
+.flashcard-action-btn--good {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.flashcard-action-btn--good:hover {
+  background: var(--color-primary);
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+}
+
+.flashcard-action-btn--easy {
   background: rgba(22, 163, 74, 0.08);
   border-color: var(--color-success);
   color: var(--color-success);
 }
 
-.flashcard-action-btn--mastered:hover {
+.flashcard-action-btn--easy:hover {
   background: var(--color-success);
   color: #fff;
   transform: translateY(-1px);
