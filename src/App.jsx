@@ -52,6 +52,12 @@ import AdminClassManagement from './pages/admin/AdminClassManagement'
 import AdminAIMonitoring from './pages/admin/AdminAIMonitoring'
 import AdminVocabulary from './pages/admin/AdminVocabulary'
 import AdminLogs from './pages/admin/AdminLogs'
+import AdminPricing from './pages/admin/AdminPricing'
+
+/* Pricing & Payment Pages */
+import PricingPage from './pages/pricing/PricingPage'
+import PaymentSuccess from './pages/pricing/PaymentSuccess'
+import PaymentCancel from './pages/pricing/PaymentCancel'
 
 import TextTranslator from './components/common/TextTranslator'
 import { useAuth } from './contexts/AuthContext.jsx'
@@ -183,8 +189,14 @@ function App() {
           <Route path="classes" element={<AdminClassManagement />} />
           <Route path="ai-monitoring" element={<AdminAIMonitoring />} />
           <Route path="vocabulary" element={<AdminVocabulary />} />
+          <Route path="pricing" element={<AdminPricing />} />
           <Route path="logs" element={<AdminLogs />} />
         </Route>
+
+        {/* Pricing & Payment Routes */}
+        <Route path="/pricing" element={<AppLayout><PricingPage /></AppLayout>} />
+        <Route path="/payment/success" element={<PaymentSuccess />} />
+        <Route path="/payment/cancel" element={<PaymentCancel />} />
 
         {/* Shared routes */}
         <Route path="/settings" element={<AppLayout />}>

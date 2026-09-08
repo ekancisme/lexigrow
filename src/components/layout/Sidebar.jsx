@@ -9,6 +9,7 @@ const studentNavItems = [
   { icon: 'menu_book', label: 'Từ của tôi', path: '/student/my-words' },
   { icon: 'school', label: 'Lớp học của tôi', path: '/student/class' },
   { icon: 'forest', label: 'Khu vườn tiến bộ', path: '/student/progress' },
+  { icon: 'workspace_premium', label: 'Nâng cấp gói', path: '/pricing' },
 ]
 
 const teacherNavItems = [
@@ -17,12 +18,14 @@ const teacherNavItems = [
   { icon: 'assignment', label: 'Assignments', path: '/teacher/assignments' },
   { icon: 'warning', label: 'Early Warnings', path: '/teacher/alerts' },
   { icon: 'smart_toy', label: 'System Prompts', path: '/teacher/prompts' },
+  { icon: 'workspace_premium', label: 'Gói cước Giáo viên', path: '/pricing' },
 ]
 
 const adminNavItems = [
   { icon: 'dashboard', label: 'Dashboard', path: '/admin/dashboard' },
   { icon: 'group', label: 'Users', path: '/admin/users' },
   { icon: 'domain', label: 'Classes', path: '/admin/classes' },
+  { icon: 'payments', label: 'Gói cước & PayOS', path: '/admin/pricing' },
   { icon: 'monitoring', label: 'AI Monitoring', path: '/admin/ai-monitoring' },
   { icon: 'dictionary', label: 'Vocabulary', path: '/admin/vocabulary' },
   { icon: 'receipt_long', label: 'Audit Logs', path: '/admin/logs' },

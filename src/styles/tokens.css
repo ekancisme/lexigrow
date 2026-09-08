@@ -38,7 +38,7 @@
   --color-on-error: #FFFFFF;
   --color-on-error-container: #93000A;
 
-  --color-surface: #F3F5F9;
+  --color-surface: #F8F9FA;
   --color-surface-dim: #E2E8F0;
   --color-surface-bright: #F8FAFC;
   --color-surface-container-lowest: #FFFFFF;
@@ -52,7 +52,7 @@
   --color-on-surface: #0F172A;
   --color-on-surface-variant: #475569;
   --color-on-background: #0F172A;
-  --color-background: #F3F5F9;
+  --color-background: #F8F9FA;
 
   --color-outline: #64748B;
   --color-outline-variant: #E2E8F0;

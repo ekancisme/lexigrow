@@ -1,15 +1,31 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useTheme } from '../../contexts/ThemeContext.jsx'
 import NotificationBell from '../common/NotificationBell.jsx'
+import { paymentService } from '../../services/payment.service.js'
 import './TopNav.css'
 
 export default function TopNav({ role = 'student', onMenuToggle }) {
   const [searchFocused, setSearchFocused] = useState(false)
+  const [tierInfo, setTierInfo] = useState(null)
   const navigate = useNavigate()
   const { user: authUser } = useAuth()
   const { theme, toggleTheme } = useTheme()
+
+  useEffect(() => {
+    if (authUser && authUser.role !== 'admin') {
+      paymentService.getMySubscription()
+        .then(res => {
+          if (res.data?.success) {
+            setTierInfo(res.data.tierInfo)
+          }
+        })
+        .catch(() => {
+          // ignore or fallback
+        })
+    }
+  }, [authUser])
 
   const user = authUser
     ? {
@@ -52,6 +68,32 @@ export default function TopNav({ role = 'student', onMenuToggle }) {
 
       {/* Right Actions */}
       <div className="topnav__actions">
+        {/* Subscription Tier Badge / Upgrade CTA */}
+        {authUser && authUser.role !== 'admin' && (
+          <div className="topnav__tier-container">
+            {tierInfo?.tier && tierInfo.tier !== 'free' ? (
+              <button
+                className={`topnav__tier-badge topnav__tier-badge--${tierInfo.tier} ${tierInfo.source === 'teacher_sponsored' ? 'topnav__tier-badge--sponsored' : ''}`}
+                onClick={() => navigate('/pricing')}
+                title={tierInfo.source === 'teacher_sponsored' ? tierInfo.planName : `Gói ${tierInfo.tier.toUpperCase()}`}
+              >
+                <span className="material-symbols-outlined">
+                  {tierInfo.tier === 'ultra' ? 'workspace_premium' : tierInfo.tier === 'pro' ? 'star' : tierInfo.source === 'teacher_sponsored' ? 'school' : 'bolt'}
+                </span>
+                <span>
+                  {tierInfo.tier.toUpperCase()}
+                  {tierInfo.source === 'teacher_sponsored' && ' (GV)'}
+                </span>
+              </button>
+            ) : (
+              <button className="topnav__upgrade-btn" onClick={() => navigate('/pricing')}>
+                <span className="material-symbols-outlined">rocket_launch</span>
+                <span>Nâng cấp</span>
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Theme Toggle */}
         <button className="topnav__icon-btn" onClick={toggleTheme} aria-label="Toggle Theme">
           <span className="material-symbols-outlined">

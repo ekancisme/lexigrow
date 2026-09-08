@@ -82,6 +82,84 @@
   gap: var(--spacing-lg);
 }
 
+/* Subscription Tier Badge / Upgrade Button */
+.topnav__tier-container {
+  display: flex;
+  align-items: center;
+}
+
+.topnav__upgrade-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, #1a73e8, #4f46e5);
+  color: #fff;
+  border-radius: var(--radius-full);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
+  transition: all var(--transition-fast);
+}
+
+.topnav__upgrade-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26, 115, 232, 0.45);
+}
+
+.topnav__upgrade-btn .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.topnav__tier-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.topnav__tier-badge .material-symbols-outlined {
+  font-size: 15px;
+}
+
+.topnav__tier-badge--plus {
+  background: #eef2ff;
+  color: #4f46e5;
+  border-color: #c7d2fe;
+}
+
+.topnav__tier-badge--pro {
+  background: #fdf2f8;
+  color: #db2777;
+  border-color: #fbcfe8;
+}
+
+.topnav__tier-badge--ultra {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(245, 158, 11, 0.35);
+}
+
+.topnav__tier-badge--sponsored {
+  background: #ecfdf5;
+  color: #059669;
+  border-color: #a7f3d0;
+}
+
+.topnav__tier-badge:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
 .topnav__icon-btn {
   position: relative;
   color: var(--color-on-surface-variant);
