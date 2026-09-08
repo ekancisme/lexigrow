@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
+    "seed": "node scripts/seedLearningSets.js",
+    "seed:demo": "node scripts/seedFullDemo.js",
     "test": "vitest run"
   },
   "keywords": [],
