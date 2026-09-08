@@ -9,11 +9,6 @@ import cors from 'cors'
 
 import errorHandler from './middleware/error.middleware.js'
 
-
-
-// Connect to database
-
-
 const app = express()
 
 // Body parser
@@ -38,36 +33,15 @@ app.get('/api/health', (req, res) => {
 
 // Route files
 import authRoutes from './routes/auth.routes.js'
-
 import essayRoutes from './routes/essay.routes.js'
 import analysisRoutes from './routes/analysis.routes.js'
-
-app.use('/api/auth', authRoutes)
-app.use('/api/essays', essayRoutes)
-app.use('/api/essays', analysisRoutes)
-
 import vocabularyRoutes from './routes/vocabulary.routes.js'
 import progressRoutes from './routes/progress.routes.js'
 import goalsRoutes from './routes/goals.routes.js'
-
-app.use('/api/vocabulary', vocabularyRoutes)
-app.use('/api/progress', progressRoutes)
-app.use('/api/goals', goalsRoutes)
-
 import classRoutes from './routes/class.routes.js'
-
-app.use('/api/classes', classRoutes)
-
 import teacherRoutes from './routes/teacher.routes.js'
-
-app.use('/api/teacher', teacherRoutes)
-
 import feedbackRoutes from './routes/feedback.routes.js'
 import alertRoutes from './routes/alert.routes.js'
-
-app.use('/api/feedback', feedbackRoutes)
-app.use('/api/alerts', alertRoutes)
-
 import promptRoutes from './routes/prompt.routes.js'
 import profileRoutes from './routes/profile.routes.js'
 import parentRoutes from './routes/parent.routes.js'
@@ -77,7 +51,23 @@ import adminRoutes from './routes/admin.routes.js'
 import assignmentRoutes from './routes/assignment.routes.js'
 import globalVocabularyRoutes from './routes/globalVocabulary.routes.js'
 import learningSetRoutes from './routes/learningSet.routes.js'
+import learningSessionRoutes from './routes/learningSession.routes.js'
+import practiceRoutes from './routes/practice.routes.js'
+import srsRoutes from './routes/srs.routes.js'
+import gardenRoutes from './routes/garden.routes.js'
+import paymentRoutes from './routes/payment.routes.js'
+import adminPricingRoutes from './routes/admin.pricing.routes.js'
 
+app.use('/api/auth', authRoutes)
+app.use('/api/essays', essayRoutes)
+app.use('/api/essays', analysisRoutes)
+app.use('/api/vocabulary', vocabularyRoutes)
+app.use('/api/progress', progressRoutes)
+app.use('/api/goals', goalsRoutes)
+app.use('/api/classes', classRoutes)
+app.use('/api/teacher', teacherRoutes)
+app.use('/api/feedback', feedbackRoutes)
+app.use('/api/alerts', alertRoutes)
 app.use('/api/prompts', promptRoutes)
 app.use('/api/profile', profileRoutes)
 app.use('/api/parent', parentRoutes)
@@ -85,19 +75,18 @@ app.use('/api/notifications', notificationRoutes)
 app.use('/api/comments', commentRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/admin/global-vocabulary', globalVocabularyRoutes)
+app.use('/api/admin/pricing', adminPricingRoutes)
+app.use('/api/admin/subscriptions', adminPricingRoutes)
 app.use('/api/assignments', assignmentRoutes)
 app.use('/api/learning-sets', learningSetRoutes)
-
-import learningSessionRoutes from './routes/learningSession.routes.js'
-import practiceRoutes from './routes/practice.routes.js'
-import srsRoutes from './routes/srs.routes.js'
-import gardenRoutes from './routes/garden.routes.js'
 app.use('/api/sessions', learningSessionRoutes)
 app.use('/api/practice', practiceRoutes)
 app.use('/api/srs', srsRoutes)
 app.use('/api/garden', gardenRoutes)
+app.use('/api/payments', paymentRoutes)
+app.use('/api/subscriptions', paymentRoutes)
+
 // Error handler (must be after routes)
 app.use(errorHandler)
 
 export default app
-
