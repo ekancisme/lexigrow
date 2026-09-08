@@ -71,6 +71,7 @@ import commentRoutes from './routes/comment.routes.js'
 import adminRoutes from './routes/admin.routes.js'
 import assignmentRoutes from './routes/assignment.routes.js'
 import globalVocabularyRoutes from './routes/globalVocabulary.routes.js'
+import learningSetRoutes from './routes/learningSet.routes.js'
 
 app.use('/api/prompts', promptRoutes)
 app.use('/api/profile', profileRoutes)
@@ -80,6 +81,7 @@ app.use('/api/comments', commentRoutes)
 app.use('/api/admin', adminRoutes)
 app.use('/api/admin/global-vocabulary', globalVocabularyRoutes)
 app.use('/api/assignments', assignmentRoutes)
+app.use('/api/learning-sets', learningSetRoutes)
 
 // Error handler (must be after routes)
 app.use(errorHandler)

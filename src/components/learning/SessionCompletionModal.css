@@ -1,0 +1,191 @@
+.completion-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 28, 48, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.completion-modal {
+  position: relative;
+  background: var(--color-surface-container-lowest, #ffffff);
+  border-radius: 28px;
+  padding: 40px;
+  max-width: 520px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--color-outline-variant, #e2e8f0);
+}
+
+.completion-modal__confetti-wrapper {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: 28px;
+}
+
+.completion-modal__sparkle {
+  position: absolute;
+  font-size: 24px;
+  animation: float-sparkle 2.5s infinite ease-in-out;
+}
+
+.sparkle-1 { top: 20px; left: 30px; animation-delay: 0s; }
+.sparkle-2 { top: 25px; right: 35px; animation-delay: 0.5s; }
+.sparkle-3 { bottom: 40px; left: 25px; animation-delay: 1s; }
+.sparkle-4 { bottom: 45px; right: 30px; animation-delay: 1.5s; }
+
+@keyframes float-sparkle {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
+  50% { transform: translateY(-10px) rotate(15deg); opacity: 1; }
+}
+
+.completion-modal__badge {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fef08a 0%, #eab308 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(234, 179, 8, 0.35);
+}
+
+.completion-modal__icon {
+  font-size: 40px;
+  color: #713f12;
+}
+
+.completion-modal__title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-on-surface, #0f172a);
+  margin: 0;
+}
+
+.completion-modal__desc {
+  font-size: 14px;
+  color: var(--color-outline, #64748b);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.completion-modal__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.completion-modal__stat-item {
+  background: var(--color-surface-container-low, #f8fafc);
+  border: 1px solid var(--color-outline-variant, #e2e8f0);
+  border-radius: 14px;
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.completion-modal__stat-icon {
+  font-size: 22px;
+  color: var(--color-primary, #005bbf);
+}
+
+.completion-modal__stat-value {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-on-surface, #0f172a);
+}
+
+.completion-modal__stat-label {
+  display: block;
+  font-size: 11px;
+  color: var(--color-outline, #64748b);
+}
+
+.completion-modal__words-box {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 14px;
+  padding: 14px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+}
+
+.completion-modal__words-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #166534;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.completion-modal__chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.completion-modal__word-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #ffffff;
+  color: #15803d;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.completion-modal__word-chip .material-symbols-outlined {
+  font-size: 16px;
+  color: #16a34a;
+}
+
+.completion-modal__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.completion-modal__btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.completion-modal__btn-secondary {
+  width: 100%;
+  padding: 12px;
+  border-radius: 14px;
+  font-size: 14px;
+  font-weight: 600;
+}

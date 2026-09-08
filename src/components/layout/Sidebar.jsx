@@ -3,14 +3,11 @@ import { useAuth } from '../../contexts/AuthContext.jsx'
 import './Sidebar.css'
 
 const studentNavItems = [
-  { icon: 'dashboard', label: 'Dashboard', path: '/student/dashboard' },
-  { icon: 'school', label: 'My Class', path: '/student/class' },
-  { icon: 'edit_note', label: 'Write Essay', path: '/student/write-essay' },
-  { icon: 'history', label: 'Essay History', path: '/student/essays' },
-  { icon: 'menu_book', label: 'Vocabulary', path: '/student/vocabulary' },
-  { icon: 'trending_up', label: 'My Progress', path: '/student/progress' },
-  { icon: 'flag', label: 'Weekly Goals', path: '/student/goals' },
-  { icon: 'psychology', label: 'AI Feedback', path: '/student/feedback' },
+  { icon: 'home', label: 'Hôm nay', path: '/student/dashboard' },
+  { icon: 'explore', label: 'Khám phá', path: '/student/explore' },
+  { icon: 'edit_note', label: 'Luyện viết', path: '/student/writing' },
+  { icon: 'menu_book', label: 'Từ của tôi', path: '/student/my-words' },
+  { icon: 'forest', label: 'Khu vườn tiến bộ', path: '/student/progress' },
 ]
 
 const teacherNavItems = [
@@ -141,7 +138,7 @@ export default function Sidebar({ role = 'student', mobileOpen = false, onClose 
           <button
             className="sidebar__cta-btn"
             onClick={() =>
-              { navigate(role === 'student' ? '/student/write-essay' : '/teacher/classes'); onClose?.() }
+              { navigate(role === 'student' ? '/student/writing' : '/teacher/classes'); onClose?.() }
             }
           >
             <span className="material-symbols-outlined">add</span>

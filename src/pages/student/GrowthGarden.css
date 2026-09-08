@@ -1,0 +1,339 @@
+.growth-garden {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.growth-garden__hero {
+  padding: 32px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #14532d 0%, #16a34a 60%, #4ade80 100%);
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  box-shadow: 0 12px 36px rgba(22, 163, 74, 0.25);
+  flex-wrap: wrap;
+}
+
+.growth-garden__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.growth-garden__title {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0 0 6px 0;
+  color: #ffffff;
+}
+
+.growth-garden__desc {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  max-width: 580px;
+  line-height: 1.5;
+}
+
+.growth-garden__stats-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.growth-garden__stat-num {
+  font-size: 36px;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.growth-garden__stat-label {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 8px;
+}
+
+.growth-garden__btn-plant {
+  background: #ffffff !important;
+  color: #15803d !important;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+/* ── Layout ── */
+.growth-garden__layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 900px) {
+  .growth-garden__layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.growth-garden__canvas {
+  padding: 28px;
+  border-radius: 20px;
+  border: 1px solid var(--color-outline-variant, #e2e8f0);
+  background: var(--color-surface-container-lowest, #ffffff);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.growth-garden__canvas-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-on-surface, #0f172a);
+  margin: 0;
+}
+
+.growth-garden__plants-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.plant-card {
+  padding: 20px;
+  border-radius: 18px;
+  border: 2px solid var(--color-outline-variant, #e2e8f0);
+  background: var(--color-surface-container-low, #f8fafc);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.plant-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-primary, #005bbf);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+.plant-card--selected {
+  border-color: #16a34a !important;
+  background: #f0fdf4 !important;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2) !important;
+}
+
+.plant-card__icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-surface-container-high, #e2e8f0);
+  color: var(--color-primary, #005bbf);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.plant-card__stage-art {
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--color-surface, #ffffff);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.stage-seed { color: #854d0e; }
+.stage-sprout { color: #16a34a; }
+.stage-branch { color: #0d9488; }
+.stage-blooming { color: #e11d48; }
+
+.plant-card__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-on-surface, #0f172a);
+  margin: 0;
+}
+
+.plant-card__progress {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.plant-card__bar {
+  width: 100%;
+  height: 6px;
+  background: var(--color-surface-variant, #e2e8f0);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.plant-card__fill {
+  height: 100%;
+  background: #16a34a;
+  border-radius: 999px;
+}
+
+.plant-card__ratio {
+  font-size: 12px;
+  color: var(--color-outline, #64748b);
+  font-weight: 600;
+}
+
+/* ── Detail Drawer ── */
+.growth-garden__detail {
+  padding: 24px;
+  border-radius: 20px;
+  border: 1px solid var(--color-outline-variant, #e2e8f0);
+  background: var(--color-surface-container-lowest, #ffffff);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.growth-garden__detail-header {
+  border-bottom: 1px solid var(--color-surface-variant, #f1f5f9);
+  padding-bottom: 14px;
+}
+
+.growth-garden__detail-title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.growth-garden__detail-icon {
+  font-size: 28px;
+  color: #16a34a;
+}
+
+.growth-garden__detail-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-on-surface, #0f172a);
+  margin: 0;
+}
+
+.growth-garden__detail-sub {
+  font-size: 13px;
+  color: var(--color-outline, #64748b);
+}
+
+.growth-garden__detail-words {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.growth-garden__detail-words h5 {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-outline, #64748b);
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.evidence-card {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--color-surface-container-low, #f8fafc);
+  border: 1px solid var(--color-outline-variant, #e2e8f0);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.evidence-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.evidence-card__word {
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--color-on-surface, #0f172a);
+}
+
+.evidence-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.evidence-badge--mastered {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.evidence-badge--learning {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.evidence-badge--seed {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.evidence-card__sentence {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--color-on-surface, #1e293b);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.evidence-card__empty {
+  font-size: 12px;
+  color: var(--color-outline, #94a3b8);
+  margin: 0;
+}
+
+.growth-garden__detail-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: 700;
+  margin-top: auto;
+}

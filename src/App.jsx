@@ -24,6 +24,10 @@ import ContextFiller from './pages/game/ContextFiller'
 import VocabHunter from './pages/game/VocabHunter'
 import EssayHistory from './pages/student/EssayHistory'
 import StudentClassDetail from './pages/student/StudentClassDetail'
+import Explore from './pages/student/Explore'
+import LearningSession from './pages/student/LearningSession'
+import Onboarding from './pages/student/Onboarding'
+import GrowthGarden from './pages/student/GrowthGarden'
 
 /* Parent Pages */
 import ParentDashboard from './pages/parent/ParentDashboard'
@@ -115,7 +119,12 @@ function App() {
         <Route path="/student" element={<AppLayout role="student" />}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<StudentDashboard />} />
+          <Route path="onboarding" element={<Onboarding />} />
           <Route path="write-essay" element={<WriteEssay />} />
+          <Route path="explore" element={<Explore />} />
+          <Route path="writing" element={<LearningSession />} />
+          <Route path="garden" element={<GrowthGarden />} />
+          <Route path="my-words" element={<VocabularyLibrary />} />
           <Route path="vocabulary" element={<VocabularyLibrary />} />
           <Route path="vocabulary/review" element={<FlashcardReview />} />
           <Route path="game" element={<GameHub />} />

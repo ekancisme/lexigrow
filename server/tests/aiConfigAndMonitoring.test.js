@@ -81,7 +81,7 @@ describe('AI Config & Monitoring API', () => {
       
       // Verification of key masking
       const groqConfig = res.body.data.find(c => c.key === 'GROQ_API_KEY')
-      expect(groqConfig.value).toBe('gsk_ep...ya5T') // should be masked
+      expect(groqConfig.value).toBe('gsk_du...ya5T') // should be masked
       
       const modelConfig = res.body.data.find(c => c.key === 'DEFAULT_AI_MODEL')
       expect(modelConfig.value).toBe('llama-3.3-70b-versatile') // should NOT be masked

@@ -98,6 +98,22 @@ describe('AI Writing Detection Service - Local Heuristics Fallback', () => {
   })
 })
 
+// Mock AIAnalysis model to prevent OverwriteModelError on dynamic re-import
+vi.mock('../src/models/AIAnalysis.js', () => ({
+  default: {
+    findOneAndUpdate: vi.fn(),
+    find: vi.fn()
+  }
+}))
+
+// Mock Vocabulary model to prevent OverwriteModelError on dynamic re-import
+vi.mock('../src/models/Vocabulary.js', () => ({
+  default: {
+    find: vi.fn(),
+    bulkWrite: vi.fn()
+  }
+}))
+
 // Mock Config model
 vi.mock('../src/models/Config.js', () => {
   return {
@@ -166,7 +182,52 @@ vi.mock('groq-sdk', () => {
 
 describe('AI Helper Service', () => {
   it('should process spellcheck and return error objects', async () => {
-    // Dynamically import to ensure mocks are applied
+    // Mock groq-sdk at the module level before importing the service
+    vi.doMock('groq-sdk', () => {
+      const mockCreate = vi.fn().mockImplementation(async (options) => {
+        if (options.response_format && options.response_format.type === 'json_object') {
+          return {
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify({
+                    errors: [
+                      { error: 'he go', correction: 'he went', explanation: 'Should use past tense.' }
+                    ]
+                  })
+                }
+              }
+            ],
+            usage: { prompt_tokens: 10, completion_tokens: 20 }
+          }
+        }
+        return {
+          choices: [
+            {
+              message: {
+                content: 'He went to school yesterday.'
+              }
+            }
+          ],
+          usage: { prompt_tokens: 10, completion_tokens: 20 }
+        }
+      })
+
+      return {
+        default: class MockGroq {
+          constructor() {
+            this.chat = {
+              completions: {
+                create: mockCreate
+              }
+            }
+          }
+        }
+      }
+    })
+
+    // Reset module cache and dynamically import the service after mock
+    vi.resetModules()
     const { runAIHelperService } = await import('../src/services/ai.service.js')
     const text = 'he go to school yesterday'
     const result = await runAIHelperService(text, 'spellcheck')
@@ -176,6 +237,52 @@ describe('AI Helper Service', () => {
   })
 
   it('should process improve and return polished text', async () => {
+    // Mock groq-sdk at the module level before importing the service
+    vi.doMock('groq-sdk', () => {
+      const mockCreate = vi.fn().mockImplementation(async (options) => {
+        if (options.response_format && options.response_format.type === 'json_object') {
+          return {
+            choices: [
+              {
+                message: {
+                  content: JSON.stringify({
+                    errors: [
+                      { error: 'he go', correction: 'he went', explanation: 'Should use past tense.' }
+                    ]
+                  })
+                }
+              }
+            ],
+            usage: { prompt_tokens: 10, completion_tokens: 20 }
+          }
+        }
+        return {
+          choices: [
+            {
+              message: {
+                content: 'He went to school yesterday.'
+              }
+            }
+          ],
+          usage: { prompt_tokens: 10, completion_tokens: 20 }
+        }
+      })
+
+      return {
+        default: class MockGroq {
+          constructor() {
+            this.chat = {
+              completions: {
+                create: mockCreate
+              }
+            }
+          }
+        }
+      }
+    })
+
+    // Reset module cache and dynamically import the service after mock
+    vi.resetModules()
     const { runAIHelperService } = await import('../src/services/ai.service.js')
     const text = 'he go to school yesterday'
     const result = await runAIHelperService(text, 'improve')

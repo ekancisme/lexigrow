@@ -1,0 +1,265 @@
+.practice-step {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 680px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.practice-step__header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.practice-step__progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--color-surface-variant, #e2e8f0);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.practice-step__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-primary, #005bbf) 0%, var(--color-primary-container, #1a73e8) 100%);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.practice-step__meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.practice-step__counter {
+  color: var(--color-outline, #64748b);
+  font-weight: 600;
+}
+
+.practice-step__streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%);
+  color: #c2410c;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  animation: bounce-badge 0.4s ease;
+}
+
+@keyframes bounce-badge {
+  0% { transform: scale(0.8); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.practice-step__streak-badge .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.practice-step__card {
+  padding: 32px;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border: 1px solid var(--color-outline-variant, #e2e8f0);
+  background: var(--color-surface-container-lowest, #ffffff);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+}
+
+.practice-step__type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: var(--color-surface-container-high, #e0e7ff);
+  color: var(--color-primary, #005bbf);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.practice-step__type-badge .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.practice-step__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-on-surface, #0f172a);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.practice-step__sentence-box {
+  background: var(--color-surface-container-low, #f8fafc);
+  border: 1px solid var(--color-surface-variant, #e2e8f0);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.practice-step__sentence-text {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-on-surface, #1e293b);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.practice-step__sentence-sub {
+  font-size: 14px;
+  color: var(--color-outline, #64748b);
+  margin: 0;
+}
+
+.practice-step__options {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.practice-step__option-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  border: 2px solid var(--color-outline-variant, #e2e8f0);
+  background: var(--color-surface, #ffffff);
+  color: var(--color-on-surface, #1e293b);
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.practice-step__option-btn:hover:not(:disabled) {
+  border-color: var(--color-primary, #005bbf);
+  background: var(--color-surface-container-low, #f8fafc);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.practice-step__option-letter {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--color-surface-container-high, #e2e8f0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-outline, #475569);
+  flex-shrink: 0;
+}
+
+.practice-step__option-text {
+  flex: 1;
+}
+
+.practice-step__option-icon {
+  font-size: 20px;
+}
+
+.practice-step__option-btn--correct {
+  border-color: var(--color-success, #16a34a) !important;
+  background: var(--color-success-bg, rgba(22, 163, 74, 0.08)) !important;
+  color: var(--color-success, #16a34a) !important;
+}
+
+.practice-step__option-btn--correct .practice-step__option-letter {
+  background: var(--color-success, #16a34a);
+  color: #fff;
+}
+
+.practice-step__option-btn--wrong {
+  border-color: var(--color-error, #ba1a1a) !important;
+  background: var(--color-error-container, #ffdad6) !important;
+  color: var(--color-on-error-container, #93000a) !important;
+}
+
+.practice-step__option-btn--wrong .practice-step__option-letter {
+  background: var(--color-error, #ba1a1a);
+  color: #fff;
+}
+
+.practice-step__option-btn--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.practice-step__feedback-box {
+  margin-top: 12px;
+  padding: 16px 20px;
+  border-radius: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.practice-step__feedback-box--correct {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+}
+
+.practice-step__feedback-box--wrong {
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  color: #9f1239;
+}
+
+.practice-step__feedback-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.practice-step__feedback-icon {
+  font-size: 28px;
+}
+
+.practice-step__feedback-status {
+  font-weight: 700;
+  font-size: 15px;
+  margin: 0 0 2px 0;
+}
+
+.practice-step__feedback-exp {
+  font-size: 13px;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.practice-step__btn-continue {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.practice-step__footer {
+  display: flex;
+  justify-content: flex-start;
+}

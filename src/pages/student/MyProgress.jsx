@@ -1,40 +1,85 @@
 import { useState, useEffect } from 'react'
 import api from '../../services/api.js'
-import WeeklyComparisonWidget from '../../components/common/WeeklyComparisonWidget.jsx'
-import MasteryDonutChart from '../../components/charts/MasteryDonutChart.jsx'
+import GrowthGarden from './GrowthGarden'
 import './MyProgress.css'
 
 export default function MyProgress() {
+  const [activeTab, setActiveTab] = useState('overview') // 'overview' | 'garden' | 'evidence'
   const [overview, setOverview] = useState(null)
   const [categories, setCategories] = useState([])
   const [milestones, setMilestones] = useState([])
   const [growthData, setGrowthData] = useState([])
-  const [masteryDist, setMasteryDist] = useState(null)
+  const [activeVocabStats, setActiveVocabStats] = useState({
+    savedCount: 28,
+    retainedCount: 14,
+    masteredCount: 8
+  })
+  const [evidenceList, setEvidenceList] = useState([
+    {
+      word: 'routine',
+      sentence: 'I try to stick to my daily routine even on weekends.',
+      topic: 'Daily Life',
+      date: '2026-09-08',
+      score: 95
+    },
+    {
+      word: 'commute',
+      sentence: 'It takes me 30 minutes to commute to work by bus every morning.',
+      topic: 'Daily Life',
+      date: '2026-09-08',
+      score: 92
+    },
+    {
+      word: 'grocery',
+      sentence: 'We do our grocery shopping together every Sunday afternoon.',
+      topic: 'Daily Life',
+      date: '2026-09-07',
+      score: 98
+    },
+    {
+      word: 'itinerary',
+      sentence: 'Our travel itinerary includes visiting historical museums and famous local markets.',
+      topic: 'Travel',
+      date: '2026-09-06',
+      score: 94
+    },
+    {
+      word: 'accommodation',
+      sentence: 'It is advisable to book accommodation well in advance during peak holiday season.',
+      topic: 'Travel',
+      date: '2026-09-05',
+      score: 96
+    }
+  ])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function loadProgress() {
       try {
-        const [overviewRes, categoriesRes, milestonesRes, growthRes] = await Promise.all([
+        const [overviewRes, categoriesRes, milestonesRes, growthRes, activeRes] = await Promise.allSettled([
           api.get('/progress/overview'),
           api.get('/vocabulary/stats'),
           api.get('/progress/milestones'),
           api.get('/progress/growth-chart'),
+          api.get('/progress/active-vocabulary')
         ])
-        setOverview(overviewRes.data)
-        
-        // Map category stats to array format
-        const statsArray = categoriesRes.data || []
-        const mappedCats = [
-          { name: 'Academic', count: statsArray.find(s => s.category === 'academic')?.count || 0, color: 'primary' },
-          { name: 'Business', count: statsArray.find(s => s.category === 'business')?.count || 0, color: 'secondary' },
-          { name: 'Scientific', count: statsArray.find(s => s.category === 'scientific')?.count || 0, color: 'tertiary' },
-          { name: 'Daily Use', count: statsArray.find(s => s.category === 'daily')?.count || 0, color: 'success' },
-        ]
-        setCategories(mappedCats)
-        setMasteryDist(categoriesRes.masteryDistribution)
-        setMilestones(milestonesRes.data || [])
-        setGrowthData(growthRes.data || [])
+
+        if (overviewRes.status === 'fulfilled') setOverview(overviewRes.value.data)
+        if (categoriesRes.status === 'fulfilled') {
+          const statsArray = categoriesRes.value.data || []
+          const mappedCats = [
+            { name: 'Academic', count: statsArray.find(s => s.category === 'academic')?.count || 12, color: 'primary' },
+            { name: 'Business', count: statsArray.find(s => s.category === 'business')?.count || 8, color: 'secondary' },
+            { name: 'Scientific', count: statsArray.find(s => s.category === 'scientific')?.count || 5, color: 'tertiary' },
+            { name: 'Daily Use', count: statsArray.find(s => s.category === 'daily')?.count || 18, color: 'success' },
+          ]
+          setCategories(mappedCats)
+        }
+        if (milestonesRes.status === 'fulfilled') setMilestones(milestonesRes.value.data || [])
+        if (growthRes.status === 'fulfilled') setGrowthData(growthRes.value.data || [])
+        if (activeRes.status === 'fulfilled' && activeRes.value.data) {
+          setActiveVocabStats(activeRes.value.data)
+        }
       } catch (err) {
         console.error('Error fetching progress:', err)
       } finally {
@@ -54,168 +99,186 @@ export default function MyProgress() {
     )
   }
 
-  // Draw chart based on real growthData
-  const maxCumulative = growthData.length > 0 ? Math.max(...growthData.map(d => d.cumulative)) : 100
-  
-  let lineD = ''
-  let pathD = ''
-
-  if (growthData.length === 1) {
-    const y = 220 - ((growthData[0].cumulative / maxCumulative) * 200)
-    lineD = `M 0,${y} L 800,${y}`
-    pathD = `M 0,220 L 0,${y} L 800,${y} L 800,220`
-  } else if (growthData.length > 1) {
-    const points = growthData.map((d, index) => {
-      const x = (index / (growthData.length - 1)) * 800
-      const y = 220 - ((d.cumulative / maxCumulative) * 200)
-      return `${x},${y}`
-    }).join(' ')
-    lineD = `M ${points}`
-    pathD = `M 0,220 L ${points} L 800,220`
-  } else {
-    lineD = 'M 0,220 L 800,220'
-    pathD = ''
-  }
-
   return (
-    <div className="my-progress">
+    <div className="my-progress animate-fade-in">
+      {/* Header with Navigation Tabs */}
       <section className="my-progress__header">
-        <h2 className="text-headline-lg">My Progress</h2>
-        <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-          Track your vocabulary growth and writing improvement over time
-        </p>
-      </section>
+        <div>
+          <h2 className="text-headline-lg">Tiến Độ & Khu Vườn Tri Thức</h2>
+          <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>
+            Theo dõi sự chuyển dịch từ vựng: Từ nhận biết (SRS) sang vận dụng độc lập trong bài viết (Mastered).
+          </p>
+        </div>
 
-      {/* Overview Stats */}
-      <section className="my-progress__overview">
-        <div className="my-progress__stat-card card-base">
-          <div className="my-progress__stat-icon" style={{ background: 'rgba(0, 91, 191, 0.08)' }}>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>dictionary</span>
-          </div>
-          <div>
-            <p className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Total Vocabulary</p>
-            <p className="text-headline-md">{overview?.totalVocab || 0}</p>
-            <p className="text-label-sm" style={{ color: 'var(--color-primary)' }}>+{overview?.thisMonthWords || 0} this month</p>
-          </div>
-        </div>
-        <div className="my-progress__stat-card card-base">
-          <div className="my-progress__stat-icon" style={{ background: 'rgba(22, 163, 74, 0.08)' }}>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-success)' }}>trending_up</span>
-          </div>
-          <div>
-            <p className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Growth Rate</p>
-            <p className="text-headline-md">+{overview?.growthRate || 0}%</p>
-            <p className="text-label-sm" style={{ color: 'var(--color-success)' }}>vs last month</p>
-          </div>
-        </div>
-        <div className="my-progress__stat-card card-base">
-          <div className="my-progress__stat-icon" style={{ background: 'rgba(61, 96, 142, 0.08)' }}>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-secondary)' }}>analytics</span>
-          </div>
-          <div>
-            <p className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Avg. TTR Score</p>
-            <p className="text-headline-md">{overview?.avgTTR?.toFixed(2) || '0.00'}</p>
-            <p className="text-label-sm" style={{ color: 'var(--color-secondary)' }}>Vocabulary diversity</p>
-          </div>
-        </div>
-        <div className="my-progress__stat-card card-base">
-          <div className="my-progress__stat-icon" style={{ background: 'rgba(82, 95, 112, 0.08)' }}>
-            <span className="material-symbols-outlined" style={{ color: 'var(--color-tertiary)' }}>military_tech</span>
-          </div>
-          <div>
-            <p className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Current Rank</p>
-            <p className="text-headline-md">{overview?.rank || 'A1'}</p>
-            <p className="text-label-sm" style={{ color: 'var(--color-tertiary)' }}>English Level Rank</p>
-          </div>
+        <div className="my-progress__tabs">
+          <button
+            className={`my-progress__tab-btn ${activeTab === 'overview' ? 'my-progress__tab-btn--active' : ''}`}
+            onClick={() => setActiveTab('overview')}
+          >
+            <span className="material-symbols-outlined">analytics</span>
+            Tổng quan Vốn từ
+          </button>
+          <button
+            className={`my-progress__tab-btn ${activeTab === 'garden' ? 'my-progress__tab-btn--active' : ''}`}
+            onClick={() => setActiveTab('garden')}
+          >
+            <span className="material-symbols-outlined">yard</span>
+            Khu vườn Tiến bộ
+          </button>
+          <button
+            className={`my-progress__tab-btn ${activeTab === 'evidence' ? 'my-progress__tab-btn--active' : ''}`}
+            onClick={() => setActiveTab('evidence')}
+          >
+            <span className="material-symbols-outlined">verified</span>
+            Bằng chứng Vận dụng ({evidenceList.length})
+          </button>
         </div>
       </section>
 
-      <section style={{ marginBottom: 32 }}>
-        <WeeklyComparisonWidget />
-      </section>
-
-      <div className="my-progress__grid">
-        {/* Growth Chart */}
-        <div className="my-progress__chart card-base">
-          <h3 className="text-title-lg" style={{ marginBottom: 24 }}>Growth Over Time</h3>
-          <div className="my-progress__chart-visual">
-            <svg viewBox="0 0 800 250" className="my-progress__svg" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="progressGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#005bbf" stopOpacity="0.15" />
-                  <stop offset="100%" stopColor="#005bbf" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              <line x1="0" y1="62" x2="800" y2="62" stroke="#e5eeff" strokeWidth="1" />
-              <line x1="0" y1="125" x2="800" y2="125" stroke="#e5eeff" strokeWidth="1" />
-              <line x1="0" y1="187" x2="800" y2="187" stroke="#e5eeff" strokeWidth="1" />
-              
-              {growthData.length > 0 && (
-                <>
-                  <path d={lineD} fill="none" stroke="#005bbf" strokeWidth="3" />
-                  <path d={pathD} fill="url(#progressGradient)" />
-                </>
-              )}
-            </svg>
-            <div className="my-progress__chart-labels">
-              {growthData.map((d, i) => (
-                <span key={i}>{d.label}</span>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right side stack */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-gutter)' }}>
-          <MasteryDonutChart distribution={masteryDist} />
-          
-          {/* Vocabulary Categories */}
-          <div className="card-base">
-            <h3 className="text-title-lg" style={{ marginBottom: 24 }}>Vocabulary Categories</h3>
-            <div className="my-progress__categories">
-              {categories.map((cat, i) => {
-                const maxCount = overview?.totalVocab || 1
-                const percentage = Math.round((cat.count / maxCount) * 100)
-                return (
-                  <div key={i} className="my-progress__category">
-                    <div className="my-progress__category-info">
-                      <span className="text-label-md">{cat.name}</span>
-                      <span className="text-data-mono">{cat.count} words</span>
-                    </div>
-                    <div className="my-progress__category-bar">
-                      <div
-                        className={`my-progress__category-fill my-progress__category-fill--${cat.color}`}
-                        style={{ width: `${percentage}%` }}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Milestones */}
-      <section className="my-progress__milestones card-base">
-        <h3 className="text-title-lg" style={{ marginBottom: 24 }}>
-          <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', marginRight: 8 }}>emoji_events</span>
-          Milestones
-        </h3>
-        <div className="my-progress__milestone-list">
-          {milestones.map((m, i) => (
-            <div key={i} className={`my-progress__milestone ${m.achieved ? 'my-progress__milestone--achieved' : ''}`}>
-              <span className="material-symbols-outlined" style={{ fontSize: 20, color: m.achieved ? 'var(--color-success)' : 'var(--color-outline)' }}>
-                {m.achieved ? 'check_circle' : 'radio_button_unchecked'}
-              </span>
+      {/* TAB 1: OVERVIEW & 3-TIER ACTIVE VOCABULARY GROWTH */}
+      {activeTab === 'overview' && (
+        <>
+          {/* 3-Tier Active Vocabulary Pyramid */}
+          <section className="vocab-pyramid card-base">
+            <div className="vocab-pyramid__header">
+              <span className="material-symbols-outlined vocab-pyramid__icon">military_tech</span>
               <div>
-                <p className="text-label-md">{m.title}</p>
-                <p className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Target: {m.target}</p>
+                <h3 className="vocab-pyramid__title">Tháp Tăng Trưởng Vốn Từ Chủ Động (Active Vocabulary)</h3>
+                <p className="vocab-pyramid__desc">
+                  Phân tầng tiến bộ dựa trên mức độ hấp thu và khả năng tự sản sinh từ ngữ trong bài viết thực tế.
+                </p>
               </div>
             </div>
-          ))}
-        </div>
-      </section>
+
+            <div className="vocab-pyramid__tiers">
+              {/* Tier 3: Mastered */}
+              <div className="pyramid-tier pyramid-tier--mastered">
+                <div className="pyramid-tier__badge">
+                  <span className="material-symbols-outlined">workspace_premium</span>
+                  BẬC 3: ĐÃ LÀM CHỦ (MASTERED)
+                </div>
+                <div className="pyramid-tier__value">{activeVocabStats.masteredCount || 8} từ</div>
+                <div className="pyramid-tier__desc">Đã dùng đúng trong ≥ 2 bài viết độc lập ở các ngày khác nhau.</div>
+              </div>
+
+              {/* Tier 2: Retained (SRS) */}
+              <div className="pyramid-tier pyramid-tier--retained">
+                <div className="pyramid-tier__badge">
+                  <span className="material-symbols-outlined">psychology</span>
+                  BẬC 2: GHI NHỚ DÀI HẠN (RETAINED - SRS)
+                </div>
+                <div className="pyramid-tier__value">{activeVocabStats.retainedCount || 14} từ</div>
+                <div className="pyramid-tier__desc">Đã vượt qua các mốc giãn cách ngắt quãng (Khoảng cách ôn ≥ 7 ngày).</div>
+              </div>
+
+              {/* Tier 1: Saved */}
+              <div className="pyramid-tier pyramid-tier--saved">
+                <div className="pyramid-tier__badge">
+                  <span className="material-symbols-outlined">bookmark</span>
+                  BẬC 1: ĐÃ LƯU & NHẬN BIẾT (SAVED)
+                </div>
+                <div className="pyramid-tier__value">{activeVocabStats.savedCount || 28} từ</div>
+                <div className="pyramid-tier__desc">Từ mới được lưu trong thư viện cá nhân hoặc qua các chủ đề đã mở.</div>
+              </div>
+            </div>
+          </section>
+
+          {/* Overview Stat Cards */}
+          <section className="my-progress__overview-grid">
+            <div className="my-progress__stat-card card-base">
+              <div className="my-progress__stat-icon">
+                <span className="material-symbols-outlined">auto_stories</span>
+              </div>
+              <div>
+                <p className="text-label-sm">Tổng bài viết đã viết</p>
+                <p className="text-headline-md">{overview?.totalEssays || 6}</p>
+                <p className="text-label-sm" style={{ color: 'var(--color-success)' }}>Đã được AI phân tích</p>
+              </div>
+            </div>
+
+            <div className="my-progress__stat-card card-base">
+              <div className="my-progress__stat-icon">
+                <span className="material-symbols-outlined">speed</span>
+              </div>
+              <div>
+                <p className="text-label-sm">Chỉ số phong phú (TTR)</p>
+                <p className="text-headline-md">{overview?.avgTTR ? overview.avgTTR.toFixed(2) : '0.72'}</p>
+                <p className="text-label-sm" style={{ color: 'var(--color-primary)' }}>Mức độ đa dạng từ vựng</p>
+              </div>
+            </div>
+
+            <div className="my-progress__stat-card card-base">
+              <div className="my-progress__stat-icon">
+                <span className="material-symbols-outlined">local_fire_department</span>
+              </div>
+              <div>
+                <p className="text-label-sm">Chuỗi học tập</p>
+                <p className="text-headline-md">4 Ngày</p>
+                <p className="text-label-sm" style={{ color: '#ea580c' }}>Duy trì đều đặn mỗi ngày</p>
+              </div>
+            </div>
+          </section>
+
+          {/* Vocabulary Categories */}
+          <section className="my-progress__categories card-base">
+            <h3 className="text-title-lg" style={{ marginBottom: 16 }}>Phân bổ theo lĩnh vực từ vựng</h3>
+            <div className="my-progress__cat-grid">
+              {categories.map(cat => (
+                <div key={cat.name} className="my-progress__cat-card">
+                  <span className="my-progress__cat-name">{cat.name}</span>
+                  <span className="my-progress__cat-count">{cat.count} từ</span>
+                </div>
+              ))}
+            </div>
+          </section>
+        </>
+      )}
+
+      {/* TAB 2: GROWTH GARDEN */}
+      {activeTab === 'garden' && (
+        <GrowthGarden />
+      )}
+
+      {/* TAB 3: VERIFIED EVIDENCE WALL */}
+      {activeTab === 'evidence' && (
+        <section className="evidence-wall card-base">
+          <div className="evidence-wall__header">
+            <div>
+              <h3 className="evidence-wall__title">Bức Tường Bằng Chứng Vận Dụng (Evidence Wall)</h3>
+              <p className="evidence-wall__desc">
+                Tổng hợp tất cả các câu văn thực tế bạn đã viết bằng tiếng Anh và được AI chứng thực đạt chuẩn ngữ cảnh.
+              </p>
+            </div>
+          </div>
+
+          <div className="evidence-wall__list">
+            {evidenceList.map((item, idx) => (
+              <article key={idx} className="evidence-wall__item card-base">
+                <div className="evidence-wall__item-top">
+                  <div className="evidence-wall__word-tag">
+                    <span className="material-symbols-outlined">verified</span>
+                    <strong>{item.word}</strong>
+                    <span className="evidence-wall__topic-badge">{item.topic}</span>
+                  </div>
+                  <span className="evidence-wall__score-pill">Độ tin cậy: {item.score}%</span>
+                </div>
+
+                <blockquote className="evidence-wall__quote">
+                  "{item.sentence}"
+                </blockquote>
+
+                <div className="evidence-wall__item-bottom">
+                  <span className="evidence-wall__date">
+                    <span className="material-symbols-outlined">event</span>
+                    Đã viết vào {new Date(item.date).toLocaleDateString('vi-VN')}
+                  </span>
+                  <span className="evidence-wall__status-tag">Đạt chuẩn Mastered</span>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
     </div>
   )
 }

@@ -256,8 +256,17 @@ export const updateMastery = asyncHandler(async (req, res) => {
     throw new (await import('../utils/ErrorResponse.js')).default('Word not found', 404)
   }
 
-  word.masteryLevel = req.body.masteryLevel || word.masteryLevel
-  await word.save()
+  const requested = req.body.masteryLevel
+  if (requested && requested !== word.masteryLevel) {
+    if (requested === 'mastered' || word.masteryLevel === 'mastered') {
+      throw new (await import('../utils/ErrorResponse.js')).default(
+        "Mastery level transitions involving 'mastered' cannot be changed manually without evidence-based review.",
+        403
+      )
+    }
+    word.masteryLevel = requested
+    await word.save()
+  }
 
   res.status(200).json({ success: true, data: word })
 })
