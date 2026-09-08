@@ -71,8 +71,10 @@ export default function PricingPage() {
       {/* Header Banner */}
       <section className="pricing__header">
         <div className="pricing__badge">
-          <span className="material-symbols-outlined">verified</span>
-          <span>Thanh toán tự động 24/7 qua VietQR PayOS</span>
+          <span className="pricing__badge-dot" />
+          <span className="material-symbols-outlined pricing__badge-icon">verified_user</span>
+          <span className="pricing__badge-text">Thanh toán tự động 24/7 qua VietQR PayOS</span>
+          <span className="pricing__badge-pill">Bảo mật SSL</span>
         </div>
         <h1 className="pricing__title">Nâng Tầm Tiếng Anh Cùng LexiGrow AI</h1>
         <p className="pricing__subtitle">
