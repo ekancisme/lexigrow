@@ -24,11 +24,13 @@ export default function PricingPage() {
     try {
       setLoading(true)
       const resPlans = await paymentService.getPlans()
-      setPlans(resPlans.data || [])
+      const plansList = Array.isArray(resPlans) ? resPlans : (resPlans?.data || [])
+      setPlans(plansList)
 
       if (isAuthenticated) {
         const resTier = await paymentService.getMySubscription()
-        setCurrentTierInfo(resTier.data || null)
+        const tierObj = resTier?.data || (resTier?.tier ? resTier : null)
+        setCurrentTierInfo(tierObj)
       }
     } catch (err) {
       console.error('Error loading pricing data:', err)

@@ -17,8 +17,10 @@ export default function TopNav({ role = 'student', onMenuToggle }) {
     if (authUser && authUser.role !== 'admin') {
       paymentService.getMySubscription()
         .then(res => {
-          if (res.data?.success) {
-            setTierInfo(res.data.tierInfo)
+          if (res?.success && res?.data) {
+            setTierInfo(res.data)
+          } else if (res?.tier) {
+            setTierInfo(res)
           }
         })
         .catch(() => {

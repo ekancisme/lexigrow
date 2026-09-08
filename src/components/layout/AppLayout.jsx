@@ -11,7 +11,7 @@ const FULL_BLEED_ROUTES = [
   '/student/vocabulary/review',
 ]
 
-export default function AppLayout({ role }) {
+export default function AppLayout({ role, children }) {
   const { user, selectedParentChildId } = useAuth()
   const resolvedRole = role || user?.role || 'student'
   const location = useLocation()
@@ -41,7 +41,7 @@ export default function AppLayout({ role }) {
       <div className="app-layout__main">
         <TopNav role={resolvedRole} onMenuToggle={() => setMobileMenuOpen(open => !open)} />
         <main className={`app-layout__content${isFullBleed ? ' app-layout__content--no-padding' : ''}${resolvedRole === 'parent' ? ' app-layout__content--parent' : ''}`}>
-          <Outlet />
+          {children || <Outlet />}
         </main>
       </div>
       {resolvedRole === 'parent' && (

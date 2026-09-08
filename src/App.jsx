@@ -194,9 +194,15 @@ function App() {
         </Route>
 
         {/* Pricing & Payment Routes */}
-        <Route path="/pricing" element={<AppLayout><PricingPage /></AppLayout>} />
-        <Route path="/payment/success" element={<PaymentSuccess />} />
-        <Route path="/payment/cancel" element={<PaymentCancel />} />
+        <Route path="/pricing" element={<AppLayout />}>
+          <Route index element={<PricingPage />} />
+        </Route>
+        <Route path="/payment/success" element={<AppLayout />}>
+          <Route index element={<PaymentSuccess />} />
+        </Route>
+        <Route path="/payment/cancel" element={<AppLayout />}>
+          <Route index element={<PaymentCancel />} />
+        </Route>
 
         {/* Shared routes */}
         <Route path="/settings" element={<AppLayout />}>
