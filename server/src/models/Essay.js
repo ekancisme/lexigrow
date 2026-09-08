@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 
 const essaySchema = new mongoose.Schema({
+  revisionCounter: { type: Number, default: 0 },
   title: {
     type: String,
     required: [true, 'Please add an essay title'],
@@ -80,6 +81,7 @@ essaySchema.pre('save', function () {
 // Index for querying essays by student
 essaySchema.index({ student: 1, createdAt: -1 })
 essaySchema.index({ student: 1, status: 1 })
+essaySchema.index({ class: 1, student: 1 })
 
 const Essay = mongoose.model('Essay', essaySchema)
 export default Essay

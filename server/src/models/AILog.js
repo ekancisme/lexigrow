@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 
 const aiLogSchema = new mongoose.Schema({
+  usageAvailable: { type: Boolean, default: false },
   model: {
     type: String,
     required: true,

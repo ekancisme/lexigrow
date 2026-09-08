@@ -27,6 +27,13 @@ const userSchema = new mongoose.Schema({
     default: 'student',
   },
   // Student-specific fields
+  learningProfile: {
+    interests: { type: [String], default: [] },
+    targetLevel: { type: String, enum: ['A2', 'B1', 'B2', 'C1'], default: 'B1' },
+    dailyGoalMinutes: { type: Number, enum: [5, 10, 15, 20], default: 10 },
+    onboardingCompleted: { type: Boolean, default: false },
+    timezone: { type: String, default: 'Asia/Ho_Chi_Minh' },
+  },
   englishLevel: {
     type: String,
     enum: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2', ''],

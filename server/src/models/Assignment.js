@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 
 const assignmentSchema = new mongoose.Schema(
   {
+    learningSetId: { type: mongoose.Schema.Types.ObjectId, ref: 'LearningSet', default: null },
     title: {
       type: String,
       required: [true, 'Please add an assignment title'],

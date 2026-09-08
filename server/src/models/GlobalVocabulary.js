@@ -39,7 +39,6 @@ const globalVocabularySchema = new mongoose.Schema({
 })
 
 // Indexes for fast searching and filtering
-globalVocabularySchema.index({ word: 1 }, { unique: true })
 globalVocabularySchema.index({ cefr: 1 })
 globalVocabularySchema.index({ awl: 1 })
 

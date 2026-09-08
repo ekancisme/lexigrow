@@ -77,7 +77,7 @@ const learningSetSchema = new mongoose.Schema({
   },
   level: {
     type: String,
-    enum: ['A2', 'B1', 'B2'],
+    enum: ['A2', 'B1', 'B2', 'C1'],
     required: true,
     default: 'B1',
   },
