@@ -61,7 +61,12 @@ class ApiClient {
     const data = await response.json()
 
     if (!response.ok) {
-      if (response.status === 401) {
+      if (
+        response.status === 401 &&
+        !endpoint.includes('/auth/') &&
+        typeof window !== 'undefined' &&
+        window.location.pathname !== '/login'
+      ) {
         this.removeToken()
         window.location.href = '/login'
       }

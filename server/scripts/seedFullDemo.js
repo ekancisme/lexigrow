@@ -196,8 +196,6 @@ async function seedFullDemo() {
 
     // 2. Users (Student, Teacher, Parent, Admin)
     console.log('👤 Seeding Users...')
-    const salt = await bcrypt.genSalt(10)
-    const defaultHashedPassword = await bcrypt.hash('123456', salt)
 
     // Student
     let student = await User.findOne({ email: 'student@lexigrow.com' })
@@ -205,7 +203,7 @@ async function seedFullDemo() {
       student = new User({
         name: 'Nguyễn Văn Minh',
         email: 'student@lexigrow.com',
-        password: defaultHashedPassword,
+        password: 'password_will_be_set_below',
         role: 'student',
         learningProfile: {
           interests: ['Technology', 'Environment', 'Daily Life'],
@@ -221,7 +219,7 @@ async function seedFullDemo() {
     }
     student.name = 'Nguyễn Văn Minh'
     student.role = 'student'
-    student.password = defaultHashedPassword
+    student.password = '123456'
     student.accountStatus = 'active'
     student.learningProfile = {
       interests: ['Technology', 'Environment', 'Daily Life'],
@@ -231,7 +229,7 @@ async function seedFullDemo() {
       timezone: 'Asia/Ho_Chi_Minh',
     }
     student.englishLevel = 'B1'
-    await student.save({ validateBeforeSave: false })
+    await student.save()
 
     // Teacher
     let teacher = await User.findOne({ email: 'teacher@lexigrow.com' })
@@ -239,7 +237,7 @@ async function seedFullDemo() {
       teacher = new User({
         name: 'Cô Hoàng Mai',
         email: 'teacher@lexigrow.com',
-        password: defaultHashedPassword,
+        password: 'password_will_be_set_below',
         role: 'teacher',
         institution: 'Hanoi University of Foreign Studies',
         accountStatus: 'active',
@@ -247,10 +245,10 @@ async function seedFullDemo() {
     }
     teacher.name = 'Cô Hoàng Mai'
     teacher.role = 'teacher'
-    teacher.password = defaultHashedPassword
+    teacher.password = '123456'
     teacher.institution = 'Hanoi University of Foreign Studies'
     teacher.accountStatus = 'active'
-    await teacher.save({ validateBeforeSave: false })
+    await teacher.save()
 
     // Parent
     let parent = await User.findOne({ email: 'parent@lexigrow.com' })
@@ -258,7 +256,7 @@ async function seedFullDemo() {
       parent = new User({
         name: 'Bác Nguyễn Hùng',
         email: 'parent@lexigrow.com',
-        password: defaultHashedPassword,
+        password: 'password_will_be_set_below',
         role: 'parent',
         children: [student._id],
         accountStatus: 'active',
@@ -266,14 +264,14 @@ async function seedFullDemo() {
     }
     parent.name = 'Bác Nguyễn Hùng'
     parent.role = 'parent'
-    parent.password = defaultHashedPassword
+    parent.password = '123456'
     parent.children = [student._id]
     parent.accountStatus = 'active'
-    await parent.save({ validateBeforeSave: false })
+    await parent.save()
 
     // Link parent & student
     student.parents = [parent._id]
-    await student.save({ validateBeforeSave: false })
+    await student.save()
 
     await ParentStudentLink.findOneAndUpdate(
       { parent: parent._id, student: student._id },
@@ -293,16 +291,16 @@ async function seedFullDemo() {
       admin = new User({
         name: 'Quản Trị Viên Hệ Thống',
         email: 'admin@lexigrow.com',
-        password: defaultHashedPassword,
+        password: 'password_will_be_set_below',
         role: 'admin',
         accountStatus: 'active',
       })
     }
     admin.name = 'Quản Trị Viên Hệ Thống'
     admin.role = 'admin'
-    admin.password = defaultHashedPassword
+    admin.password = '123456'
     admin.accountStatus = 'active'
-    await admin.save({ validateBeforeSave: false })
+    await admin.save()
 
     console.log('✅ Seeded/Updated 4 demo accounts: student, teacher, parent, admin (Password: 123456).')
 
