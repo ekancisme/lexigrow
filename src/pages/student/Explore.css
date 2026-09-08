@@ -10,8 +10,8 @@
 .explore__hero {
   padding: 32px;
   border-radius: 24px;
-  background: linear-gradient(135deg, #005bbf 0%, #1a73e8 60%, #3d608e 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, #005bbf 0%, #1a73e8 60%, #3d608e 100%) !important;
+  color: #ffffff !important;
   display: flex;
   justify-content: space-between;
   align-items: center;

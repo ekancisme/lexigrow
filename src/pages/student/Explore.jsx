@@ -123,7 +123,7 @@ export default function Explore() {
   return (
     <div className="explore animate-fade-in">
       {/* Header & Filter Bar */}
-      <section className="explore__hero card-base">
+      <section className="explore__hero">
         <div className="explore__hero-left">
           <div className="explore__badge">
             <span className="material-symbols-outlined">explore</span>

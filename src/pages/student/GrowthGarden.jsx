@@ -105,7 +105,7 @@ export default function GrowthGarden() {
   return (
     <div className="growth-garden animate-fade-in">
       {/* Header Banner */}
-      <div className="growth-garden__hero card-base">
+      <div className="growth-garden__hero">
         <div className="growth-garden__hero-left">
           <div className="growth-garden__badge">
             <span className="material-symbols-outlined">yard</span>

@@ -64,7 +64,7 @@ export default function StudentDashboard() {
   return (
     <div className="student-dash animate-fade-in">
       {/* ── 1. Hero Action Banner: Today's 10-min Session ── */}
-      <section className="student-dash__hero card-base">
+      <section className="student-dash__hero">
         <div className="student-dash__hero-content">
           <div className="student-dash__hero-badge">
             <span className="material-symbols-outlined">schedule</span>
