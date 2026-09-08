@@ -3,7 +3,7 @@
   top: 0;
   z-index: var(--z-topnav);
   height: var(--topnav-height);
-  background: rgba(248, 249, 255, 0.8);
+  background: rgba(243, 245, 249, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-outline-variant);
