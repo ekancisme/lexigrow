@@ -13,7 +13,9 @@ import asyncHandler from '../utils/asyncHandler.js'
  * @access  Private (student)
  */
 export const createEssay = asyncHandler(async (req, res) => {
-  const { title, content, classId, theme, assignmentId } = req.body
+  const { title, content, theme } = req.body
+  const assignmentId = req.body.assignmentId || req.body.assignment
+  const classId = req.body.classId || req.body.class
 
   if (assignmentId) {
     const Assignment = (await import('../models/Assignment.js')).default

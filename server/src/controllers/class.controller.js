@@ -63,6 +63,10 @@ export const getClasses = asyncHandler(async (req, res) => {
     ? { teacher: req.user._id }
     : { students: req.user._id }
 
+  if (req.query.status) {
+    query.status = req.query.status
+  }
+
   const classes = await Class.find(query)
     .populate('students', 'name email englishLevel')
     .populate('teacher', 'name email')
