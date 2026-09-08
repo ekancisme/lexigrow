@@ -117,6 +117,58 @@ flowchart LR
 - 👨‍👩‍👧 **Phụ huynh (Parent)**: Liên kết tài khoản con qua mã bảo mật, theo dõi thời gian học thực tế, biểu đồ tăng trưởng vốn từ và nhận thông báo cảnh báo sớm.
 - 🛡️ **Quản trị viên (Admin)**: Giám sát toàn bộ hệ thống, điều phối mức tiêu thụ token AI, phê duyệt tài khoản giáo viên và theo dõi Audit Logs.
 
+## 💎 Bảng Giá Dịch Vụ & Thanh Toán PayOS (Pricing & Subscription Plans)
+
+LexiGrow cung cấp mô hình đăng ký SaaS linh hoạt với cổng thanh toán trực tuyến **PayOS (VietQR Chuẩn Ngân Hàng)**, hỗ trợ cả tài khoản cá nhân cho **Học sinh** lẫn gói bản quyền bảo trợ cho **Giáo viên & Lớp học**.
+
+```mermaid
+graph TD
+    A[💳 Người Dùng Chọn Gói Tháng/Năm] --> B[⚡ PayOS API sinh mã VietQR]
+    B --> C[📱 Quét mã chuyển khoản ngân hàng]
+    C --> D[🔔 PayOS Webhook xác thực chữ ký Checksum]
+    D --> E{Loại Tài Khoản?}
+    E -->|👨‍🎓 Học Sinh| F[✨ Kích hoạt gói cá nhân Plus / Pro / Ultra]
+    E -->|👨‍🏫 Giáo Viên| G[🏫 Kích hoạt Teacher License]
+    G --> H[🎒 Tất cả học sinh trong các lớp của GV tự động thừa hưởng PRO/ULTRA miễn phí]
+```
+
+### 1. 🎓 Gói Dành Cho Học Sinh (Student Plans)
+
+| Tính Năng & Quyền Lợi | 🟢 Miễn Phí (Free) | ⚡ Plus | 🌟 Pro (Phổ Biến Nhất) | 👑 Ultra (VIP) |
+| :--- | :---: | :---: | :---: | :---: |
+| **Giá theo Tháng** | **0đ** | **49.000đ** / tháng | **99.000đ** / tháng | **199.000đ** / tháng |
+| **Giá theo Năm (-20%)** | **0đ** | **490.000đ** / năm | **990.000đ** / năm | **1.990.000đ** / năm |
+| **Lượt Chấm Bài AI / Ngày** | 3 bài / ngày | 15 bài / ngày | 🚀 **Không giới hạn** | 🚀 **Không giới hạn** |
+| **Kho Từ Vựng & Flashcard SRS** | Cơ bản A2 | Toàn bộ A2 – B1 | Toàn bộ A2 – B2+ | Mọi trình độ + IELTS/TOEFL |
+| **Khu Vườn Tri Thức & Tháp Từ** | 1 Khu vườn | Không giới hạn | Không giới hạn | Không giới hạn |
+| **AI Phân Tích Chuyên Sâu 1-on-1** | ❌ | ❌ | ❌ | ✅ **Ưu tiên phản hồi cao cấp** |
+| **Huy Hiệu Hồ Sơ (Badge)** | Free | `PLUS` | `PRO` | `ULTRA` |
+
+---
+
+### 2. 👨‍🏫 Gói Bảo Trợ Dành Cho Giáo Viên (Teacher Sponsorship License)
+
+> [!TIP]
+> **Cơ Chế Bảo Trợ Học Sinh Độc Quyền**: Khi Giáo viên đăng ký gói dịch vụ, **toàn bộ học sinh** được ghi danh vào bất kỳ lớp học nào của giáo viên đó sẽ **tự động được sử dụng toàn bộ tính năng cao cấp (Pro/Ultra)** mà **không cần phải mua gói cá nhân**!
+
+| Gói Bản Quyền Giáo Viên | ⚡ Teacher Plus | 🌟 Teacher Pro | 👑 Teacher Ultra |
+| :--- | :---: | :---: | :---: |
+| **Giá theo Tháng** | **199.000đ** / tháng | **499.000đ** / tháng | **999.000đ** / tháng |
+| **Giá theo Năm (-20%)** | **1.990.000đ** / năm | **4.990.000đ** / năm | **9.990.000đ** / năm |
+| **Số Lượng Học Sinh Được Bảo Trợ** | 🎓 **30 Học sinh** | 🎓 **100 Học sinh** | 🎓 **300+ Học sinh** |
+| **Số Lớp Học Tối Đa** | 3 Lớp học | 10 Lớp học | 🚀 Không giới hạn |
+| **Quyền Lợi Cho Học Sinh Trong Lớp** | Thừa hưởng gói **PLUS** | Thừa hưởng gói **PRO** (Full AI) | Thừa hưởng gói **ULTRA** |
+| **Báo Cáo Tiến Độ & Heatmap Lớp** | Cơ bản | Nâng cao | Chuyên sâu & Xuất dữ liệu Excel |
+
+---
+
+### 3. 🛡️ Quản Trị Bảng Giá & Doanh Thu (Admin Dynamic Pricing)
+- **Đường dẫn**: `/admin/pricing`
+- **Chức năng Admin**:
+  - Tùy chỉnh giá tháng, giá năm, số lượng quota học sinh bảo trợ và bật/tắt hiển thị gói cước theo thời gian thực.
+  - Theo dõi tổng doanh thu, tỷ lệ chuyển đổi và danh sách giao dịch VietQR qua PayOS.
+  - Cấp quyền đăng ký thủ công (Grant Subscription) linh hoạt theo mã người dùng.
+
 ---
 
 <div align="center">
