@@ -1,5 +1,6 @@
 import dotenv from 'dotenv'
 import path from 'path'
+import fs from 'fs'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -85,6 +86,18 @@ app.use('/api/srs', srsRoutes)
 app.use('/api/garden', gardenRoutes)
 app.use('/api/payments', paymentRoutes)
 app.use('/api/subscriptions', paymentRoutes)
+
+// Serve built frontend assets in production (Docker container or dist build)
+const distPath = path.resolve(__dirname, '../../dist')
+if (fs.existsSync(distPath)) {
+  app.use(express.static(distPath))
+  app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api')) {
+      return res.sendFile(path.join(distPath, 'index.html'))
+    }
+    next()
+  })
+}
 
 // Error handler (must be after routes)
 app.use(errorHandler)

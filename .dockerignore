@@ -1,0 +1,12 @@
+node_modules
+server/node_modules
+dist
+.git
+*.tar.gz
+*.zip
+.agents
+.claude
+.codex
+graft
+*.log
+.env.local
