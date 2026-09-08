@@ -21,6 +21,7 @@ import LearningSession from '../src/models/LearningSession.js'
 import ParentStudentLink from '../src/models/ParentStudentLink.js'
 import ReviewEvent from '../src/models/ReviewEvent.js'
 import WeeklyGoal from '../src/models/WeeklyGoal.js'
+import AIAnalysis from '../src/models/AIAnalysis.js'
 
 async function seedFullDemo() {
   try {
@@ -592,6 +593,30 @@ async function seedFullDemo() {
         sentenceCount: 4,
         readingTime: 1,
         submittedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+        // For mastery: second essay for the same words on a different day
+        isPractice: false,
+      },
+      { upsert: true, returnDocument: 'after' }
+    )
+
+    // Create a second essay for the same Daily Life theme to satisfy masteredPipeline (≥2 essays, ≥2 days)
+    const essay1bContent = `My morning routine has become more efficient since I started commuting by bike. Being productive early in the day helps me maintain a healthy work-life balance. I also use a smart calendar to plan my commute and avoid traffic, making my daily routine smoother and more enjoyable.`
+    const essay1b = await Essay.findOneAndUpdate(
+      { student: student._id, title: 'My Improved Morning Routine with Smart Planning' },
+      {
+        student: student._id,
+        class: class1._id,
+        assignment: assign1._id,
+        title: 'My Improved Morning Routine with Smart Planning',
+        content: essay1bContent,
+        theme: 'Daily Life',
+        status: 'reviewed',
+        wordCount: 45,
+        paragraphCount: 1,
+        sentenceCount: 3,
+        readingTime: 1,
+        submittedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // Different day
+        isPractice: false,
       },
       { upsert: true, returnDocument: 'after' }
     )
@@ -655,6 +680,61 @@ async function seedFullDemo() {
         },
       },
       { upsert: true, returnDocument: 'after' }
+    )
+
+    // Create AIAnalysis for essay 1
+    await AIAnalysis.findOneAndUpdate(
+      { essay: essay1._id },
+      {
+        essay: essay1._id,
+        overallScore: 88,
+        scores: {
+          vocabularyDiversity: 0.75,
+          grammarAccuracy: 8.5,
+          coherence: 8.0,
+          complexityIndex: 7.5,
+          lexicalDiversityHdd: 0.72,
+          lexicalDiversityMtld: 45.0,
+        },
+        newWordsDetected: ['routine', 'commute', 'productive', 'efficient'],
+        suggestions: [
+          { type: 'strength', text: 'Sử dụng chính xác 100% từ vựng mục tiêu trong ngữ cảnh thực tế' },
+          { type: 'strength', text: 'Cấu trúc ngữ pháp đa dạng: Mệnh đề quan hệ, phân từ hiện tại' },
+          { type: 'improvement', text: 'Có thể mở rộng thêm một ví dụ cụ thể về ứng dụng hỗ trợ lập kế hoạch' },
+        ],
+        writingStats: {
+          avgSentenceLength: 17.75,
+          uniqueWords: 42,
+        },
+        nlpStats: {
+          passiveVoiceCount: 1,
+          subordinateClausesCount: 2,
+          repeatedWords: [],
+        },
+        learningPatterns: {
+          paddedSentences: false,
+          plagiarismDetected: false,
+          learningStatus: 'progressing',
+          feedback: 'Học sinh đang tiến bộ tốt, từ vựng sử dụng đúng ngữ cảnh.',
+        },
+        nextEssaySuggestions: {
+          transitionWords: ['therefore', 'moreover', 'in addition'],
+          sentenceStructures: ['Câu phức với mệnh đề nhượng bộ', 'Câu điều kiện loại 1'],
+          generalTips: 'Hãy thử đa dạng hóa cấu trúc mở đầu câu để tăng điểm Coherence.',
+        },
+        plagiarismDetails: {
+          isPlagiarized: false,
+          matchedEssay: null,
+          similarityScore: 0,
+          plagiarismType: 'none',
+        },
+        promptUsed: {
+          name: 'Default System Prompt',
+          promptId: null,
+          isCustom: false,
+        },
+      },
+      { upsert: true }
     )
 
     // Essay 2: Technology in Education
@@ -737,11 +817,102 @@ async function seedFullDemo() {
       { upsert: true, returnDocument: 'after' }
     )
 
+    // Create AIAnalysis for essay 2
+    await AIAnalysis.findOneAndUpdate(
+      { essay: essay2._id },
+      {
+        essay: essay2._id,
+        overallScore: 92,
+        scores: {
+          vocabularyDiversity: 0.82,
+          grammarAccuracy: 9.0,
+          coherence: 9.0,
+          complexityIndex: 8.5,
+          lexicalDiversityHdd: 0.78,
+          lexicalDiversityMtld: 52.0,
+        },
+        newWordsDetected: ['innovation', 'accessible', 'collaboration', 'revolutionize'],
+        suggestions: [
+          { type: 'strength', text: 'Từ vựng phong phú, sử dụng chính xác các liên từ kết nối' },
+          { type: 'strength', text: 'Diễn đạt tự nhiên, chuẩn văn phong học thuật' },
+        ],
+        writingStats: {
+          avgSentenceLength: 16.25,
+          uniqueWords: 48,
+        },
+        nlpStats: {
+          passiveVoiceCount: 0,
+          subordinateClausesCount: 3,
+          repeatedWords: [],
+        },
+        learningPatterns: {
+          paddedSentences: false,
+          plagiarismDetected: false,
+          learningStatus: 'progressing',
+          feedback: 'Học sinh có khả năng viết học thuật tốt, cấu trúc đa dạng.',
+        },
+        nextEssaySuggestions: {
+          transitionWords: ['consequently', 'despite this', 'notably'],
+          sentenceStructures: ['Câu chẻ (cleft sentence)', 'Mệnh đề trạng ngữ chỉ nhượng bộ'],
+          generalTips: 'Hãy thử đưa ra phản biện để tăng tính thuyết phục.',
+        },
+        plagiarismDetails: {
+          isPlagiarized: false,
+          matchedEssay: null,
+          similarityScore: 0,
+          plagiarismType: 'none',
+        },
+        promptUsed: {
+          name: 'Default System Prompt',
+          promptId: null,
+          isCustom: false,
+        },
+      },
+      { upsert: true }
+    )
+
     // 7. Word Usage Evidences (Populates Active Vocabulary & Growth Garden Tree)
     console.log('🌿 Seeding Word Usage Evidence...')
     const formatDate = (d) => d.toISOString().split('T')[0]
 
+    // Create revision for essay1b (no AI analysis needed for evidence)
+    const rev1b = await EssayRevision.findOneAndUpdate(
+      { originalEssay: essay1b._id, revisionNumber: 1 },
+      {
+        originalEssay: essay1b._id,
+        student: student._id,
+        session: session1._id,
+        revisionNumber: 1,
+        content: essay1bContent,
+        contentHash: 'hash_essay_1b',
+        wordCount: 45,
+        targetWords: ['routine', 'commute', 'productive', 'efficient'],
+        analysisStatus: 'succeeded',
+        feedbackSummary: 'Bài viết ngắn nhưng sử dụng tốt từ vựng mục tiêu.',
+        analysis: {
+          overallScore: 85,
+          cefrLevel: 'B1',
+          bandScores: {
+            taskAchievement: 8.0,
+            coherenceAndCohesion: 8.0,
+            lexicalResource: 8.5,
+            grammaticalRangeAndAccuracy: 8.0,
+          },
+          targetWordEvaluations: [
+            { word: 'routine', used: true, isCorrect: true, confidenceScore: 0.95, feedback: 'Dùng chính xác.' },
+            { word: 'commute', used: true, isCorrect: true, confidenceScore: 0.94, feedback: 'Sử dụng đúng.' },
+            { word: 'productive', used: true, isCorrect: true, confidenceScore: 0.93, feedback: 'Vận dụng đúng.' },
+            { word: 'efficient', used: true, isCorrect: true, confidenceScore: 0.96, feedback: 'Kết hợp từ tự nhiên.' },
+          ],
+          strengths: ['Từ vựng được sử dụng đúng ngữ cảnh.'],
+          suggestions: ['Có thể mở rộng bài viết hơn.'],
+        },
+      },
+      { upsert: true, returnDocument: 'after' }
+    )
+
     const evidencesData = [
+      // Essay 1 evidence (Day -4)
       {
         student: student._id,
         word: 'routine',
@@ -752,6 +923,7 @@ async function seedFullDemo() {
         theme: 'Daily Life',
         meaning: 'Thói quen hàng ngày',
         isVerifiedCorrect: true,
+        assisted: false,
         aiConfidenceScore: 0.96,
         usedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
         localDay: formatDate(new Date(Date.now() - 4 * 24 * 60 * 60 * 1000)),
@@ -766,6 +938,7 @@ async function seedFullDemo() {
         theme: 'Daily Life',
         meaning: 'Đi lại làm việc/học tập',
         isVerifiedCorrect: true,
+        assisted: false,
         aiConfidenceScore: 0.95,
         usedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
         localDay: formatDate(new Date(Date.now() - 4 * 24 * 60 * 60 * 1000)),
@@ -780,6 +953,7 @@ async function seedFullDemo() {
         theme: 'Daily Life',
         meaning: 'Năng suất, hiệu quả',
         isVerifiedCorrect: true,
+        assisted: false,
         aiConfidenceScore: 0.94,
         usedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
         localDay: formatDate(new Date(Date.now() - 4 * 24 * 60 * 60 * 1000)),
@@ -794,10 +968,73 @@ async function seedFullDemo() {
         theme: 'Daily Life',
         meaning: 'Hiệu quả, tiết kiệm',
         isVerifiedCorrect: true,
+        assisted: false,
         aiConfidenceScore: 0.97,
         usedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
         localDay: formatDate(new Date(Date.now() - 4 * 24 * 60 * 60 * 1000)),
       },
+      // Essay 1b evidence (Day -2) — for mastery (≥2 essays, ≥2 days)
+      {
+        student: student._id,
+        word: 'routine',
+        contextSentence: 'My morning routine has become more efficient since I started commuting by bike.',
+        essayId: essay1b._id,
+        revisionId: rev1b._id,
+        learningSet: learningSets[0]._id,
+        theme: 'Daily Life',
+        meaning: 'Thói quen hàng ngày',
+        isVerifiedCorrect: true,
+        assisted: false,
+        aiConfidenceScore: 0.95,
+        usedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        localDay: formatDate(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)),
+      },
+      {
+        student: student._id,
+        word: 'commute',
+        contextSentence: 'Being productive early in the day helps me maintain a healthy work-life balance.',
+        essayId: essay1b._id,
+        revisionId: rev1b._id,
+        learningSet: learningSets[0]._id,
+        theme: 'Daily Life',
+        meaning: 'Đi lại làm việc/học tập',
+        isVerifiedCorrect: true,
+        assisted: false,
+        aiConfidenceScore: 0.94,
+        usedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        localDay: formatDate(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)),
+      },
+      {
+        student: student._id,
+        word: 'productive',
+        contextSentence: 'I also use a smart calendar to plan my commute and avoid traffic, making my daily routine smoother.',
+        essayId: essay1b._id,
+        revisionId: rev1b._id,
+        learningSet: learningSets[0]._id,
+        theme: 'Daily Life',
+        meaning: 'Năng suất, hiệu quả',
+        isVerifiedCorrect: true,
+        assisted: false,
+        aiConfidenceScore: 0.93,
+        usedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        localDay: formatDate(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)),
+      },
+      {
+        student: student._id,
+        word: 'efficient',
+        contextSentence: 'My morning routine has become more efficient since I started commuting by bike.',
+        essayId: essay1b._id,
+        revisionId: rev1b._id,
+        learningSet: learningSets[0]._id,
+        theme: 'Daily Life',
+        meaning: 'Hiệu quả, tiết kiệm',
+        isVerifiedCorrect: true,
+        assisted: false,
+        aiConfidenceScore: 0.96,
+        usedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        localDay: formatDate(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)),
+      },
+      // Essay 2 evidence (Day -2)
       {
         student: student._id,
         word: 'innovation',
@@ -808,6 +1045,7 @@ async function seedFullDemo() {
         theme: 'Technology',
         meaning: 'Sáng kiến, đổi mới',
         isVerifiedCorrect: true,
+        assisted: false,
         aiConfidenceScore: 0.98,
         usedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
         localDay: formatDate(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)),
@@ -822,6 +1060,7 @@ async function seedFullDemo() {
         theme: 'Technology',
         meaning: 'Dễ tiếp cận',
         isVerifiedCorrect: true,
+        assisted: false,
         aiConfidenceScore: 0.95,
         usedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
         localDay: formatDate(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)),
@@ -836,6 +1075,7 @@ async function seedFullDemo() {
         theme: 'Technology',
         meaning: 'Hợp tác nhóm',
         isVerifiedCorrect: true,
+        assisted: false,
         aiConfidenceScore: 0.96,
         usedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
         localDay: formatDate(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)),
@@ -850,6 +1090,7 @@ async function seedFullDemo() {
         theme: 'Technology',
         meaning: 'Cách mạng hóa',
         isVerifiedCorrect: true,
+        assisted: false,
         aiConfidenceScore: 0.97,
         usedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
         localDay: formatDate(new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)),

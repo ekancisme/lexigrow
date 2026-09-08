@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getOverview, getGrowthChart, getMilestones, getWeeklyComparison } from '../controllers/progress.controller.js'
+import { getOverview, getGrowthChart, getMilestones, getWeeklyComparison, getStreak } from '../controllers/progress.controller.js'
 import { protect, authorize } from '../middleware/auth.middleware.js'
 import { getActiveVocabulary, getWordEvidence } from '../controllers/learningProgress.controller.js'
 
@@ -15,5 +15,6 @@ router.get('/overview', getOverview)
 router.get('/growth-chart', getGrowthChart)
 router.get('/milestones', getMilestones)
 router.get('/weekly-comparison', getWeeklyComparison)
+router.get('/streak', getStreak)
 
 export default router

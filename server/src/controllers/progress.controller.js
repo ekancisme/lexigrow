@@ -291,3 +291,63 @@ export const getWeeklyComparison = asyncHandler(async (req, res) => {
     }
   })
 })
+
+/**
+ * @desc    Get student's streak (consecutive days with ReviewEvent)
+ * @route   GET /api/progress/streak
+ * @access  Private (student, teacher, parent)
+ */
+export const getStreak = asyncHandler(async (req, res) => {
+  const studentId = await resolveStudentId(req)
+
+  // Get all review events for this student, sorted by date
+  const events = await ReviewEvent.find({ student: studentId })
+    .sort({ reviewedAt: 1 })
+    .lean()
+
+  if (events.length === 0) {
+    return res.status(200).json({ success: true, data: { streakDays: 0, hasActivityToday: false } })
+  }
+
+  // Get unique dates (YYYY-MM-DD) in UTC
+  const uniqueDates = new Set()
+  for (const ev of events) {
+    const d = new Date(ev.reviewedAt)
+    const dateStr = d.toISOString().split('T')[0]
+    uniqueDates.add(dateStr)
+  }
+
+  const sortedDates = Array.from(uniqueDates).sort()
+  const today = new Date()
+  const todayStr = today.toISOString().split('T')[0]
+
+  // Check if there's activity today
+  const hasActivityToday = sortedDates.includes(todayStr)
+
+  // Calculate consecutive days from the most recent activity
+  let streak = 0
+  const lastDateStr = sortedDates[sortedDates.length - 1]
+
+  // If last activity is not today, and not yesterday, streak is 0
+  const yesterday = new Date(today)
+  yesterday.setDate(yesterday.getDate() - 1)
+  const yesterdayStr = yesterday.toISOString().split('T')[0]
+
+  if (lastDateStr !== todayStr && lastDateStr !== yesterdayStr) {
+    return res.status(200).json({ success: true, data: { streakDays: 0, hasActivityToday } })
+  }
+
+  // Count consecutive days backwards from the most recent date
+  let currentDate = new Date(lastDateStr)
+  while (true) {
+    const dateStr = currentDate.toISOString().split('T')[0]
+    if (sortedDates.includes(dateStr)) {
+      streak++
+      currentDate.setDate(currentDate.getDate() - 1)
+    } else {
+      break
+    }
+  }
+
+  res.status(200).json({ success: true, data: { streakDays: streak, hasActivityToday } })
+})
