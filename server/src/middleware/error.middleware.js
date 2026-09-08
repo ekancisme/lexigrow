@@ -25,7 +25,7 @@ const errorHandler = (err, req, res, next) => {
 
   // Mongoose duplicate key
   if (err.code === 11000) {
-    const field = Object.keys(err.keyValue)[0]
+    const field = Object.keys(err.keyValue || {})[0] || 'resource'
     const message = `Duplicate value for field: ${field}`
     error = new ErrorResponse(message, 400)
   }
@@ -44,6 +44,8 @@ const errorHandler = (err, req, res, next) => {
   if (err.name === 'TokenExpiredError') {
     error = new ErrorResponse('Token expired', 401)
   }
+  if (err.name === 'VersionError') error = new ErrorResponse('Resource changed; reload and retry', 409)
+  if ((error.statusCode || 500) >= 500 && !err.statusCode) error.message = 'Server Error'
 
   res.status(error.statusCode || 500).json({
     success: false,

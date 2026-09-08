@@ -5,6 +5,28 @@ import SystemPrompt from '../models/SystemPrompt.js'
 import { processEssayAnalysis, translateTextToVietnamese } from '../services/ai.service.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
+import ParentStudentLink from '../models/ParentStudentLink.js'
+
+async function authorizedEssay(req, writing = false) {
+  const essay = await Essay.findById(req.params.essayId)
+  if (!essay) throw new ErrorResponse('Essay not found', 404)
+  let allowed = req.user.role === 'admin'
+  if (req.user.role === 'student') allowed = String(essay.student) === String(req.user._id)
+  if (req.user.role === 'teacher') {
+    const cls = await Class.findOne({
+      ...(essay.class ? { _id: essay.class } : {}),
+      teacher: req.user._id,
+      students: essay.student,
+      status: 'active',
+    })
+    allowed = Boolean(cls)
+  }
+  if (req.user.role === 'parent' && !writing) {
+    allowed = Boolean(await ParentStudentLink.findOne({ parent: req.user._id, student: essay.student, status: 'active' }))
+  }
+  if (!allowed) throw new ErrorResponse('Essay not found', 404)
+  return essay
+}
 
 /**
  * @desc    Get AI analysis for an essay
@@ -12,6 +34,7 @@ import asyncHandler from '../utils/asyncHandler.js'
  * @access  Private
  */
 export const getAnalysis = asyncHandler(async (req, res) => {
+  await authorizedEssay(req)
   const analysis = await AIAnalysis.findOne({ essay: req.params.essayId })
     .populate('essay', 'title content wordCount')
 
@@ -28,7 +51,7 @@ export const getAnalysis = asyncHandler(async (req, res) => {
  * @access  Private
  */
 export const reanalyze = asyncHandler(async (req, res) => {
-  const essay = await Essay.findById(req.params.essayId)
+  const essay = await authorizedEssay(req, true)
 
   if (!essay) {
     throw new ErrorResponse('Essay not found', 404)

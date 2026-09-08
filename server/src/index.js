@@ -1,100 +1,15 @@
-import dotenv from 'dotenv'
-import path from 'path'
-import { fileURLToPath } from 'url'
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-dotenv.config({ path: path.join(__dirname, '../.env') })
-import express from 'express'
-import cors from 'cors'
+import app from './app.js'
 import connectDB from './config/db.js'
-import errorHandler from './middleware/error.middleware.js'
-import { scheduleEarlyWarningScan } from './services/earlyWarning.scheduler.js'
 import { initSocket } from './services/socket.service.js'
+import { scheduleEarlyWarningScan } from './services/earlyWarning.scheduler.js'
+import mongoose from 'mongoose'
 
-// Connect to database
-connectDB()
-
-const app = express()
-
-// Body parser
-app.use(express.json({ limit: '10mb' }))
-app.use(express.urlencoded({ extended: true }))
-
-// CORS
-app.use(cors({
-  origin: globalThis.process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true,
-}))
-
-// Health check
-app.get('/api/health', (req, res) => {
-  res.json({ success: true, message: 'LexiGrow API is running', timestamp: new Date().toISOString() })
-})
-
-// Route files
-import authRoutes from './routes/auth.routes.js'
-
-import essayRoutes from './routes/essay.routes.js'
-import analysisRoutes from './routes/analysis.routes.js'
-
-app.use('/api/auth', authRoutes)
-app.use('/api/essays', essayRoutes)
-app.use('/api/essays', analysisRoutes)
-
-import vocabularyRoutes from './routes/vocabulary.routes.js'
-import progressRoutes from './routes/progress.routes.js'
-import goalsRoutes from './routes/goals.routes.js'
-
-app.use('/api/vocabulary', vocabularyRoutes)
-app.use('/api/progress', progressRoutes)
-app.use('/api/goals', goalsRoutes)
-
-import classRoutes from './routes/class.routes.js'
-
-app.use('/api/classes', classRoutes)
-
-import teacherRoutes from './routes/teacher.routes.js'
-
-app.use('/api/teacher', teacherRoutes)
-
-import feedbackRoutes from './routes/feedback.routes.js'
-import alertRoutes from './routes/alert.routes.js'
-
-app.use('/api/feedback', feedbackRoutes)
-app.use('/api/alerts', alertRoutes)
-
-import promptRoutes from './routes/prompt.routes.js'
-import profileRoutes from './routes/profile.routes.js'
-import parentRoutes from './routes/parent.routes.js'
-import notificationRoutes from './routes/notification.routes.js'
-import commentRoutes from './routes/comment.routes.js'
-import adminRoutes from './routes/admin.routes.js'
-import assignmentRoutes from './routes/assignment.routes.js'
-import globalVocabularyRoutes from './routes/globalVocabulary.routes.js'
-import learningSetRoutes from './routes/learningSet.routes.js'
-
-app.use('/api/prompts', promptRoutes)
-app.use('/api/profile', profileRoutes)
-app.use('/api/parent', parentRoutes)
-app.use('/api/notifications', notificationRoutes)
-app.use('/api/comments', commentRoutes)
-app.use('/api/admin', adminRoutes)
-app.use('/api/admin/global-vocabulary', globalVocabularyRoutes)
-app.use('/api/assignments', assignmentRoutes)
-app.use('/api/learning-sets', learningSetRoutes)
-
-// Error handler (must be after routes)
-app.use(errorHandler)
-
-const PORT = globalThis.process.env.PORT || 5000
-
-const server = app.listen(PORT, () => {
-  console.log(`🚀 LexiGrow Server running in ${globalThis.process.env.NODE_ENV} mode on port ${PORT}`)
-})
-
-initSocket(server)
-
-if (globalThis.process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test') {
+  await connectDB()
+  // New unique indexes are part of correctness, not just an optimization.
+  await Promise.all(['LearningSession', 'LearningOperation', 'PracticeAttempt', 'ReviewEvent', 'EssayRevision', 'WordUsageEvidence'].map(name => mongoose.model(name).createIndexes()))
+  const server = app.listen(process.env.PORT || 5000, () => console.log('LexiGrow API started'))
+  initSocket(server)
   scheduleEarlyWarningScan()
 }
 

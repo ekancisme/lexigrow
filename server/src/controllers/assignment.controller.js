@@ -3,6 +3,7 @@ import Class from '../models/Class.js'
 import Essay from '../models/Essay.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
+import { validateAssignmentLearningSet } from './learningProgress.controller.js'
 import { createManyNotifications, createNotification } from '../services/notification.service.js'
 
 const parseFutureDueDate = (value, allowPast = false) => {
@@ -32,7 +33,9 @@ export const createAssignment = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Not authorized to create assignments for this class', 403)
   }
 
+  const learningSetId = req.body.learningSetId === undefined ? null : await validateAssignmentLearningSet(req.body.learningSetId)
   const assignment = await Assignment.create({
+    learningSetId,
     title,
     description: description || '',
     dueDate: validatedDueDate,
@@ -204,6 +207,7 @@ export const updateAssignment = asyncHandler(async (req, res) => {
   }
 
   const { title, description, dueDate, keywords, status } = req.body
+  if (req.body.learningSetId !== undefined) assignment.learningSetId = await validateAssignmentLearningSet(req.body.learningSetId)
   if (title !== undefined) assignment.title = title
   if (description !== undefined) assignment.description = description
   if (dueDate !== undefined) assignment.dueDate = parseFutureDueDate(dueDate)

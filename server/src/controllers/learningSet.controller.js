@@ -2,6 +2,8 @@ import LearningSet from '../models/LearningSet.js'
 import AuditLog from '../models/AuditLog.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
+import { learningSetCache } from '../services/learningCache.service.js'
+import { publicLearning, text } from '../utils/learning.js'
 
 const parsePositiveInteger = (value, fallback, max = Number.MAX_SAFE_INTEGER) => {
   const parsed = Number.parseInt(value, 10)
@@ -14,30 +16,33 @@ const parsePositiveInteger = (value, fallback, max = Number.MAX_SAFE_INTEGER) =>
  * @access  Private
  */
 export const getLearningSets = asyncHandler(async (req, res) => {
+  if (Object.keys(req.query).some(key => !['category', 'level', 'page', 'limit'].includes(key))) {
+    throw new ErrorResponse('Unknown learning set query parameter', 400)
+  }
   const { category, level, page = 1, limit = 20 } = req.query
   const query = { status: 'published' }
 
   if (category) {
-    query.category = category
+    query.category = text(category, 'category', 60)
   }
   if (level) {
-    query.level = level
+    query.level = text(level, 'level', 5)
   }
 
   const pageNum = parsePositiveInteger(page, 1)
   const limitNum = parsePositiveInteger(limit, 20, 100)
   const skip = (pageNum - 1) * limitNum
 
-  const sets = await LearningSet.find(query)
+  const sets = await learningSetCache.get(JSON.stringify({ query, pageNum, limitNum }), () => LearningSet.find(query)
     .sort({ createdAt: -1 })
     .skip(skip)
-    .limit(limitNum)
+    .limit(limitNum))
 
   const total = await LearningSet.countDocuments(query)
 
   res.status(200).json({
     success: true,
-    data: sets,
+    data: req.user.role === 'admin' ? sets : publicLearning(sets),
     pagination: {
       total,
       page: pageNum,
@@ -53,10 +58,11 @@ export const getLearningSets = asyncHandler(async (req, res) => {
  * @access  Private
  */
 export const getLearningSetBySlug = asyncHandler(async (req, res) => {
-  const learningSet = await LearningSet.findOne({
-    slug: req.params.slug,
+  const slug = text(req.params.slug, 'slug', 100)
+  const learningSet = await learningSetCache.get('slug:' + slug, () => LearningSet.findOne({
+    slug,
     status: 'published'
-  })
+  }))
 
   if (!learningSet) {
     throw new ErrorResponse('Learning set not found', 404)
@@ -64,7 +70,7 @@ export const getLearningSetBySlug = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    data: learningSet
+    data: req.user.role === 'admin' ? learningSet : publicLearning(learningSet)
   })
 })
 
@@ -96,6 +102,7 @@ export const createLearningSet = asyncHandler(async (req, res) => {
     status: status || 'draft',
     items: items || []
   })
+  learningSetCache.clear()
 
   await AuditLog.create({
     user: req.user._id,
@@ -132,6 +139,7 @@ export const updateLearningSet = asyncHandler(async (req, res) => {
   if (items !== undefined) learningSet.items = items
 
   const updatedSet = await learningSet.save()
+  learningSetCache.clear()
 
   await AuditLog.create({
     user: req.user._id,
@@ -164,6 +172,7 @@ export const deleteLearningSet = asyncHandler(async (req, res) => {
   const setTitle = learningSet.title
 
   await learningSet.deleteOne()
+  learningSetCache.clear()
 
   await AuditLog.create({
     user: req.user._id,

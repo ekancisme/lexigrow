@@ -107,7 +107,7 @@ export const createVocabulary = asyncHandler(async (req, res) => {
     student: req.user._id,
     category: category || 'daily',
     theme: theme || 'General',
-    masteryLevel: masteryLevel || 'new',
+    masteryLevel: 'new',
     ipa: enriched.ipa || '',
     partOfSpeech: enriched.partOfSpeech || '',
     definition: enriched.definition || '',
@@ -250,6 +250,9 @@ export const getVocabGrowth = asyncHandler(async (req, res) => {
  * @access  Private (student)
  */
 export const updateMastery = asyncHandler(async (req, res) => {
+  if (req.body.masteryLevel !== undefined) {
+    throw new (await import('../utils/ErrorResponse.js')).default('Mastery is calculated from review and writing evidence; use the review endpoint', 403)
+  }
   const word = await Vocabulary.findOne({ _id: req.params.id, student: req.user._id })
 
   if (!word) {

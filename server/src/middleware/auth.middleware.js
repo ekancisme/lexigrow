@@ -23,6 +23,9 @@ export const protect = asyncHandler(async (req, res, next) => {
   if (!req.user) {
     throw new ErrorResponse('User not found', 401)
   }
+  if (req.user.accountStatus && req.user.accountStatus !== 'active') {
+    throw new ErrorResponse('Account is not active', 403)
+  }
 
   next()
 })

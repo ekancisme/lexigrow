@@ -10,7 +10,7 @@ import sendEmail from '../utils/sendEmail.js'
  * Generate JWT token
  */
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
+  return jwt.sign({ id }, process.env.JWT_SECRET || 'default_test_jwt_secret_lexigrow_2026', {
     expiresIn: process.env.JWT_EXPIRE || '7d',
   })
 }
