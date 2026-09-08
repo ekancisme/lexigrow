@@ -15,7 +15,7 @@ export default function StudentDashboard() {
   const [weeklyGoal, setWeeklyGoal] = useState(null)
   const [recentEssays, setRecentEssays] = useState([])
   const [currentSession, setCurrentSession] = useState(null)
-  const [dueSrsCount, setDueSrsCount] = useState(3)
+  const [dueSrsCount, setDueSrsCount] = useState(0)
 
   useEffect(() => {
     async function fetchData() {
@@ -26,14 +26,14 @@ export default function StudentDashboard() {
           api.get('/goals'),
           api.get('/essays'),
           api.get('/sessions/current'),
-          api.get('/srs/due')
+          api.get('/vocabulary/due-today')
         ])
 
         if (overviewRes.status === 'fulfilled') setOverview(overviewRes.value.data)
         if (goalRes.status === 'fulfilled') setWeeklyGoal(goalRes.value.data)
         if (essaysRes.status === 'fulfilled') setRecentEssays(essaysRes.value.data?.slice(0, 5) || [])
         if (sessionRes.status === 'fulfilled') setCurrentSession(sessionRes.value.data)
-        if (dueRes.status === 'fulfilled') setDueSrsCount(dueRes.value.data?.length || 0)
+        if (dueRes.status === 'fulfilled') setDueSrsCount(dueRes.value.count || dueRes.value.data?.length || 0)
       } catch (err) {
         console.error('Error fetching dashboard data:', err)
       } finally {
@@ -57,9 +57,9 @@ export default function StudentDashboard() {
   const lengthGoal = weeklyGoal?.goals?.find(g => g.label?.includes('Length'))
   const complexityGoal = weeklyGoal?.goals?.find(g => g.label?.includes('Complexity'))
 
-  const wordsPercentage = wordsGoal ? Math.min(100, Math.round((wordsGoal.current / wordsGoal.target) * 100)) : 40
-  const lengthPercentage = lengthGoal ? Math.min(100, Math.round((lengthGoal.current / lengthGoal.target) * 100)) : 65
-  const complexityPercentage = complexityGoal ? Math.min(100, Math.round((complexityGoal.current / complexityGoal.target) * 100)) : 80
+  const wordsPercentage = wordsGoal && wordsGoal.target > 0 ? Math.min(100, Math.round((wordsGoal.current / wordsGoal.target) * 100)) : 0
+  const lengthPercentage = lengthGoal && lengthGoal.target > 0 ? Math.min(100, Math.round((lengthGoal.current / lengthGoal.target) * 100)) : 0
+  const complexityPercentage = complexityGoal && complexityGoal.target > 0 ? Math.min(100, Math.round((complexityGoal.current / complexityGoal.target) * 100)) : 0
 
   return (
     <div className="student-dash animate-fade-in">
@@ -97,7 +97,7 @@ export default function StudentDashboard() {
           <div className="student-dash__streak-pill">
             <span className="material-symbols-outlined student-dash__streak-icon">local_fire_department</span>
             <div>
-              <div className="student-dash__streak-count">{user?.streakDays || 4} ngày liên tiếp</div>
+              <div className="student-dash__streak-count">{user?.streakDays || 0} ngày liên tiếp</div>
               <div className="student-dash__streak-sub">Đạt mục tiêu ngày</div>
             </div>
           </div>
@@ -118,24 +118,24 @@ export default function StudentDashboard() {
       <section className="student-dash__stats">
         <StatCard
           label="Bài viết đã nộp"
-          value={overview?.totalEssays || 6}
+          value={overview?.totalEssays || 0}
           icon="description"
         />
         <StatCard
           label="Từ vựng tăng trưởng"
-          value={`+${overview?.thisMonthWords || 18}`}
-          subtitle={`${overview?.growthRate >= 0 ? '+' : ''}${overview?.growthRate || 15}% so với tháng trước`}
+          value={`+${overview?.thisMonthWords || 0}`}
+          subtitle={`${overview?.growthRate >= 0 ? '+' : ''}${overview?.growthRate || 0}% so với tháng trước`}
           icon="trending_up"
         />
         <StatCard
           label="Chỉ số đa dạng (TTR)"
-          value={overview?.avgTTR ? overview.avgTTR.toFixed(2) : '0.72'}
+          value={overview?.avgTTR ? overview.avgTTR.toFixed(2) : '0.00'}
           icon="analytics"
-          progress={Math.round((overview?.avgTTR || 0.72) * 100)}
+          progress={Math.round((overview?.avgTTR || 0) * 100)}
         />
         <StatCard
           label="Trình độ từ vựng"
-          value={<>{overview?.rank || 'B1'}</>}
+          value={<>{overview?.rank || 'A1'}</>}
           subtitle="Khung CEFR ước tính"
           icon="equalizer"
         />

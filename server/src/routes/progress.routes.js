@@ -8,6 +8,7 @@ const router = Router()
 router.use(protect)
 router.use(authorize('student', 'teacher', 'parent'))
 router.get('/active-vocabulary', authorize('student'), getActiveVocabulary)
+router.get('/evidence', authorize('student'), getWordEvidence)
 router.get('/evidence/:word', authorize('student'), getWordEvidence)
 
 router.get('/overview', getOverview)

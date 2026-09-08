@@ -133,6 +133,24 @@
   --spacing-2xl: 48px;
   --spacing-gutter: 24px;
 
+  /* Spacing Scale Aliases */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Typography Aliases */
+  --text-body-sm: 13px;
+  --text-label-md: 14px;
+  --text-label-sm: 12px;
+  --text-title-md: 16px;
+  --text-title-lg: 20px;
+
   /* ── Layout ── */
   --sidebar-width: 280px;
   --topnav-height: 64px;

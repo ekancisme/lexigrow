@@ -25,10 +25,13 @@ export const getActiveVocabulary = asyncHandler(async (req, res) => {
   })
 })
 export const getWordEvidence = asyncHandler(async (req, res) => {
-  const word = text(req.params.word, 'word', 100).toLowerCase()
+  const wordParam = req.params.word || req.query.word
   const page = integer(req.query.page, 1, 1, 100000),
     limit = integer(req.query.limit, 20, 1, 100)
-  const query = { student: req.user._id, word, isVerifiedCorrect: true }
+  const query = { student: req.user._id, isVerifiedCorrect: true }
+  if (wordParam) {
+    query.word = text(wordParam, 'word', 100).toLowerCase()
+  }
   const [evidence, total] = await Promise.all([
     WordUsageEvidence.find(query)
       .sort({ usedAt: -1, _id: -1 })

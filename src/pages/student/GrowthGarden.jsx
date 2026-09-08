@@ -74,8 +74,22 @@ export default function GrowthGarden() {
         setLoading(true)
         const res = await api.get('/garden/status')
         if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-          setGardenTopics(res.data)
-          setSelectedTopic(res.data[0])
+          const merged = initialGardenData.map(topic => {
+            const serverItem = res.data.find(d => 
+              (d.theme || d.topic)?.toLowerCase() === topic.topic.toLowerCase() || 
+              (d.theme || d.topic)?.toLowerCase() === topic.slug.toLowerCase()
+            )
+            if (serverItem) {
+              return {
+                ...topic,
+                masteredCount: serverItem.masteredCount !== undefined ? serverItem.masteredCount : topic.masteredCount,
+                stage: serverItem.stage || (serverItem.masteredCount >= 3 ? 'blooming' : serverItem.masteredCount >= 2 ? 'branch' : serverItem.masteredCount >= 1 ? 'sprout' : 'seed')
+              }
+            }
+            return topic
+          })
+          setGardenTopics(merged)
+          setSelectedTopic(merged[0])
         }
       } catch {
         // Fallback to initial rich dataset

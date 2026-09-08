@@ -7,6 +7,7 @@ const studentNavItems = [
   { icon: 'explore', label: 'Khám phá', path: '/student/explore' },
   { icon: 'edit_note', label: 'Luyện viết', path: '/student/writing' },
   { icon: 'menu_book', label: 'Từ của tôi', path: '/student/my-words' },
+  { icon: 'school', label: 'Lớp học của tôi', path: '/student/class' },
   { icon: 'forest', label: 'Khu vườn tiến bộ', path: '/student/progress' },
 ]
 

@@ -10,68 +10,34 @@ export default function MyProgress() {
   const [milestones, setMilestones] = useState([])
   const [growthData, setGrowthData] = useState([])
   const [activeVocabStats, setActiveVocabStats] = useState({
-    savedCount: 28,
-    retainedCount: 14,
-    masteredCount: 8
+    savedCount: 0,
+    retainedCount: 0,
+    masteredCount: 0
   })
-  const [evidenceList, setEvidenceList] = useState([
-    {
-      word: 'routine',
-      sentence: 'I try to stick to my daily routine even on weekends.',
-      topic: 'Daily Life',
-      date: '2026-09-08',
-      score: 95
-    },
-    {
-      word: 'commute',
-      sentence: 'It takes me 30 minutes to commute to work by bus every morning.',
-      topic: 'Daily Life',
-      date: '2026-09-08',
-      score: 92
-    },
-    {
-      word: 'grocery',
-      sentence: 'We do our grocery shopping together every Sunday afternoon.',
-      topic: 'Daily Life',
-      date: '2026-09-07',
-      score: 98
-    },
-    {
-      word: 'itinerary',
-      sentence: 'Our travel itinerary includes visiting historical museums and famous local markets.',
-      topic: 'Travel',
-      date: '2026-09-06',
-      score: 94
-    },
-    {
-      word: 'accommodation',
-      sentence: 'It is advisable to book accommodation well in advance during peak holiday season.',
-      topic: 'Travel',
-      date: '2026-09-05',
-      score: 96
-    }
-  ])
+  const [evidenceList, setEvidenceList] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function loadProgress() {
       try {
-        const [overviewRes, categoriesRes, milestonesRes, growthRes, activeRes] = await Promise.allSettled([
+        setLoading(true)
+        const [overviewRes, categoriesRes, milestonesRes, growthRes, activeRes, evidenceRes] = await Promise.allSettled([
           api.get('/progress/overview'),
           api.get('/vocabulary/stats'),
           api.get('/progress/milestones'),
           api.get('/progress/growth-chart'),
-          api.get('/progress/active-vocabulary')
+          api.get('/progress/active-vocabulary'),
+          api.get('/progress/evidence')
         ])
 
         if (overviewRes.status === 'fulfilled') setOverview(overviewRes.value.data)
         if (categoriesRes.status === 'fulfilled') {
           const statsArray = categoriesRes.value.data || []
           const mappedCats = [
-            { name: 'Academic', count: statsArray.find(s => s.category === 'academic')?.count || 12, color: 'primary' },
-            { name: 'Business', count: statsArray.find(s => s.category === 'business')?.count || 8, color: 'secondary' },
-            { name: 'Scientific', count: statsArray.find(s => s.category === 'scientific')?.count || 5, color: 'tertiary' },
-            { name: 'Daily Use', count: statsArray.find(s => s.category === 'daily')?.count || 18, color: 'success' },
+            { name: 'Academic', count: statsArray.find(s => s.category === 'academic')?.count || 0, color: 'primary' },
+            { name: 'Business', count: statsArray.find(s => s.category === 'business')?.count || 0, color: 'secondary' },
+            { name: 'Scientific', count: statsArray.find(s => s.category === 'scientific')?.count || 0, color: 'tertiary' },
+            { name: 'Daily Use', count: statsArray.find(s => s.category === 'daily')?.count || 0, color: 'success' },
           ]
           setCategories(mappedCats)
         }
@@ -79,6 +45,16 @@ export default function MyProgress() {
         if (growthRes.status === 'fulfilled') setGrowthData(growthRes.value.data || [])
         if (activeRes.status === 'fulfilled' && activeRes.value.data) {
           setActiveVocabStats(activeRes.value.data)
+        }
+        if (evidenceRes.status === 'fulfilled' && evidenceRes.value.data) {
+          const list = evidenceRes.value.data.map(item => ({
+            word: item.word,
+            sentence: item.contextSentence || item.sentence || '',
+            topic: item.topic || 'General',
+            date: item.usedAt || item.createdAt || new Date(),
+            score: Math.round((item.aiConfidenceScore || 0.95) * 100)
+          }))
+          setEvidenceList(list)
         }
       } catch (err) {
         console.error('Error fetching progress:', err)
