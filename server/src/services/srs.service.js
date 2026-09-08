@@ -10,6 +10,7 @@
  * References: https://www.supermemo.com/en/archives1990-2015/english/ol/sm2
  */
 
+import { dayBoundary } from '../utils/learning.js'
 const EF_MIN = 1.3
 const EF_DEFAULT = 2.5
 
@@ -23,12 +24,15 @@ const EF_DEFAULT = 2.5
  * @param {number} rating - 1 (Again) | 2 (Hard) | 3 (Good) | 4 (Easy)
  * @returns {{ nextReviewDate: Date, easeFactor: number, reviewInterval: number, reviewCount: number, masteryLevel: string }}
  */
-export function calculateSM2(current, rating) {
+export function calculateSM2(current, rating, { now = new Date(), timezone = Intl.DateTimeFormat().resolvedOptions().timeZone, algorithm = 'legacy' } = {}) {
   if (![1, 2, 3, 4].includes(rating)) {
     throw new Error('Rating must be 1 (Again), 2 (Hard), 3 (Good), or 4 (Easy)')
   }
 
   let { easeFactor = EF_DEFAULT, reviewInterval = 1, reviewCount = 0 } = current
+  if (!Number.isFinite(easeFactor) || easeFactor < 1.3 || !Number.isSafeInteger(reviewInterval) || reviewInterval < 1 || !Number.isSafeInteger(reviewCount) || reviewCount < 0) {
+    throw new Error('Invalid SRS state')
+  }
 
   // SM-2 quality score: map 1-4 rating to the 0-5 quality q used in original SM-2
   // 1=Again → q=0, 2=Hard → q=2, 3=Good → q=4, 4=Easy → q=5
@@ -53,18 +57,16 @@ export function calculateSM2(current, rating) {
     } else if (newReviewCount === 2) {
       newInterval = 6
     } else {
-      newInterval = Math.round(reviewInterval * newEF)
+      newInterval = Math.round(reviewInterval * (algorithm === 'sm2' ? easeFactor : newEF))
     }
     // Rating 4 (Easy): give a small bonus interval
-    if (rating === 4) {
+    if (rating === 4 && algorithm === 'legacy') {
       newInterval = Math.round(newInterval * 1.3)
     }
   }
 
-  const nextReviewDate = new Date()
-  nextReviewDate.setDate(nextReviewDate.getDate() + newInterval)
-  // Normalize to start of the day so daily comparisons are stable
-  nextReviewDate.setHours(0, 0, 0, 0)
+  newInterval = Math.min(newInterval, 36500)
+  const nextReviewDate = dayBoundary(now, newInterval, timezone)
 
   // Derive masteryLevel from SM-2 state
   let masteryLevel
