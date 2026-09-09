@@ -71,22 +71,7 @@ if ($EnvFile -and (Test-Path $EnvFile)) {
 
 # 5. Build Docker Image tren VPS
 Write-Host "[3/4] Dang build Docker Image tren VPS..." -ForegroundColor Yellow
-$LocalBuildScript = @"
-#!/usr/bin/env bash
-set -e
-cd $RemoteSourceDir
-tar -xzf source.tar.gz
-rm -f source.tar.gz
-docker build --no-cache -t $ImageName -f $Dockerfile .
-rm -rf $RemoteSourceDir
-"@
-
-$TmpBuildFile = [System.IO.Path]::GetTempFileName()
-[System.IO.File]::WriteAllText($TmpBuildFile, ($LocalBuildScript -replace "`r`n", "`n"))
-scp -o StrictHostKeyChecking=no -o BatchMode=yes $TmpBuildFile "$($VpsHost):/tmp/do_build.sh"
-Remove-Item $TmpBuildFile -Force
-
-ssh -o StrictHostKeyChecking=no -o BatchMode=yes $VpsHost "bash /tmp/do_build.sh && rm -f /tmp/do_build.sh"
+ssh -o StrictHostKeyChecking=no -o BatchMode=yes $VpsHost "cd $RemoteSourceDir && tar -xzf source.tar.gz && rm -f source.tar.gz && docker build --no-cache -t $ImageName -f $Dockerfile . && rm -rf $RemoteSourceDir"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "[ERROR] Loi build Docker tren VPS!" -ForegroundColor Red
     exit 1
@@ -94,57 +79,24 @@ if ($LASTEXITCODE -ne 0) {
 
 # 6. Chay Container va Cap nhat Caddyfile
 Write-Host "[4/4] Khoi dong Container va Cap nhat Caddy..." -ForegroundColor Yellow
-$LocalRunScript = @"
-#!/usr/bin/env bash
-set -e
+$RunCommands = @"
 docker stop $AppName 2>/dev/null || true
 docker rm $AppName 2>/dev/null || true
+docker run -d --name $AppName --restart always --network web-net $RemoteEnvFlag $ImageName
 
-docker run -d \
-  --name $AppName \
-  --restart always \
-  --network web-net \
-  $RemoteEnvFlag \
-  $ImageName
-
-# Update or add domain block in Caddyfile
-python3 -c "
-import re
-caddyfile = '/root/caddy/Caddyfile'
-with open(caddyfile, 'r') as f:
-    content = f.read()
-
-block = '''$Domain {
-    reverse_proxy ${AppName}:${ContainerPort}
-}'''
-
-if '$Domain' in content:
-    content = re.sub(r'$Domain\s*\{[^}]*\}', block, content)
-else:
-    content += '\n\n' + block + '\n'
-
-with open(caddyfile, 'w') as f:
-    f.write(content)
-" 2>/dev/null || (
-  if ! grep -q '$Domain' /root/caddy/Caddyfile; then
-    echo "" >> /root/caddy/Caddyfile
-    echo "$Domain {" >> /root/caddy/Caddyfile
-    echo "    reverse_proxy ${AppName}:${ContainerPort}" >> /root/caddy/Caddyfile
-    echo "}" >> /root/caddy/Caddyfile
-  else
-    sed -i "/$Domain/,/}/ s/reverse_proxy .*/reverse_proxy ${AppName}:${ContainerPort}/" /root/caddy/Caddyfile
-  fi
-)
+if ! grep -q '$Domain' /root/caddy/Caddyfile; then
+  echo "" >> /root/caddy/Caddyfile
+  echo "$Domain {" >> /root/caddy/Caddyfile
+  echo "    reverse_proxy ${AppName}:${ContainerPort}" >> /root/caddy/Caddyfile
+  echo "}" >> /root/caddy/Caddyfile
+else
+  sed -i '/$Domain/,/}/ s/reverse_proxy .*/reverse_proxy ${AppName}:${ContainerPort}/' /root/caddy/Caddyfile
+fi
 
 docker exec -w /etc/caddy caddy caddy reload
 "@
 
-$TmpRunFile = [System.IO.Path]::GetTempFileName()
-[System.IO.File]::WriteAllText($TmpRunFile, ($LocalRunScript -replace "`r`n", "`n"))
-scp -o StrictHostKeyChecking=no -o BatchMode=yes $TmpRunFile "$($VpsHost):/tmp/do_run.sh"
-Remove-Item $TmpRunFile -Force
-
-ssh -o StrictHostKeyChecking=no -o BatchMode=yes $VpsHost "bash /tmp/do_run.sh && rm -f /tmp/do_run.sh"
+ssh -o StrictHostKeyChecking=no -o BatchMode=yes $VpsHost "$RunCommands"
 
 Write-Host "=======================================================" -ForegroundColor Green
 Write-Host "DEPLOY THANH CONG RUC RO!" -ForegroundColor Green
