@@ -5,18 +5,21 @@ import App from './App.jsx'
 import { AuthProvider } from './contexts/AuthContext.jsx'
 import { ThemeProvider } from './contexts/ThemeContext.jsx'
 import { ModalProvider } from './contexts/ModalContext.jsx'
+import { LanguageProvider } from './contexts/LanguageContext.jsx'
 import './styles/global.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
-      <ThemeProvider>
-        <AuthProvider>
-          <ModalProvider>
-            <App />
-          </ModalProvider>
-        </AuthProvider>
-      </ThemeProvider>
+      <LanguageProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <ModalProvider>
+              <App />
+            </ModalProvider>
+          </AuthProvider>
+        </ThemeProvider>
+      </LanguageProvider>
     </BrowserRouter>
   </React.StrictMode>
 )

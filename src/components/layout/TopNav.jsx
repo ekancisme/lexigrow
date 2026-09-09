@@ -2,7 +2,9 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useTheme } from '../../contexts/ThemeContext.jsx'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import NotificationBell from '../common/NotificationBell.jsx'
+import LanguageSwitcher from '../common/LanguageSwitcher.jsx'
 import { paymentService } from '../../services/payment.service.js'
 import './TopNav.css'
 
@@ -12,6 +14,7 @@ export default function TopNav({ role = 'student', onMenuToggle }) {
   const navigate = useNavigate()
   const { user: authUser } = useAuth()
   const { theme, toggleTheme } = useTheme()
+  const { t } = useLanguage()
 
   useEffect(() => {
     if (authUser && authUser.role !== 'admin') {
@@ -33,16 +36,16 @@ export default function TopNav({ role = 'student', onMenuToggle }) {
     ? {
         name: authUser.name,
         subtitle: authUser.role === 'teacher'
-          ? authUser.institution || 'Educator'
+          ? authUser.institution || t('header.educator', 'Educator')
           : authUser.role === 'parent'
             ? authUser.children && authUser.children.length > 0
               ? `Parent of ${authUser.children.map(c => c.name).filter(Boolean).join(', ')}`
-              : 'Parent'
-            : `Student (${authUser.englishLevel || 'N/A'})`
+              : t('header.parent', 'Parent')
+            : `${t('header.student', 'Student')} (${authUser.englishLevel || 'N/A'})`
       }
     : {
         name: role === 'teacher' ? 'Prof. Elena' : (role === 'parent' ? 'Parent User' : 'Alex Rivera'),
-        subtitle: role === 'teacher' ? 'Senior Educator' : (role === 'parent' ? 'Parent' : 'Student (C1 Level)')
+        subtitle: role === 'teacher' ? t('header.educator', 'Senior Educator') : (role === 'parent' ? t('header.parent', 'Parent') : `${t('header.student', 'Student')} (C1 Level)`)
       }
 
   return (
@@ -53,7 +56,10 @@ export default function TopNav({ role = 'student', onMenuToggle }) {
       {role === 'parent' ? (
         <div className="topnav__parent-context">
           <span className="material-symbols-outlined">family_restroom</span>
-          <div><strong>Parent workspace</strong><span>Family learning overview</span></div>
+          <div>
+            <strong>{t('header.parentWorkspace', 'Parent workspace')}</strong>
+            <span>{t('header.familyOverview', 'Family learning overview')}</span>
+          </div>
         </div>
       ) : (
         <div className={`topnav__search ${searchFocused ? 'topnav__search--focused' : ''}`}>
@@ -61,7 +67,7 @@ export default function TopNav({ role = 'student', onMenuToggle }) {
           <input
             type="text"
             className="topnav__search-input"
-            placeholder={role === 'teacher' ? 'Search students or metrics...' : 'Search essays or vocabulary...'}
+            placeholder={role === 'teacher' ? t('header.searchStudent', 'Search students or metrics...') : t('header.searchEssay', 'Search essays or vocabulary...')}
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setSearchFocused(false)}
           />
@@ -90,14 +96,22 @@ export default function TopNav({ role = 'student', onMenuToggle }) {
             ) : (
               <button className="topnav__upgrade-btn" onClick={() => navigate('/pricing')}>
                 <span className="material-symbols-outlined">rocket_launch</span>
-                <span>Upgrade</span>
+                <span>{t('header.upgrade', 'Upgrade')}</span>
               </button>
             )}
           </div>
         )}
 
+        {/* Language Switcher */}
+        <LanguageSwitcher />
+
         {/* Theme Toggle */}
-        <button className="topnav__icon-btn" onClick={toggleTheme} aria-label="Toggle Theme">
+        <button
+          className="topnav__icon-btn"
+          onClick={toggleTheme}
+          aria-label={theme === 'light' ? t('header.themeDark', 'Dark Mode') : t('header.themeLight', 'Light Mode')}
+          title={theme === 'light' ? t('header.themeDark', 'Dark Mode') : t('header.themeLight', 'Light Mode')}
+        >
           <span className="material-symbols-outlined">
             {theme === 'light' ? 'dark_mode' : 'light_mode'}
           </span>

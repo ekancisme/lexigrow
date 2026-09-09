@@ -1,56 +1,61 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import './Sidebar.css'
-
-const studentNavItems = [
-  { icon: 'home', label: 'Today', path: '/student/dashboard' },
-  { icon: 'explore', label: 'Explore', path: '/student/explore' },
-  { icon: 'edit_note', label: 'Smart Writing', path: '/student/writing' },
-  { icon: 'menu_book', label: 'My Words', path: '/student/my-words' },
-  { icon: 'school', label: 'My Classes', path: '/student/class' },
-  { icon: 'forest', label: 'Growth Garden', path: '/student/progress' },
-  { icon: 'workspace_premium', label: 'Upgrade Plan', path: '/pricing' },
-]
-
-const teacherNavItems = [
-  { icon: 'dashboard', label: 'Dashboard', path: '/teacher/dashboard' },
-  { icon: 'school', label: 'My Classes', path: '/teacher/classes' },
-  { icon: 'assignment', label: 'Assignments', path: '/teacher/assignments' },
-  { icon: 'warning', label: 'Early Warnings', path: '/teacher/alerts' },
-  { icon: 'smart_toy', label: 'System Prompts', path: '/teacher/prompts' },
-  { icon: 'workspace_premium', label: 'Teacher Plans', path: '/pricing' },
-]
-
-const adminNavItems = [
-  { icon: 'dashboard', label: 'Dashboard', path: '/admin/dashboard' },
-  { icon: 'group', label: 'Users', path: '/admin/users' },
-  { icon: 'domain', label: 'Classes', path: '/admin/classes' },
-  { icon: 'payments', label: 'Pricing & PayOS', path: '/admin/pricing' },
-  { icon: 'monitoring', label: 'AI Monitoring', path: '/admin/ai-monitoring' },
-  { icon: 'dictionary', label: 'Vocabulary', path: '/admin/vocabulary' },
-  { icon: 'receipt_long', label: 'Audit Logs', path: '/admin/logs' },
-]
-
-const bottomItems = [
-  { icon: 'settings', label: 'Settings', path: '/settings' },
-]
 
 export default function Sidebar({ role = 'student', mobileOpen = false, onClose }) {
   const navigate = useNavigate()
   const location = useLocation()
   const { logout, user, selectedParentChildId, selectParentChild } = useAuth()
+  const { t } = useLanguage()
+
+  const studentNavItems = [
+    { icon: 'home', label: t('nav.today', 'Today'), path: '/student/dashboard' },
+    { icon: 'explore', label: t('nav.explore', 'Explore'), path: '/student/explore' },
+    { icon: 'edit_note', label: t('nav.smartWriting', 'Smart Writing'), path: '/student/writing' },
+    { icon: 'menu_book', label: t('nav.myWords', 'My Words'), path: '/student/my-words' },
+    { icon: 'school', label: t('nav.myClasses', 'My Classes'), path: '/student/class' },
+    { icon: 'forest', label: t('nav.growthGarden', 'Growth Garden'), path: '/student/progress' },
+    { icon: 'workspace_premium', label: t('nav.upgradePlan', 'Upgrade Plan'), path: '/pricing' },
+  ]
+
+  const teacherNavItems = [
+    { icon: 'dashboard', label: t('nav.dashboard', 'Dashboard'), path: '/teacher/dashboard' },
+    { icon: 'school', label: t('nav.myClasses', 'My Classes'), path: '/teacher/classes' },
+    { icon: 'assignment', label: t('nav.assignments', 'Assignments'), path: '/teacher/assignments' },
+    { icon: 'warning', label: t('nav.earlyWarnings', 'Early Warnings'), path: '/teacher/alerts' },
+    { icon: 'smart_toy', label: t('nav.systemPrompts', 'System Prompts'), path: '/teacher/prompts' },
+    { icon: 'workspace_premium', label: t('nav.teacherPlans', 'Teacher Plans'), path: '/pricing' },
+  ]
+
+  const adminNavItems = [
+    { icon: 'dashboard', label: t('nav.dashboard', 'Dashboard'), path: '/admin/dashboard' },
+    { icon: 'group', label: t('nav.users', 'Users'), path: '/admin/users' },
+    { icon: 'domain', label: t('nav.classes', 'Classes'), path: '/admin/classes' },
+    { icon: 'payments', label: t('nav.pricingPayOS', 'Pricing & PayOS'), path: '/admin/pricing' },
+    { icon: 'monitoring', label: t('nav.aiMonitoring', 'AI Monitoring'), path: '/admin/ai-monitoring' },
+    { icon: 'dictionary', label: t('nav.vocabulary', 'Vocabulary'), path: '/admin/vocabulary' },
+    { icon: 'receipt_long', label: t('nav.auditLogs', 'Audit Logs'), path: '/admin/logs' },
+  ]
+
+  const bottomItems = [
+    { icon: 'settings', label: t('nav.settings', 'Settings'), path: '/settings' },
+  ]
+
   const routeChildId = location.pathname.match(/^\/parent\/children\/([^/]+)/)?.[1]
   const storedChildIsValid = user?.children?.some(child => child._id === selectedParentChildId)
   const selectedChildId = routeChildId || (storedChildIsValid ? selectedParentChildId : '') || user?.children?.[0]?._id || ''
   const selectedChild = user?.children?.find(child => child._id === selectedChildId)
+
   const parentNavItems = [
-    { icon: 'dashboard', label: 'Overview', path: '/parent/dashboard' },
-    { icon: 'monitoring', label: 'Progress', path: selectedChildId ? `/parent/children/${selectedChildId}/progress` : '/parent/dashboard', childRequired: true },
-    { icon: 'history_edu', label: 'Essays', path: selectedChildId ? `/parent/children/${selectedChildId}/essays` : '/parent/dashboard', childRequired: true },
-    { icon: 'menu_book', label: 'Vocabulary', path: selectedChildId ? `/parent/children/${selectedChildId}/vocabulary` : '/parent/dashboard', childRequired: true },
-    { icon: 'flag', label: 'Weekly goals', path: selectedChildId ? `/parent/children/${selectedChildId}/goals` : '/parent/dashboard', childRequired: true },
-    { icon: 'warning', label: 'Alerts', path: selectedChildId ? `/parent/children/${selectedChildId}/alerts` : '/parent/dashboard', childRequired: true, badge: selectedChild?.unreadAlertCount },
+    { icon: 'dashboard', label: t('nav.overview', 'Overview'), path: '/parent/dashboard' },
+    { icon: 'monitoring', label: t('nav.progress', 'Progress'), path: selectedChildId ? `/parent/children/${selectedChildId}/progress` : '/parent/dashboard', childRequired: true },
+    { icon: 'history_edu', label: t('nav.essays', 'Essays'), path: selectedChildId ? `/parent/children/${selectedChildId}/essays` : '/parent/dashboard', childRequired: true },
+    { icon: 'menu_book', label: t('nav.vocabulary', 'Vocabulary'), path: selectedChildId ? `/parent/children/${selectedChildId}/vocabulary` : '/parent/dashboard', childRequired: true },
+    { icon: 'flag', label: t('nav.weeklyGoals', 'Weekly Goals'), path: selectedChildId ? `/parent/children/${selectedChildId}/goals` : '/parent/dashboard', childRequired: true },
+    { icon: 'warning', label: t('nav.alerts', 'Alerts'), path: selectedChildId ? `/parent/children/${selectedChildId}/alerts` : '/parent/dashboard', childRequired: true, badge: selectedChild?.unreadAlertCount },
   ]
+
   const navItems = role === 'admin'
     ? adminNavItems
     : (role === 'teacher' ? teacherNavItems : (role === 'parent' ? parentNavItems : studentNavItems))
@@ -66,7 +71,7 @@ export default function Sidebar({ role = 'student', mobileOpen = false, onClose 
         </div>
         <div>
           <h1 className="sidebar__title">LexiGrow</h1>
-          <p className="sidebar__subtitle">Measured Growth</p>
+          <p className="sidebar__subtitle">{t('nav.measuredGrowth', 'Measured Growth')}</p>
         </div>
         <button
           className="sidebar__mobile-close"
@@ -79,7 +84,7 @@ export default function Sidebar({ role = 'student', mobileOpen = false, onClose 
 
       {role === 'parent' && user?.children?.length > 0 && (
         <div className="sidebar__child-switcher">
-          <label htmlFor="sidebar-child-select">Viewing student</label>
+          <label htmlFor="sidebar-child-select">{t('nav.viewingStudent', 'Viewing student')}</label>
           <div className="sidebar__child-select-wrap">
             <span className="material-symbols-outlined">school</span>
             <select
@@ -133,7 +138,7 @@ export default function Sidebar({ role = 'student', mobileOpen = false, onClose 
             onClick={() => { navigate('/parent/dashboard?link=1'); onClose?.() }}
           >
             <span className="material-symbols-outlined">person_add</span>
-            <span>Link student</span>
+            <span>{t('nav.linkStudent', 'Link Student')}</span>
           </button>
         </div>
       )}
@@ -146,7 +151,7 @@ export default function Sidebar({ role = 'student', mobileOpen = false, onClose 
             }
           >
             <span className="material-symbols-outlined">add</span>
-            <span>{role === 'student' ? 'New Entry' : 'New Class'}</span>
+            <span>{role === 'student' ? t('nav.newEntry', 'New Entry') : t('nav.newClass', 'New Class')}</span>
           </button>
         </div>
       )}
@@ -168,7 +173,7 @@ export default function Sidebar({ role = 'student', mobileOpen = false, onClose 
         ))}
         <button className="sidebar__link sidebar__logout" onClick={() => { logout(); navigate('/login'); }}>
           <span className="material-symbols-outlined">logout</span>
-          <span>Logout</span>
+          <span>{t('nav.logout', 'Logout')}</span>
         </button>
       </div>
     </aside>
