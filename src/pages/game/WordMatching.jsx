@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import './WordMatching.css'
 
@@ -18,6 +19,7 @@ const FALLBACK_WORDS = [
 
 export default function WordMatching() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   
   // Game Configuration State
   const [gameState, setGameState] = useState('config') // 'config' | 'loading' | 'playing' | 'victory'
@@ -287,14 +289,14 @@ export default function WordMatching() {
         <div className="match-card config-panel card-base">
           <div className="config-header text-center">
             <span className="material-symbols-outlined config-icon">extension</span>
-            <h2 className="text-headline-lg font-bold">Word Matching Game</h2>
+            <h2 className="text-headline-lg font-bold">{t('games.matchingTitle', 'Word Matching Game')}</h2>
             <p className="text-body-md text-secondary-color">
-              Challenge your memory! Match English vocabulary words with their correct definitions.
+              {t('games.matchingDesc', 'Challenge your memory! Match English vocabulary words with their correct definitions.')}
             </p>
           </div>
 
           <div className="config-section">
-            <h4 className="text-title-md font-medium">1. Select Number of Word Pairs</h4>
+            <h4 className="text-title-md font-medium">{t('games.matchingSelectPairs', '1. Select Number of Word Pairs')}</h4>
             <div className="pair-count-selector">
               {[6, 8, 10].map((num) => (
                 <button
@@ -304,20 +306,20 @@ export default function WordMatching() {
                   onClick={() => setPairCount(num)}
                 >
                   <span className="pair-number">{num}</span>
-                  <span className="pair-label">{num * 2} Cards</span>
+                  <span className="pair-label">{num * 2} {t('games.wordsCount', 'Cards')}</span>
                 </button>
               ))}
             </div>
           </div>
 
           <div className="config-section">
-            <h4 className="text-title-md font-medium">2. Select Category (Optional)</h4>
+            <h4 className="text-title-md font-medium">{t('games.matchingSelectCat', '2. Select Category (Optional)')}</h4>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="category-select"
             >
-              <option value="">All Categories</option>
+              <option value="">{t('games.allCategories', 'All Categories')}</option>
               <option value="academic">Academic</option>
               <option value="business">Business</option>
               <option value="scientific">Scientific</option>
@@ -327,7 +329,7 @@ export default function WordMatching() {
 
           <button className="start-game-btn" onClick={loadVocabulary}>
             <span className="material-symbols-outlined">play_arrow</span>
-            Start Game
+            {t('games.startGame', 'Start Game')}
           </button>
         </div>
       )}
@@ -338,7 +340,7 @@ export default function WordMatching() {
           <span className="material-symbols-outlined animate-spin loading-spinner">
             progress_activity
           </span>
-          <p className="text-body-lg">Loading and preparing vocabulary cards...</p>
+          <p className="text-body-lg">{t('common.loading', 'Loading and preparing vocabulary cards...')}</p>
         </div>
       )}
 
@@ -349,7 +351,7 @@ export default function WordMatching() {
           <div className="gameplay-header">
             <button className="back-btn" onClick={() => setGameState('config')}>
               <span className="material-symbols-outlined">arrow_back</span>
-              Exit
+              {t('games.exit', 'Exit')}
             </button>
             <div className="stats-row">
               <div className="stat-pill">
@@ -358,15 +360,15 @@ export default function WordMatching() {
               </div>
               <div className="stat-pill">
                 <span className="material-symbols-outlined">percent</span>
-                <span>Accuracy: {accuracy}%</span>
+                <span>{t('games.accuracy', 'Accuracy')}: {accuracy}%</span>
               </div>
               <div className="stat-pill">
                 <span className="material-symbols-outlined">fitness_center</span>
-                <span>Attempts: {attempts}</span>
+                <span>{t('games.attempts', 'Attempts')}: {attempts}</span>
               </div>
               <div className="stat-pill">
                 <span className="material-symbols-outlined">check_circle</span>
-                <span>Matched: {matchedPairs.length} / {pairCount}</span>
+                <span>{matchedPairs.length} / {pairCount}</span>
               </div>
             </div>
           </div>

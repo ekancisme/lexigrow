@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import paymentService from '../../services/payment.service.js'
 import './PricingPage.css'
 
@@ -8,6 +9,7 @@ export default function PaymentSuccess() {
   const [searchParams] = useSearchParams()
   const orderCode = searchParams.get('orderCode')
   const { user } = useAuth()
+  const { t } = useLanguage()
   const [tierInfo, setTierInfo] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -46,10 +48,10 @@ export default function PaymentSuccess() {
       </div>
 
       <h1 className="text-headline-lg" style={{ marginBottom: '0.5rem' }}>
-        Payment Successful!
+        {t('payment.successTitle', 'Payment Successful!')}
       </h1>
       <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem' }}>
-        Thank you for upgrading your subscription on LexiGrow. Your plan has been automatically activated via PayOS.
+        {t('payment.successDesc', 'Thank you for upgrading your subscription on LexiGrow. Your plan has been automatically activated via PayOS.')}
       </p>
 
       {orderCode && (
@@ -62,11 +64,11 @@ export default function PaymentSuccess() {
             fontSize: '0.9rem',
           }}
         >
-          <span>Order Code: </span>
+          <span>{t('payment.orderCode', 'Order Code')}: </span>
           <strong>#{orderCode}</strong>
           {tierInfo && (
             <div style={{ marginTop: '0.5rem' }}>
-              <span>Activated Plan: </span>
+              <span>{t('payment.planName', 'Plan')}: </span>
               <strong style={{ color: 'var(--color-primary, #1a73e8)' }}>
                 {tierInfo.tier?.toUpperCase()} ({tierInfo.planName})
               </strong>
@@ -81,14 +83,14 @@ export default function PaymentSuccess() {
           className="btn-primary"
           style={{ padding: '0.85rem 1.75rem', textDecoration: 'none', borderRadius: 12, fontWeight: 700 }}
         >
-          Start Learning Now
+          {t('payment.goToDashboard', 'Go to Dashboard')}
         </Link>
         <Link
           to="/pricing"
           className="btn-secondary"
           style={{ padding: '0.85rem 1.75rem', textDecoration: 'none', borderRadius: 12, fontWeight: 600 }}
         >
-          View Pricing Plans
+          {t('pricing.title', 'View Pricing Plans')}
         </Link>
       </div>
     </div>

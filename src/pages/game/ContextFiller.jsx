@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import './ContextFiller.css'
 
@@ -14,6 +15,7 @@ const FALLBACK_WORDS = [
 
 export default function ContextFiller() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
 
   // Game state
   const [gameState, setGameState] = useState('config') // 'config' | 'loading' | 'playing' | 'victory'
@@ -244,14 +246,14 @@ export default function ContextFiller() {
         <div className="filler-card card-base config-panel">
           <div className="text-center config-header">
             <span className="material-symbols-outlined config-icon-filler">rate_review</span>
-            <h2 className="text-headline-lg font-bold">Context Filler</h2>
+            <h2 className="text-headline-lg font-bold">{t('games.fillerTitle', 'Context Filler')}</h2>
             <p className="text-body-md text-secondary-color">
-              Learn vocabulary in context! Read real-world sample sentences and choose the most appropriate word to complete each blank.
+              {t('games.fillerDesc', 'Learn vocabulary in context! Read real-world sample sentences and choose the most appropriate word to complete each blank.')}
             </p>
           </div>
 
           <div className="config-section">
-            <h4 className="text-title-md font-medium">1. Number of Questions</h4>
+            <h4 className="text-title-md font-medium">{t('games.fillerRounds', '1. Number of Questions')}</h4>
             <div className="round-selector">
               {[5, 10, 15].map((num) => (
                 <button
@@ -259,20 +261,20 @@ export default function ContextFiller() {
                   className={`round-btn-filler ${roundCount === num ? 'round-btn-filler--active' : ''}`}
                   onClick={() => setRoundCount(num)}
                 >
-                  {num} Questions
+                  {num} {t('onboarding.question', 'Questions')}
                 </button>
               ))}
             </div>
           </div>
 
           <div className="config-section">
-            <h4 className="text-title-md font-medium">2. Select Category (Optional)</h4>
+            <h4 className="text-title-md font-medium">{t('games.matchingSelectCat', '2. Select Category (Optional)')}</h4>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="category-select"
             >
-              <option value="">All Categories</option>
+              <option value="">{t('games.allCategories', 'All Categories')}</option>
               <option value="academic">Academic</option>
               <option value="business">Business</option>
               <option value="scientific">Scientific</option>
@@ -282,7 +284,7 @@ export default function ContextFiller() {
 
           <button className="start-game-btn-filler" onClick={loadWords}>
             <span className="material-symbols-outlined">play_arrow</span>
-            Start Game
+            {t('games.startGame', 'Start Game')}
           </button>
         </div>
       )}
@@ -293,7 +295,7 @@ export default function ContextFiller() {
           <span className="material-symbols-outlined animate-spin loading-spinner">
             progress_activity
           </span>
-          <p className="text-body-lg">Finding suitable contextual sentences...</p>
+          <p className="text-body-lg">{t('common.loading', 'Finding suitable contextual sentences...')}</p>
         </div>
       )}
 
@@ -303,7 +305,7 @@ export default function ContextFiller() {
           <div className="gameplay-header">
             <button className="back-btn" onClick={() => setGameState('config')}>
               <span className="material-symbols-outlined">arrow_back</span>
-              Exit
+              {t('common.exit', 'Exit')}
             </button>
             <div className="stats-row">
               <div className="stat-pill">
@@ -312,11 +314,11 @@ export default function ContextFiller() {
               </div>
               <div className="stat-pill">
                 <span className="material-symbols-outlined">check_circle</span>
-                <span>Score: {score} / {words.length}</span>
+                <span>{t('games.score', 'Score')}: {score} / {words.length}</span>
               </div>
               <div className="stat-pill">
                 <span className="material-symbols-outlined">quiz</span>
-                <span>Question: {currentRoundIndex + 1} / {words.length}</span>
+                <span>{t('onboarding.question', 'Question')}: {currentRoundIndex + 1} / {words.length}</span>
               </div>
             </div>
           </div>
@@ -363,7 +365,7 @@ export default function ContextFiller() {
                   <strong>{currentWord.word}:</strong> {currentWord.definition}
                 </p>
                 <button className="next-round-btn-filler" onClick={handleNextRound}>
-                  Next Question
+                  {t('games.fillerNext', 'Next Question')}
                   <span className="material-symbols-outlined">arrow_forward</span>
                 </button>
               </div>
@@ -378,38 +380,38 @@ export default function ContextFiller() {
           <div className="victory-crown">
             <span className="material-symbols-outlined crown-icon-filler">emoji_events</span>
           </div>
-          <h2 className="text-headline-lg font-bold text-primary-color">Congratulations! Victory!</h2>
+          <h2 className="text-headline-lg font-bold text-primary-color">{t('games.congratulations', 'Congratulations! Victory!')}</h2>
           <p className="text-body-md text-secondary-color">
-            You successfully completed the Context Filler challenge!
+            {t('games.fillerDesc', 'You successfully completed the Context Filler challenge!')}
           </p>
 
           <div className="score-summary-grid">
             <div className="summary-item">
               <span className="summary-value">{formatTime(timer)}</span>
-              <span className="summary-label">Time</span>
+              <span className="summary-label">{t('games.time', 'Time')}</span>
             </div>
             <div className="summary-item">
               <span className="summary-value">{score} / {words.length}</span>
-              <span className="summary-label">Correct Answers</span>
+              <span className="summary-label">{t('common.score', 'Score')}</span>
             </div>
             <div className="summary-item">
               <span className="summary-value">{Math.round((score / words.length) * 100)}%</span>
-              <span className="summary-label">Accuracy</span>
+              <span className="summary-label">{t('games.accuracy', 'Accuracy')}</span>
             </div>
             <div className="summary-item">
               <span className="summary-value">+{score * 12} XP</span>
-              <span className="summary-label">XP Earned</span>
+              <span className="summary-label">{t('games.xpEarned', 'XP Earned')}</span>
             </div>
           </div>
 
           <div className="victory-actions">
             <button className="play-again-btn-filler" onClick={() => setGameState('config')}>
               <span className="material-symbols-outlined">replay</span>
-              Play Again
+              {t('games.playAgain', 'Play Again')}
             </button>
             <button className="return-btn" onClick={() => navigate('/student/vocabulary')}>
               <span className="material-symbols-outlined">menu_book</span>
-              Word Library
+              {t('games.wordLibrary', 'Word Library')}
             </button>
           </div>
         </div>

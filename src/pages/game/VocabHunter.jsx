@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import './VocabHunter.css'
 
@@ -18,6 +19,7 @@ const FALLBACK_WORDS = [
 
 export default function VocabHunter() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
 
   // Game configuration
   const [gameState, setGameState] = useState('config') // 'config' | 'loading' | 'playing' | 'gameover' | 'victory'
@@ -311,19 +313,19 @@ export default function VocabHunter() {
         <div className="hunter-card card-base config-panel">
           <div className="text-center config-header">
             <span className="material-symbols-outlined config-icon-hunter">target</span>
-            <h2 className="text-headline-lg font-bold">Vocab Hunter</h2>
+            <h2 className="text-headline-lg font-bold">{t('games.hunterTitle', 'Vocab Hunter')}</h2>
             <p className="text-body-md text-secondary-color">
-              Speed reflex challenge! Read the definition at the top and pop the matching vocabulary bubble before it falls off the screen!
+              {t('games.hunterDesc', 'Speed reflex challenge! Read the definition at the top and pop the matching vocabulary bubble before it falls off the screen!')}
             </p>
           </div>
 
           <div className="config-section">
-            <h4 className="text-title-md font-medium">1. Select Fall Speed</h4>
+            <h4 className="text-title-md font-medium">{t('games.hunterSpeed', '1. Select Fall Speed')}</h4>
             <div className="speed-selector">
               {[
-                { id: 'easy', label: 'Slow', desc: 'Practice' },
-                { id: 'medium', label: 'Medium', desc: 'Normal' },
-                { id: 'hard', label: 'Fast', desc: 'Expert' }
+                { id: 'easy', label: t('games.hunterSlow', 'Slow'), desc: 'Practice' },
+                { id: 'medium', label: t('games.hunterMedium', 'Medium'), desc: 'Normal' },
+                { id: 'hard', label: t('games.hunterFast', 'Fast'), desc: 'Expert' }
               ].map((lvl) => (
                 <button
                   key={lvl.id}
@@ -338,13 +340,13 @@ export default function VocabHunter() {
           </div>
 
           <div className="config-section">
-            <h4 className="text-title-md font-medium">2. Select Category (Optional)</h4>
+            <h4 className="text-title-md font-medium">{t('games.matchingSelectCat', '2. Select Category (Optional)')}</h4>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="category-select"
             >
-              <option value="">All Categories</option>
+              <option value="">{t('games.allCategories', 'All Categories')}</option>
               <option value="academic">Academic</option>
               <option value="business">Business</option>
               <option value="scientific">Scientific</option>
@@ -354,7 +356,7 @@ export default function VocabHunter() {
 
           <button className="start-game-btn-hunter" onClick={loadVocabulary}>
             <span className="material-symbols-outlined">play_arrow</span>
-            Start Game
+            {t('games.startGame', 'Start Game')}
           </button>
         </div>
       )}
@@ -365,7 +367,7 @@ export default function VocabHunter() {
           <span className="material-symbols-outlined animate-spin loading-spinner">
             progress_activity
           </span>
-          <p className="text-body-lg">Spawning vocabulary bubbles...</p>
+          <p className="text-body-lg">{t('common.loading', 'Spawning vocabulary bubbles...')}</p>
         </div>
       )}
 
@@ -375,7 +377,7 @@ export default function VocabHunter() {
           <div className="gameplay-header">
             <button className="back-btn" onClick={() => setGameState('config')}>
               <span className="material-symbols-outlined">arrow_back</span>
-              Exit
+              {t('common.exit', 'Exit')}
             </button>
             <div className="stats-row">
               <div className="lives-display">
@@ -391,18 +393,18 @@ export default function VocabHunter() {
               </div>
               <div className="stat-pill">
                 <span className="material-symbols-outlined">sports_score</span>
-                <span>Score: {score}</span>
+                <span>{t('games.score', 'Score')}: {score}</span>
               </div>
               <div className="stat-pill">
                 <span className="material-symbols-outlined">tour</span>
-                <span>Round: {roundIndex + 1} / 15</span>
+                <span>{t('games.round', 'Round')}: {roundIndex + 1} / 15</span>
               </div>
             </div>
           </div>
 
           {/* Target Definition Box */}
           <div className="target-definition-box text-center card-base">
-            <span className="definition-tag-hunter">Target Definition:</span>
+            <span className="definition-tag-hunter">{t('games.hunterTargetDef', 'Target Definition:')}</span>
             <p className="definition-phrase font-medium">"{targetWord.definition}"</p>
           </div>
 
@@ -437,7 +439,7 @@ export default function VocabHunter() {
           <div className="gameover-icon-wrap">
             <span className="material-symbols-outlined skull-icon">heart_broken</span>
           </div>
-          <h2 className="text-headline-lg font-bold text-error">Game Over!</h2>
+          <h2 className="text-headline-lg font-bold text-error">{t('games.gameOver', 'Game Over!')}</h2>
           <p className="text-body-md text-secondary-color">
             You ran out of lives (all 3 lost). Keep practicing and try again!
           </p>
@@ -445,22 +447,22 @@ export default function VocabHunter() {
           <div className="score-summary-grid">
             <div className="summary-item">
               <span className="summary-value">{score}</span>
-              <span className="summary-label">Target Words Hit</span>
+              <span className="summary-label">{t('common.score', 'Target Words Hit')}</span>
             </div>
             <div className="summary-item">
               <span className="summary-value">+{score * 5} XP</span>
-              <span className="summary-label">XP Earned</span>
+              <span className="summary-label">{t('games.xpEarned', 'XP Earned')}</span>
             </div>
           </div>
 
           <div className="victory-actions">
             <button className="play-again-btn-hunter" onClick={() => setGameState('config')}>
               <span className="material-symbols-outlined">replay</span>
-              Try Again
+              {t('common.retry', 'Try Again')}
             </button>
             <button className="return-btn" onClick={() => navigate('/student/vocabulary')}>
               <span className="material-symbols-outlined">menu_book</span>
-              Word Library
+              {t('games.wordLibrary', 'Word Library')}
             </button>
           </div>
         </div>
@@ -472,30 +474,30 @@ export default function VocabHunter() {
           <div className="victory-crown">
             <span className="material-symbols-outlined crown-icon">emoji_events</span>
           </div>
-          <h2 className="text-headline-lg font-bold text-primary-color">Master Vocab Hunter!</h2>
+          <h2 className="text-headline-lg font-bold text-primary-color">{t('games.congratulations', 'Master Vocab Hunter!')}</h2>
           <p className="text-body-md text-secondary-color">
-            Congratulations! You successfully completed all 15 rapid-fire rounds!
+            {t('games.scrambleDesc', 'Congratulations! You successfully completed all 15 rapid-fire rounds!')}
           </p>
 
           <div className="score-summary-grid">
             <div className="summary-item">
               <span className="summary-value">{score}</span>
-              <span className="summary-label">Final Score</span>
+              <span className="summary-label">{t('common.score', 'Final Score')}</span>
             </div>
             <div className="summary-item">
               <span className="summary-value">+{score * 20} XP</span>
-              <span className="summary-label">XP Earned</span>
+              <span className="summary-label">{t('games.xpEarned', 'XP Earned')}</span>
             </div>
           </div>
 
           <div className="victory-actions">
             <button className="play-again-btn-hunter" onClick={() => setGameState('config')}>
               <span className="material-symbols-outlined">replay</span>
-              Play Again
+              {t('games.playAgain', 'Play Again')}
             </button>
             <button className="return-btn" onClick={() => navigate('/student/vocabulary')}>
               <span className="material-symbols-outlined">menu_book</span>
-              Word Library
+              {t('games.wordLibrary', 'Word Library')}
             </button>
           </div>
         </div>

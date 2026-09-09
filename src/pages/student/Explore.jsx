@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import './Explore.css'
 
 const exploreTopicSets = [
@@ -109,6 +110,7 @@ const exploreTopicSets = [
 
 export default function Explore() {
   const navigate = useNavigate()
+  const { t, language } = useLanguage()
   const [selectedLevel, setSelectedLevel] = useState('ALL')
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -127,11 +129,11 @@ export default function Explore() {
         <div className="explore__hero-left">
           <div className="explore__badge">
             <span className="material-symbols-outlined">explore</span>
-            Thematic Vocabulary Sets Library
+            {t('explore.badge', 'Thematic Vocabulary Sets Library')}
           </div>
-          <h2 className="explore__title">Explore Target Vocabulary Sets</h2>
+          <h2 className="explore__title">{t('explore.title', 'Explore Target Vocabulary Sets')}</h2>
           <p className="explore__desc">
-            Pick your favorite topic to start a 10-minute learning loop: Explore Words ➔ Quick Quiz ➔ Smart Writing ➔ Detailed AI Feedback.
+            {t('explore.desc', 'Pick your favorite topic to start a 10-minute learning loop: Explore Words ➔ Quick Quiz ➔ Smart Writing ➔ Detailed AI Feedback.')}
           </p>
         </div>
 
@@ -140,7 +142,7 @@ export default function Explore() {
           <input
             type="text"
             className="explore__search-input"
-            placeholder="Search by topic or vocabulary word..."
+            placeholder={t('explore.searchPlaceholder', 'Search by topic or vocabulary word...')}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
@@ -149,7 +151,7 @@ export default function Explore() {
 
       {/* Level Filters */}
       <div className="explore__filter-row">
-        <span className="explore__filter-label">Filter by proficiency:</span>
+        <span className="explore__filter-label">{t('explore.filterLabel', 'Filter by proficiency:')}</span>
         <div className="explore__level-buttons">
           {['ALL', 'A2', 'B1', 'B2'].map(lvl => (
             <button
@@ -157,7 +159,7 @@ export default function Explore() {
               className={`explore__lvl-btn ${selectedLevel === lvl ? 'explore__lvl-btn--active' : ''}`}
               onClick={() => setSelectedLevel(lvl)}
             >
-              {lvl === 'ALL' ? 'All Levels' : `Level ${lvl}`}
+              {lvl === 'ALL' ? t('explore.allLevels', 'All Levels') : `${t('explore.level', 'Level')} ${lvl}`}
             </button>
           ))}
         </div>
@@ -190,7 +192,7 @@ export default function Explore() {
 
             {/* Target Words Preview */}
             <div className="topic-card__words">
-              <span className="topic-card__words-label">3 Target Words:</span>
+              <span className="topic-card__words-label">{t('explore.targetWordsLabel', '3 Target Words:')}</span>
               <div className="topic-card__chips">
                 {topic.words.map(w => (
                   <span key={w.word} className="topic-card__word-chip">
@@ -207,7 +209,7 @@ export default function Explore() {
                 onClick={() => navigate(`/student/writing?set=${topic.slug}`)}
               >
                 <span className="material-symbols-outlined">play_circle</span>
-                Start Session ({topic.timeEstimate})
+                {t('explore.startSession', 'Start Session')} ({topic.timeEstimate})
               </button>
             </div>
           </article>

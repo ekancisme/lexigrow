@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import './FlashcardReview.css'
 
 export default function FlashcardReview() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [searchParams] = useSearchParams()
   const categoryFilter = searchParams.get('category')
 
@@ -441,25 +443,25 @@ export default function FlashcardReview() {
           <div className="flashcard-actions">
             <button className="flashcard-action-btn flashcard-action-btn--again" onClick={() => handleRate(1)}>
               <span className="material-symbols-outlined">replay</span>
-              Again
+              {t('flashcards.again', 'Again')}
             </button>
             <button className="flashcard-action-btn flashcard-action-btn--hard" onClick={() => handleRate(2)}>
               <span className="material-symbols-outlined">sentiment_dissatisfied</span>
-              Hard
+              {t('flashcards.hard', 'Hard')}
             </button>
             <button className="flashcard-action-btn flashcard-action-btn--good" onClick={() => handleRate(3)}>
               <span className="material-symbols-outlined">sentiment_satisfied</span>
-              Good
+              {t('flashcards.good', 'Good')}
             </button>
             <button className="flashcard-action-btn flashcard-action-btn--easy" onClick={() => handleRate(4)}>
               <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
-              Easy
+              {t('flashcards.easy', 'Easy')}
             </button>
           </div>
         ) : (
           <p className="flashcard-tap-hint">
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>info</span>
-            Tap the card to reveal, then rate your knowledge
+            {t('flashcards.tapToFlip', 'Tap the card to reveal, then rate your knowledge')}
           </p>
         )}
 
@@ -471,10 +473,10 @@ export default function FlashcardReview() {
             disabled={currentIndex === 0}
           >
             <span className="material-symbols-outlined">arrow_back_ios</span>
-            Previous
+            {t('common.previous', 'Previous')}
           </button>
           <button className="flashcard-nav-btn" onClick={handleSkip}>
-            Skip
+            {t('games.scrambleSkip', 'Skip')}
             <span className="material-symbols-outlined">arrow_forward_ios</span>
           </button>
         </div>

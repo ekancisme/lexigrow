@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import paymentService from '../../services/payment.service.js'
 import './AdminPricing.css'
 
 export default function AdminPricing() {
+  const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState('plans') // 'plans' | 'transactions' | 'subscriptions'
   const [plans, setPlans] = useState([])
   const [transactions, setTransactions] = useState([])
@@ -82,9 +84,9 @@ export default function AdminPricing() {
       {/* Header */}
       <div className="admin-pricing__header">
         <div>
-          <h1 className="text-headline-md">Pricing & PayOS Revenue Management</h1>
+          <h1 className="text-headline-md">{t('adminPricing.title', 'Pricing & PayOS Revenue Management')}</h1>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-            Configure pricing plans, teacher student sponsorship limits, and monitor automated transactions.
+            {t('adminPricing.subtitle', 'Configure pricing plans, teacher student sponsorship limits, and monitor automated transactions.')}
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -95,7 +97,7 @@ export default function AdminPricing() {
             onClick={() => setGrantModal(true)}
           >
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>card_membership</span>
-            <span>Grant Subscription</span>
+            <span>{t('adminPricing.grantSubscription', 'Grant Subscription')}</span>
           </button>
         </div>
       </div>
@@ -156,7 +158,7 @@ export default function AdminPricing() {
           onClick={() => setActiveTab('plans')}
         >
           <span className="material-symbols-outlined">tune</span>
-          <span>Plan Configurations</span>
+          <span>{t('adminPricing.plansTab', 'Active Plans')}</span>
         </button>
         <button
           type="button"
@@ -164,7 +166,7 @@ export default function AdminPricing() {
           onClick={() => setActiveTab('transactions')}
         >
           <span className="material-symbols-outlined">receipt</span>
-          <span>PayOS Transactions</span>
+          <span>{t('adminPricing.txTab', 'Transaction History')}</span>
         </button>
         <button
           type="button"
@@ -172,7 +174,7 @@ export default function AdminPricing() {
           onClick={() => setActiveTab('subscriptions')}
         >
           <span className="material-symbols-outlined">workspace_premium</span>
-          <span>Active Subscriptions</span>
+          <span>{t('adminPricing.subsTab', 'Active Subscriptions')}</span>
         </button>
       </div>
 

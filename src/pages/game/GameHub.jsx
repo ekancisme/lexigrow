@@ -1,38 +1,40 @@
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import './GameHub.css'
 
 export default function GameHub() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
 
   const games = [
     {
       id: 'matching',
-      title: 'Word Matching',
-      description: 'Memory challenge! Match English vocabulary with corresponding definitions on 3D flip cards.',
+      title: t('games.matchingTitle', 'Word Matching'),
+      description: t('games.matchingDesc', 'Memory challenge! Match English vocabulary with corresponding definitions on 3D flip cards.'),
       icon: 'extension',
       colorClass: 'matching-theme',
       path: '/student/game/matching'
     },
     {
       id: 'scramble',
-      title: 'Word Scramble',
-      description: 'Spelling mastery! Rearrange scrambled letters to form complete vocabulary words using phonetic hints.',
+      title: t('games.scrambleTitle', 'Word Scramble'),
+      description: t('games.scrambleDesc', 'Spelling mastery! Rearrange scrambled letters to form complete vocabulary words using clues.'),
       icon: 'spellcheck',
       colorClass: 'scramble-theme',
       path: '/student/game/scramble'
     },
     {
       id: 'filler',
-      title: 'Context Filler',
-      description: 'Contextual learning! Fill in missing vocabulary blanks in real-world example sentences.',
+      title: t('games.fillerTitle', 'Context Filler'),
+      description: t('games.fillerDesc', 'Contextual learning! Fill in missing vocabulary blanks in real-world example sentences.'),
       icon: 'rate_review',
       colorClass: 'filler-theme',
       path: '/student/game/filler'
     },
     {
       id: 'hunter',
-      title: 'Vocab Hunter',
-      description: 'Quick reflexes! Target falling vocabulary bubbles matching the target definition.',
+      title: t('games.hunterTitle', 'Vocab Hunter'),
+      description: t('games.hunterDesc', 'Quick reflexes! Target falling vocabulary bubbles matching the target definition.'),
       icon: 'target',
       colorClass: 'hunter-theme',
       path: '/student/game/hunter'
@@ -44,13 +46,13 @@ export default function GameHub() {
       <div className="game-hub-header">
         <button className="back-to-library-btn" onClick={() => navigate('/student/vocabulary')}>
           <span className="material-symbols-outlined">arrow_back</span>
-          Back to Library
+          {t('games.wordLibrary', 'Back to Library')}
         </button>
         <div className="text-center header-content">
           <span className="material-symbols-outlined hub-icon-main">sports_esports</span>
-          <h2 className="text-headline-lg font-bold">LexiGrow Play Zone</h2>
+          <h2 className="text-headline-lg font-bold">{t('games.hubTitle', 'LexiGrow Play Zone')}</h2>
           <p className="text-body-md text-secondary-color">
-            Expand your vocabulary naturally through interactive, high-retention mini-games.
+            {t('games.hubSubtitle', 'Expand your vocabulary naturally through interactive, high-retention mini-games.')}
           </p>
         </div>
       </div>
@@ -66,7 +68,7 @@ export default function GameHub() {
               <p className="text-body-sm card-description">{game.description}</p>
             </div>
             <button className="play-game-btn" onClick={() => navigate(game.path)}>
-              Play Now
+              {t('games.playNow', 'Play Now')}
               <span className="material-symbols-outlined">play_arrow</span>
             </button>
           </div>

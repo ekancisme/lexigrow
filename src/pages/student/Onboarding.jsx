@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import './Onboarding.css'
 
@@ -30,6 +31,7 @@ const TIME_OPTIONS = [
 export default function Onboarding() {
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { t } = useLanguage()
   const [selectedInterests, setSelectedInterests] = useState(['travel', 'daily-life'])
   const [selectedLevel, setSelectedLevel] = useState('B1')
   const [selectedMinutes, setSelectedMinutes] = useState(10)
@@ -74,11 +76,11 @@ export default function Onboarding() {
         <header className="onboarding-header">
           <div className="onboarding-badge">
             <span className="material-symbols-outlined">auto_awesome</span>
-            <span>Personalized Experience</span>
+            <span>{t('onboarding.badge', 'Personalized Experience')}</span>
           </div>
-          <h1 className="text-headline-lg">Welcome to LexiGrow!</h1>
+          <h1 className="text-headline-lg">{t('onboarding.title', 'Welcome to LexiGrow!')}</h1>
           <p className="text-body-lg onboarding-desc">
-            Quick 1-minute setup so AI can recommend vocabulary sessions tailored to your goals.
+            {t('onboarding.desc', 'Quick 1-minute setup so AI can recommend vocabulary sessions tailored to your goals.')}
           </p>
         </header>
 
@@ -86,8 +88,8 @@ export default function Onboarding() {
         <section className="onboarding-section">
           <h2 className="onboarding-section__title">
             <span className="step-num">1</span>
-            What topics interest you most?
-            <span className="step-hint">(Select at least 1 topic)</span>
+            {t('onboarding.step1Title', 'What topics interest you most?')}
+            <span className="step-hint">{t('onboarding.step1Hint', '(Select at least 1 topic)')}</span>
           </h2>
           <div className="interest-grid">
             {INTEREST_OPTIONS.map(item => {
@@ -112,7 +114,7 @@ export default function Onboarding() {
         <section className="onboarding-section">
           <h2 className="onboarding-section__title">
             <span className="step-num">2</span>
-            Self-assessed English Proficiency
+            {t('onboarding.step2Title', 'Self-assessed English Proficiency')}
           </h2>
           <div className="level-grid">
             {LEVEL_OPTIONS.map(lvl => {
@@ -139,7 +141,7 @@ export default function Onboarding() {
         <section className="onboarding-section">
           <h2 className="onboarding-section__title">
             <span className="step-num">3</span>
-            Daily Learning Goal
+            {t('onboarding.step3Title', 'Daily Learning Goal')}
           </h2>
           <div className="time-grid">
             {TIME_OPTIONS.map(time => {
@@ -167,7 +169,7 @@ export default function Onboarding() {
             className="btn btn--outline"
             onClick={() => navigate('/student/dashboard')}
           >
-            Skip for now
+            {t('onboarding.skip', 'Skip for now')}
           </button>
           <button
             type="button"
@@ -178,11 +180,11 @@ export default function Onboarding() {
             {isSubmitting ? (
               <>
                 <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                <span>Saving...</span>
+                <span>{t('onboarding.saving', 'Saving...')}</span>
               </>
             ) : (
               <>
-                <span>Start First Session</span>
+                <span>{t('onboarding.startSession', 'Start First Session')}</span>
                 <span className="material-symbols-outlined">arrow_forward</span>
               </>
             )}

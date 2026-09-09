@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import './GrowthGarden.css'
 
@@ -64,6 +65,7 @@ const initialGardenData = [
 
 export default function GrowthGarden() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [gardenTopics, setGardenTopics] = useState(initialGardenData)
   const [selectedTopic, setSelectedTopic] = useState(initialGardenData[0])
   const [loading, setLoading] = useState(false)
@@ -109,23 +111,23 @@ export default function GrowthGarden() {
         <div className="growth-garden__hero-left">
           <div className="growth-garden__badge">
             <span className="material-symbols-outlined">yard</span>
-            Ecological Vocabulary Garden
+            {t('garden.title', 'Ecological Vocabulary Garden')}
           </div>
-          <h2 className="growth-garden__title">Your Living Knowledge Tree</h2>
+          <h2 className="growth-garden__title">{t('garden.subtitle', 'Your Living Knowledge Tree')}</h2>
           <p className="growth-garden__desc">
-            Each target vocabulary word successfully applied in your essays helps the corresponding tree branch sprout, leaf out, and blossom.
+            {t('garden.subtitle', 'Each target vocabulary word successfully applied in your essays helps the corresponding tree branch sprout, leaf out, and blossom.')}
           </p>
         </div>
 
         <div className="growth-garden__stats-card">
           <span className="growth-garden__stat-num">{totalMastered}</span>
-          <span className="growth-garden__stat-label">Words Mastered</span>
+          <span className="growth-garden__stat-label">{t('garden.totalMastered', 'Words Mastered')}</span>
           <button
             className="btn-primary growth-garden__btn-plant"
             onClick={() => navigate('/student/explore')}
           >
             <span className="material-symbols-outlined">add_circle</span>
-            Plant New Topic Tree
+            {t('dashboard.exploreSets', 'Plant New Topic Tree')}
           </button>
         </div>
       </div>

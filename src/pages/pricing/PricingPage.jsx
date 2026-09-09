@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import paymentService from '../../services/payment.service.js'
 import './PricingPage.css'
 
 export default function PricingPage() {
   const { user, isAuthenticated } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
 
   const [billingCycle, setBillingCycle] = useState('monthly') // 'monthly' | 'yearly'
@@ -73,12 +75,12 @@ export default function PricingPage() {
         <div className="pricing__badge">
           <span className="pricing__badge-dot" />
           <span className="material-symbols-outlined pricing__badge-icon">verified_user</span>
-          <span className="pricing__badge-text">Automated 24/7 payment via VietQR PayOS</span>
+          <span className="pricing__badge-text">{t('pricing.subtitle', 'Automated 24/7 payment via VietQR PayOS')}</span>
           <span className="pricing__badge-pill">SSL Secured</span>
         </div>
-        <h1 className="pricing__title">Elevate Your English Mastery with LexiGrow AI</h1>
+        <h1 className="pricing__title">{t('pricing.title', 'Choose the Right Learning Plan')}</h1>
         <p className="pricing__subtitle">
-          In-depth IELTS-standard essay scoring, unlock the complete Knowledge Garden, and accelerate language reflexes.
+          {t('pricing.subtitle', 'In-depth IELTS-standard essay scoring, unlock the complete Knowledge Garden, and accelerate language reflexes.')}
         </p>
 
         {/* Current Tier Alert if user is subscribed or sponsored */}
@@ -86,14 +88,14 @@ export default function PricingPage() {
           <div className="pricing__current-tier-alert">
             <span className="material-symbols-outlined">workspace_premium</span>
             <div>
-              <strong>Your current plan: </strong>
+              <strong>{t('pricing.currentPlan', 'Your current plan')}: </strong>
               <span className="pricing__tier-tag">{currentTierInfo.tier.toUpperCase()}</span>
               {currentTierInfo.source === 'teacher_sponsored' && (
                 <span> ({currentTierInfo.planName})</span>
               )}
               {currentTierInfo.expiresAt && (
                 <span className="pricing__expire-text">
-                  {' '}— Expires: {new Date(currentTierInfo.expiresAt).toLocaleDateString('en-US')}
+                  {' '}— {new Date(currentTierInfo.expiresAt).toLocaleDateString('en-US')}
                 </span>
               )}
             </div>
@@ -108,7 +110,7 @@ export default function PricingPage() {
             onClick={() => setActiveTab('student')}
           >
             <span className="material-symbols-outlined">school</span>
-            <span>For Students / Individuals</span>
+            <span>{t('pricing.forStudents', 'For Students / Individuals')}</span>
           </button>
           <button
             type="button"
@@ -116,13 +118,13 @@ export default function PricingPage() {
             onClick={() => setActiveTab('teacher')}
           >
             <span className="material-symbols-outlined">co_present</span>
-            <span>For Teachers & Institutions</span>
+            <span>{t('pricing.forTeachers', 'For Teachers & Institutions')}</span>
           </button>
         </div>
 
         {/* Billing Cycle Switcher */}
         <div className="pricing__cycle-toggle-wrap">
-          <span className={billingCycle === 'monthly' ? 'active' : ''}>Monthly</span>
+          <span className={billingCycle === 'monthly' ? 'active' : ''}>{t('pricing.monthly', 'Monthly')}</span>
           <button
             type="button"
             className={`pricing__toggle-btn ${billingCycle === 'yearly' ? 'yearly' : ''}`}
@@ -132,7 +134,7 @@ export default function PricingPage() {
             <div className="pricing__toggle-knob" />
           </button>
           <span className={billingCycle === 'yearly' ? 'active' : ''}>
-            Yearly <span className="pricing__discount-pill">Save ~20%</span>
+            {t('pricing.yearly', 'Yearly')} <span className="pricing__discount-pill">{t('pricing.save30', 'Save ~20%')}</span>
           </span>
         </div>
       </section>
@@ -227,10 +229,10 @@ export default function PricingPage() {
                     {processingSlug === plan.slug ? (
                       <span className="material-symbols-outlined animate-spin">progress_activity</span>
                     ) : isCurrent ? (
-                      'Current Plan'
+                      t('pricing.currentPlan', 'Current Plan')
                     ) : (
                       <>
-                        <span>Upgrade with VietQR</span>
+                        <span>{t('pricing.choosePlan', 'Upgrade with PayOS')}</span>
                         <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
                       </>
                     )}
@@ -283,10 +285,10 @@ export default function PricingPage() {
                   {processingSlug === plan.slug ? (
                     <span className="material-symbols-outlined animate-spin">progress_activity</span>
                   ) : isCurrent ? (
-                    'Current Plan'
+                    t('pricing.currentPlan', 'Current Plan')
                   ) : (
                     <>
-                      <span>Subscribe to Teacher Plan</span>
+                      <span>{t('pricing.choosePlan', 'Subscribe to Teacher Plan')}</span>
                       <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
                     </>
                   )}
@@ -299,31 +301,19 @@ export default function PricingPage() {
 
       {/* FAQ Section */}
       <section className="pricing__faq">
-        <h2 className="pricing__faq-title">Frequently Asked Questions (FAQ)</h2>
+        <h2 className="pricing__faq-title">{t('pricing.faqTitle', 'Frequently Asked Questions (FAQ)')}</h2>
         <div className="pricing__faq-grid">
           <div className="pricing__faq-item">
-            <h4>How does payment via VietQR PayOS work?</h4>
-            <p>
-              When you click Upgrade, the system generates a dynamic VietQR code with the exact amount and transfer description. Simply open your banking or e-wallet app (Vietcombank, MB, Techcombank, MoMo, etc.) and scan the code. Your subscription activates automatically within 1-2 seconds.
-            </p>
+            <h4>{t('pricing.faq1Q', 'How does payment via VietQR PayOS work?')}</h4>
+            <p>{t('pricing.faq1A', 'You select a plan, scan the dynamic VietQR code with any Vietnamese banking app, and your plan activates automatically within seconds.')}</p>
           </div>
           <div className="pricing__faq-item">
-            <h4>Do students in a teacher's class need to pay?</h4>
-            <p>
-              No, not at all! When a teacher subscribes to a Teacher Plan (Plus, Pro, Ultra), all students added to their classes automatically receive full premium access without paying anything.
-            </p>
+            <h4>{t('pricing.faq2Q', 'What happens when a teacher upgrades?')}</h4>
+            <p>{t('pricing.faq2A', 'When a teacher purchases Pro/Ultra Teacher plans, all linked students in their classrooms automatically receive full Pro essay grading access.')}</p>
           </div>
           <div className="pricing__faq-item">
-            <h4>Can I upgrade from a monthly plan to a yearly plan?</h4>
-            <p>
-              Yes, you can switch at any time. Any remaining duration from your current plan will be calculated and prorated into your new plan.
-            </p>
-          </div>
-          <div className="pricing__faq-item">
-            <h4>Can I get a refund if I am not satisfied?</h4>
-            <p>
-              LexiGrow offers a 7-day money-back guarantee if you experience technical issues or are not completely satisfied with our AI learning experience.
-            </p>
+            <h4>{t('pricing.faq3Q', 'Can I cancel or change plans anytime?')}</h4>
+            <p>{t('pricing.faq3A', 'Yes, your active subscription remains valid until the end of the billing period without any hidden fees.')}</p>
           </div>
         </div>
       </section>

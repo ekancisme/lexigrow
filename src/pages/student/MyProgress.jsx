@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import GrowthGarden from './GrowthGarden'
 import './MyProgress.css'
 
 export default function MyProgress() {
+  const { t, language } = useLanguage()
   const [activeTab, setActiveTab] = useState('overview') // 'overview' | 'garden' | 'evidence'
   const [overview, setOverview] = useState(null)
   const [categories, setCategories] = useState([])
@@ -80,9 +82,9 @@ export default function MyProgress() {
       {/* Header with Navigation Tabs */}
       <section className="my-progress__header">
         <div>
-          <h2 className="text-headline-lg">Progress & Knowledge Garden</h2>
+          <h2 className="text-headline-lg">{t('progress.title', 'Progress & Knowledge Garden')}</h2>
           <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>
-            Track vocabulary progression: From recognition (SRS) to autonomous application in authentic writing (Mastered).
+            {t('progress.subtitle', 'Track vocabulary progression: From recognition (SRS) to autonomous application in authentic writing (Mastered).')}
           </p>
         </div>
 
@@ -92,21 +94,21 @@ export default function MyProgress() {
             onClick={() => setActiveTab('overview')}
           >
             <span className="material-symbols-outlined">analytics</span>
-            Vocab Overview
+            {t('progress.tabOverview', 'Vocab Overview')}
           </button>
           <button
             className={`my-progress__tab-btn ${activeTab === 'garden' ? 'my-progress__tab-btn--active' : ''}`}
             onClick={() => setActiveTab('garden')}
           >
             <span className="material-symbols-outlined">yard</span>
-            Growth Garden
+            {t('progress.tabGarden', 'Growth Garden')}
           </button>
           <button
             className={`my-progress__tab-btn ${activeTab === 'evidence' ? 'my-progress__tab-btn--active' : ''}`}
             onClick={() => setActiveTab('evidence')}
           >
             <span className="material-symbols-outlined">verified</span>
-            Usage Evidence ({evidenceList.length})
+            {t('progress.tabEvidence', 'Usage Evidence')} ({evidenceList.length})
           </button>
         </div>
       </section>
@@ -119,9 +121,9 @@ export default function MyProgress() {
             <div className="vocab-pyramid__header">
               <span className="material-symbols-outlined vocab-pyramid__icon">military_tech</span>
               <div>
-                <h3 className="vocab-pyramid__title">Active Vocabulary Growth Pyramid</h3>
+                <h3 className="vocab-pyramid__title">{t('progress.pyramidTitle', 'Active Vocabulary Growth Pyramid')}</h3>
                 <p className="vocab-pyramid__desc">
-                  Tiered progression based on retention depth and productive capability in real essays.
+                  {t('progress.pyramidDesc', 'Tiered progression based on retention depth and productive capability in real essays.')}
                 </p>
               </div>
             </div>
@@ -131,30 +133,30 @@ export default function MyProgress() {
               <div className="pyramid-tier pyramid-tier--mastered">
                 <div className="pyramid-tier__badge">
                   <span className="material-symbols-outlined">workspace_premium</span>
-                  TIER 3: MASTERED
+                  {t('progress.tier3Title', 'TIER 3: MASTERED')}
                 </div>
-                <div className="pyramid-tier__value">{activeVocabStats.masteredCount || 8} words</div>
-                <div className="pyramid-tier__desc">Accurately used across ≥ 2 independent writing sessions on separate days.</div>
+                <div className="pyramid-tier__value">{activeVocabStats.masteredCount || 8} {t('dashboard.wordsCount', 'words')}</div>
+                <div className="pyramid-tier__desc">{t('progress.tier3Desc', 'Accurately used across ≥ 2 independent writing sessions on separate days.')}</div>
               </div>
 
               {/* Tier 2: Retained (SRS) */}
               <div className="pyramid-tier pyramid-tier--retained">
                 <div className="pyramid-tier__badge">
                   <span className="material-symbols-outlined">psychology</span>
-                  TIER 2: LONG-TERM RETENTION (RETAINED - SRS)
+                  {t('progress.tier2Title', 'TIER 2: LONG-TERM RETENTION (RETAINED - SRS)')}
                 </div>
-                <div className="pyramid-tier__value">{activeVocabStats.retainedCount || 14} words</div>
-                <div className="pyramid-tier__desc">Surpassed spaced repetition intervals (review interval ≥ 7 days).</div>
+                <div className="pyramid-tier__value">{activeVocabStats.retainedCount || 14} {t('dashboard.wordsCount', 'words')}</div>
+                <div className="pyramid-tier__desc">{t('progress.tier2Desc', 'Surpassed spaced repetition intervals (review interval ≥ 7 days).')}</div>
               </div>
 
               {/* Tier 1: Saved */}
               <div className="pyramid-tier pyramid-tier--saved">
                 <div className="pyramid-tier__badge">
                   <span className="material-symbols-outlined">bookmark</span>
-                  TIER 1: SAVED & RECOGNIZED
+                  {t('progress.tier1Title', 'TIER 1: SAVED & RECOGNIZED')}
                 </div>
-                <div className="pyramid-tier__value">{activeVocabStats.savedCount || 28} words</div>
-                <div className="pyramid-tier__desc">New words bookmarked in your personal library or unlocked topic decks.</div>
+                <div className="pyramid-tier__value">{activeVocabStats.savedCount || 28} {t('dashboard.wordsCount', 'words')}</div>
+                <div className="pyramid-tier__desc">{t('progress.tier1Desc', 'New words bookmarked in your personal library or unlocked topic decks.')}</div>
               </div>
             </div>
           </section>
@@ -166,9 +168,9 @@ export default function MyProgress() {
                 <span className="material-symbols-outlined">auto_stories</span>
               </div>
               <div>
-                <p className="text-label-sm">Total Essays Written</p>
+                <p className="text-label-sm">{t('progress.totalEssays', 'Total Essays Written')}</p>
                 <p className="text-headline-md">{overview?.totalEssays || 6}</p>
-                <p className="text-label-sm" style={{ color: 'var(--color-success)' }}>AI Evaluated</p>
+                <p className="text-label-sm" style={{ color: 'var(--color-success)' }}>{t('progress.aiEvaluated', 'AI Evaluated')}</p>
               </div>
             </div>
 
@@ -177,9 +179,9 @@ export default function MyProgress() {
                 <span className="material-symbols-outlined">speed</span>
               </div>
               <div>
-                <p className="text-label-sm">Type-Token Ratio (TTR)</p>
+                <p className="text-label-sm">{t('progress.ttrRatio', 'Type-Token Ratio (TTR)')}</p>
                 <p className="text-headline-md">{overview?.avgTTR ? overview.avgTTR.toFixed(2) : '0.72'}</p>
-                <p className="text-label-sm" style={{ color: 'var(--color-primary)' }}>Lexical Diversity Level</p>
+                <p className="text-label-sm" style={{ color: 'var(--color-primary)' }}>{t('progress.lexicalDiversity', 'Lexical Diversity Level')}</p>
               </div>
             </div>
 
@@ -188,21 +190,21 @@ export default function MyProgress() {
                 <span className="material-symbols-outlined">local_fire_department</span>
               </div>
               <div>
-                <p className="text-label-sm">Study Streak</p>
-                <p className="text-headline-md">4 Days</p>
-                <p className="text-label-sm" style={{ color: '#ea580c' }}>Daily consistency</p>
+                <p className="text-label-sm">{t('progress.streak', 'Study Streak')}</p>
+                <p className="text-headline-md">4 {t('garden.streakDays', 'Days')}</p>
+                <p className="text-label-sm" style={{ color: '#ea580c' }}>{t('progress.dailyConsistency', 'Daily consistency')}</p>
               </div>
             </div>
           </section>
 
           {/* Vocabulary Categories */}
           <section className="my-progress__categories card-base">
-            <h3 className="text-title-lg" style={{ marginBottom: 16 }}>Distribution by Vocabulary Domain</h3>
+            <h3 className="text-title-lg" style={{ marginBottom: 16 }}>{t('progress.domainDistribution', 'Distribution by Vocabulary Domain')}</h3>
             <div className="my-progress__cat-grid">
               {categories.map(cat => (
                 <div key={cat.name} className="my-progress__cat-card">
                   <span className="my-progress__cat-name">{cat.name}</span>
-                  <span className="my-progress__cat-count">{cat.count} words</span>
+                  <span className="my-progress__cat-count">{cat.count} {t('dashboard.wordsCount', 'words')}</span>
                 </div>
               ))}
             </div>
@@ -220,9 +222,9 @@ export default function MyProgress() {
         <section className="evidence-wall card-base">
           <div className="evidence-wall__header">
             <div>
-              <h3 className="evidence-wall__title">Evidence Wall</h3>
+              <h3 className="evidence-wall__title">{t('progress.evidenceWallTitle', 'Evidence Wall')}</h3>
               <p className="evidence-wall__desc">
-                Authentic sentences composed in your essays and verified by AI as contextually accurate.
+                {t('progress.evidenceWallDesc', 'Authentic sentences composed in your essays and verified by AI as contextually accurate.')}
               </p>
             </div>
           </div>
@@ -236,7 +238,7 @@ export default function MyProgress() {
                     <strong>{item.word}</strong>
                     <span className="evidence-wall__topic-badge">{item.topic}</span>
                   </div>
-                  <span className="evidence-wall__score-pill">Confidence: {item.score}%</span>
+                  <span className="evidence-wall__score-pill">{t('progress.confidence', 'Confidence')}: {item.score}%</span>
                 </div>
 
                 <blockquote className="evidence-wall__quote">
@@ -246,9 +248,9 @@ export default function MyProgress() {
                 <div className="evidence-wall__item-bottom">
                   <span className="evidence-wall__date">
                     <span className="material-symbols-outlined">event</span>
-                    Written on {new Date(item.date).toLocaleDateString('en-US')}
+                    {t('progress.writtenOn', 'Written on')} {new Date(item.date).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US')}
                   </span>
-                  <span className="evidence-wall__status-tag">Mastered Standard Met</span>
+                  <span className="evidence-wall__status-tag">{t('progress.masteredStandard', 'Mastered Standard Met')}</span>
                 </div>
               </article>
             ))}

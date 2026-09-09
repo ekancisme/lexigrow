@@ -1,9 +1,11 @@
 import { Link, useSearchParams } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import './PricingPage.css'
 
 export default function PaymentCancel() {
   const [searchParams] = useSearchParams()
   const orderCode = searchParams.get('orderCode')
+  const { t } = useLanguage()
 
   return (
     <div className="pricing-page" style={{ textAlign: 'center', maxWidth: 600, paddingTop: '5rem' }}>
@@ -26,15 +28,15 @@ export default function PaymentCancel() {
       </div>
 
       <h1 className="text-headline-lg" style={{ marginBottom: '0.5rem' }}>
-        Payment Cancelled
+        {t('payment.cancelTitle', 'Payment Cancelled')}
       </h1>
       <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem' }}>
-        Your payment was cancelled or could not be completed. Your account has not been charged.
+        {t('payment.cancelDesc', 'Your payment was cancelled or could not be completed. Your account has not been charged.')}
       </p>
 
       {orderCode && (
         <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '2rem' }}>
-          Order Code: <strong>#{orderCode}</strong>
+          {t('payment.orderCode', 'Order Code')}: <strong>#{orderCode}</strong>
         </p>
       )}
 
@@ -44,14 +46,14 @@ export default function PaymentCancel() {
           className="btn-primary"
           style={{ padding: '0.85rem 1.75rem', textDecoration: 'none', borderRadius: 12, fontWeight: 700 }}
         >
-          Retry Payment
+          {t('payment.tryAgain', 'Retry Payment')}
         </Link>
         <Link
           to="/"
           className="btn-secondary"
           style={{ padding: '0.85rem 1.75rem', textDecoration: 'none', borderRadius: 12, fontWeight: 600 }}
         >
-          Back to Home
+          {t('common.back', 'Back to Home')}
         </Link>
       </div>
     </div>

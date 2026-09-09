@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import { useModal } from '../../contexts/ModalContext.jsx'
 import './WriteEssay.css'
@@ -14,6 +15,7 @@ const themesList = [
 ]
 
 export default function WriteEssay() {
+  const { t } = useLanguage()
   const [searchParams] = useSearchParams()
   const essayId = searchParams.get('id')
   const assignmentId = searchParams.get('assignmentId')
@@ -322,22 +324,22 @@ export default function WriteEssay() {
       <section className="write-essay__header">
         <div>
           <h2 className="text-headline-lg">
-            {assignmentData ? `Assignment: ${assignmentData.title}` : 'Write Essay'}
+            {assignmentData ? `Assignment: ${assignmentData.title}` : t('writing.title', 'Smart Writing Lab')}
           </h2>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
             {assignmentData
               ? `Writing for class: ${assignmentData.classId?.name || 'your class'}`
-              : 'Compose your essay and let AI analyze your vocabulary growth'}
+              : t('writing.subtitle', 'Compose your essay and let AI analyze your vocabulary growth')}
           </p>
         </div>
         <div className="write-essay__actions">
           <button className="write-essay__btn-secondary" onClick={handleSaveDraft} disabled={saving || isAssignmentClosed}>
             <span className="material-symbols-outlined">save</span>
-            {saving ? 'Saving...' : 'Save Draft'}
+            {saving ? t('common.loading', 'Saving...') : t('writing.saveDraft', 'Save Draft')}
           </button>
           <button className="write-essay__btn-primary" onClick={handleSubmit} disabled={saving || isAssignmentClosed}>
             <span className="material-symbols-outlined">send</span>
-            {saving ? 'Submitting...' : 'Submit Essay'}
+            {saving ? t('common.loading', 'Submitting...') : t('common.submit', 'Submit Essay')}
           </button>
         </div>
       </section>
