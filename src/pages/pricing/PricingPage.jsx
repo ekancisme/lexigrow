@@ -34,7 +34,7 @@ export default function PricingPage() {
       }
     } catch (err) {
       console.error('Error loading pricing data:', err)
-      setError('Không thể tải danh sách gói cước. Vui lòng thử lại sau.')
+      setError('Unable to load pricing plans. Please try again later.')
     } finally {
       setLoading(false)
     }
@@ -42,7 +42,7 @@ export default function PricingPage() {
 
   async function handleSubscribe(planSlug) {
     if (!isAuthenticated) {
-      navigate('/login', { state: { infoMessage: 'Vui lòng đăng nhập để nâng cấp gói cước.' } })
+      navigate('/login', { state: { infoMessage: 'Please log in to upgrade your subscription plan.' } })
       return
     }
 
@@ -54,10 +54,10 @@ export default function PricingPage() {
         // Redirect to PayOS VietQR payment page
         window.location.href = res.data.checkoutUrl
       } else {
-        setError('Không nhận được link thanh toán từ PayOS. Vui lòng thử lại.')
+        setError('Did not receive checkout link from PayOS. Please try again.')
       }
     } catch (err) {
-      setError(err.message || 'Lỗi tạo liên kết thanh toán PayOS.')
+      setError(err.message || 'Error creating PayOS payment link.')
     } finally {
       setProcessingSlug(null)
     }
@@ -73,12 +73,12 @@ export default function PricingPage() {
         <div className="pricing__badge">
           <span className="pricing__badge-dot" />
           <span className="material-symbols-outlined pricing__badge-icon">verified_user</span>
-          <span className="pricing__badge-text">Thanh toán tự động 24/7 qua VietQR PayOS</span>
-          <span className="pricing__badge-pill">Bảo mật SSL</span>
+          <span className="pricing__badge-text">Automated 24/7 payment via VietQR PayOS</span>
+          <span className="pricing__badge-pill">SSL Secured</span>
         </div>
-        <h1 className="pricing__title">Nâng Tầm Tiếng Anh Cùng LexiGrow AI</h1>
+        <h1 className="pricing__title">Elevate Your English Mastery with LexiGrow AI</h1>
         <p className="pricing__subtitle">
-          Chấm luận chuyên sâu chuẩn IELTS, mở khóa toàn bộ Vườn Tri Thức và gia tốc phản xạ ngôn ngữ.
+          In-depth IELTS-standard essay scoring, unlock the complete Knowledge Garden, and accelerate language reflexes.
         </p>
 
         {/* Current Tier Alert if user is subscribed or sponsored */}
@@ -86,14 +86,14 @@ export default function PricingPage() {
           <div className="pricing__current-tier-alert">
             <span className="material-symbols-outlined">workspace_premium</span>
             <div>
-              <strong>Gói hiện tại của bạn: </strong>
+              <strong>Your current plan: </strong>
               <span className="pricing__tier-tag">{currentTierInfo.tier.toUpperCase()}</span>
               {currentTierInfo.source === 'teacher_sponsored' && (
                 <span> ({currentTierInfo.planName})</span>
               )}
               {currentTierInfo.expiresAt && (
                 <span className="pricing__expire-text">
-                  {' '}— Hết hạn: {new Date(currentTierInfo.expiresAt).toLocaleDateString('vi-VN')}
+                  {' '}— Expires: {new Date(currentTierInfo.expiresAt).toLocaleDateString('en-US')}
                 </span>
               )}
             </div>
@@ -108,7 +108,7 @@ export default function PricingPage() {
             onClick={() => setActiveTab('student')}
           >
             <span className="material-symbols-outlined">school</span>
-            <span>Dành cho Học sinh / Cá nhân</span>
+            <span>For Students / Individuals</span>
           </button>
           <button
             type="button"
@@ -116,23 +116,23 @@ export default function PricingPage() {
             onClick={() => setActiveTab('teacher')}
           >
             <span className="material-symbols-outlined">co_present</span>
-            <span>Dành cho Giáo viên & Trung tâm</span>
+            <span>For Teachers & Institutions</span>
           </button>
         </div>
 
         {/* Billing Cycle Switcher */}
         <div className="pricing__cycle-toggle-wrap">
-          <span className={billingCycle === 'monthly' ? 'active' : ''}>Hàng tháng</span>
+          <span className={billingCycle === 'monthly' ? 'active' : ''}>Monthly</span>
           <button
             type="button"
             className={`pricing__toggle-btn ${billingCycle === 'yearly' ? 'yearly' : ''}`}
             onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
-            aria-label="Chuyển chu kỳ thanh toán"
+            aria-label="Toggle billing cycle"
           >
             <div className="pricing__toggle-knob" />
           </button>
           <span className={billingCycle === 'yearly' ? 'active' : ''}>
-            Hàng năm <span className="pricing__discount-pill">Tiết kiệm ~20%</span>
+            Yearly <span className="pricing__discount-pill">Save ~20%</span>
           </span>
         </div>
       </section>
@@ -149,10 +149,10 @@ export default function PricingPage() {
         <div className="pricing__teacher-notice">
           <span className="material-symbols-outlined">diversity_3</span>
           <div>
-            <strong>Đặc quyền Bảo trợ Học sinh của Giáo viên:</strong>
+            <strong>Teacher Student Sponsorship Benefit:</strong>
             <p>
-              Khi thầy cô đăng ký gói cước Giáo viên, toàn bộ học sinh trong các lớp của thầy cô sẽ được{' '}
-              <strong>mở khóa tính năng cao cấp hoàn toàn miễn phí</strong> theo hạn mức học sinh của gói!
+              When educators subscribe to a Teacher Plan, all students in your classes get{' '}
+              <strong>premium features unlocked completely free</strong> up to the plan limit!
             </p>
           </div>
         </div>
@@ -163,35 +163,35 @@ export default function PricingPage() {
         {loading ? (
           <div className="pricing__loading">
             <span className="material-symbols-outlined animate-spin">progress_activity</span>
-            <p>Đang tải bảng giá dịch vụ...</p>
+            <p>Loading pricing plans...</p>
           </div>
         ) : activeTab === 'student' ? (
           <>
             {/* FREE PLAN */}
             <div className="pricing__card">
               <div className="pricing__card-head">
-                <h3 className="pricing__card-name">Miễn Phí</h3>
-                <p className="pricing__card-desc">Bắt đầu làm quen với phương pháp học từ vựng ngữ cảnh.</p>
+                <h3 className="pricing__card-name">Free Plan</h3>
+                <p className="pricing__card-desc">Get started with contextual vocabulary acquisition.</p>
                 <div className="pricing__price-box">
-                  <span className="pricing__price">0đ</span>
-                  <span className="pricing__period">/ trọn đời</span>
+                  <span className="pricing__price">0 VND</span>
+                  <span className="pricing__period">/ lifetime</span>
                 </div>
               </div>
               <ul className="pricing__features-list">
-                <li><span className="material-symbols-outlined check">check_circle</span> 3 bài chấm & sửa luận AI mỗi ngày</li>
-                <li><span className="material-symbols-outlined check">check_circle</span> Tham gia tối đa 1 lớp học</li>
-                <li><span className="material-symbols-outlined check">check_circle</span> Học 3 bộ từ vựng cơ bản</li>
-                <li><span className="material-symbols-outlined check">check_circle</span> Ôn tập Flashcard SRS tiêu chuẩn</li>
+                <li><span className="material-symbols-outlined check">check_circle</span> 3 AI essay reviews & scores daily</li>
+                <li><span className="material-symbols-outlined check">check_circle</span> Join up to 1 classroom</li>
+                <li><span className="material-symbols-outlined check">check_circle</span> Access 3 foundation vocabulary decks</li>
+                <li><span className="material-symbols-outlined check">check_circle</span> Standard Spaced Repetition (SRS) Flashcards</li>
               </ul>
               <button type="button" className="pricing__btn pricing__btn--outline" disabled>
-                {currentTierInfo?.tier === 'free' ? 'Đang sử dụng' : 'Gói mặc định'}
+                {currentTierInfo?.tier === 'free' ? 'Current Plan' : 'Default Plan'}
               </button>
             </div>
 
             {/* DYNAMIC STUDENT PLANS */}
             {studentPlans.map((plan) => {
               const price = billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice
-              const formattedPrice = price.toLocaleString('vi-VN')
+              const formattedPrice = price.toLocaleString('en-US')
               const isCurrent = currentTierInfo?.tier === plan.tier && currentTierInfo?.source === 'personal_subscription'
               const isPopular = plan.tier === 'pro' || !!plan.highlightBadge
 
@@ -204,9 +204,9 @@ export default function PricingPage() {
                     <h3 className="pricing__card-name">{plan.name}</h3>
                     <p className="pricing__card-desc">{plan.description}</p>
                     <div className="pricing__price-box">
-                      <span className="pricing__price">{formattedPrice}đ</span>
+                      <span className="pricing__price">{formattedPrice} VND</span>
                       <span className="pricing__period">
-                        {billingCycle === 'yearly' ? '/ năm' : '/ tháng'}
+                        {billingCycle === 'yearly' ? '/ year' : '/ month'}
                       </span>
                     </div>
                   </div>
@@ -227,10 +227,10 @@ export default function PricingPage() {
                     {processingSlug === plan.slug ? (
                       <span className="material-symbols-outlined animate-spin">progress_activity</span>
                     ) : isCurrent ? (
-                      'Gói đang hoạt động'
+                      'Current Plan'
                     ) : (
                       <>
-                        <span>Nâng cấp qua VietQR</span>
+                        <span>Upgrade with VietQR</span>
                         <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
                       </>
                     )}
@@ -243,7 +243,7 @@ export default function PricingPage() {
           /* DYNAMIC TEACHER PLANS */
           teacherPlans.map((plan) => {
             const price = billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice
-            const formattedPrice = price.toLocaleString('vi-VN')
+            const formattedPrice = price.toLocaleString('en-US')
             const isCurrent = currentTierInfo?.tier === plan.tier
             const isPopular = plan.tier === 'pro' || !!plan.highlightBadge
 
@@ -255,14 +255,14 @@ export default function PricingPage() {
                 <div className="pricing__card-head">
                   <div className="pricing__sponsor-pill">
                     <span className="material-symbols-outlined">group</span>
-                    <span>Bảo trợ {plan.maxSponsoredStudents} Học sinh</span>
+                    <span>Sponsor {plan.maxSponsoredStudents} Students</span>
                   </div>
                   <h3 className="pricing__card-name">{plan.name}</h3>
                   <p className="pricing__card-desc">{plan.description}</p>
                   <div className="pricing__price-box">
-                    <span className="pricing__price">{formattedPrice}đ</span>
+                    <span className="pricing__price">{formattedPrice} VND</span>
                     <span className="pricing__period">
-                      {billingCycle === 'yearly' ? '/ năm' : '/ tháng'}
+                      {billingCycle === 'yearly' ? '/ year' : '/ month'}
                     </span>
                   </div>
                 </div>
@@ -283,10 +283,10 @@ export default function PricingPage() {
                   {processingSlug === plan.slug ? (
                     <span className="material-symbols-outlined animate-spin">progress_activity</span>
                   ) : isCurrent ? (
-                    'Gói đang hoạt động'
+                    'Current Plan'
                   ) : (
                     <>
-                      <span>Đăng ký gói Giáo viên</span>
+                      <span>Subscribe to Teacher Plan</span>
                       <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
                     </>
                   )}
@@ -299,30 +299,30 @@ export default function PricingPage() {
 
       {/* FAQ Section */}
       <section className="pricing__faq">
-        <h2 className="pricing__faq-title">Câu hỏi thường gặp (FAQ)</h2>
+        <h2 className="pricing__faq-title">Frequently Asked Questions (FAQ)</h2>
         <div className="pricing__faq-grid">
           <div className="pricing__faq-item">
-            <h4>Thanh toán qua VietQR PayOS như thế nào?</h4>
+            <h4>How does payment via VietQR PayOS work?</h4>
             <p>
-              Khi bấm Nâng cấp, hệ thống sẽ tạo một mã VietQR động với số tiền và nội dung chính xác. Bạn chỉ cần mở App ngân hàng (VCB, MB, Techcombank, Momo, v.v.) và quét mã. Gói cước sẽ được kích hoạt tự động sau 1-2 giây.
+              When you click Upgrade, the system generates a dynamic VietQR code with the exact amount and transfer description. Simply open your banking or e-wallet app (Vietcombank, MB, Techcombank, MoMo, etc.) and scan the code. Your subscription activates automatically within 1-2 seconds.
             </p>
           </div>
           <div className="pricing__faq-item">
-            <h4>Học sinh trong lớp của giáo viên có cần trả tiền không?</h4>
+            <h4>Do students in a teacher's class need to pay?</h4>
             <p>
-              Hoàn toàn KHÔNG. Khi giáo viên mua gói Teacher (Plus, Pro, Ultra), tất cả học sinh được thêm vào lớp sẽ tự động được cấp quyền cao cấp tương ứng mà không phải tốn thêm bất kỳ chi phí nào.
+              No, not at all! When a teacher subscribes to a Teacher Plan (Plus, Pro, Ultra), all students added to their classes automatically receive full premium access without paying anything.
             </p>
           </div>
           <div className="pricing__faq-item">
-            <h4>Tôi có thể nâng cấp từ gói Tháng lên gói Năm không?</h4>
+            <h4>Can I upgrade from a monthly plan to a yearly plan?</h4>
             <p>
-              Có, bạn có thể chuyển đổi bất kỳ lúc nào. Thời hạn còn lại của gói cũ sẽ được hệ thống tính toán và cộng dồn vào gói mới.
+              Yes, you can switch at any time. Any remaining duration from your current plan will be calculated and prorated into your new plan.
             </p>
           </div>
           <div className="pricing__faq-item">
-            <h4>Tôi có được hoàn tiền nếu không hài lòng?</h4>
+            <h4>Can I get a refund if I am not satisfied?</h4>
             <p>
-              LexiGrow cam kết hoàn tiền trong vòng 7 ngày đầu tiên nếu bạn gặp sự cố kỹ thuật hoặc không hài lòng với chất lượng dịch vụ AI.
+              LexiGrow offers a 7-day money-back guarantee if you experience technical issues or are not completely satisfied with our AI learning experience.
             </p>
           </div>
         </div>

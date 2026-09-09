@@ -289,12 +289,12 @@ export default function WordMatching() {
             <span className="material-symbols-outlined config-icon">extension</span>
             <h2 className="text-headline-lg font-bold">Word Matching Game</h2>
             <p className="text-body-md text-secondary-color">
-              Thách thức trí nhớ của bạn! Ghép đúng từ vựng tiếng Anh với định nghĩa tương ứng của chúng.
+              Challenge your memory! Match English vocabulary words with their correct definitions.
             </p>
           </div>
 
           <div className="config-section">
-            <h4 className="text-title-md font-medium">1. Chọn số cặp từ vựng</h4>
+            <h4 className="text-title-md font-medium">1. Select Number of Word Pairs</h4>
             <div className="pair-count-selector">
               {[6, 8, 10].map((num) => (
                 <button
@@ -304,30 +304,30 @@ export default function WordMatching() {
                   onClick={() => setPairCount(num)}
                 >
                   <span className="pair-number">{num}</span>
-                  <span className="pair-label">{num * 2} Thẻ</span>
+                  <span className="pair-label">{num * 2} Cards</span>
                 </button>
               ))}
             </div>
           </div>
 
           <div className="config-section">
-            <h4 className="text-title-md font-medium">2. Chọn chủ đề học (Tùy chọn)</h4>
+            <h4 className="text-title-md font-medium">2. Select Category (Optional)</h4>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="category-select"
             >
-              <option value="">Tất cả chủ đề</option>
-              <option value="academic">Academic (Học thuật)</option>
-              <option value="business">Business (Kinh doanh)</option>
-              <option value="scientific">Scientific (Khoa học)</option>
-              <option value="daily">Daily Use (Thường ngày)</option>
+              <option value="">All Categories</option>
+              <option value="academic">Academic</option>
+              <option value="business">Business</option>
+              <option value="scientific">Scientific</option>
+              <option value="daily">Daily Use</option>
             </select>
           </div>
 
           <button className="start-game-btn" onClick={loadVocabulary}>
             <span className="material-symbols-outlined">play_arrow</span>
-            Bắt đầu chơi
+            Start Game
           </button>
         </div>
       )}
@@ -338,7 +338,7 @@ export default function WordMatching() {
           <span className="material-symbols-outlined animate-spin loading-spinner">
             progress_activity
           </span>
-          <p className="text-body-lg">Đang tải và chuẩn bị thẻ từ vựng...</p>
+          <p className="text-body-lg">Loading and preparing vocabulary cards...</p>
         </div>
       )}
 
@@ -349,7 +349,7 @@ export default function WordMatching() {
           <div className="gameplay-header">
             <button className="back-btn" onClick={() => setGameState('config')}>
               <span className="material-symbols-outlined">arrow_back</span>
-              Thoát
+              Exit
             </button>
             <div className="stats-row">
               <div className="stat-pill">
@@ -358,15 +358,15 @@ export default function WordMatching() {
               </div>
               <div className="stat-pill">
                 <span className="material-symbols-outlined">percent</span>
-                <span>Độ chính xác: {accuracy}%</span>
+                <span>Accuracy: {accuracy}%</span>
               </div>
               <div className="stat-pill">
                 <span className="material-symbols-outlined">fitness_center</span>
-                <span>Lượt thử: {attempts}</span>
+                <span>Attempts: {attempts}</span>
               </div>
               <div className="stat-pill">
                 <span className="material-symbols-outlined">check_circle</span>
-                <span>Ghép đúng: {matchedPairs.length} / {pairCount}</span>
+                <span>Matched: {matchedPairs.length} / {pairCount}</span>
               </div>
             </div>
           </div>
@@ -395,13 +395,13 @@ export default function WordMatching() {
                       <div className="card-content-wrapper">
                         {card.type === 'word' ? (
                           <>
-                            <span className="card-type-indicator">Từ vựng</span>
+                            <span className="card-type-indicator">Word</span>
                             <span className="word-text font-bold">{card.content}</span>
                             {card.ipa && <span className="word-ipa">{card.ipa}</span>}
                           </>
                         ) : (
                           <>
-                            <span className="card-type-indicator">Định nghĩa</span>
+                            <span className="card-type-indicator">Definition</span>
                             <p className="definition-text">{card.content}</p>
                           </>
                         )}
@@ -421,38 +421,38 @@ export default function WordMatching() {
           <div className="victory-crown">
             <span className="material-symbols-outlined crown-icon">emoji_events</span>
           </div>
-          <h2 className="text-headline-lg font-bold text-primary-color">Chúc Mừng Chiến Thắng!</h2>
+          <h2 className="text-headline-lg font-bold text-primary-color">Congratulations! Victory!</h2>
           <p className="text-body-md text-secondary-color">
-            Bạn đã hoàn thành ghép đôi xuất sắc toàn bộ các thẻ từ vựng!
+            You successfully matched all vocabulary cards!
           </p>
 
           <div className="score-summary-grid">
             <div className="summary-item">
               <span className="summary-value">{formatTime(timer)}</span>
-              <span className="summary-label">Thời gian</span>
+              <span className="summary-label">Time</span>
             </div>
             <div className="summary-item">
               <span className="summary-value">{accuracy}%</span>
-              <span className="summary-label">Độ chính xác</span>
+              <span className="summary-label">Accuracy</span>
             </div>
             <div className="summary-item">
               <span className="summary-value">{attempts}</span>
-              <span className="summary-label">Lượt chọn</span>
+              <span className="summary-label">Attempts</span>
             </div>
             <div className="summary-item">
               <span className="summary-value">+{pairCount * 10} XP</span>
-              <span className="summary-label">Điểm tích lũy</span>
+              <span className="summary-label">XP Earned</span>
             </div>
           </div>
 
           <div className="victory-actions">
             <button className="play-again-btn" onClick={() => setGameState('config')}>
               <span className="material-symbols-outlined">replay</span>
-              Chơi lại
+              Play Again
             </button>
             <button className="return-btn" onClick={() => navigate('/student/vocabulary')}>
               <span className="material-symbols-outlined">menu_book</span>
-              Thư viện từ vựng
+              Word Library
             </button>
           </div>
         </div>

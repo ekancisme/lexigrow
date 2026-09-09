@@ -204,7 +204,7 @@ export default function StudentAnalyticsDetail() {
                   description
                 </span>
                 <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>
-                  Học sinh chưa viết bài luận nào.
+                  This student has not submitted any essays yet.
                 </p>
               </div>
             ) : (

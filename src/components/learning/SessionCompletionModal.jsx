@@ -29,9 +29,9 @@ export default function SessionCompletionModal({ sessionData = {}, onClose }) {
           <span className="material-symbols-outlined completion-modal__icon">military_tech</span>
         </div>
 
-        <h2 className="completion-modal__title">Tuyệt vời! Hoàn thành phiên học!</h2>
+        <h2 className="completion-modal__title">Awesome! Session Complete!</h2>
         <p className="completion-modal__desc">
-          Bạn vừa hoàn thành xuất sắc phiên học 10 phút hôm nay và vận dụng thành công các từ vựng mục tiêu vào bài viết thực tế.
+          You have successfully completed today's 10-minute session and applied your target vocabulary into authentic writing.
         </p>
 
         {/* Stats strip */}
@@ -39,8 +39,8 @@ export default function SessionCompletionModal({ sessionData = {}, onClose }) {
           <div className="completion-modal__stat-item">
             <span className="material-symbols-outlined completion-modal__stat-icon">local_fire_department</span>
             <div>
-              <span className="completion-modal__stat-value">+1 Ngày</span>
-              <span className="completion-modal__stat-label">Duy trì Streak</span>
+              <span className="completion-modal__stat-value">+1 Day</span>
+              <span className="completion-modal__stat-label">Streak Maintained</span>
             </div>
           </div>
 
@@ -48,15 +48,15 @@ export default function SessionCompletionModal({ sessionData = {}, onClose }) {
             <span className="material-symbols-outlined completion-modal__stat-icon">workspace_premium</span>
             <div>
               <span className="completion-modal__stat-value">+50 XP</span>
-              <span className="completion-modal__stat-label">Điểm tích lũy</span>
+              <span className="completion-modal__stat-label">Earned XP</span>
             </div>
           </div>
 
           <div className="completion-modal__stat-item">
             <span className="material-symbols-outlined completion-modal__stat-icon">yard</span>
             <div>
-              <span className="completion-modal__stat-value">+{words.length || 3} Mầm cây</span>
-              <span className="completion-modal__stat-label">Khu vườn từ vựng</span>
+              <span className="completion-modal__stat-value">+{words.length || 3} Sprouts</span>
+              <span className="completion-modal__stat-label">Growth Garden</span>
             </div>
           </div>
         </div>
@@ -64,7 +64,7 @@ export default function SessionCompletionModal({ sessionData = {}, onClose }) {
         {/* Words Learned */}
         {words.length > 0 && (
           <div className="completion-modal__words-box">
-            <span className="completion-modal__words-title">Từ vựng đã vận dụng thành công:</span>
+            <span className="completion-modal__words-title">Applied Vocabulary Words:</span>
             <div className="completion-modal__chips">
               {words.map((w, idx) => (
                 <span key={idx} className="completion-modal__word-chip">
@@ -83,7 +83,7 @@ export default function SessionCompletionModal({ sessionData = {}, onClose }) {
             onClick={() => navigate('/student/progress')}
           >
             <span className="material-symbols-outlined">yard</span>
-            Xem Khu vườn Tiến bộ
+            View Growth Garden
           </button>
 
           <button
@@ -93,7 +93,7 @@ export default function SessionCompletionModal({ sessionData = {}, onClose }) {
               else navigate('/student/dashboard')
             }}
           >
-            Về Trang chủ
+            Back to Dashboard
           </button>
         </div>
       </div>

@@ -1,30 +1,30 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import api from '../../services/api.js'
 import './Onboarding.css'
 
 const INTEREST_OPTIONS = [
-  { id: 'travel', label: 'Du lịch & Khám phá', icon: 'flight_takeoff' },
-  { id: 'daily-life', label: 'Đời sống thường nhật', icon: 'coffee' },
-  { id: 'technology', label: 'Công nghệ & Đổi mới', icon: 'memory' },
-  { id: 'career', label: 'Công việc & Sự nghiệp', icon: 'work' },
-  { id: 'hobbies', label: 'Sở thích & Sáng tạo', icon: 'palette' },
-  { id: 'food', label: 'Ẩm thực & Văn hóa', icon: 'restaurant' },
-  { id: 'science', label: 'Khoa học & Tự nhiên', icon: 'psychology' },
-  { id: 'academic', label: 'Học thuật & Viết luận', icon: 'menu_book' }
+  { id: 'travel', label: 'Travel & Exploration', icon: 'flight_takeoff' },
+  { id: 'daily-life', label: 'Daily Life & Routines', icon: 'coffee' },
+  { id: 'technology', label: 'Technology & Innovation', icon: 'memory' },
+  { id: 'career', label: 'Work & Career', icon: 'work' },
+  { id: 'hobbies', label: 'Hobbies & Creativity', icon: 'palette' },
+  { id: 'food', label: 'Food & Culture', icon: 'restaurant' },
+  { id: 'science', label: 'Science & Nature', icon: 'psychology' },
+  { id: 'academic', label: 'Academic & Essay Writing', icon: 'menu_book' }
 ]
 
 const LEVEL_OPTIONS = [
-  { id: 'A2', label: 'Sơ cấp (A2)', desc: 'Biết từ cơ bản, muốn mở rộng câu' },
-  { id: 'B1', label: 'Trung cấp (B1)', desc: 'Tự tin giao tiếp, muốn dùng từ tự nhiên' },
-  { id: 'B2', label: 'Trung cao cấp (B2)', desc: 'Viết học thuật, nâng cao từ vựng chuyên sâu' }
+  { id: 'A2', label: 'Elementary (A2)', desc: 'Knows basic words, wants to build fuller sentences' },
+  { id: 'B1', label: 'Intermediate (B1)', desc: 'Confident in basic talks, wants natural phrasing' },
+  { id: 'B2', label: 'Upper Intermediate (B2)', desc: 'Academic writing, advanced and nuanced vocabulary' }
 ]
 
 const TIME_OPTIONS = [
-  { minutes: 5, label: '5 phút / ngày', sub: 'Nhẹ nhàng' },
-  { minutes: 10, label: '10 phút / ngày', sub: 'Khuyến nghị', popular: true },
-  { minutes: 15, label: '15 phút / ngày', sub: 'Chuyên sâu' }
+  { minutes: 5, label: '5 mins / day', sub: 'Casual' },
+  { minutes: 10, label: '10 mins / day', sub: 'Recommended', popular: true },
+  { minutes: 15, label: '15 mins / day', sub: 'Intensive' }
 ]
 
 export default function Onboarding() {
@@ -74,11 +74,11 @@ export default function Onboarding() {
         <header className="onboarding-header">
           <div className="onboarding-badge">
             <span className="material-symbols-outlined">auto_awesome</span>
-            <span>Cá nhân hóa trải nghiệm</span>
+            <span>Personalized Experience</span>
           </div>
-          <h1 className="text-headline-lg">Chào mừng bạn đến với LexiGrow!</h1>
+          <h1 className="text-headline-lg">Welcome to LexiGrow!</h1>
           <p className="text-body-lg onboarding-desc">
-            Thiết lập nhanh trong 1 phút để AI đề xuất các phiên học từ vựng phù hợp nhất với mục tiêu của bạn.
+            Quick 1-minute setup so AI can recommend vocabulary sessions tailored to your goals.
           </p>
         </header>
 
@@ -86,8 +86,8 @@ export default function Onboarding() {
         <section className="onboarding-section">
           <h2 className="onboarding-section__title">
             <span className="step-num">1</span>
-            Chủ đề bạn yêu thích là gì?
-            <span className="step-hint">(Chọn ít nhất 1 chủ đề)</span>
+            What topics interest you most?
+            <span className="step-hint">(Select at least 1 topic)</span>
           </h2>
           <div className="interest-grid">
             {INTEREST_OPTIONS.map(item => {
@@ -112,7 +112,7 @@ export default function Onboarding() {
         <section className="onboarding-section">
           <h2 className="onboarding-section__title">
             <span className="step-num">2</span>
-            Trình độ tiếng Anh tự đánh giá
+            Self-assessed English Proficiency
           </h2>
           <div className="level-grid">
             {LEVEL_OPTIONS.map(lvl => {
@@ -139,7 +139,7 @@ export default function Onboarding() {
         <section className="onboarding-section">
           <h2 className="onboarding-section__title">
             <span className="step-num">3</span>
-            Mục tiêu thời gian mỗi ngày
+            Daily Learning Goal
           </h2>
           <div className="time-grid">
             {TIME_OPTIONS.map(time => {
@@ -150,7 +150,7 @@ export default function Onboarding() {
                   className={`time-card ${isSelected ? 'time-card--selected' : ''} ${time.popular ? 'time-card--popular' : ''}`}
                   onClick={() => setSelectedMinutes(time.minutes)}
                 >
-                  {time.popular && <span className="popular-badge">Khuyên dùng</span>}
+                  {time.popular && <span className="popular-badge">Recommended</span>}
                   <span className="material-symbols-outlined time-icon">schedule</span>
                   <h3 className="time-card__title">{time.label}</h3>
                   <p className="time-card__sub">{time.sub}</p>
@@ -167,7 +167,7 @@ export default function Onboarding() {
             className="btn btn--outline"
             onClick={() => navigate('/student/dashboard')}
           >
-            Bỏ qua bước này
+            Skip for now
           </button>
           <button
             type="button"
@@ -178,11 +178,11 @@ export default function Onboarding() {
             {isSubmitting ? (
               <>
                 <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                <span>Đang lưu...</span>
+                <span>Saving...</span>
               </>
             ) : (
               <>
-                <span>Bắt đầu phiên học đầu tiên</span>
+                <span>Start First Session</span>
                 <span className="material-symbols-outlined">arrow_forward</span>
               </>
             )}

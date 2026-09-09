@@ -51,7 +51,7 @@ export default function FlashcardReview() {
   const newCount      = cards.filter(c => c.masteryLevel === 'new').length
   const learningCount = cards.filter(c => c.masteryLevel === 'learning').length
 
-  // ── Voice: phát âm từ ──
+  // ── Voice: pronounce word ──
   const handleSpeak = useCallback((e) => {
     e?.stopPropagation()
     if (!currentCard) return
@@ -64,13 +64,13 @@ export default function FlashcardReview() {
     }
   }, [currentCard])
 
-  // ── Flip thẻ ──
+  // ── Flip card ──
   const handleFlip = (e) => {
     e?.stopPropagation()
     setIsFlipped(prev => !prev)
   }
 
-  // ── Chuyển sang thẻ tiếp theo với animation ──
+  // ── Move to next card with animation ──
   const goToNext = useCallback(() => {
     setCardAnim('exiting')
     animTimeout.current = setTimeout(() => {
@@ -106,7 +106,7 @@ export default function FlashcardReview() {
     setCurrentIndex(prev => prev - 1)
   }
 
-  // ── Skip (không đánh giá, next luôn) ──
+  // ── Skip (without rating) ──
   const handleSkip = () => {
     goToNext()
   }
@@ -122,9 +122,9 @@ export default function FlashcardReview() {
 
   // ── Mastery badge text ──
   const getMasteryLabel = (mastery) => {
-    if (mastery === 'mastered') return 'Đã thuộc'
-    if (mastery === 'learning') return 'Đang học'
-    return 'Từ mới'
+    if (mastery === 'mastered') return 'Mastered'
+    if (mastery === 'learning') return 'Learning'
+    return 'New'
   }
 
   // ══════════════════════════════════════════════
@@ -135,14 +135,14 @@ export default function FlashcardReview() {
       <div className="flashcard-page">
         <div className="flashcard-page__loading">
           <span className="material-symbols-outlined animate-spin">progress_activity</span>
-          <p className="text-body-md">Đang tải bộ thẻ ôn tập...</p>
+          <p className="text-body-md">Loading review flashcards...</p>
         </div>
       </div>
     )
   }
 
   // ══════════════════════════════════════════════
-  // EMPTY: không có từ nào cần ôn
+  // EMPTY: no cards due for review
   // ══════════════════════════════════════════════
   if (!loading && totalCards === 0) {
     return (
@@ -355,7 +355,7 @@ export default function FlashcardReview() {
               </p>
             </div>
 
-            {/* ═══ BACK ═══ - click vào thẻ sẽ lật lại mặt trước */}
+            {/* ═══ BACK ═══ - tap card to flip back to front */}
             <div className="flashcard-face flashcard-face--back">
 
               {/* Back header: badge + word + voice + flip back */}
@@ -436,7 +436,7 @@ export default function FlashcardReview() {
           </div>
           </div>{/* end flashcard-scene */}
 
-        {/* ── Action Buttons (chỉ hiện khi đã lật) ── */}
+        {/* ── Action Buttons (only show when flipped) ── */}
         {isFlipped ? (
           <div className="flashcard-actions">
             <button className="flashcard-action-btn flashcard-action-btn--again" onClick={() => handleRate(1)}>

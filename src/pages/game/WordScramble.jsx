@@ -222,8 +222,8 @@ export default function WordScramble() {
   const renderHintText = () => {
     const w = currentWordObj.word
     if (hintLevel === 0) return ''
-    if (hintLevel === 1) return `Gợi ý: Từ bắt đầu bằng chữ "${w[0].toUpperCase()}"`
-    return `Gợi ý: Từ bắt đầu bằng chữ "${w[0].toUpperCase()}" và kết thúc bằng chữ "${w[w.length - 1].toUpperCase()}"`
+    if (hintLevel === 1) return `Hint: Starts with "${w[0].toUpperCase()}"`
+    return `Hint: Starts with "${w[0].toUpperCase()}" and ends with "${w[w.length - 1].toUpperCase()}"`
   }
 
   useEffect(() => {
@@ -267,12 +267,12 @@ export default function WordScramble() {
             <span className="material-symbols-outlined config-icon-scramble">spellcheck</span>
             <h2 className="text-headline-lg font-bold">Word Scramble</h2>
             <p className="text-body-md text-secondary-color">
-              Xây dựng phản xạ chính tả! Sắp xếp các chữ cái xáo trộn thành một từ hoàn chỉnh dựa trên gợi ý từ loại, IPA và định nghĩa.
+              Build spelling reflexes! Rearrange scrambled letters to form the complete word using clues, IPA, and definitions.
             </p>
           </div>
 
           <div className="config-section">
-            <h4 className="text-title-md font-medium">1. Số lượt chơi (Số từ)</h4>
+            <h4 className="text-title-md font-medium">1. Number of Words</h4>
             <div className="round-selector">
               {[5, 10, 15].map((num) => (
                 <button
@@ -280,30 +280,30 @@ export default function WordScramble() {
                   className={`round-btn ${roundCount === num ? 'round-btn--active' : ''}`}
                   onClick={() => setRoundCount(num)}
                 >
-                  {num} Từ
+                  {num} Words
                 </button>
               ))}
             </div>
           </div>
 
           <div className="config-section">
-            <h4 className="text-title-md font-medium">2. Chọn chủ đề học (Tùy chọn)</h4>
+            <h4 className="text-title-md font-medium">2. Select Category (Optional)</h4>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="category-select"
             >
-              <option value="">Tất cả chủ đề</option>
-              <option value="academic">Academic (Học thuật)</option>
-              <option value="business">Business (Kinh doanh)</option>
-              <option value="scientific">Scientific (Khoa học)</option>
-              <option value="daily">Daily Use (Thường ngày)</option>
+              <option value="">All Categories</option>
+              <option value="academic">Academic</option>
+              <option value="business">Business</option>
+              <option value="scientific">Scientific</option>
+              <option value="daily">Daily Use</option>
             </select>
           </div>
 
           <button className="start-game-btn" onClick={loadWords}>
             <span className="material-symbols-outlined">play_arrow</span>
-            Bắt đầu chơi
+            Start Game
           </button>
         </div>
       )}
@@ -314,7 +314,7 @@ export default function WordScramble() {
           <span className="material-symbols-outlined animate-spin loading-spinner">
             progress_activity
           </span>
-          <p className="text-body-lg">Đang tạo bộ câu hỏi...</p>
+          <p className="text-body-lg">Generating puzzle set...</p>
         </div>
       )}
 
@@ -324,7 +324,7 @@ export default function WordScramble() {
           <div className="gameplay-header">
             <button className="back-btn" onClick={() => setGameState('config')}>
               <span className="material-symbols-outlined">arrow_back</span>
-              Thoát
+              Exit
             </button>
             <div className="stats-row">
               <div className="stat-pill">
@@ -333,11 +333,11 @@ export default function WordScramble() {
               </div>
               <div className="stat-pill">
                 <span className="material-symbols-outlined">check_circle</span>
-                <span>Điểm số: {score} / {words.length}</span>
+                <span>Score: {score} / {words.length}</span>
               </div>
               <div className="stat-pill">
                 <span className="material-symbols-outlined">quiz</span>
-                <span>Từ thứ: {currentRoundIndex + 1} / {words.length}</span>
+                <span>Word: {currentRoundIndex + 1} / {words.length}</span>
               </div>
             </div>
           </div>
@@ -361,7 +361,7 @@ export default function WordScramble() {
                 )}
               </div>
               <p className="clue-definition">
-                <strong>Định nghĩa:</strong> {currentWordObj.definition}
+                <strong>Definition:</strong> {currentWordObj.definition}
               </p>
               {hintLevel > 0 && (
                 <p className="clue-hint-text text-label-md">{renderHintText()}</p>
@@ -372,10 +372,10 @@ export default function WordScramble() {
             {isCorrect === true ? (
               <div className="result-success-panel text-center">
                 <span className="material-symbols-outlined check-icon-success">check_circle</span>
-                <h4 className="text-title-lg font-bold text-success">Hoàn toàn chính xác!</h4>
-                <p className="text-body-md font-medium">Từ đúng: <span className="text-primary-color font-bold">{currentWordObj.word}</span></p>
+                <h4 className="text-title-lg font-bold text-success">Correct!</h4>
+                <p className="text-body-md font-medium">Target Word: <span className="text-primary-color font-bold">{currentWordObj.word}</span></p>
                 <button className="next-round-btn" onClick={handleNextRound}>
-                  Từ tiếp theo
+                  Next Word
                   <span className="material-symbols-outlined">arrow_forward</span>
                 </button>
               </div>
@@ -383,7 +383,7 @@ export default function WordScramble() {
               <form className="scramble-form" onSubmit={handleVerify}>
                 <input
                   type="text"
-                  placeholder="Gõ từ đã sắp xếp tại đây..."
+                  placeholder="Type the unscrambled word here..."
                   value={userInput}
                   onChange={(e) => setUserInput(e.target.value)}
                   className={`scramble-input ${isCorrect === false ? 'shake-animation border-error' : ''}`}
@@ -393,14 +393,14 @@ export default function WordScramble() {
                 
                 <div className="scramble-actions">
                   <button type="submit" className="submit-btn" disabled={!userInput.trim()}>
-                    Kiểm tra
+                    Check
                   </button>
                   <button type="button" className="hint-btn" onClick={getHint} disabled={hintLevel >= 2}>
                     <span className="material-symbols-outlined">emoji_objects</span>
-                    Gợi ý
+                    Hint
                   </button>
                   <button type="button" className="skip-btn" onClick={handleSkipRound}>
-                    Bỏ qua
+                    Skip
                   </button>
                 </div>
               </form>
@@ -415,38 +415,38 @@ export default function WordScramble() {
           <div className="victory-crown">
             <span className="material-symbols-outlined crown-icon-scramble">emoji_events</span>
           </div>
-          <h2 className="text-headline-lg font-bold text-primary-color">Chúc Mừng Chiến Thắng!</h2>
+          <h2 className="text-headline-lg font-bold text-primary-color">Congratulations! Victory!</h2>
           <p className="text-body-md text-secondary-color">
-            Bạn đã xuất sắc chinh phục thử thách sắp xếp chữ cái!
+            You successfully completed the Word Scramble challenge!
           </p>
 
           <div className="score-summary-grid">
             <div className="summary-item">
               <span className="summary-value">{formatTime(timer)}</span>
-              <span className="summary-label">Thời gian</span>
+              <span className="summary-label">Time</span>
             </div>
             <div className="summary-item">
               <span className="summary-value">{score} / {words.length}</span>
-              <span className="summary-label">Đúng chính tả</span>
+              <span className="summary-label">Correct Words</span>
             </div>
             <div className="summary-item">
               <span className="summary-value">{skips}</span>
-              <span className="summary-label">Từ bỏ qua</span>
+              <span className="summary-label">Skipped</span>
             </div>
             <div className="summary-item">
               <span className="summary-value">+{score * 15} XP</span>
-              <span className="summary-label">XP đạt được</span>
+              <span className="summary-label">XP Earned</span>
             </div>
           </div>
 
           <div className="victory-actions">
             <button className="play-again-btn" onClick={() => setGameState('config')}>
               <span className="material-symbols-outlined">replay</span>
-              Chơi lại
+              Play Again
             </button>
             <button className="return-btn" onClick={() => navigate('/student/vocabulary')}>
               <span className="material-symbols-outlined">menu_book</span>
-              Thư viện từ vựng
+              Word Library
             </button>
           </div>
         </div>

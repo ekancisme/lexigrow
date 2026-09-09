@@ -313,17 +313,17 @@ export default function VocabHunter() {
             <span className="material-symbols-outlined config-icon-hunter">target</span>
             <h2 className="text-headline-lg font-bold">Vocab Hunter</h2>
             <p className="text-body-md text-secondary-color">
-              Thử thách phản xạ nhanh! Đọc định nghĩa ở đầu màn hình và nhanh chóng bắn hạ bong bóng chứa từ vựng tương ứng đang rơi xuống trước khi chúng biến mất!
+              Speed reflex challenge! Read the definition at the top and pop the matching vocabulary bubble before it falls off the screen!
             </p>
           </div>
 
           <div className="config-section">
-            <h4 className="text-title-md font-medium">1. Chọn tốc độ rơi</h4>
+            <h4 className="text-title-md font-medium">1. Select Fall Speed</h4>
             <div className="speed-selector">
               {[
-                { id: 'easy', label: 'Chậm', desc: 'Luyện tập' },
-                { id: 'medium', label: 'Vừa', desc: 'Thường' },
-                { id: 'hard', label: 'Nhanh', desc: 'Thử thách' }
+                { id: 'easy', label: 'Slow', desc: 'Practice' },
+                { id: 'medium', label: 'Medium', desc: 'Normal' },
+                { id: 'hard', label: 'Fast', desc: 'Expert' }
               ].map((lvl) => (
                 <button
                   key={lvl.id}
@@ -338,23 +338,23 @@ export default function VocabHunter() {
           </div>
 
           <div className="config-section">
-            <h4 className="text-title-md font-medium">2. Chọn chủ đề học (Tùy chọn)</h4>
+            <h4 className="text-title-md font-medium">2. Select Category (Optional)</h4>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="category-select"
             >
-              <option value="">Tất cả chủ đề</option>
-              <option value="academic">Academic (Học thuật)</option>
-              <option value="business">Business (Kinh doanh)</option>
-              <option value="scientific">Scientific (Khoa học)</option>
-              <option value="daily">Daily Use (Thường ngày)</option>
+              <option value="">All Categories</option>
+              <option value="academic">Academic</option>
+              <option value="business">Business</option>
+              <option value="scientific">Scientific</option>
+              <option value="daily">Daily Use</option>
             </select>
           </div>
 
           <button className="start-game-btn-hunter" onClick={loadVocabulary}>
             <span className="material-symbols-outlined">play_arrow</span>
-            Bắt đầu chơi
+            Start Game
           </button>
         </div>
       )}
@@ -365,7 +365,7 @@ export default function VocabHunter() {
           <span className="material-symbols-outlined animate-spin loading-spinner">
             progress_activity
           </span>
-          <p className="text-body-lg">Đang nạp bong bóng từ vựng...</p>
+          <p className="text-body-lg">Spawning vocabulary bubbles...</p>
         </div>
       )}
 
@@ -375,7 +375,7 @@ export default function VocabHunter() {
           <div className="gameplay-header">
             <button className="back-btn" onClick={() => setGameState('config')}>
               <span className="material-symbols-outlined">arrow_back</span>
-              Thoát
+              Exit
             </button>
             <div className="stats-row">
               <div className="lives-display">
@@ -391,18 +391,18 @@ export default function VocabHunter() {
               </div>
               <div className="stat-pill">
                 <span className="material-symbols-outlined">sports_score</span>
-                <span>Điểm số: {score}</span>
+                <span>Score: {score}</span>
               </div>
               <div className="stat-pill">
                 <span className="material-symbols-outlined">tour</span>
-                <span>Vòng: {roundIndex + 1} / 15</span>
+                <span>Round: {roundIndex + 1} / 15</span>
               </div>
             </div>
           </div>
 
           {/* Target Definition Box */}
           <div className="target-definition-box text-center card-base">
-            <span className="definition-tag-hunter">Định nghĩa cần tìm:</span>
+            <span className="definition-tag-hunter">Target Definition:</span>
             <p className="definition-phrase font-medium">"{targetWord.definition}"</p>
           </div>
 
@@ -437,30 +437,30 @@ export default function VocabHunter() {
           <div className="gameover-icon-wrap">
             <span className="material-symbols-outlined skull-icon">heart_broken</span>
           </div>
-          <h2 className="text-headline-lg font-bold text-error">Rất Tiếc, Trò Chơi Kết Thúc!</h2>
+          <h2 className="text-headline-lg font-bold text-error">Game Over!</h2>
           <p className="text-body-md text-secondary-color">
-            Bạn đã hết lượt chơi (mất cả 3 mạng). Hãy cố gắng tập trung và thử lại nhé!
+            You ran out of lives (all 3 lost). Keep practicing and try again!
           </p>
 
           <div className="score-summary-grid">
             <div className="summary-item">
               <span className="summary-value">{score}</span>
-              <span className="summary-label">Từ đã bắn</span>
+              <span className="summary-label">Target Words Hit</span>
             </div>
             <div className="summary-item">
               <span className="summary-value">+{score * 5} XP</span>
-              <span className="summary-label">XP tích lũy</span>
+              <span className="summary-label">XP Earned</span>
             </div>
           </div>
 
           <div className="victory-actions">
             <button className="play-again-btn-hunter" onClick={() => setGameState('config')}>
               <span className="material-symbols-outlined">replay</span>
-              Thử lại
+              Try Again
             </button>
             <button className="return-btn" onClick={() => navigate('/student/vocabulary')}>
               <span className="material-symbols-outlined">menu_book</span>
-              Thư viện
+              Word Library
             </button>
           </div>
         </div>
@@ -472,30 +472,30 @@ export default function VocabHunter() {
           <div className="victory-crown">
             <span className="material-symbols-outlined crown-icon">emoji_events</span>
           </div>
-          <h2 className="text-headline-lg font-bold text-primary-color">Thợ Săn Từ Vựng Vĩ Đại!</h2>
+          <h2 className="text-headline-lg font-bold text-primary-color">Master Vocab Hunter!</h2>
           <p className="text-body-md text-secondary-color">
-            Bạn đã xuất sắc vượt qua toàn bộ 15 vòng chơi đầy kịch tính!
+            Congratulations! You successfully completed all 15 rapid-fire rounds!
           </p>
 
           <div className="score-summary-grid">
             <div className="summary-item">
               <span className="summary-value">{score}</span>
-              <span className="summary-label">Điểm số</span>
+              <span className="summary-label">Final Score</span>
             </div>
             <div className="summary-item">
               <span className="summary-value">+{score * 20} XP</span>
-              <span className="summary-label">XP đạt được</span>
+              <span className="summary-label">XP Earned</span>
             </div>
           </div>
 
           <div className="victory-actions">
             <button className="play-again-btn-hunter" onClick={() => setGameState('config')}>
               <span className="material-symbols-outlined">replay</span>
-              Chơi lại
+              Play Again
             </button>
             <button className="return-btn" onClick={() => navigate('/student/vocabulary')}>
               <span className="material-symbols-outlined">menu_book</span>
-              Thư viện từ vựng
+              Word Library
             </button>
           </div>
         </div>

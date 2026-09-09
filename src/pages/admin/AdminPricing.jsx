@@ -37,7 +37,7 @@ export default function AdminPricing() {
       }
     } catch (err) {
       console.error('Error fetching admin pricing data:', err)
-      setMessage({ type: 'error', text: 'Không thể tải dữ liệu quản trị.' })
+      setMessage({ type: 'error', text: 'Unable to load admin pricing data.' })
     } finally {
       setLoading(false)
     }
@@ -57,11 +57,11 @@ export default function AdminPricing() {
         highlightBadge: editingPlan.highlightBadge || '',
         isActive: editingPlan.isActive,
       })
-      setMessage({ type: 'success', text: `Đã cập nhật gói ${editingPlan.name} thành công!` })
+      setMessage({ type: 'success', text: `Successfully updated plan ${editingPlan.name}!` })
       setEditingPlan(null)
       fetchTabData()
     } catch (err) {
-      setMessage({ type: 'error', text: err.message || 'Lỗi cập nhật gói cước.' })
+      setMessage({ type: 'error', text: err.message || 'Error updating pricing plan.' })
     }
   }
 
@@ -69,11 +69,11 @@ export default function AdminPricing() {
     e.preventDefault()
     try {
       await paymentService.adminGrantSubscription(grantData)
-      setMessage({ type: 'success', text: 'Đã cấp gói cước cho người dùng thành công!' })
+      setMessage({ type: 'success', text: 'Successfully granted subscription to user!' })
       setGrantModal(false)
       fetchTabData()
     } catch (err) {
-      setMessage({ type: 'error', text: err.message || 'Lỗi cấp gói cước.' })
+      setMessage({ type: 'error', text: err.message || 'Error granting subscription.' })
     }
   }
 
@@ -82,9 +82,9 @@ export default function AdminPricing() {
       {/* Header */}
       <div className="admin-pricing__header">
         <div>
-          <h1 className="text-headline-md">Quản Lý Gói Cước & Doanh Thu PayOS</h1>
+          <h1 className="text-headline-md">Pricing & PayOS Revenue Management</h1>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-            Điều chỉnh giá cước, hạn mức bảo trợ học sinh và theo dõi thanh toán tự động.
+            Configure pricing plans, teacher student sponsorship limits, and monitor automated transactions.
           </p>
         </div>
         <div style={{ display: 'flex', gap: '0.75rem' }}>
@@ -95,7 +95,7 @@ export default function AdminPricing() {
             onClick={() => setGrantModal(true)}
           >
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>card_membership</span>
-            <span>Cấp gói cước</span>
+            <span>Grant Subscription</span>
           </button>
         </div>
       </div>
@@ -116,9 +116,9 @@ export default function AdminPricing() {
             <span className="material-symbols-outlined">payments</span>
           </div>
           <div>
-            <div className="text-label-md" style={{ color: 'var(--color-on-surface-variant)' }}>Tổng Doanh Thu PayOS</div>
+            <div className="text-label-md" style={{ color: 'var(--color-on-surface-variant)' }}>Total PayOS Revenue</div>
             <div className="text-headline-sm" style={{ fontWeight: 800, color: '#16a34a' }}>
-              {revenueStats.totalRevenue.toLocaleString('vi-VN')} đ
+              {revenueStats.totalRevenue.toLocaleString('en-US')} VND
             </div>
           </div>
         </div>
@@ -128,9 +128,9 @@ export default function AdminPricing() {
             <span className="material-symbols-outlined">receipt_long</span>
           </div>
           <div>
-            <div className="text-label-md" style={{ color: 'var(--color-on-surface-variant)' }}>Đơn Hàng Đã Thanh Toán</div>
+            <div className="text-label-md" style={{ color: 'var(--color-on-surface-variant)' }}>Paid Orders</div>
             <div className="text-headline-sm" style={{ fontWeight: 800 }}>
-              {revenueStats.paidCount} đơn
+              {revenueStats.paidCount} orders
             </div>
           </div>
         </div>
@@ -140,9 +140,9 @@ export default function AdminPricing() {
             <span className="material-symbols-outlined">stars</span>
           </div>
           <div>
-            <div className="text-label-md" style={{ color: 'var(--color-on-surface-variant)' }}>Gói Cước Đang Mở</div>
+            <div className="text-label-md" style={{ color: 'var(--color-on-surface-variant)' }}>Active Plans</div>
             <div className="text-headline-sm" style={{ fontWeight: 800 }}>
-              {plans.filter((p) => p.isActive).length} / {plans.length} gói
+              {plans.filter((p) => p.isActive).length} / {plans.length} plans
             </div>
           </div>
         </div>
@@ -156,7 +156,7 @@ export default function AdminPricing() {
           onClick={() => setActiveTab('plans')}
         >
           <span className="material-symbols-outlined">tune</span>
-          <span>Cấu hình Gói Cước</span>
+          <span>Plan Configurations</span>
         </button>
         <button
           type="button"
@@ -164,7 +164,7 @@ export default function AdminPricing() {
           onClick={() => setActiveTab('transactions')}
         >
           <span className="material-symbols-outlined">receipt</span>
-          <span>Lịch sử Giao Dịch PayOS</span>
+          <span>PayOS Transactions</span>
         </button>
         <button
           type="button"
@@ -172,7 +172,7 @@ export default function AdminPricing() {
           onClick={() => setActiveTab('subscriptions')}
         >
           <span className="material-symbols-outlined">workspace_premium</span>
-          <span>Gói Đang Hoạt Động</span>
+          <span>Active Subscriptions</span>
         </button>
       </div>
 
@@ -180,20 +180,20 @@ export default function AdminPricing() {
       {activeTab === 'plans' && (
         <div className="admin-pricing__table-wrap">
           {loading ? (
-            <div className="admin-pricing__loading">Đang tải danh sách gói cước...</div>
+            <div className="admin-pricing__loading">Loading pricing plans...</div>
           ) : (
             <table className="admin-pricing__table">
               <thead>
                 <tr>
-                  <th>Tên Gói</th>
-                  <th>Đối tượng</th>
+                  <th>Plan Name</th>
+                  <th>Target Role</th>
                   <th>Tier</th>
-                  <th>Giá Tháng</th>
-                  <th>Giá Năm</th>
-                  <th>Bảo trợ Học sinh</th>
+                  <th>Monthly Price</th>
+                  <th>Yearly Price</th>
+                  <th>Student Sponsorship</th>
                   <th>Badge</th>
-                  <th>Trạng thái</th>
-                  <th>Thao tác</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -202,23 +202,23 @@ export default function AdminPricing() {
                     <td><strong>{p.name}</strong> ({p.slug})</td>
                     <td>
                       <span className={`admin-pricing__role-pill ${p.targetRole}`}>
-                        {p.targetRole === 'teacher' ? 'Giáo viên' : 'Học sinh'}
+                        {p.targetRole === 'teacher' ? 'Teacher' : 'Student'}
                       </span>
                     </td>
                     <td><span className="admin-pricing__tier-tag">{p.tier.toUpperCase()}</span></td>
-                    <td><strong>{p.monthlyPrice.toLocaleString('vi-VN')} đ</strong></td>
-                    <td><strong>{p.yearlyPrice.toLocaleString('vi-VN')} đ</strong></td>
+                    <td><strong>{p.monthlyPrice.toLocaleString('en-US')} VND</strong></td>
+                    <td><strong>{p.yearlyPrice.toLocaleString('en-US')} VND</strong></td>
                     <td>
                       {p.targetRole === 'teacher' ? (
-                        <span style={{ color: '#0284c7', fontWeight: 600 }}>{p.maxSponsoredStudents} học sinh</span>
+                        <span style={{ color: '#0284c7', fontWeight: 600 }}>{p.maxSponsoredStudents} students</span>
                       ) : (
                         <span style={{ color: '#94a3b8' }}>—</span>
                       )}
                     </td>
-                    <td>{p.highlightBadge || <span style={{ color: '#94a3b8' }}>Không</span>}</td>
+                    <td>{p.highlightBadge || <span style={{ color: '#94a3b8' }}>None</span>}</td>
                     <td>
                       <span className={`admin-pricing__status-badge ${p.isActive ? 'active' : 'inactive'}`}>
-                        {p.isActive ? 'Đang mở' : 'Tạm ẩn'}
+                        {p.isActive ? 'Active' : 'Hidden'}
                       </span>
                     </td>
                     <td>
@@ -228,7 +228,7 @@ export default function AdminPricing() {
                         style={{ padding: '0.4rem 0.85rem', fontSize: '0.85rem', borderRadius: 8 }}
                         onClick={() => setEditingPlan({ ...p })}
                       >
-                        Chỉnh sửa
+                        Edit
                       </button>
                     </td>
                   </tr>
@@ -243,20 +243,20 @@ export default function AdminPricing() {
       {activeTab === 'transactions' && (
         <div className="admin-pricing__table-wrap">
           {loading ? (
-            <div className="admin-pricing__loading">Đang tải lịch sử giao dịch...</div>
+            <div className="admin-pricing__loading">Loading transaction history...</div>
           ) : transactions.length === 0 ? (
-            <div className="admin-pricing__empty">Chưa có giao dịch PayOS nào.</div>
+            <div className="admin-pricing__empty">No PayOS transactions recorded yet.</div>
           ) : (
             <table className="admin-pricing__table">
               <thead>
                 <tr>
-                  <th>Mã Đơn</th>
-                  <th>Người Mua</th>
-                  <th>Gói Cước</th>
-                  <th>Chu kỳ</th>
-                  <th>Số Tiền</th>
-                  <th>Trạng Thái</th>
-                  <th>Thời Gian</th>
+                  <th>Order Code</th>
+                  <th>Customer</th>
+                  <th>Plan</th>
+                  <th>Cycle</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Date</th>
                 </tr>
               </thead>
               <tbody>
@@ -268,14 +268,14 @@ export default function AdminPricing() {
                       <small style={{ color: 'var(--color-on-surface-variant)' }}>{tx.user?.email}</small>
                     </td>
                     <td>{tx.planName}</td>
-                    <td>{tx.billingCycle === 'yearly' ? '1 Năm' : '1 Tháng'}</td>
-                    <td><strong style={{ color: '#16a34a' }}>{tx.amount.toLocaleString('vi-VN')} đ</strong></td>
+                    <td>{tx.billingCycle === 'yearly' ? '1 Year' : '1 Month'}</td>
+                    <td><strong style={{ color: '#16a34a' }}>{tx.amount.toLocaleString('en-US')} VND</strong></td>
                     <td>
                       <span className={`admin-pricing__status-badge ${tx.status.toLowerCase()}`}>
                         {tx.status}
                       </span>
                     </td>
-                    <td>{new Date(tx.createdAt).toLocaleString('vi-VN')}</td>
+                    <td>{new Date(tx.createdAt).toLocaleString('en-US')}</td>
                   </tr>
                 ))}
               </tbody>
@@ -288,20 +288,20 @@ export default function AdminPricing() {
       {activeTab === 'subscriptions' && (
         <div className="admin-pricing__table-wrap">
           {loading ? (
-            <div className="admin-pricing__loading">Đang tải danh sách gói hoạt động...</div>
+            <div className="admin-pricing__loading">Loading active subscriptions...</div>
           ) : subscriptions.length === 0 ? (
-            <div className="admin-pricing__empty">Chưa có gói cước nào được kích hoạt.</div>
+            <div className="admin-pricing__empty">No active subscriptions found.</div>
           ) : (
             <table className="admin-pricing__table">
               <thead>
                 <tr>
-                  <th>Người Dùng</th>
-                  <th>Vai Trò</th>
-                  <th>Gói Cước</th>
+                  <th>User</th>
+                  <th>Role</th>
+                  <th>Plan</th>
                   <th>Tier</th>
-                  <th>Ngày Bắt Đầu</th>
-                  <th>Ngày Hết Hạn</th>
-                  <th>Trạng Thái</th>
+                  <th>Start Date</th>
+                  <th>Expiration Date</th>
+                  <th>Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -314,8 +314,8 @@ export default function AdminPricing() {
                     <td>{sub.targetRole}</td>
                     <td>{sub.plan?.name || sub.planSlug}</td>
                     <td><span className="admin-pricing__tier-tag">{sub.tier.toUpperCase()}</span></td>
-                    <td>{new Date(sub.startDate).toLocaleDateString('vi-VN')}</td>
-                    <td><strong>{new Date(sub.endDate).toLocaleDateString('vi-VN')}</strong></td>
+                    <td>{new Date(sub.startDate).toLocaleDateString('en-US')}</td>
+                    <td><strong>{new Date(sub.endDate).toLocaleDateString('en-US')}</strong></td>
                     <td>
                       <span className={`admin-pricing__status-badge ${sub.status}`}>
                         {sub.status.toUpperCase()}
@@ -334,14 +334,14 @@ export default function AdminPricing() {
         <div className="admin-pricing__modal-backdrop" onClick={() => setEditingPlan(null)}>
           <div className="admin-pricing__modal" onClick={(e) => e.stopPropagation()}>
             <div className="admin-pricing__modal-head">
-              <h3>Chỉnh Sửa Gói Cước: {editingPlan.name}</h3>
+              <h3>Edit Pricing Plan: {editingPlan.name}</h3>
               <button type="button" onClick={() => setEditingPlan(null)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
             <form onSubmit={handleSavePlan} className="admin-pricing__form">
               <div className="admin-pricing__form-group">
-                <label>Tên gói hiển thị</label>
+                <label>Display Name</label>
                 <input
                   type="text"
                   value={editingPlan.name}
@@ -352,7 +352,7 @@ export default function AdminPricing() {
 
               <div className="admin-pricing__form-row">
                 <div className="admin-pricing__form-group">
-                  <label>Giá theo Tháng (VNĐ)</label>
+                  <label>Monthly Price (VND)</label>
                   <input
                     type="number"
                     value={editingPlan.monthlyPrice}
@@ -361,7 +361,7 @@ export default function AdminPricing() {
                   />
                 </div>
                 <div className="admin-pricing__form-group">
-                  <label>Giá theo Năm (VNĐ)</label>
+                  <label>Yearly Price (VND)</label>
                   <input
                     type="number"
                     value={editingPlan.yearlyPrice}
@@ -373,7 +373,7 @@ export default function AdminPricing() {
 
               {editingPlan.targetRole === 'teacher' && (
                 <div className="admin-pricing__form-group">
-                  <label>Hạn mức Học sinh được Bảo trợ</label>
+                  <label>Sponsored Student Limit</label>
                   <input
                     type="number"
                     value={editingPlan.maxSponsoredStudents}
@@ -381,16 +381,16 @@ export default function AdminPricing() {
                     required
                   />
                   <small style={{ color: 'var(--color-on-surface-variant)' }}>
-                    Số lượng học sinh trong các lớp của giáo viên được dùng miễn phí.
+                    Number of students across teacher classes who receive free access.
                   </small>
                 </div>
               )}
 
               <div className="admin-pricing__form-group">
-                <label>Nhãn nổi bật (Badge)</label>
+                <label>Highlight Badge</label>
                 <input
                   type="text"
-                  placeholder="VD: Phổ biến nhất, Khuyên dùng"
+                  placeholder="e.g. Most Popular, Recommended"
                   value={editingPlan.highlightBadge || ''}
                   onChange={(e) => setEditingPlan({ ...editingPlan, highlightBadge: e.target.value })}
                 />
@@ -403,15 +403,15 @@ export default function AdminPricing() {
                   checked={editingPlan.isActive}
                   onChange={(e) => setEditingPlan({ ...editingPlan, isActive: e.target.checked })}
                 />
-                <label htmlFor="isActiveCheck" style={{ margin: 0, cursor: 'pointer' }}>Đang mở bán trên trang Bảng giá</label>
+                <label htmlFor="isActiveCheck" style={{ margin: 0, cursor: 'pointer' }}>Available for purchase on Pricing page</label>
               </div>
 
               <div className="admin-pricing__modal-actions">
                 <button type="button" className="btn-secondary" onClick={() => setEditingPlan(null)}>
-                  Hủy
+                  Cancel
                 </button>
                 <button type="submit" className="btn-primary">
-                  Lưu thay đổi
+                  Save Changes
                 </button>
               </div>
             </form>
@@ -424,24 +424,24 @@ export default function AdminPricing() {
         <div className="admin-pricing__modal-backdrop" onClick={() => setGrantModal(false)}>
           <div className="admin-pricing__modal" onClick={(e) => e.stopPropagation()}>
             <div className="admin-pricing__modal-head">
-              <h3>Cấp Gói Cước Thủ Công Cho User</h3>
+              <h3>Grant Subscription Manually</h3>
               <button type="button" onClick={() => setGrantModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
             <form onSubmit={handleGrantSubscription} className="admin-pricing__form">
               <div className="admin-pricing__form-group">
-                <label>User ID hoặc Email</label>
+                <label>User ID or Email</label>
                 <input
                   type="text"
-                  placeholder="Nhập ID User (MongoDB ObjectId)"
+                  placeholder="Enter User ID (MongoDB ObjectId)"
                   value={grantData.userId}
                   onChange={(e) => setGrantData({ ...grantData, userId: e.target.value })}
                   required
                 />
               </div>
               <div className="admin-pricing__form-group">
-                <label>Chọn Gói cước</label>
+                <label>Select Plan</label>
                 <select
                   value={grantData.planSlug}
                   onChange={(e) => setGrantData({ ...grantData, planSlug: e.target.value })}
@@ -454,7 +454,7 @@ export default function AdminPricing() {
                 </select>
               </div>
               <div className="admin-pricing__form-group">
-                <label>Thời hạn cấp (Số ngày)</label>
+                <label>Duration (Days)</label>
                 <input
                   type="number"
                   value={grantData.durationDays}
@@ -464,10 +464,10 @@ export default function AdminPricing() {
               </div>
               <div className="admin-pricing__modal-actions">
                 <button type="button" className="btn-secondary" onClick={() => setGrantModal(false)}>
-                  Hủy
+                  Cancel
                 </button>
                 <button type="submit" className="btn-primary">
-                  Cấp gói ngay
+                  Grant Subscription
                 </button>
               </div>
             </form>

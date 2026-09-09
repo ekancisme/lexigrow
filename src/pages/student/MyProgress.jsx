@@ -80,9 +80,9 @@ export default function MyProgress() {
       {/* Header with Navigation Tabs */}
       <section className="my-progress__header">
         <div>
-          <h2 className="text-headline-lg">Tiến Độ & Khu Vườn Tri Thức</h2>
+          <h2 className="text-headline-lg">Progress & Knowledge Garden</h2>
           <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>
-            Theo dõi sự chuyển dịch từ vựng: Từ nhận biết (SRS) sang vận dụng độc lập trong bài viết (Mastered).
+            Track vocabulary progression: From recognition (SRS) to autonomous application in authentic writing (Mastered).
           </p>
         </div>
 
@@ -92,21 +92,21 @@ export default function MyProgress() {
             onClick={() => setActiveTab('overview')}
           >
             <span className="material-symbols-outlined">analytics</span>
-            Tổng quan Vốn từ
+            Vocab Overview
           </button>
           <button
             className={`my-progress__tab-btn ${activeTab === 'garden' ? 'my-progress__tab-btn--active' : ''}`}
             onClick={() => setActiveTab('garden')}
           >
             <span className="material-symbols-outlined">yard</span>
-            Khu vườn Tiến bộ
+            Growth Garden
           </button>
           <button
             className={`my-progress__tab-btn ${activeTab === 'evidence' ? 'my-progress__tab-btn--active' : ''}`}
             onClick={() => setActiveTab('evidence')}
           >
             <span className="material-symbols-outlined">verified</span>
-            Bằng chứng Vận dụng ({evidenceList.length})
+            Usage Evidence ({evidenceList.length})
           </button>
         </div>
       </section>
@@ -119,9 +119,9 @@ export default function MyProgress() {
             <div className="vocab-pyramid__header">
               <span className="material-symbols-outlined vocab-pyramid__icon">military_tech</span>
               <div>
-                <h3 className="vocab-pyramid__title">Tháp Tăng Trưởng Vốn Từ Chủ Động (Active Vocabulary)</h3>
+                <h3 className="vocab-pyramid__title">Active Vocabulary Growth Pyramid</h3>
                 <p className="vocab-pyramid__desc">
-                  Phân tầng tiến bộ dựa trên mức độ hấp thu và khả năng tự sản sinh từ ngữ trong bài viết thực tế.
+                  Tiered progression based on retention depth and productive capability in real essays.
                 </p>
               </div>
             </div>
@@ -131,30 +131,30 @@ export default function MyProgress() {
               <div className="pyramid-tier pyramid-tier--mastered">
                 <div className="pyramid-tier__badge">
                   <span className="material-symbols-outlined">workspace_premium</span>
-                  BẬC 3: ĐÃ LÀM CHỦ (MASTERED)
+                  TIER 3: MASTERED
                 </div>
-                <div className="pyramid-tier__value">{activeVocabStats.masteredCount || 8} từ</div>
-                <div className="pyramid-tier__desc">Đã dùng đúng trong ≥ 2 bài viết độc lập ở các ngày khác nhau.</div>
+                <div className="pyramid-tier__value">{activeVocabStats.masteredCount || 8} words</div>
+                <div className="pyramid-tier__desc">Accurately used across ≥ 2 independent writing sessions on separate days.</div>
               </div>
 
               {/* Tier 2: Retained (SRS) */}
               <div className="pyramid-tier pyramid-tier--retained">
                 <div className="pyramid-tier__badge">
                   <span className="material-symbols-outlined">psychology</span>
-                  BẬC 2: GHI NHỚ DÀI HẠN (RETAINED - SRS)
+                  TIER 2: LONG-TERM RETENTION (RETAINED - SRS)
                 </div>
-                <div className="pyramid-tier__value">{activeVocabStats.retainedCount || 14} từ</div>
-                <div className="pyramid-tier__desc">Đã vượt qua các mốc giãn cách ngắt quãng (Khoảng cách ôn ≥ 7 ngày).</div>
+                <div className="pyramid-tier__value">{activeVocabStats.retainedCount || 14} words</div>
+                <div className="pyramid-tier__desc">Surpassed spaced repetition intervals (review interval ≥ 7 days).</div>
               </div>
 
               {/* Tier 1: Saved */}
               <div className="pyramid-tier pyramid-tier--saved">
                 <div className="pyramid-tier__badge">
                   <span className="material-symbols-outlined">bookmark</span>
-                  BẬC 1: ĐÃ LƯU & NHẬN BIẾT (SAVED)
+                  TIER 1: SAVED & RECOGNIZED
                 </div>
-                <div className="pyramid-tier__value">{activeVocabStats.savedCount || 28} từ</div>
-                <div className="pyramid-tier__desc">Từ mới được lưu trong thư viện cá nhân hoặc qua các chủ đề đã mở.</div>
+                <div className="pyramid-tier__value">{activeVocabStats.savedCount || 28} words</div>
+                <div className="pyramid-tier__desc">New words bookmarked in your personal library or unlocked topic decks.</div>
               </div>
             </div>
           </section>
@@ -166,9 +166,9 @@ export default function MyProgress() {
                 <span className="material-symbols-outlined">auto_stories</span>
               </div>
               <div>
-                <p className="text-label-sm">Tổng bài viết đã viết</p>
+                <p className="text-label-sm">Total Essays Written</p>
                 <p className="text-headline-md">{overview?.totalEssays || 6}</p>
-                <p className="text-label-sm" style={{ color: 'var(--color-success)' }}>Đã được AI phân tích</p>
+                <p className="text-label-sm" style={{ color: 'var(--color-success)' }}>AI Evaluated</p>
               </div>
             </div>
 
@@ -177,9 +177,9 @@ export default function MyProgress() {
                 <span className="material-symbols-outlined">speed</span>
               </div>
               <div>
-                <p className="text-label-sm">Chỉ số phong phú (TTR)</p>
+                <p className="text-label-sm">Type-Token Ratio (TTR)</p>
                 <p className="text-headline-md">{overview?.avgTTR ? overview.avgTTR.toFixed(2) : '0.72'}</p>
-                <p className="text-label-sm" style={{ color: 'var(--color-primary)' }}>Mức độ đa dạng từ vựng</p>
+                <p className="text-label-sm" style={{ color: 'var(--color-primary)' }}>Lexical Diversity Level</p>
               </div>
             </div>
 
@@ -188,21 +188,21 @@ export default function MyProgress() {
                 <span className="material-symbols-outlined">local_fire_department</span>
               </div>
               <div>
-                <p className="text-label-sm">Chuỗi học tập</p>
-                <p className="text-headline-md">4 Ngày</p>
-                <p className="text-label-sm" style={{ color: '#ea580c' }}>Duy trì đều đặn mỗi ngày</p>
+                <p className="text-label-sm">Study Streak</p>
+                <p className="text-headline-md">4 Days</p>
+                <p className="text-label-sm" style={{ color: '#ea580c' }}>Daily consistency</p>
               </div>
             </div>
           </section>
 
           {/* Vocabulary Categories */}
           <section className="my-progress__categories card-base">
-            <h3 className="text-title-lg" style={{ marginBottom: 16 }}>Phân bổ theo lĩnh vực từ vựng</h3>
+            <h3 className="text-title-lg" style={{ marginBottom: 16 }}>Distribution by Vocabulary Domain</h3>
             <div className="my-progress__cat-grid">
               {categories.map(cat => (
                 <div key={cat.name} className="my-progress__cat-card">
                   <span className="my-progress__cat-name">{cat.name}</span>
-                  <span className="my-progress__cat-count">{cat.count} từ</span>
+                  <span className="my-progress__cat-count">{cat.count} words</span>
                 </div>
               ))}
             </div>
@@ -220,9 +220,9 @@ export default function MyProgress() {
         <section className="evidence-wall card-base">
           <div className="evidence-wall__header">
             <div>
-              <h3 className="evidence-wall__title">Bức Tường Bằng Chứng Vận Dụng (Evidence Wall)</h3>
+              <h3 className="evidence-wall__title">Evidence Wall</h3>
               <p className="evidence-wall__desc">
-                Tổng hợp tất cả các câu văn thực tế bạn đã viết bằng tiếng Anh và được AI chứng thực đạt chuẩn ngữ cảnh.
+                Authentic sentences composed in your essays and verified by AI as contextually accurate.
               </p>
             </div>
           </div>
@@ -236,7 +236,7 @@ export default function MyProgress() {
                     <strong>{item.word}</strong>
                     <span className="evidence-wall__topic-badge">{item.topic}</span>
                   </div>
-                  <span className="evidence-wall__score-pill">Độ tin cậy: {item.score}%</span>
+                  <span className="evidence-wall__score-pill">Confidence: {item.score}%</span>
                 </div>
 
                 <blockquote className="evidence-wall__quote">
@@ -246,9 +246,9 @@ export default function MyProgress() {
                 <div className="evidence-wall__item-bottom">
                   <span className="evidence-wall__date">
                     <span className="material-symbols-outlined">event</span>
-                    Đã viết vào {new Date(item.date).toLocaleDateString('vi-VN')}
+                    Written on {new Date(item.date).toLocaleDateString('en-US')}
                   </span>
-                  <span className="evidence-wall__status-tag">Đạt chuẩn Mastered</span>
+                  <span className="evidence-wall__status-tag">Mastered Standard Met</span>
                 </div>
               </article>
             ))}

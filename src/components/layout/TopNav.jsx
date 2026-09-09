@@ -77,20 +77,20 @@ export default function TopNav({ role = 'student', onMenuToggle }) {
               <button
                 className={`topnav__tier-badge topnav__tier-badge--${tierInfo.tier} ${tierInfo.source === 'teacher_sponsored' ? 'topnav__tier-badge--sponsored' : ''}`}
                 onClick={() => navigate('/pricing')}
-                title={tierInfo.source === 'teacher_sponsored' ? tierInfo.planName : `Gói ${tierInfo.tier.toUpperCase()}`}
+                title={tierInfo.source === 'teacher_sponsored' ? tierInfo.planName : `${tierInfo.tier.toUpperCase()} Plan`}
               >
                 <span className="material-symbols-outlined">
                   {tierInfo.tier === 'ultra' ? 'workspace_premium' : tierInfo.tier === 'pro' ? 'star' : tierInfo.source === 'teacher_sponsored' ? 'school' : 'bolt'}
                 </span>
                 <span>
                   {tierInfo.tier.toUpperCase()}
-                  {tierInfo.source === 'teacher_sponsored' && ' (GV)'}
+                  {tierInfo.source === 'teacher_sponsored' && ' (Teacher)'}
                 </span>
               </button>
             ) : (
               <button className="topnav__upgrade-btn" onClick={() => navigate('/pricing')}>
                 <span className="material-symbols-outlined">rocket_launch</span>
-                <span>Nâng cấp</span>
+                <span>Upgrade</span>
               </button>
             )}
           </div>

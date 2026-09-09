@@ -36,12 +36,12 @@ export default function Register() {
     try {
       const res = await register(formData)
       setVerificationEmail(formData.email)
-      setSuccessMessage(res.message || 'Mã xác thực đã được gửi tới email của bạn.')
+      setSuccessMessage(res.message || 'A verification code has been sent to your email.')
       if (res.devCode) {
         setDevCode(res.devCode)
       }
     } catch (err) {
-      setError(err.message || 'Đăng ký thất bại. Vui lòng thử lại.')
+      setError(err.message || 'Registration failed. Please try again.')
     }
   }
 
@@ -54,7 +54,7 @@ export default function Register() {
     try {
       const res = await verifyEmail(verificationEmail, verificationCode)
       if (res && res.pendingApproval) {
-        setSuccessMessage(res.message || 'Xác thực thành công! Tài khoản đang chờ Admin phê duyệt.')
+        setSuccessMessage(res.message || 'Verification successful! Your account is pending Admin approval.')
         setTimeout(() => {
           navigate('/login')
         }, 5000)
@@ -72,7 +72,7 @@ export default function Register() {
         navigate('/student/dashboard')
       }
     } catch (err) {
-      setError(err.message || 'Mã xác thực không chính xác hoặc đã hết hạn')
+      setError(err.message || 'The verification code is incorrect or has expired.')
     } finally {
       setIsVerifying(false)
     }
@@ -83,12 +83,12 @@ export default function Register() {
     setSuccessMessage('')
     try {
       const res = await api.post('/auth/resend-verify', { email: verificationEmail })
-      setSuccessMessage(res.message || 'Đã gửi lại mã xác thực!')
+      setSuccessMessage(res.message || 'Verification code resent!')
       if (res.devCode) {
         setDevCode(res.devCode)
       }
     } catch (err) {
-      setError(err.message || 'Không thể gửi lại mã xác thực')
+      setError(err.message || 'Unable to resend verification code.')
     }
   }
 
@@ -158,7 +158,7 @@ export default function Register() {
           </h1>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
             {verificationEmail 
-              ? 'Nhập mã xác thực gồm 6 chữ số để kích hoạt tài khoản của bạn.'
+              ? 'Enter the 6-digit verification code to activate your account.'
               : 'Join LexiGrow and start tracking your vocabulary growth'
             }
           </p>
@@ -183,7 +183,7 @@ export default function Register() {
             <form onSubmit={handleVerifySubmit} className="register__form">
               {devCode && (
                 <div style={{ background: 'rgba(251, 188, 5, 0.1)', color: '#b06000', padding: '12px 16px', borderRadius: 12, marginBottom: 16, fontSize: 13, border: '1px solid rgba(251, 188, 5, 0.25)', fontWeight: 'bold', textAlign: 'center' }}>
-                  Thử nghiệm (Dev): Nhập mã <span>{devCode}</span> để kích hoạt nhanh.
+                  Dev Testing: Enter code <span>{devCode}</span> for quick activation.
                 </div>
               )}
 

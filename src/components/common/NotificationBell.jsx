@@ -62,13 +62,13 @@ export default function NotificationBell() {
     if (!socket) return
 
     const handleNewNotification = (notif) => {
-      // 1. Tăng số lượng thông báo chưa đọc
+      // 1. Increment unread count
       setUnreadCount(prev => prev + 1)
 
-      // 2. Thêm thông báo mới vào danh sách hiện tại
+      // 2. Prepend new notification to the list
       setNotifications(prev => [notif, ...prev])
 
-      // 3. Không tự động hiển thị Toast ở góc màn hình nữa, chỉ tăng count và update list thông báo
+      // 3. Update count and notifications list
     }
 
     socket.on('notification', handleNewNotification)
@@ -107,7 +107,7 @@ export default function NotificationBell() {
 
   /* ── Mark single notification as read ── */
   async function handleNotificationClick(notif) {
-    // Đánh dấu đã đọc nếu chưa
+    // Mark as read if unread
     if (!notif.isRead) {
       try {
         await api.patch(`/notifications/${notif._id}/read`)
@@ -119,7 +119,7 @@ export default function NotificationBell() {
         // non-critical
       }
     }
-    // Điều hướng nếu có link
+    // Navigate if link exists
     if (notif.link) {
       navigate(notif.link)
       setOpen(false)

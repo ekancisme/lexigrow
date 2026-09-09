@@ -109,23 +109,23 @@ export default function GrowthGarden() {
         <div className="growth-garden__hero-left">
           <div className="growth-garden__badge">
             <span className="material-symbols-outlined">yard</span>
-            Khu vườn Từ vựng Sinh thái
+            Ecological Vocabulary Garden
           </div>
-          <h2 className="growth-garden__title">Cây Tri Thức Của Bạn</h2>
+          <h2 className="growth-garden__title">Your Living Knowledge Tree</h2>
           <p className="growth-garden__desc">
-            Mỗi từ vựng được bạn vận dụng thành công trong các bài viết sẽ giúp cây của chủ đề đó đâm chồi, nảy lộc và đơm hoa kết trái.
+            Each target vocabulary word successfully applied in your essays helps the corresponding tree branch sprout, leaf out, and blossom.
           </p>
         </div>
 
         <div className="growth-garden__stats-card">
           <span className="growth-garden__stat-num">{totalMastered}</span>
-          <span className="growth-garden__stat-label">Từ đã làm chủ (Mastered)</span>
+          <span className="growth-garden__stat-label">Words Mastered</span>
           <button
             className="btn-primary growth-garden__btn-plant"
             onClick={() => navigate('/student/explore')}
           >
             <span className="material-symbols-outlined">add_circle</span>
-            Trồng cây chủ đề mới
+            Plant New Topic Tree
           </button>
         </div>
       </div>
@@ -136,7 +136,7 @@ export default function GrowthGarden() {
         <div className="growth-garden__canvas card-base">
           <h3 className="growth-garden__canvas-title">
             <span className="material-symbols-outlined">forest</span>
-            Các nhánh cây chủ đề
+            Topic Tree Branches
           </h3>
 
           <div className="growth-garden__plants-grid">
@@ -157,25 +157,25 @@ export default function GrowthGarden() {
                     {topic.stage === 'seed' && (
                       <div className="stage-seed">
                         <span className="material-symbols-outlined">grain</span>
-                        <span>Hạt giống</span>
+                        <span>Seed</span>
                       </div>
                     )}
                     {topic.stage === 'sprout' && (
                       <div className="stage-sprout">
                         <span className="material-symbols-outlined">spa</span>
-                        <span>Đang nảy mầm</span>
+                        <span>Sprouting</span>
                       </div>
                     )}
                     {topic.stage === 'branch' && (
                       <div className="stage-branch">
                         <span className="material-symbols-outlined">eco</span>
-                        <span>Cành lá xum xuê</span>
+                        <span>Branching</span>
                       </div>
                     )}
                     {topic.stage === 'blooming' && (
                       <div className="stage-blooming">
                         <span className="material-symbols-outlined">local_florist</span>
-                        <span>Nở hoa rực rỡ</span>
+                        <span>Blooming</span>
                       </div>
                     )}
                   </div>
@@ -189,7 +189,7 @@ export default function GrowthGarden() {
                       />
                     </div>
                     <span className="plant-card__ratio">
-                      {topic.masteredCount} / {topic.totalCount} từ
+                      {topic.masteredCount} / {topic.totalCount} words
                     </span>
                   </div>
                 </div>
@@ -206,25 +206,25 @@ export default function GrowthGarden() {
                 <span className="material-symbols-outlined growth-garden__detail-icon">{selectedTopic.icon}</span>
                 <div>
                   <h4 className="growth-garden__detail-title">{selectedTopic.topic}</h4>
-                  <span className="growth-garden__detail-sub">Trình độ {selectedTopic.level}</span>
+                  <span className="growth-garden__detail-sub">Level {selectedTopic.level}</span>
                 </div>
               </div>
             </div>
 
             <div className="growth-garden__detail-words">
-              <h5>Danh sách từ vựng & Câu văn thực tế:</h5>
+              <h5>Vocabulary & Context Evidence:</h5>
               {selectedTopic.words?.map((w, idx) => (
                 <div key={idx} className="evidence-card">
                   <div className="evidence-card__top">
                     <span className="evidence-card__word">{w.word}</span>
                     <span className={`evidence-badge evidence-badge--${w.status}`}>
-                      {w.status === 'mastered' ? 'Đã làm chủ (Mastered)' : 'Đang học'}
+                      {w.status === 'mastered' ? 'Mastered' : 'Learning'}
                     </span>
                   </div>
                   {w.evidence ? (
                     <p className="evidence-card__sentence">"{w.evidence}"</p>
                   ) : (
-                    <p className="evidence-card__empty">Chưa có câu văn vận dụng trong bài viết.</p>
+                    <p className="evidence-card__empty">No essay sentence evidence yet.</p>
                   )}
                 </div>
               ))}
@@ -234,7 +234,7 @@ export default function GrowthGarden() {
               className="btn-primary growth-garden__detail-action"
               onClick={() => navigate(`/student/writing?set=${selectedTopic.slug}`)}
             >
-              Luyện viết chủ đề này
+              Practice Writing on This Topic
               <span className="material-symbols-outlined">arrow_forward</span>
             </button>
           </aside>

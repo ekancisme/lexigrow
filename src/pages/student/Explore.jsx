@@ -6,103 +6,103 @@ const exploreTopicSets = [
   {
     slug: 'daily-life',
     title: 'Daily Life & Routines',
-    titleVi: 'Đời sống thường nhật & Thói quen',
+    titleVi: 'Everyday activities, commuting & errands',
     level: 'A2',
     levelColor: 'a2',
     icon: 'routine',
     materialIcon: 'wb_sunny',
-    description: 'Học cách diễn đạt các hoạt động sinh hoạt, đi lại và mua sắm trong đời sống thường ngày.',
+    description: 'Master essential expressions for daily routines, commuting to work/school, and household shopping.',
     words: [
-      { word: 'routine', meaning: 'Thói quen' },
-      { word: 'commute', meaning: 'Đi làm/đi học' },
-      { word: 'grocery', meaning: 'Đồ tạp hóa' }
+      { word: 'routine', meaning: 'Daily habits' },
+      { word: 'commute', meaning: 'Travel to work/school' },
+      { word: 'grocery', meaning: 'Food & supplies' }
     ],
-    timeEstimate: '10 phút',
+    timeEstimate: '10 mins',
     bgGradient: 'linear-gradient(135deg, #005bbf 0%, #1a73e8 100%)'
   },
   {
     slug: 'travel',
     title: 'Travel & Exploration',
-    titleVi: 'Du lịch & Trải nghiệm văn hóa',
+    titleVi: 'Culture, trips & accommodations',
     level: 'B1',
     levelColor: 'b1',
     icon: 'travel',
     materialIcon: 'flight_takeoff',
-    description: 'Miêu tả địa danh nổi tiếng, lịch trình chuyến đi và đặt phòng khách sạn lưu trú.',
+    description: 'Describe famous landmarks, detailed travel itineraries, and reserving hotel rooms.',
     words: [
-      { word: 'itinerary', meaning: 'Lịch trình' },
-      { word: 'accommodation', meaning: 'Chỗ ở' },
-      { word: 'landmark', meaning: 'Địa danh' }
+      { word: 'itinerary', meaning: 'Trip schedule' },
+      { word: 'accommodation', meaning: 'Lodging' },
+      { word: 'landmark', meaning: 'Famous site' }
     ],
-    timeEstimate: '10 phút',
+    timeEstimate: '10 mins',
     bgGradient: 'linear-gradient(135deg, #0d9488 0%, #14b8a6 100%)'
   },
   {
     slug: 'hobbies',
     title: 'Hobbies & Creative Arts',
-    titleVi: 'Sở thích & Nghệ thuật sáng tạo',
+    titleVi: 'Passions, leisure & balance',
     level: 'B1',
     levelColor: 'b1',
     icon: 'hobbies',
     materialIcon: 'palette',
-    description: 'Chia sẻ niềm đam mê nhiếp ảnh, nấu ăn, làm vườn và cân bằng cuộc sống sau giờ học/làm.',
+    description: 'Express passion for photography, cooking, gardening, and work-life balance.',
     words: [
-      { word: 'photography', meaning: 'Nhiếp ảnh' },
-      { word: 'gardening', meaning: 'Làm vườn' },
-      { word: 'cooking', meaning: 'Nấu ăn' }
+      { word: 'photography', meaning: 'Taking photos' },
+      { word: 'gardening', meaning: 'Plant care' },
+      { word: 'cooking', meaning: 'Culinary arts' }
     ],
-    timeEstimate: '10 phút',
+    timeEstimate: '10 mins',
     bgGradient: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)'
   },
   {
     slug: 'technology',
     title: 'Technology & Digital Future',
-    titleVi: 'Công nghệ & Tương lai số',
+    titleVi: 'AI, computing & breakthroughs',
     level: 'B2',
     levelColor: 'b2',
     icon: 'tech',
     materialIcon: 'smart_toy',
-    description: 'Bàn luận về thuật toán AI, trí tuệ nhân tạo và các đột phá công nghệ mới.',
+    description: 'Discuss AI algorithms, software automation, and next-generation technological breakthroughs.',
     words: [
-      { word: 'algorithm', meaning: 'Thuật toán' },
-      { word: 'automation', meaning: 'Tự động hóa' },
-      { word: 'breakthrough', meaning: 'Đột phá' }
+      { word: 'algorithm', meaning: 'Logic steps' },
+      { word: 'automation', meaning: 'Self-operating' },
+      { word: 'breakthrough', meaning: 'Major advance' }
     ],
-    timeEstimate: '12 phút',
+    timeEstimate: '12 mins',
     bgGradient: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)'
   },
   {
     slug: 'business',
     title: 'Business & Global Economy',
-    titleVi: 'Kinh doanh & Kinh tế toàn cầu',
+    titleVi: 'Finance, negotiations & strategy',
     level: 'B2',
     levelColor: 'b2',
     icon: 'business',
     materialIcon: 'trending_up',
-    description: 'Vận dụng từ vựng đàm phán, tăng trưởng doanh thu và chiến lược tiếp thị thị trường.',
+    description: 'Apply business vocabulary for financial negotiations, revenue growth, and corporate strategy.',
     words: [
-      { word: 'revenue', meaning: 'Doanh thu' },
-      { word: 'negotiation', meaning: 'Đàm phán' },
-      { word: 'strategy', meaning: 'Chiến lược' }
+      { word: 'revenue', meaning: 'Income generated' },
+      { word: 'negotiation', meaning: 'Deal discussions' },
+      { word: 'strategy', meaning: 'Master plan' }
     ],
-    timeEstimate: '12 phút',
+    timeEstimate: '12 mins',
     bgGradient: 'linear-gradient(135deg, #d97706 0%, #f59e0b 100%)'
   },
   {
     slug: 'environment',
     title: 'Environment & Sustainability',
-    titleVi: 'Môi trường & Phát triển bền vững',
+    titleVi: 'Ecology, renewable energy & climate',
     level: 'B1',
     levelColor: 'b1',
     icon: 'nature',
     materialIcon: 'eco',
-    description: 'Thảo luận về biến đổi khí hậu, bảo vệ hệ sinh thái và năng lượng tái tạo.',
+    description: 'Discuss biodiversity, climate action, ecosystem preservation, and clean renewable energy.',
     words: [
-      { word: 'ecosystem', meaning: 'Hệ sinh thái' },
-      { word: 'renewable', meaning: 'Tái tạo' },
-      { word: 'conservation', meaning: 'Bảo tồn' }
+      { word: 'ecosystem', meaning: 'Living network' },
+      { word: 'renewable', meaning: 'Sustainable' },
+      { word: 'conservation', meaning: 'Protection' }
     ],
-    timeEstimate: '10 phút',
+    timeEstimate: '10 mins',
     bgGradient: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)'
   }
 ]
@@ -127,11 +127,11 @@ export default function Explore() {
         <div className="explore__hero-left">
           <div className="explore__badge">
             <span className="material-symbols-outlined">explore</span>
-            Thư viện Bộ Từ Vựng Theo Chủ Đề
+            Thematic Vocabulary Sets Library
           </div>
-          <h2 className="explore__title">Khám Phá Các Bộ Từ Vựng Mục Tiêu</h2>
+          <h2 className="explore__title">Explore Target Vocabulary Sets</h2>
           <p className="explore__desc">
-            Chọn chủ đề bạn yêu thích để bắt đầu chuỗi học tập 10 phút: Học từ ➔ Luyện trắc nghiệm ➔ Viết đoạn văn ➔ Nhận AI chấm chữa chi tiết.
+            Pick your favorite topic to start a 10-minute learning loop: Explore Words ➔ Quick Quiz ➔ Smart Writing ➔ Detailed AI Feedback.
           </p>
         </div>
 
@@ -140,7 +140,7 @@ export default function Explore() {
           <input
             type="text"
             className="explore__search-input"
-            placeholder="Tìm theo chủ đề, từ vựng..."
+            placeholder="Search by topic or vocabulary word..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
           />
@@ -149,7 +149,7 @@ export default function Explore() {
 
       {/* Level Filters */}
       <div className="explore__filter-row">
-        <span className="explore__filter-label">Lọc theo trình độ:</span>
+        <span className="explore__filter-label">Filter by proficiency:</span>
         <div className="explore__level-buttons">
           {['ALL', 'A2', 'B1', 'B2'].map(lvl => (
             <button
@@ -157,7 +157,7 @@ export default function Explore() {
               className={`explore__lvl-btn ${selectedLevel === lvl ? 'explore__lvl-btn--active' : ''}`}
               onClick={() => setSelectedLevel(lvl)}
             >
-              {lvl === 'ALL' ? 'Tất cả trình độ' : `Trình độ ${lvl}`}
+              {lvl === 'ALL' ? 'All Levels' : `Level ${lvl}`}
             </button>
           ))}
         </div>
@@ -190,7 +190,7 @@ export default function Explore() {
 
             {/* Target Words Preview */}
             <div className="topic-card__words">
-              <span className="topic-card__words-label">3 từ mục tiêu:</span>
+              <span className="topic-card__words-label">3 Target Words:</span>
               <div className="topic-card__chips">
                 {topic.words.map(w => (
                   <span key={w.word} className="topic-card__word-chip">
@@ -207,7 +207,7 @@ export default function Explore() {
                 onClick={() => navigate(`/student/writing?set=${topic.slug}`)}
               >
                 <span className="material-symbols-outlined">play_circle</span>
-                Bắt đầu phiên học (10 phút)
+                Start Session ({topic.timeEstimate})
               </button>
             </div>
           </article>

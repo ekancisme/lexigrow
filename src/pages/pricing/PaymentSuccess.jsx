@@ -46,10 +46,10 @@ export default function PaymentSuccess() {
       </div>
 
       <h1 className="text-headline-lg" style={{ marginBottom: '0.5rem' }}>
-        Thanh Toán Thành Công!
+        Payment Successful!
       </h1>
       <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem' }}>
-        Cảm ơn bạn đã nâng cấp dịch vụ trên LexiGrow. Gói cước của bạn đã được kích hoạt tự động qua PayOS.
+        Thank you for upgrading your subscription on LexiGrow. Your plan has been automatically activated via PayOS.
       </p>
 
       {orderCode && (
@@ -62,11 +62,11 @@ export default function PaymentSuccess() {
             fontSize: '0.9rem',
           }}
         >
-          <span>Mã đơn hàng: </span>
+          <span>Order Code: </span>
           <strong>#{orderCode}</strong>
           {tierInfo && (
             <div style={{ marginTop: '0.5rem' }}>
-              <span>Gói cước kích hoạt: </span>
+              <span>Activated Plan: </span>
               <strong style={{ color: 'var(--color-primary, #1a73e8)' }}>
                 {tierInfo.tier?.toUpperCase()} ({tierInfo.planName})
               </strong>
@@ -81,14 +81,14 @@ export default function PaymentSuccess() {
           className="btn-primary"
           style={{ padding: '0.85rem 1.75rem', textDecoration: 'none', borderRadius: 12, fontWeight: 700 }}
         >
-          Bắt đầu sử dụng ngay
+          Start Learning Now
         </Link>
         <Link
           to="/pricing"
           className="btn-secondary"
           style={{ padding: '0.85rem 1.75rem', textDecoration: 'none', borderRadius: 12, fontWeight: 600 }}
         >
-          Xem bảng giá
+          View Pricing Plans
         </Link>
       </div>
     </div>

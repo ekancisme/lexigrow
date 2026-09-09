@@ -246,12 +246,12 @@ export default function ContextFiller() {
             <span className="material-symbols-outlined config-icon-filler">rate_review</span>
             <h2 className="text-headline-lg font-bold">Context Filler</h2>
             <p className="text-body-md text-secondary-color">
-              Học từ vựng trong ngữ cảnh! Đọc câu ví dụ (trích từ chính bài luận cũ của học sinh hoặc các câu mẫu) và chọn từ vựng thích hợp nhất để điền vào khoảng trống.
+              Learn vocabulary in context! Read real-world sample sentences and choose the most appropriate word to complete each blank.
             </p>
           </div>
 
           <div className="config-section">
-            <h4 className="text-title-md font-medium">1. Số lượt chơi (Số từ)</h4>
+            <h4 className="text-title-md font-medium">1. Number of Questions</h4>
             <div className="round-selector">
               {[5, 10, 15].map((num) => (
                 <button
@@ -259,30 +259,30 @@ export default function ContextFiller() {
                   className={`round-btn-filler ${roundCount === num ? 'round-btn-filler--active' : ''}`}
                   onClick={() => setRoundCount(num)}
                 >
-                  {num} Từ
+                  {num} Questions
                 </button>
               ))}
             </div>
           </div>
 
           <div className="config-section">
-            <h4 className="text-title-md font-medium">2. Chọn chủ đề học (Tùy chọn)</h4>
+            <h4 className="text-title-md font-medium">2. Select Category (Optional)</h4>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="category-select"
             >
-              <option value="">Tất cả chủ đề</option>
-              <option value="academic">Academic (Học thuật)</option>
-              <option value="business">Business (Kinh doanh)</option>
-              <option value="scientific">Scientific (Khoa học)</option>
-              <option value="daily">Daily Use (Thường ngày)</option>
+              <option value="">All Categories</option>
+              <option value="academic">Academic</option>
+              <option value="business">Business</option>
+              <option value="scientific">Scientific</option>
+              <option value="daily">Daily Use</option>
             </select>
           </div>
 
           <button className="start-game-btn-filler" onClick={loadWords}>
             <span className="material-symbols-outlined">play_arrow</span>
-            Bắt đầu chơi
+            Start Game
           </button>
         </div>
       )}
@@ -293,7 +293,7 @@ export default function ContextFiller() {
           <span className="material-symbols-outlined animate-spin loading-spinner">
             progress_activity
           </span>
-          <p className="text-body-lg">Đang tìm các câu ví dụ phù hợp...</p>
+          <p className="text-body-lg">Finding suitable contextual sentences...</p>
         </div>
       )}
 
@@ -303,7 +303,7 @@ export default function ContextFiller() {
           <div className="gameplay-header">
             <button className="back-btn" onClick={() => setGameState('config')}>
               <span className="material-symbols-outlined">arrow_back</span>
-              Thoát
+              Exit
             </button>
             <div className="stats-row">
               <div className="stat-pill">
@@ -312,11 +312,11 @@ export default function ContextFiller() {
               </div>
               <div className="stat-pill">
                 <span className="material-symbols-outlined">check_circle</span>
-                <span>Điểm số: {score} / {words.length}</span>
+                <span>Score: {score} / {words.length}</span>
               </div>
               <div className="stat-pill">
                 <span className="material-symbols-outlined">quiz</span>
-                <span>Câu số: {currentRoundIndex + 1} / {words.length}</span>
+                <span>Question: {currentRoundIndex + 1} / {words.length}</span>
               </div>
             </div>
           </div>
@@ -363,7 +363,7 @@ export default function ContextFiller() {
                   <strong>{currentWord.word}:</strong> {currentWord.definition}
                 </p>
                 <button className="next-round-btn-filler" onClick={handleNextRound}>
-                  Câu tiếp theo
+                  Next Question
                   <span className="material-symbols-outlined">arrow_forward</span>
                 </button>
               </div>
@@ -378,38 +378,38 @@ export default function ContextFiller() {
           <div className="victory-crown">
             <span className="material-symbols-outlined crown-icon-filler">emoji_events</span>
           </div>
-          <h2 className="text-headline-lg font-bold text-primary-color">Chúc Mừng Chiến Thắng!</h2>
+          <h2 className="text-headline-lg font-bold text-primary-color">Congratulations! Victory!</h2>
           <p className="text-body-md text-secondary-color">
-            Bạn đã hoàn thành xuất sắc thử thách điền từ vào câu ngữ cảnh!
+            You successfully completed the Context Filler challenge!
           </p>
 
           <div className="score-summary-grid">
             <div className="summary-item">
               <span className="summary-value">{formatTime(timer)}</span>
-              <span className="summary-label">Thời gian</span>
+              <span className="summary-label">Time</span>
             </div>
             <div className="summary-item">
               <span className="summary-value">{score} / {words.length}</span>
-              <span className="summary-label">Trả lời đúng</span>
+              <span className="summary-label">Correct Answers</span>
             </div>
             <div className="summary-item">
               <span className="summary-value">{Math.round((score / words.length) * 100)}%</span>
-              <span className="summary-label">Tỷ lệ đúng</span>
+              <span className="summary-label">Accuracy</span>
             </div>
             <div className="summary-item">
               <span className="summary-value">+{score * 12} XP</span>
-              <span className="summary-label">XP đạt được</span>
+              <span className="summary-label">XP Earned</span>
             </div>
           </div>
 
           <div className="victory-actions">
             <button className="play-again-btn-filler" onClick={() => setGameState('config')}>
               <span className="material-symbols-outlined">replay</span>
-              Chơi lại
+              Play Again
             </button>
             <button className="return-btn" onClick={() => navigate('/student/vocabulary')}>
               <span className="material-symbols-outlined">menu_book</span>
-              Thư viện từ vựng
+              Word Library
             </button>
           </div>
         </div>

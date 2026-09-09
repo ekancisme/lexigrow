@@ -11,14 +11,14 @@ function getStoredParentChildId(user) {
 }
 
 export function AuthProvider({ children }) {
-  // Lấy dữ liệu lưu trữ từ localStorage trước khi render để giữ trạng thái F5
+  // Retrieve stored data from localStorage before render to maintain state on page reload
   const [user, setUser] = useState(api.getUser())
   const [token, setToken] = useState(api.getToken())
   const [loading, setLoading] = useState(false)
   const [selectedParentChildId, setSelectedParentChildId] = useState(() => getStoredParentChildId(api.getUser()))
   const parentChildStorageKey = user?._id && user.role === 'parent' ? `lexigrow_parent_child_${user._id}` : ''
 
-  // Quản lý vòng đời kết nối Socket.io dựa trên token đăng nhập
+  // Manage Socket.io connection lifecycle based on authentication token
   useEffect(() => {
     if (token) {
       connectSocket(token)
@@ -30,7 +30,7 @@ export function AuthProvider({ children }) {
     }
   }, [token])
 
-  // 1. Hàm Đăng Nhập
+  // 1. Login function
   const login = async (email, password) => {
     setLoading(true)
     try {
@@ -46,7 +46,7 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // 2. Hàm Đăng Ký
+  // 2. Register function
   const register = async (formData) => {
     setLoading(true)
     try {
@@ -57,7 +57,7 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // Hàm Xác Thực Email
+  // Email Verification function
   const verifyEmail = async (email, code) => {
     setLoading(true)
     try {
@@ -76,7 +76,7 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // 3. Hàm Đăng Xuất
+  // 3. Logout function
   const logout = () => {
     api.removeToken()
     setToken(null)
@@ -100,7 +100,7 @@ export function AuthProvider({ children }) {
     }
   }, [parentChildStorageKey])
 
-  // 4. Đăng nhập Google
+  // 4. Google Login
   const loginWithGoogle = async (googlePayload) => {
     setLoading(true)
     try {
@@ -116,7 +116,7 @@ export function AuthProvider({ children }) {
     }
   }
 
-  // 5. Kiểm tra email tồn tại
+  // 5. Check if email exists
   const checkEmail = async (email) => {
     try {
       const data = await api.post('/auth/check-email', { email })
@@ -149,7 +149,7 @@ export function AuthProvider({ children }) {
   )
 }
 
-// Hook Custom giúp gọi dữ liệu nhanh ở mọi Component: const { user, logout } = useAuth()
+// Custom hook to access auth context: const { user, logout } = useAuth()
 export function useAuth() {
   const context = useContext(AuthContext)
   if (!context) throw new Error('useAuth must be used within AuthProvider')

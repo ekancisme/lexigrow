@@ -13,7 +13,7 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
         .filter((_, i) => i !== idx)
         .map(other => other.meaningVi || other.vietnameseMeaning || other.meaning)
 
-      const fallbackWrongs = ['Sự tự do', 'Khả năng lãnh đạo', 'Trải nghiệm mới', 'Sự phát triển']
+      const fallbackWrongs = ['Freedom and autonomy', 'Leadership capability', 'Novel experience', 'Growth and expansion']
       const options = [
         w.meaningVi || w.vietnameseMeaning || w.meaning,
         wrongOptions[0] || fallbackWrongs[0],
@@ -25,11 +25,11 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
         id: `mc_${w.word}_${idx}`,
         word: w.word,
         type: 'multiple_choice',
-        title: `Nghĩa chính xác của từ "${w.word}" là gì?`,
-        sentence: w.exampleSentence ? `Ví dụ: "${w.exampleSentence}"` : '',
+        title: `What is the accurate meaning of "${w.word}"?`,
+        sentence: w.exampleSentence ? `Example: "${w.exampleSentence}"` : '',
         options: options,
         correctAnswer: w.meaningVi || w.vietnameseMeaning || w.meaning,
-        explanation: `${w.word} (${w.partOfSpeech || 'từ'}): ${w.meaningVi || w.meaning}`
+        explanation: `${w.word} (${w.partOfSpeech || 'word'}): ${w.meaningVi || w.meaning}`
       })
 
       // 2. Fill in the blank question
@@ -43,12 +43,12 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
           id: `fib_${w.word}_${idx}`,
           word: w.word,
           type: 'fill_in_blank',
-          title: 'Điền từ thích hợp vào chỗ trống:',
+          title: 'Choose the correct word for the blank:',
           sentence: maskedSentence,
           translation: w.exampleTranslation,
           options: wordOptions,
           correctAnswer: w.word,
-          explanation: `Câu hoàn chỉnh: "${w.exampleSentence}"`
+          explanation: `Complete sentence: "${w.exampleSentence}"`
         })
       }
     })
@@ -65,8 +65,8 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
   if (questions.length === 0) {
     return (
       <div className="practice-step__empty card-base">
-        <p>Không có câu hỏi luyện tập.</p>
-        <button className="btn-primary" onClick={onComplete}>Tiếp tục</button>
+        <p>No practice questions available.</p>
+        <button className="btn-primary" onClick={onComplete}>Continue</button>
       </div>
     )
   }
@@ -113,12 +113,12 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
         </div>
         <div className="practice-step__meta-row">
           <span className="text-label-md practice-step__counter">
-            Câu {currentIndex + 1} / {questions.length}
+            Question {currentIndex + 1} / {questions.length}
           </span>
           {streak > 1 && (
             <div className="practice-step__streak-badge">
               <span className="material-symbols-outlined">local_fire_department</span>
-              <span>Chuỗi đúng x{streak}!</span>
+              <span>Streak x{streak}!</span>
             </div>
           )}
         </div>
@@ -130,7 +130,7 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
           <span className="material-symbols-outlined">
             {currentQ.type === 'multiple_choice' ? 'quiz' : 'edit_note'}
           </span>
-          <span>{currentQ.type === 'multiple_choice' ? 'Trắc nghiệm nghĩa từ' : 'Điền từ vào ngữ cảnh'}</span>
+          <span>{currentQ.type === 'multiple_choice' ? 'Vocabulary Quiz' : 'Contextual Fill-in-the-Blank'}</span>
         </div>
 
         <h3 className="practice-step__title">{currentQ.title}</h3>
@@ -189,14 +189,14 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
               </span>
               <div>
                 <p className="practice-step__feedback-status">
-                  {isCorrect ? 'Chính xác!' : 'Chưa đúng rồi!'}
+                  {isCorrect ? 'Correct!' : 'Incorrect!'}
                 </p>
                 <p className="practice-step__feedback-exp">{currentQ.explanation}</p>
               </div>
             </div>
 
             <button className="btn-primary practice-step__btn-continue" onClick={handleNext}>
-              {currentIndex < questions.length - 1 ? 'Câu tiếp theo' : 'Chuyển sang Luyện viết'}
+              {currentIndex < questions.length - 1 ? 'Next Question' : 'Proceed to Smart Writing'}
               <span className="material-symbols-outlined">arrow_forward</span>
             </button>
           </div>
@@ -206,7 +206,7 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
       <div className="practice-step__footer">
         <button className="btn-secondary" onClick={onBack}>
           <span className="material-symbols-outlined">arrow_back</span>
-          Xem lại từ vựng
+          Review Vocabulary
         </button>
       </div>
     </div>

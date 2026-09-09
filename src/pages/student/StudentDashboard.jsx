@@ -68,13 +68,13 @@ export default function StudentDashboard() {
         <div className="student-dash__hero-content">
           <div className="student-dash__hero-badge">
             <span className="material-symbols-outlined">schedule</span>
-            Phiên học vi mô hôm nay · 10 phút
+            Today's Micro-Session · 10 Mins
           </div>
           <h2 className="student-dash__hero-title">
-            Học & Vận dụng 3 từ mới: <span className="student-dash__hero-words">routine · commute · grocery</span>
+            Learn & Apply 3 Target Words: <span className="student-dash__hero-words">routine · commute · grocery</span>
           </h2>
           <p className="student-dash__hero-desc">
-            Chủ đề <strong>Daily Life (A2)</strong> — Khám phá ngữ cảnh, làm trắc nghiệm nhanh và viết một đoạn văn 60–100 từ để AI nhận xét.
+            Topic: <strong>Daily Life (A2)</strong> — Explore in context, take quick quizzes, and write a 60–100 word paragraph for instant AI feedback.
           </p>
 
           <div className="student-dash__hero-actions">
@@ -83,12 +83,12 @@ export default function StudentDashboard() {
               onClick={() => navigate('/student/writing?set=daily-life')}
             >
               <span className="material-symbols-outlined">play_circle</span>
-              {currentSession ? 'Tiếp tục phiên đang học' : 'Bắt đầu phiên học ngay (10 phút)'}
+              {currentSession ? 'Resume Active Session' : 'Start Session Now (10 mins)'}
             </button>
 
             <Link to="/student/explore" className="btn-secondary">
               <span className="material-symbols-outlined">explore</span>
-              Đổi chủ đề khác
+              Explore other topics
             </Link>
           </div>
         </div>
@@ -97,8 +97,8 @@ export default function StudentDashboard() {
           <div className="student-dash__streak-pill">
             <span className="material-symbols-outlined student-dash__streak-icon">local_fire_department</span>
             <div>
-              <div className="student-dash__streak-count">{user?.streakDays || 0} ngày liên tiếp</div>
-              <div className="student-dash__streak-sub">Đạt mục tiêu ngày</div>
+              <div className="student-dash__streak-count">{user?.streakDays || 0} day streak</div>
+              <div className="student-dash__streak-sub">Daily goal achieved</div>
             </div>
           </div>
 
@@ -106,8 +106,8 @@ export default function StudentDashboard() {
             <div className="student-dash__srs-pill" onClick={() => navigate('/student/vocabulary/review')}>
               <span className="material-symbols-outlined">style</span>
               <div>
-                <div className="student-dash__srs-count">{dueSrsCount} từ đến hạn ôn SRS</div>
-                <div className="student-dash__srs-sub">Chạm để lật Flashcard</div>
+                <div className="student-dash__srs-count">{dueSrsCount} words due for SRS review</div>
+                <div className="student-dash__srs-sub">Tap to flip flashcards</div>
               </div>
             </div>
           )}
@@ -117,26 +117,26 @@ export default function StudentDashboard() {
       {/* ── 2. Stat Cards Overview ── */}
       <section className="student-dash__stats">
         <StatCard
-          label="Bài viết đã nộp"
+          label="Essays Submitted"
           value={overview?.totalEssays || 0}
           icon="description"
         />
         <StatCard
-          label="Từ vựng tăng trưởng"
+          label="Vocab Growth"
           value={`+${overview?.thisMonthWords || 0}`}
-          subtitle={`${overview?.growthRate >= 0 ? '+' : ''}${overview?.growthRate || 0}% so với tháng trước`}
+          subtitle={`${overview?.growthRate >= 0 ? '+' : ''}${overview?.growthRate || 0}% vs last month`}
           icon="trending_up"
         />
         <StatCard
-          label="Chỉ số đa dạng (TTR)"
+          label="Lexical Diversity (TTR)"
           value={overview?.avgTTR ? overview.avgTTR.toFixed(2) : '0.00'}
           icon="analytics"
           progress={Math.round((overview?.avgTTR || 0) * 100)}
         />
         <StatCard
-          label="Trình độ từ vựng"
+          label="Estimated CEFR"
           value={<>{overview?.rank || 'A1'}</>}
-          subtitle="Khung CEFR ước tính"
+          subtitle="Based on active writing"
           icon="equalizer"
         />
       </section>
@@ -150,29 +150,29 @@ export default function StudentDashboard() {
         <div className="student-dash__side-cards">
           <div className="student-dash__goals card-base">
             <div className="flex justify-between items-center" style={{ marginBottom: 20 }}>
-              <h3 className="text-title-lg">Mục tiêu tuần</h3>
+              <h3 className="text-title-lg">Weekly Goals</h3>
               <Link to="/student/goals" className="text-label-md" style={{ color: 'var(--color-primary)', textDecoration: 'none' }}>
-                Cài đặt
+                Settings
               </Link>
             </div>
             <div className="student-dash__goals-list">
               <CircularProgress
                 percentage={wordsPercentage}
                 color="primary"
-                label="Từ mới tích lũy"
-                sublabel={`${wordsGoal?.current || 12} / ${wordsGoal?.target || 20} từ`}
+                label="New Words Acquired"
+                sublabel={`${wordsGoal?.current || 12} / ${wordsGoal?.target || 20} words`}
               />
               <CircularProgress
                 percentage={lengthPercentage}
                 color="secondary"
-                label="Độ dài bài viết"
-                sublabel={`${lengthGoal?.current || 650} / ${lengthGoal?.target || 1000} từ`}
+                label="Writing Volume"
+                sublabel={`${lengthGoal?.current || 650} / ${lengthGoal?.target || 1000} words`}
               />
               <CircularProgress
                 percentage={complexityPercentage}
                 color="tertiary"
-                label="Hạng mục tiêu"
-                sublabel={`Bậc: ${overview?.rank || 'B1'}`}
+                label="Target Level"
+                sublabel={`Level: ${overview?.rank || 'B1'}`}
               />
             </div>
           </div>
@@ -186,14 +186,14 @@ export default function StudentDashboard() {
           <div className="student-dash__garden-info">
             <div className="student-dash__garden-badge">
               <span className="material-symbols-outlined">yard</span>
-              Khu vườn từ vựng
+              Vocabulary Garden
             </div>
-            <h3 className="text-title-lg">Cây tri thức đang phát triển</h3>
+            <h3 className="text-title-lg">Growing Knowledge Tree</h3>
             <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>
-              Bạn có 8 từ ở trạng thái Mastered và 14 từ đang ghi nhớ qua SRS. Xem sự phát triển khu vườn của bạn.
+              You have 8 words Mastered and 14 words reinforcing via SRS. Track your garden growth.
             </p>
             <span className="student-dash__garden-link">
-              Khám phá khu vườn <span className="material-symbols-outlined">arrow_forward</span>
+              Explore Growth Garden <span className="material-symbols-outlined">arrow_forward</span>
             </span>
           </div>
         </div>
@@ -201,18 +201,18 @@ export default function StudentDashboard() {
         {/* Recent Essays */}
         <div className="student-dash__recent-essays card-base">
           <div className="flex justify-between items-center" style={{ marginBottom: 16 }}>
-            <h3 className="text-title-lg">Bài viết gần đây</h3>
+            <h3 className="text-title-lg">Recent Writing</h3>
             <Link to="/student/essays" className="text-label-md" style={{ color: 'var(--color-primary)', textDecoration: 'none' }}>
-              Tất cả bài viết
+              All Essays
             </Link>
           </div>
 
           {recentEssays.length === 0 ? (
             <div className="student-dash__essays-empty">
               <span className="material-symbols-outlined">edit_note</span>
-              <p>Chưa có bài viết nào. Hãy bắt đầu bài viết đầu tiên!</p>
+              <p>No essays yet. Start your first writing exercise!</p>
               <button className="btn-primary" onClick={() => navigate('/student/writing?set=daily-life')}>
-                Viết đoạn văn ngay
+                Write Paragraph Now
               </button>
             </div>
           ) : (
@@ -226,14 +226,14 @@ export default function StudentDashboard() {
                   <div className="student-dash__essay-item-left">
                     <span className="material-symbols-outlined student-dash__essay-icon">article</span>
                     <div>
-                      <h4 className="student-dash__essay-title">{essay.title || 'Bài viết luyện từ vựng'}</h4>
+                      <h4 className="student-dash__essay-title">{essay.title || 'Vocabulary Practice Essay'}</h4>
                       <span className="student-dash__essay-date">
-                        {new Date(essay.createdAt).toLocaleDateString('vi-VN')} · {essay.wordCount || 85} từ
+                        {new Date(essay.createdAt).toLocaleDateString('en-US')} · {essay.wordCount || 85} words
                       </span>
                     </div>
                   </div>
                   <span className={`student-dash__essay-status student-dash__essay-status--${essay.status || 'evaluated'}`}>
-                    {essay.status === 'evaluated' ? 'Đã AI Đánh giá' : 'Bản nháp'}
+                    {essay.status === 'evaluated' ? 'AI Evaluated' : 'Draft'}
                   </span>
                 </div>
               ))}

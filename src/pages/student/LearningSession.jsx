@@ -11,9 +11,9 @@ import './LearningSession.css'
 const defaultLearningSets = {
   'daily-life': {
     slug: 'daily-life',
-    title: 'Daily Life (Thói quen hàng ngày)',
+    title: 'Daily Life & Routines',
     level: 'A2',
-    promptTopic: 'Hãy viết một đoạn văn ngắn (60-100 từ) kể về thói quen sinh hoạt và cách bạn đi làm hoặc đi học hàng ngày.',
+    promptTopic: 'Write a short paragraph (60-100 words) describing your daily routines and how you commute to work or school.',
     words: [
       {
         _id: 'w_routine',
@@ -21,13 +21,13 @@ const defaultLearningSets = {
         ipa: '/ruːˈtiːn/',
         partOfSpeech: 'noun',
         level: 'A2',
-        meaningVi: 'Thói quen, lịch trình sinh hoạt hàng ngày',
+        meaningVi: 'Daily habit, regular schedule or procedure',
         collocations: [
-          { phrase: 'daily routine', meaning: 'thói quen hàng ngày' },
-          { phrase: 'morning routine', meaning: 'lịch trình buổi sáng' }
+          { phrase: 'daily routine', meaning: 'regular day-to-day habits' },
+          { phrase: 'morning routine', meaning: 'morning schedule and habits' }
         ],
         exampleSentence: 'I try to stick to my daily routine even on weekends.',
-        exampleTranslation: 'Tôi cố gắng duy trì thói quen hàng ngày ngay cả vào cuối tuần.'
+        exampleTranslation: 'I try to stick to my daily routine even on weekends.'
       },
       {
         _id: 'w_commute',
@@ -35,13 +35,13 @@ const defaultLearningSets = {
         ipa: '/kəˈmjuːt/',
         partOfSpeech: 'verb',
         level: 'A2',
-        meaningVi: 'Đi lại đều đặn giữa nhà và nơi làm việc / trường học',
+        meaningVi: 'To travel regularly between home and work or school',
         collocations: [
-          { phrase: 'commute to work', meaning: 'đi làm hàng ngày' },
-          { phrase: 'daily commute', meaning: 'chặng đường đi lại mỗi ngày' }
+          { phrase: 'commute to work', meaning: 'travel to work daily' },
+          { phrase: 'daily commute', meaning: 'the journey to and from work every day' }
         ],
         exampleSentence: 'It takes me 30 minutes to commute to work by bus.',
-        exampleTranslation: 'Tôi mất 30 phút để đi làm bằng xe buýt.'
+        exampleTranslation: 'It takes me 30 minutes to commute to work by bus.'
       },
       {
         _id: 'w_grocery',
@@ -49,21 +49,21 @@ const defaultLearningSets = {
         ipa: '/ˈɡroʊsəri/',
         partOfSpeech: 'noun',
         level: 'A2',
-        meaningVi: 'Thực phẩm, đồ tạp hóa mua sắm cho gia đình',
+        meaningVi: 'Food and other items bought in a food store',
         collocations: [
-          { phrase: 'grocery shopping', meaning: 'đi mua sắm thực phẩm' },
-          { phrase: 'grocery list', meaning: 'danh sách đồ cần mua' }
+          { phrase: 'grocery shopping', meaning: 'buying everyday food and essentials' },
+          { phrase: 'grocery list', meaning: 'shopping list for groceries' }
         ],
         exampleSentence: 'We do our grocery shopping every Sunday afternoon.',
-        exampleTranslation: 'Chúng tôi đi mua thực phẩm vào mỗi chiều Chủ nhật.'
+        exampleTranslation: 'We do our grocery shopping every Sunday afternoon.'
       }
     ]
   },
   'travel': {
     slug: 'travel',
-    title: 'Travel & Exploration (Du lịch & Trải nghiệm)',
+    title: 'Travel & Exploration',
     level: 'B1',
-    promptTopic: 'Hãy viết một đoạn văn (60-100 từ) kể về kế hoạch hoặc kỷ niệm một chuyến du lịch của bạn.',
+    promptTopic: 'Write a short paragraph (60-100 words) describing a travel experience or future travel plan.',
     words: [
       {
         _id: 'w_itinerary',
@@ -71,13 +71,13 @@ const defaultLearningSets = {
         ipa: '/aɪˈtɪnəreri/',
         partOfSpeech: 'noun',
         level: 'B1',
-        meaningVi: 'Lịch trình chi tiết của chuyến đi',
+        meaningVi: 'A planned route or journey schedule',
         collocations: [
-          { phrase: 'travel itinerary', meaning: 'lịch trình du lịch' },
-          { phrase: 'planned itinerary', meaning: 'lịch trình đã lên' }
+          { phrase: 'travel itinerary', meaning: 'detailed schedule for a trip' },
+          { phrase: 'planned itinerary', meaning: 'established travel plan' }
         ],
         exampleSentence: 'Our travel itinerary includes visiting historical museums and local food markets.',
-        exampleTranslation: 'Lịch trình du lịch của chúng tôi bao gồm việc thăm các bảo tàng lịch sử và chợ ẩm thực địa phương.'
+        exampleTranslation: 'Our travel itinerary includes visiting historical museums and local food markets.'
       },
       {
         _id: 'w_accommodation',
@@ -85,13 +85,13 @@ const defaultLearningSets = {
         ipa: '/əˌkɑːməˈdeɪʃn/',
         partOfSpeech: 'noun',
         level: 'B1',
-        meaningVi: 'Chỗ ở, nơi lưu trú khi đi du lịch',
+        meaningVi: 'A room or building to live in or stay during travel',
         collocations: [
-          { phrase: 'book accommodation', meaning: 'đặt chỗ ở' },
-          { phrase: 'hotel accommodation', meaning: 'phòng khách sạn lưu trú' }
+          { phrase: 'book accommodation', meaning: 'reserve a place to stay' },
+          { phrase: 'hotel accommodation', meaning: 'staying in a hotel room' }
         ],
         exampleSentence: 'It is advisable to book accommodation well in advance during peak season.',
-        exampleTranslation: 'Bạn nên đặt phòng lưu trú sớm trước mùa du lịch cao điểm.'
+        exampleTranslation: 'It is advisable to book accommodation well in advance during peak season.'
       },
       {
         _id: 'w_landmark',
@@ -99,21 +99,21 @@ const defaultLearningSets = {
         ipa: '/ˈlændmɑːrk/',
         partOfSpeech: 'noun',
         level: 'B1',
-        meaningVi: 'Địa danh, thắng cảnh nổi tiếng dễ nhận biết',
+        meaningVi: 'A recognizable or notable object or building',
         collocations: [
-          { phrase: 'famous landmark', meaning: 'địa danh nổi tiếng' },
-          { phrase: 'historical landmark', meaning: 'thắng cảnh lịch sử' }
+          { phrase: 'famous landmark', meaning: 'well-known monument or sight' },
+          { phrase: 'historical landmark', meaning: 'historically significant site' }
         ],
         exampleSentence: 'The Eiffel Tower is the most recognizable landmark in Paris.',
-        exampleTranslation: 'Tháp Eiffel là địa danh dễ nhận biết nhất ở Paris.'
+        exampleTranslation: 'The Eiffel Tower is the most recognizable landmark in Paris.'
       }
     ]
   },
   'hobbies': {
     slug: 'hobbies',
-    title: 'Hobbies & Leisure (Sở thích & Giải trí)',
+    title: 'Hobbies & Leisure',
     level: 'B1',
-    promptTopic: 'Hãy viết một đoạn văn (60-100 từ) chia sẻ về một sở thích bạn yêu thích nhất và lý do.',
+    promptTopic: 'Write a short paragraph (60-100 words) sharing your favorite hobby and why you enjoy it.',
     words: [
       {
         _id: 'w_photography',
@@ -121,13 +121,13 @@ const defaultLearningSets = {
         ipa: '/fəˈtɑːɡrəfi/',
         partOfSpeech: 'noun',
         level: 'B1',
-        meaningVi: 'Nhiếp ảnh, nghệ thuật chụp ảnh',
+        meaningVi: 'The art or practice of taking photographs',
         collocations: [
-          { phrase: 'digital photography', meaning: 'nhiếp ảnh kỹ thuật số' },
-          { phrase: 'photography hobby', meaning: 'sở thích chụp ảnh' }
+          { phrase: 'digital photography', meaning: 'capturing images digitally' },
+          { phrase: 'photography hobby', meaning: 'interest in taking photos' }
         ],
         exampleSentence: 'Photography allows me to capture beautiful moments in nature.',
-        exampleTranslation: 'Nhiếp ảnh giúp tôi lưu lại những khoảnh khắc đẹp của thiên nhiên.'
+        exampleTranslation: 'Photography allows me to capture beautiful moments in nature.'
       },
       {
         _id: 'w_gardening',
@@ -135,13 +135,13 @@ const defaultLearningSets = {
         ipa: '/ˈɡɑːrdnɪŋ/',
         partOfSpeech: 'noun',
         level: 'B1',
-        meaningVi: 'Làm vườn, chăm sóc cây cối hoa lá',
+        meaningVi: 'The activity of tending and cultivating a garden',
         collocations: [
-          { phrase: 'gardening tools', meaning: 'dụng cụ làm vườn' },
-          { phrase: 'gardening hobby', meaning: 'sở thích làm vườn' }
+          { phrase: 'gardening tools', meaning: 'implements used for gardening' },
+          { phrase: 'gardening hobby', meaning: 'growing plants as a pastime' }
         ],
         exampleSentence: 'Gardening is a relaxing activity that helps reduce stress after work.',
-        exampleTranslation: 'Làm vườn là hoạt động thư giãn giúp giảm căng thẳng sau giờ làm.'
+        exampleTranslation: 'Gardening is a relaxing activity that helps reduce stress after work.'
       },
       {
         _id: 'w_cooking',
@@ -149,13 +149,13 @@ const defaultLearningSets = {
         ipa: '/ˈkʊkɪŋ/',
         partOfSpeech: 'noun',
         level: 'B1',
-        meaningVi: 'Nấu ăn, nghệ thuật ẩm thực',
+        meaningVi: 'The practice or skill of preparing and cooking food',
         collocations: [
-          { phrase: 'cooking skills', meaning: 'kỹ năng nấu nướng' },
-          { phrase: 'cooking class', meaning: 'lớp học nấu ăn' }
+          { phrase: 'cooking skills', meaning: 'ability to prepare delicious meals' },
+          { phrase: 'cooking class', meaning: 'instructional lesson for cooking' }
         ],
         exampleSentence: 'Improving my cooking skills helped me eat healthier meals at home.',
-        exampleTranslation: 'Cải thiện kỹ năng nấu nướng giúp tôi có những bữa ăn lành mạnh hơn tại nhà.'
+        exampleTranslation: 'Improving my cooking skills helped me eat healthier meals at home.'
       }
     ]
   }
@@ -233,7 +233,7 @@ export default function LearningSession() {
   // Handle AI analysis submission
   const handleSubmitWriting = async () => {
     if (wordCount < 10) {
-      alert('Vui lòng viết ít nhất 10 từ trước khi gửi phân tích AI.')
+      alert('Please write at least 10 words before submitting for AI analysis.')
       return
     }
 
@@ -262,21 +262,21 @@ export default function LearningSession() {
           status: found ? 'correct' : 'not_used',
           issueType: null,
           explanationVi: found
-            ? `Vận dụng chính xác từ "${w.word}" vào ngữ cảnh đoạn văn.`
-            : `Chưa thấy từ "${w.word}" xuất hiện. Bạn hãy thử thêm một câu sử dụng từ này.`
+            ? `Accurately applied "${w.word}" in context.`
+            : `Word "${w.word}" was not found. Try including a sentence with this word.`
         }
       })
 
       setAnalysisResult({
-        summary: `Bài viết mạch lạc (${wordCount} từ), bạn đã vận dụng được ${Object.values(wordStatusMap).filter(Boolean).length}/${words.length} từ mục tiêu.`,
+        summary: `Cohesive writing (${wordCount} words), you successfully applied ${Object.values(wordStatusMap).filter(Boolean).length}/${words.length} target words.`,
         strengths: [
-          'Ý tưởng câu văn rõ ràng, liên kết tốt với chủ đề.',
-          'Cấu trúc ngữ pháp cơ bản chính xác và tự nhiên.'
+          'Clear sentence structure with good coherence to the topic.',
+          'Accurate and natural baseline grammatical flow.'
         ],
         priorities: [
           Object.values(wordStatusMap).some(v => !v)
-            ? 'Hãy thêm các từ mục tiêu còn thiếu để hoàn thiện phiên học.'
-            : 'Hãy thử kết hợp thêm các collocations nâng cao để câu văn phong phú hơn.'
+            ? 'Incorporate remaining target words to complete the learning loop.'
+            : 'Try combining higher-level collocations to enrich expression.'
         ],
         targetWordResults: targetResults
       })
@@ -296,10 +296,10 @@ export default function LearningSession() {
   }
 
   const stepsList = [
-    { key: 'lesson', label: '1. Khám phá từ', icon: 'school' },
-    { key: 'practice', label: '2. Luyện nhanh', icon: 'bolt' },
-    { key: 'writing', label: '3. Viết đoạn văn', icon: 'edit_note' },
-    { key: 'feedback', label: '4. AI Phản hồi', icon: 'auto_awesome' }
+    { key: 'lesson', label: '1. Explore Words', icon: 'school' },
+    { key: 'practice', label: '2. Quick Practice', icon: 'bolt' },
+    { key: 'writing', label: '3. Smart Writing', icon: 'edit_note' },
+    { key: 'feedback', label: '4. AI Feedback', icon: 'auto_awesome' }
   ]
 
   return (
@@ -312,7 +312,7 @@ export default function LearningSession() {
           </button>
           <div>
             <h2 className="learning-session__title">{learningSet.title}</h2>
-            <span className="learning-session__tag">Trình độ {learningSet.level} · Phiên học 10 phút</span>
+            <span className="learning-session__tag">Level {learningSet.level} · 10-Minute Session</span>
           </div>
         </div>
 
@@ -370,7 +370,7 @@ export default function LearningSession() {
           <div className="target-words-bar card-base">
             <div className="target-words-bar__header">
               <span className="material-symbols-outlined">flag</span>
-              <span className="target-words-bar__title">Từ mục tiêu cần vận dụng vào bài viết:</span>
+              <span className="target-words-bar__title">Target words to incorporate into your writing:</span>
             </div>
             <div className="target-words-bar__chips">
               {words.map(w => {
@@ -396,7 +396,7 @@ export default function LearningSession() {
             <div className="writing-card__prompt">
               <div className="writing-card__prompt-badge">
                 <span className="material-symbols-outlined">lightbulb</span>
-                Chủ đề luyện viết
+                Writing Prompt
               </div>
               <p className="writing-card__prompt-text">{learningSet.promptTopic}</p>
             </div>
@@ -405,7 +405,7 @@ export default function LearningSession() {
             <div className="writing-card__editor-wrap">
               <textarea
                 className="writing-card__textarea"
-                placeholder="Bắt đầu viết đoạn văn bằng tiếng Anh của bạn tại đây... (Ví dụ: Every morning, my daily routine starts at 6:30 AM...)"
+                placeholder="Start writing your paragraph in English here... (e.g. Every morning, my daily routine starts at 6:30 AM...)"
                 value={essayContent}
                 onChange={e => setEssayContent(e.target.value)}
                 rows={8}
@@ -416,7 +416,7 @@ export default function LearningSession() {
                   <span className={`writing-card__count ${wordCount >= 60 && wordCount <= 120 ? 'writing-card__count--ideal' : ''}`}>
                     {wordCount}
                   </span>
-                  <span className="writing-card__limit"> / Mục tiêu 60–100 từ</span>
+                  <span className="writing-card__limit"> / Target 60–100 words</span>
                 </div>
 
                 <div className="writing-card__actions">
@@ -424,7 +424,7 @@ export default function LearningSession() {
                     className="btn-secondary"
                     onClick={() => setCurrentStep('practice')}
                   >
-                    Quay lại
+                    Back
                   </button>
                   <button
                     className="btn-primary writing-card__btn-submit"
@@ -434,11 +434,11 @@ export default function LearningSession() {
                     {analyzing ? (
                       <>
                         <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                        AI đang phân tích bài viết...
+                        AI is analyzing your writing...
                       </>
                     ) : (
                       <>
-                        Gửi AI Phân tích
+                        Submit for AI Analysis
                         <span className="material-symbols-outlined">auto_awesome</span>
                       </>
                     )}
@@ -457,7 +457,7 @@ export default function LearningSession() {
           <div className="feedback-heatmap card-base">
             <h3 className="feedback-heatmap__title">
               <span className="material-symbols-outlined">analytics</span>
-              Kết quả vận dụng Từ vựng Mục tiêu (Rubric Check)
+              Target Vocabulary Application (Rubric Check)
             </h3>
             <div className="feedback-heatmap__grid">
               {analysisResult.targetWordResults?.map(res => {
@@ -468,10 +468,10 @@ export default function LearningSession() {
                   not_used: 'feedback-badge--neutral'
                 }
                 const statusLabels = {
-                  correct: 'Đúng chuẩn ngữ cảnh',
-                  needs_improvement: 'Cần cải thiện dạng từ/collocation',
-                  incorrect: 'Dùng sai ngữ cảnh',
-                  not_used: 'Chưa sử dụng'
+                  correct: 'Accurate in context',
+                  needs_improvement: 'Needs form/collocation refinement',
+                  incorrect: 'Inaccurate context usage',
+                  not_used: 'Not used'
                 }
 
                 return (
@@ -489,7 +489,7 @@ export default function LearningSession() {
                     <p className="feedback-heatmap__item-exp">{res.explanationVi}</p>
                     {res.suggestedUpgrade && (
                       <p className="feedback-heatmap__item-upgrade">
-                        💡 Gợi ý: {res.suggestedUpgrade}
+                        💡 Suggestion: {res.suggestedUpgrade}
                       </p>
                     )}
                   </div>
@@ -503,7 +503,7 @@ export default function LearningSession() {
             <div className="feedback-insights__summary">
               <div className="feedback-insights__header">
                 <span className="material-symbols-outlined">psychology</span>
-                <h4>Đánh giá tổng quan từ Trợ lý AI</h4>
+                <h4>Comprehensive AI Evaluation</h4>
               </div>
               <p className="feedback-insights__summary-text">{analysisResult.summary}</p>
             </div>
@@ -512,7 +512,7 @@ export default function LearningSession() {
               {/* Strengths */}
               <div className="feedback-insights__col feedback-insights__col--strengths">
                 <h5>
-                  <span className="material-symbols-outlined">thumb_up</span> Điểm mạnh
+                  <span className="material-symbols-outlined">thumb_up</span> Strengths
                 </h5>
                 <ul>
                   {analysisResult.strengths?.map((st, i) => (
@@ -524,7 +524,7 @@ export default function LearningSession() {
               {/* Priorities */}
               <div className="feedback-insights__col feedback-insights__col--priorities">
                 <h5>
-                  <span className="material-symbols-outlined">priority_high</span> Ưu tiên sửa để tiến bộ
+                  <span className="material-symbols-outlined">priority_high</span> Key Priorities for Improvement
                 </h5>
                 <ul>
                   {analysisResult.priorities?.map((pr, i) => (
@@ -540,7 +540,7 @@ export default function LearningSession() {
                 className="btn-secondary"
                 onClick={() => setCurrentStep('writing')}
               >
-                Chỉnh sửa bài viết
+                Edit Writing
               </button>
 
               <button
@@ -548,14 +548,14 @@ export default function LearningSession() {
                 onClick={handleStartRevision}
               >
                 <span className="material-symbols-outlined">auto_fix_high</span>
-                Sửa bài ngay (Revision Draft 2)
+                Revise Now (Draft 2)
               </button>
 
               <button
                 className="btn-outline"
                 onClick={() => handleStepChange('completed')}
               >
-                Hoàn thành phiên
+                Complete Session
               </button>
             </div>
           </div>

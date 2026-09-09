@@ -9,8 +9,8 @@ export default function WordLesson({ words = [], onComplete, onBack }) {
     return (
       <div className="word-lesson__empty card-base">
         <span className="material-symbols-outlined">menu_book</span>
-        <p>Không có từ vựng nào trong bài học này.</p>
-        <button className="btn-primary" onClick={onBack}>Quay lại</button>
+        <p>No vocabulary items found in this lesson.</p>
+        <button className="btn-primary" onClick={onBack}>Go back</button>
       </div>
     )
   }
@@ -62,7 +62,7 @@ export default function WordLesson({ words = [], onComplete, onBack }) {
           ))}
         </div>
         <span className="word-lesson__counter text-label-md">
-          Từ {currentIndex + 1} / {words.length}
+          Word {currentIndex + 1} of {words.length}
         </span>
       </div>
 
@@ -74,8 +74,8 @@ export default function WordLesson({ words = [], onComplete, onBack }) {
             <button
               className={`word-lesson__audio-btn ${isPlayingAudio ? 'word-lesson__audio-btn--playing' : ''}`}
               onClick={() => handlePlayAudio(currentWord.word)}
-              title="Nghe phát âm"
-              aria-label="Phát âm"
+              title="Listen to pronunciation"
+              aria-label="Pronunciation"
             >
               <span className="material-symbols-outlined">
                 {isPlayingAudio ? 'volume_up' : 'volume_down'}
@@ -98,11 +98,11 @@ export default function WordLesson({ words = [], onComplete, onBack }) {
           </div>
         </div>
 
-        {/* Vietnamese Meaning */}
+        {/* Vietnamese / Definition Meaning */}
         <div className="word-lesson__section">
           <h4 className="word-lesson__section-title">
             <span className="material-symbols-outlined">translate</span>
-            Ý nghĩa tiếng Việt
+            Meaning & Definition
           </h4>
           <p className="word-lesson__meaning">{currentWord.meaningVi || currentWord.vietnameseMeaning || currentWord.meaning}</p>
         </div>
@@ -112,7 +112,7 @@ export default function WordLesson({ words = [], onComplete, onBack }) {
           <div className="word-lesson__section">
             <h4 className="word-lesson__section-title">
               <span className="material-symbols-outlined">link</span>
-              Cụm từ thường đi cùng (Collocations)
+              Common Collocations
             </h4>
             <div className="word-lesson__collocations">
               {currentWord.collocations.map((col, idx) => (
@@ -131,7 +131,7 @@ export default function WordLesson({ words = [], onComplete, onBack }) {
           <div className="word-lesson__section word-lesson__section--example">
             <h4 className="word-lesson__section-title">
               <span className="material-symbols-outlined">format_quote</span>
-              Ví dụ trong ngữ cảnh thực tế
+              Example in Context
             </h4>
             <div className="word-lesson__example-box">
               <p className="word-lesson__example-en">"{currentWord.exampleSentence}"</p>
@@ -141,9 +141,9 @@ export default function WordLesson({ words = [], onComplete, onBack }) {
               <button
                 className="word-lesson__example-audio-btn"
                 onClick={() => handlePlayAudio(currentWord.exampleSentence)}
-                title="Nghe câu ví dụ"
+                title="Listen to example sentence"
               >
-                <span className="material-symbols-outlined">volume_up</span> Nghe câu ví dụ
+                <span className="material-symbols-outlined">volume_up</span> Listen to example
               </button>
             </div>
           </div>
@@ -158,7 +158,7 @@ export default function WordLesson({ words = [], onComplete, onBack }) {
           disabled={currentIndex === 0}
         >
           <span className="material-symbols-outlined">arrow_back</span>
-          Từ trước
+          Previous Word
         </button>
 
         <button
@@ -167,12 +167,12 @@ export default function WordLesson({ words = [], onComplete, onBack }) {
         >
           {isLastWord ? (
             <>
-              Luyện tập nhanh ngay
+              Start Practice
               <span className="material-symbols-outlined">bolt</span>
             </>
           ) : (
             <>
-              Từ tiếp theo
+              Next Word
               <span className="material-symbols-outlined">arrow_forward</span>
             </>
           )}

@@ -81,7 +81,7 @@ function AdminProtectedRoute({ children }) {
   }
 
   if (user?.role !== 'admin') {
-    return <Navigate to="/login" replace state={{ infoMessage: 'Bạn không có quyền truy cập trang quản trị.' }} />
+    return <Navigate to="/login" replace state={{ infoMessage: 'You do not have permission to access the admin workspace.' }} />
   }
 
   return children

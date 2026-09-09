@@ -5,12 +5,12 @@ import { useModal } from '../../contexts/ModalContext.jsx'
 import './WriteEssay.css'
 
 const themesList = [
-  { value: 'General', label: 'General (Chung)' },
-  { value: 'Technology', label: 'Technology (Công nghệ)' },
-  { value: 'Education', label: 'Education (Giáo dục)' },
-  { value: 'Environment', label: 'Environment (Môi trường)' },
-  { value: 'Business', label: 'Business / Economy (Kinh tế)' },
-  { value: 'Science', label: 'Science / Healthcare (Y tế & Khoa học)' }
+  { value: 'General', label: 'General' },
+  { value: 'Technology', label: 'Technology' },
+  { value: 'Education', label: 'Education' },
+  { value: 'Environment', label: 'Environment' },
+  { value: 'Business', label: 'Business & Economy' },
+  { value: 'Science', label: 'Science & Healthcare' }
 ]
 
 export default function WriteEssay() {

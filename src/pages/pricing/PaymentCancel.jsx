@@ -26,15 +26,15 @@ export default function PaymentCancel() {
       </div>
 
       <h1 className="text-headline-lg" style={{ marginBottom: '0.5rem' }}>
-        Giao Dịch Đã Hủy
+        Payment Cancelled
       </h1>
       <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: '2rem' }}>
-        Giao dịch thanh toán của bạn đã bị hủy hoặc chưa hoàn tất. Tài khoản của bạn chưa bị trừ tiền.
+        Your payment was cancelled or could not be completed. Your account has not been charged.
       </p>
 
       {orderCode && (
         <p style={{ fontSize: '0.875rem', color: 'var(--color-on-surface-variant)', marginBottom: '2rem' }}>
-          Mã đơn hàng: <strong>#{orderCode}</strong>
+          Order Code: <strong>#{orderCode}</strong>
         </p>
       )}
 
@@ -44,14 +44,14 @@ export default function PaymentCancel() {
           className="btn-primary"
           style={{ padding: '0.85rem 1.75rem', textDecoration: 'none', borderRadius: 12, fontWeight: 700 }}
         >
-          Thử lại thanh toán
+          Retry Payment
         </Link>
         <Link
           to="/"
           className="btn-secondary"
           style={{ padding: '0.85rem 1.75rem', textDecoration: 'none', borderRadius: 12, fontWeight: 600 }}
         >
-          Về trang chủ
+          Back to Home
         </Link>
       </div>
     </div>

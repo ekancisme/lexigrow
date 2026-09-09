@@ -12,8 +12,8 @@ export default function RevisionComparison({ originalDraft = '', revisedDraft = 
             <span className="material-symbols-outlined">difference</span>
           </div>
           <div>
-            <h3 className="rev-comp__title">So sánh Bản sửa đổi (Revision Comparison)</h3>
-            <p className="rev-comp__sub">Xem các cải thiện và sửa lỗi từ vựng giữa bản nháp đầu tiên và bản sửa.</p>
+            <h3 className="rev-comp__title">Revision Comparison</h3>
+            <p className="rev-comp__sub">Review enhancements and vocabulary fixes between your first draft and revised version.</p>
           </div>
         </div>
 
@@ -23,14 +23,14 @@ export default function RevisionComparison({ originalDraft = '', revisedDraft = 
             onClick={() => setViewMode('side_by_side')}
           >
             <span className="material-symbols-outlined">vertical_split</span>
-            Song song
+            Side by Side
           </button>
           <button
             className={`rev-comp__toggle-btn ${viewMode === 'diff' ? 'rev-comp__toggle-btn--active' : ''}`}
             onClick={() => setViewMode('diff')}
           >
             <span className="material-symbols-outlined">view_agenda</span>
-            Xem bản mới
+            Revised Only
           </button>
         </div>
       </div>
@@ -39,7 +39,7 @@ export default function RevisionComparison({ originalDraft = '', revisedDraft = 
       {resolvedItems && resolvedItems.length > 0 && (
         <div className="rev-comp__resolved-bar">
           <span className="rev-comp__resolved-label">
-            <span className="material-symbols-outlined">task_alt</span> Đã giải quyết {resolvedItems.length} lỗi/gợi ý:
+            <span className="material-symbols-outlined">task_alt</span> Resolved {resolvedItems.length} suggestions/issues:
           </span>
           <div className="rev-comp__resolved-chips">
             {resolvedItems.map((item, idx) => (
@@ -57,10 +57,10 @@ export default function RevisionComparison({ originalDraft = '', revisedDraft = 
           <div className="rev-comp__panel rev-comp__panel--original">
             <div className="rev-comp__panel-title">
               <span className="material-symbols-outlined">history</span>
-              Bản nháp 1 (Original Draft)
+              Original Draft (Draft 1)
             </div>
             <div className="rev-comp__text-box">
-              {originalDraft || 'Không có dữ liệu bài viết cũ.'}
+              {originalDraft || 'No previous draft content available.'}
             </div>
           </div>
         )}
@@ -68,10 +68,10 @@ export default function RevisionComparison({ originalDraft = '', revisedDraft = 
         <div className="rev-comp__panel rev-comp__panel--revised">
           <div className="rev-comp__panel-title rev-comp__panel-title--success">
             <span className="material-symbols-outlined">auto_fix_high</span>
-            Bản sửa đổi (Revised Version)
+            Revised Version
           </div>
           <div className="rev-comp__text-box rev-comp__text-box--highlight">
-            {revisedDraft || 'Đang cập nhật bài viết mới...'}
+            {revisedDraft || 'Updating revised draft...'}
           </div>
         </div>
       </div>
@@ -79,7 +79,7 @@ export default function RevisionComparison({ originalDraft = '', revisedDraft = 
       {onProceed && (
         <div className="rev-comp__actions">
           <button className="btn-primary rev-comp__proceed-btn" onClick={onProceed}>
-            Hoàn thành phiên học
+            Complete Learning Session
             <span className="material-symbols-outlined">check_circle</span>
           </button>
         </div>

@@ -8,7 +8,7 @@ export default function GameHub() {
     {
       id: 'matching',
       title: 'Word Matching',
-      description: 'Thách thức trí nhớ! Ghép cặp từ vựng tiếng Anh với định nghĩa tương ứng trên các thẻ lật 3D.',
+      description: 'Memory challenge! Match English vocabulary with corresponding definitions on 3D flip cards.',
       icon: 'extension',
       colorClass: 'matching-theme',
       path: '/student/game/matching'
@@ -16,7 +16,7 @@ export default function GameHub() {
     {
       id: 'scramble',
       title: 'Word Scramble',
-      description: 'Luyện chính tả! Sắp xếp các chữ cái bị xáo trộn thành từ vựng hoàn chỉnh dựa trên phiên âm và gợi ý.',
+      description: 'Spelling mastery! Rearrange scrambled letters to form complete vocabulary words using phonetic hints.',
       icon: 'spellcheck',
       colorClass: 'scramble-theme',
       path: '/student/game/scramble'
@@ -24,7 +24,7 @@ export default function GameHub() {
     {
       id: 'filler',
       title: 'Context Filler',
-      description: 'Học theo ngữ cảnh! Điền từ vựng thích hợp vào chỗ trống trong các câu ví dụ thực tế.',
+      description: 'Contextual learning! Fill in missing vocabulary blanks in real-world example sentences.',
       icon: 'rate_review',
       colorClass: 'filler-theme',
       path: '/student/game/filler'
@@ -32,7 +32,7 @@ export default function GameHub() {
     {
       id: 'hunter',
       title: 'Vocab Hunter',
-      description: 'Phản xạ nhanh nhẹn! Bắn hạ các bong bóng từ vựng đang rơi tương ứng với định nghĩa được yêu cầu.',
+      description: 'Quick reflexes! Target falling vocabulary bubbles matching the target definition.',
       icon: 'target',
       colorClass: 'hunter-theme',
       path: '/student/game/hunter'
@@ -44,13 +44,13 @@ export default function GameHub() {
       <div className="game-hub-header">
         <button className="back-to-library-btn" onClick={() => navigate('/student/vocabulary')}>
           <span className="material-symbols-outlined">arrow_back</span>
-          Quay lại Thư viện
+          Back to Library
         </button>
         <div className="text-center header-content">
           <span className="material-symbols-outlined hub-icon-main">sports_esports</span>
           <h2 className="text-headline-lg font-bold">LexiGrow Play Zone</h2>
           <p className="text-body-md text-secondary-color">
-            Nâng cao vốn từ vựng của bạn một cách tự nhiên thông qua các trò chơi tương tác thú vị.
+            Expand your vocabulary naturally through interactive, high-retention mini-games.
           </p>
         </div>
       </div>
@@ -66,7 +66,7 @@ export default function GameHub() {
               <p className="text-body-sm card-description">{game.description}</p>
             </div>
             <button className="play-game-btn" onClick={() => navigate(game.path)}>
-              Chơi ngay
+              Play Now
               <span className="material-symbols-outlined">play_arrow</span>
             </button>
           </div>
