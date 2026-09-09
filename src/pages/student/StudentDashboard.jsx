@@ -138,7 +138,7 @@ export default function StudentDashboard() {
         <StatCard
           label={t('writing.cefrLevel', 'Estimated CEFR')}
           value={<>{overview?.rank || 'A1'}</>}
-          subtitle="Based on active writing"
+          subtitle={t('dashboard.basedOnWriting', 'Based on active writing')}
           icon="equalizer"
         />
       </section>
@@ -152,28 +152,28 @@ export default function StudentDashboard() {
         <div className="student-dash__side-cards">
           <div className="student-dash__goals card-base">
             <div className="flex justify-between items-center" style={{ marginBottom: 20 }}>
-              <h3 className="text-title-lg">Weekly Goals</h3>
+              <h3 className="text-title-lg">{t('dashboard.weeklyGoals', 'Weekly Goals')}</h3>
               <Link to="/student/goals" className="text-label-md" style={{ color: 'var(--color-primary)', textDecoration: 'none' }}>
-                Settings
+                {t('common.settings', 'Settings')}
               </Link>
             </div>
             <div className="student-dash__goals-list">
               <CircularProgress
                 percentage={wordsPercentage}
                 color="primary"
-                label="New Words Acquired"
-                sublabel={`${wordsGoal?.current || 12} / ${wordsGoal?.target || 20} words`}
+                label={t('dashboard.newWordsAcquired', 'New Words Acquired')}
+                sublabel={`${wordsGoal?.current || 12} / ${wordsGoal?.target || 20} ${t('dashboard.wordsCount', 'words')}`}
               />
               <CircularProgress
                 percentage={lengthPercentage}
                 color="secondary"
-                label="Writing Volume"
-                sublabel={`${lengthGoal?.current || 650} / ${lengthGoal?.target || 1000} words`}
+                label={t('dashboard.writingVolume', 'Writing Volume')}
+                sublabel={`${lengthGoal?.current || 650} / ${lengthGoal?.target || 1000} ${t('dashboard.wordsCount', 'words')}`}
               />
               <CircularProgress
                 percentage={complexityPercentage}
                 color="tertiary"
-                label="Target Level"
+                label={t('dashboard.targetLevel', 'Target Level')}
                 sublabel={`Level: ${overview?.rank || 'B1'}`}
               />
             </div>
@@ -235,7 +235,7 @@ export default function StudentDashboard() {
                     </div>
                   </div>
                   <span className={`student-dash__essay-status student-dash__essay-status--${essay.status || 'evaluated'}`}>
-                    {essay.status === 'evaluated' ? 'AI Evaluated' : 'Draft'}
+                    {essay.status === 'evaluated' ? t('essayHistory.statusGraded', 'AI Evaluated') : t('essayHistory.statusDraft', 'Draft')}
                   </span>
                 </div>
               ))}

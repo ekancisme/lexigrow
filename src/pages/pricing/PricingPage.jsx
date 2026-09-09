@@ -151,10 +151,9 @@ export default function PricingPage() {
         <div className="pricing__teacher-notice">
           <span className="material-symbols-outlined">diversity_3</span>
           <div>
-            <strong>Teacher Student Sponsorship Benefit:</strong>
+            <strong>{t('pricing.teacherBenefitTitle', 'Teacher Student Sponsorship Benefit:')}</strong>
             <p>
-              When educators subscribe to a Teacher Plan, all students in your classes get{' '}
-              <strong>premium features unlocked completely free</strong> up to the plan limit!
+              {t('pricing.teacherBenefitDesc', 'When educators subscribe to a Teacher Plan, all students in your classes get premium features unlocked completely free up to the plan limit!')}
             </p>
           </div>
         </div>
@@ -172,11 +171,14 @@ export default function PricingPage() {
             {/* FREE PLAN */}
             <div className="pricing__card">
               <div className="pricing__card-head">
-                <h3 className="pricing__card-name">Free Plan</h3>
-                <p className="pricing__card-desc">Get started with contextual vocabulary acquisition.</p>
+                <h3 className="pricing__card-name">{t('pricing.freePlan', 'Free Plan')}</h3>
+                <p className="pricing__card-desc">{t('pricing.freePlanDesc', 'Get started with contextual vocabulary acquisition.')}</p>
                 <div className="pricing__price-box">
-                  <span className="pricing__price">0 VND</span>
-                  <span className="pricing__period">/ lifetime</span>
+                  <div className="pricing__price-wrapper">
+                    <span className="pricing__price">0</span>
+                    <span className="pricing__currency">VND</span>
+                  </div>
+                  <span className="pricing__period">{t('pricing.perLifetime', '/ lifetime')}</span>
                 </div>
               </div>
               <ul className="pricing__features-list">
@@ -186,7 +188,7 @@ export default function PricingPage() {
                 <li><span className="material-symbols-outlined check">check_circle</span> Standard Spaced Repetition (SRS) Flashcards</li>
               </ul>
               <button type="button" className="pricing__btn pricing__btn--outline" disabled>
-                {currentTierInfo?.tier === 'free' ? 'Current Plan' : 'Default Plan'}
+                {currentTierInfo?.tier === 'free' ? t('pricing.currentPlan', 'Current Plan') : t('pricing.defaultPlan', 'Default Plan')}
               </button>
             </div>
 
@@ -206,9 +208,12 @@ export default function PricingPage() {
                     <h3 className="pricing__card-name">{plan.name}</h3>
                     <p className="pricing__card-desc">{plan.description}</p>
                     <div className="pricing__price-box">
-                      <span className="pricing__price">{formattedPrice} VND</span>
+                      <div className="pricing__price-wrapper">
+                        <span className="pricing__price">{formattedPrice}</span>
+                        <span className="pricing__currency">VND</span>
+                      </div>
                       <span className="pricing__period">
-                        {billingCycle === 'yearly' ? '/ year' : '/ month'}
+                        {billingCycle === 'yearly' ? t('pricing.perYear', '/ year') : t('pricing.perMonth', '/ month')}
                       </span>
                     </div>
                   </div>
@@ -257,14 +262,17 @@ export default function PricingPage() {
                 <div className="pricing__card-head">
                   <div className="pricing__sponsor-pill">
                     <span className="material-symbols-outlined">group</span>
-                    <span>Sponsor {plan.maxSponsoredStudents} Students</span>
+                    <span>{t('pricing.sponsorStudents', 'Sponsor {count} Students', { count: plan.maxSponsoredStudents })}</span>
                   </div>
                   <h3 className="pricing__card-name">{plan.name}</h3>
                   <p className="pricing__card-desc">{plan.description}</p>
                   <div className="pricing__price-box">
-                    <span className="pricing__price">{formattedPrice} VND</span>
+                    <div className="pricing__price-wrapper">
+                      <span className="pricing__price">{formattedPrice}</span>
+                      <span className="pricing__currency">VND</span>
+                    </div>
                     <span className="pricing__period">
-                      {billingCycle === 'yearly' ? '/ year' : '/ month'}
+                      {billingCycle === 'yearly' ? t('pricing.perYear', '/ year') : t('pricing.perMonth', '/ month')}
                     </span>
                   </div>
                 </div>
@@ -288,7 +296,7 @@ export default function PricingPage() {
                     t('pricing.currentPlan', 'Current Plan')
                   ) : (
                     <>
-                      <span>{t('pricing.choosePlan', 'Subscribe to Teacher Plan')}</span>
+                      <span>{t('pricing.chooseTeacherPlan', 'Subscribe to Teacher Plan')}</span>
                       <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
                     </>
                   )}

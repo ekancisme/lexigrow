@@ -59,3 +59,11 @@
 .teacher-dash__see-all { width: 100%; margin-top: var(--spacing-lg); padding: 12px; color: var(--color-primary); font-size: var(--text-label-md-size); font-weight: 700; border-radius: var(--radius-xl); transition: background var(--transition-fast); }
 .teacher-dash__see-all:hover { background: rgba(26, 115, 232, 0.06); }
 @media (max-width: 1200px) { .teacher-dash__stats { grid-template-columns: repeat(3, 1fr); } .teacher-dash__body { flex-direction: column; } .teacher-dash__alerts { width: 100%; } }
+@media (max-width: 768px) {
+  .teacher-dash__stats { grid-template-columns: repeat(2, 1fr); }
+  .teacher-dash__class-card { flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .teacher-dash__class-actions { width: 100%; justify-content: space-between; flex-wrap: wrap; }
+}
+@media (max-width: 480px) {
+  .teacher-dash__stats { grid-template-columns: 1fr; }
+}
