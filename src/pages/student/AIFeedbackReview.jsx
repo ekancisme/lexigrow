@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
 import './AIFeedbackReview.css'
 import EssayDiscussion from '../../components/common/EssayDiscussion.jsx'
+import ShimmerSkeleton from '../../components/common/ShimmerSkeleton.jsx'
 
 export default function AIFeedbackReview() {
   const [searchParams] = useSearchParams()
@@ -152,11 +153,17 @@ export default function AIFeedbackReview() {
 
   if (loading && essay?.status === 'submitted') {
     return (
-      <div className="ai-feedback" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', gap: 16 }}>
-        <span className="material-symbols-outlined animate-spin" style={{ fontSize: 48, color: 'var(--color-primary)' }}>
-          auto_awesome
-        </span>
-        <h3 className="text-title-lg">AI is reading and analyzing your writing...</h3>
+      <div className="ai-feedback" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', gap: 16, padding: '24px' }}>
+        <div style={{ maxWidth: '480px', width: '100%' }}>
+          <ShimmerSkeleton variant="card" style={{ marginBottom: 16 }} />
+          <ShimmerSkeleton variant="text" lines={4} />
+        </div>
+        <div className="ai-thinking" style={{ marginTop: 16 }}>
+          <span>AI đang kiểm tra từ vựng</span>
+          <span className="dot" />
+          <span className="dot" />
+          <span className="dot" />
+        </div>
         <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>This usually takes 10-15 seconds. Please wait.</p>
       </div>
     )

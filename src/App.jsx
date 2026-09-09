@@ -55,6 +55,7 @@ import AdminAIMonitoring from './pages/admin/AdminAIMonitoring'
 import AdminVocabulary from './pages/admin/AdminVocabulary'
 import AdminLogs from './pages/admin/AdminLogs'
 import AdminPricing from './pages/admin/AdminPricing'
+import AdminChat from './pages/admin/AdminChat'
 
 /* Pricing & Payment Pages */
 import PricingPage from './pages/pricing/PricingPage'
@@ -194,6 +195,7 @@ function App() {
           <Route path="vocabulary" element={<AdminVocabulary />} />
           <Route path="pricing" element={<AdminPricing />} />
           <Route path="logs" element={<AdminLogs />} />
+          <Route path="chat" element={<AdminChat />} />
         </Route>
 
         {/* Pricing & Payment Routes */}

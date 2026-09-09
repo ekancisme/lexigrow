@@ -59,6 +59,7 @@ import gardenRoutes from './routes/garden.routes.js'
 import dailyQuestRoutes from './routes/dailyQuest.routes.js'
 import paymentRoutes from './routes/payment.routes.js'
 import adminPricingRoutes from './routes/admin.pricing.routes.js'
+import chatRoutes from './routes/chat.routes.js'
 
 app.use('/api/auth', authRoutes)
 app.use('/api/essays', essayRoutes)
@@ -89,6 +90,7 @@ app.use('/api/garden', gardenRoutes)
 app.use('/api/daily-quests', dailyQuestRoutes)
 app.use('/api/payments', paymentRoutes)
 app.use('/api/subscriptions', paymentRoutes)
+app.use('/api/chat', chatRoutes)
 
 // Serve built frontend assets in production (Docker container or dist build)
 const distPath = path.resolve(__dirname, '../../dist')

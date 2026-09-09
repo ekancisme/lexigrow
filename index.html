@@ -1,14 +1,26 @@
 <!doctype html>
-<html lang="en">
+<html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>lexigrow</title>
+    <meta name="theme-color" content="#005bbf" />
+    <meta name="description" content="LexiGrow - Nền tảng luyện viết và từ vựng tiếng Anh với AI" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>LexiGrow - Học tiếng Anh thông minh</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((reg) => console.log('[SW] Registered:', reg))
+            .catch((err) => console.log('[SW] Registration failed:', err))
+        })
+      }
+    </script>
   </body>
 </html>

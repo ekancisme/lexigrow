@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import './EssayHistory.css'
+import Mascot from '../../components/common/Mascot.jsx'
 
 export default function EssayHistory() {
   const navigate = useNavigate()
@@ -119,21 +120,36 @@ export default function EssayHistory() {
           </div>
         ) : filteredEssays.length === 0 ? (
           <div className="essay-history__empty">
-            <span className="material-symbols-outlined">history_edu</span>
-            <h3>{t('essayHistory.noEssays', 'No essays found')}</h3>
-            <p>
-              {searchTerm
-                ? 'Try matching other keywords or clearing the search.'
-                : t('essayHistory.noEssaysDesc', "You don't have any essays under this filter.")}
-            </p>
-            {!searchTerm && filterStatus === 'all' && (
-              <button
-                className="essay-history__write-btn"
-                style={{ marginTop: 'var(--spacing-md)' }}
-                onClick={() => navigate('/student/write-essay')}
-              >
-                {t('essayHistory.writeNew', 'Write Your First Essay')}
-              </button>
+            {!searchTerm && filterStatus === 'all' ? (
+              <>
+                <Mascot variant="sad" message="Bạn chưa có bài viết nào. Hãy viết bài đầu tiên để nhận phản hồi từ AI nhé!" />
+                <button
+                  className="essay-history__write-btn"
+                  style={{ marginTop: 'var(--spacing-md)' }}
+                  onClick={() => navigate('/student/write-essay')}
+                >
+                  {t('essayHistory.writeNew', 'Write Your First Essay')}
+                </button>
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined">history_edu</span>
+                <h3>{t('essayHistory.noEssays', 'No essays found')}</h3>
+                <p>
+                  {searchTerm
+                    ? 'Try matching other keywords or clearing the search.'
+                    : t('essayHistory.noEssaysDesc', "You don't have any essays under this filter.")}
+                </p>
+                {!searchTerm && filterStatus === 'all' && (
+                  <button
+                    className="essay-history__write-btn"
+                    style={{ marginTop: 'var(--spacing-md)' }}
+                    onClick={() => navigate('/student/write-essay')}
+                  >
+                    {t('essayHistory.writeNew', 'Write Your First Essay')}
+                  </button>
+                )}
+              </>
             )}
           </div>
         ) : (

@@ -2,6 +2,7 @@ import { Server } from 'socket.io'
 import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
 import Class from '../models/Class.js'
+import ChatMessage from '../models/ChatMessage.js'
 
 let io = null
 
@@ -94,6 +95,66 @@ export const initSocket = (server) => {
       socket.leave(`essay:${essayId}`)
       console.log(`💬 User ${userId} left essay comment room: essay:${essayId}`)
     })
+
+    // Chat event: send message
+    socket.on('send_chat_message', async (data) => {
+      try {
+        const { content, recipientId, room } = data
+        if (!content || content.trim().length === 0) {
+          return socket.emit('chat_error', { message: 'Nội dung tin nhắn không được để trống.' })
+        }
+
+        const senderId = userId
+        const isAdmin = userRole === 'admin'
+
+        let targetRoom = room || 'support'
+        let recipient = null
+
+        if (recipientId) {
+          const targetUser = await User.findById(recipientId)
+          if (!targetUser) {
+            return socket.emit('chat_error', { message: 'Người nhận không tồn tại.' })
+          }
+          if (!isAdmin && targetUser.role !== 'admin') {
+            return socket.emit('chat_error', { message: 'Bạn chỉ có thể nhắn tin với bộ phận hỗ trợ.' })
+          }
+          recipient = recipientId
+          targetRoom = `user:${senderId}`
+        }
+
+        // Save to DB
+        const message = await ChatMessage.create({
+          sender: senderId,
+          recipient: recipient,
+          room: targetRoom,
+          content: content.trim(),
+          isRead: false,
+        })
+
+        // Populate sender info
+        await message.populate('sender', 'name email role avatar')
+
+        // Emit to room
+        const io = getIO()
+        io.to(targetRoom).emit('chat_message', message.toObject())
+        if (targetRoom === 'support' || targetRoom.startsWith('user:')) {
+          io.to('admin_support').emit('chat_message', message.toObject())
+        }
+      } catch (error) {
+        console.error('Chat send error:', error)
+        socket.emit('chat_error', { message: 'Lỗi gửi tin nhắn.' })
+      }
+    })
+
+    socket.on('join_chat_room', (room) => {
+      socket.join(room)
+      console.log(`💬 User ${userId} joined chat room: ${room}`)
+    })
+
+    // Admin joins support room automatically (already done above)
+    // But we need to ensure admin_support room is created
+    // This is handled in the connection logic above, but we also add an explicit join for admin if not already.
+    // We'll also allow any user to join support room.
 
     socket.on('disconnect', () => {
       console.log(`🔌 Socket disconnected: User ${userId}`)

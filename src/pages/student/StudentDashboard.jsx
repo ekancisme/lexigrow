@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import StatCard from '../../components/common/StatCard'
+import AnimatedCounter from '../../components/common/AnimatedCounter'
 import CircularProgress from '../../components/common/CircularProgress'
 import VocabGrowthChart from '../../components/charts/VocabGrowthChart'
 import './StudentDashboard.css'
@@ -120,18 +121,18 @@ export default function StudentDashboard() {
       <section className="student-dash__stats">
         <StatCard
           label={t('progress.essaysCount', 'Essays Submitted')}
-          value={overview?.totalEssays || 0}
+          value={<AnimatedCounter value={overview?.totalEssays || 0} />}
           icon="description"
         />
         <StatCard
           label={t('progress.totalLearned', 'Vocab Growth')}
-          value={`+${overview?.thisMonthWords || 0}`}
+          value={<>+<AnimatedCounter value={overview?.thisMonthWords || 0} /></>}
           subtitle={`${overview?.growthRate >= 0 ? '+' : ''}${overview?.growthRate || 0}% vs last month`}
           icon="trending_up"
         />
         <StatCard
           label={t('writing.vocabDiversity', 'Lexical Diversity (TTR)')}
-          value={overview?.avgTTR ? overview.avgTTR.toFixed(2) : '0.00'}
+          value={<AnimatedCounter value={Math.round((overview?.avgTTR || 0) * 100)} format="percent" />}
           icon="analytics"
           progress={Math.round((overview?.avgTTR || 0) * 100)}
         />

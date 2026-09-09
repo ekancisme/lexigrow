@@ -1,9 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
+import gsap from 'gsap'
+import { useSound } from '../../hooks/useSound.jsx'
 import './GrowthGarden.css'
 import QuestGardenCard from '../game/QuestGardenCard.jsx'
+import Mascot from '../../components/common/Mascot.jsx'
 
 const initialGardenData = [
   {
@@ -70,6 +73,75 @@ export default function GrowthGarden() {
   const [gardenTopics, setGardenTopics] = useState(initialGardenData)
   const [selectedTopic, setSelectedTopic] = useState(initialGardenData[0])
   const [loading, setLoading] = useState(false)
+  const [watering, setWatering] = useState({})
+  const plantRefs = useRef({})
+  const dropRefs = useRef({})
+  const { play: playWater } = useSound('/sounds/water_drop.mp3', { volume: 0.3 })
+  const { play: playGrow } = useSound('/sounds/plant_grow.mp3', { volume: 0.4 })
+
+  const handleWater = useCallback(async (slug) => {
+    if (watering[slug]) return
+
+    // Find the topic
+    const topicIndex = gardenTopics.findIndex(t => t.slug === slug)
+    if (topicIndex === -1) return
+    const topic = gardenTopics[topicIndex]
+    if (topic.masteredCount >= topic.totalCount) return // already fully grown
+
+    setWatering(prev => ({ ...prev, [slug]: true }))
+    playWater()
+
+    // Animate water drop on the plant card
+    const dropEl = dropRefs.current[slug]
+    if (dropEl) {
+      gsap.fromTo(dropEl,
+        { y: -30, opacity: 0, scale: 0.3 },
+        { y: 10, opacity: 1, scale: 1.2, duration: 0.5, ease: 'power2.out',
+          onComplete: () => {
+            gsap.to(dropEl, { opacity: 0, duration: 0.2, delay: 0.1 })
+          }
+        }
+      )
+    }
+
+    // Animate plant growth (scale up)
+    const plantEl = plantRefs.current[slug]
+    if (plantEl) {
+      gsap.fromTo(plantEl,
+        { scale: 1 },
+        { scale: 1.15, duration: 0.3, ease: 'back.out(1.7)',
+          onComplete: () => {
+            gsap.to(plantEl, { scale: 1, duration: 0.3, ease: 'power2.out' })
+          }
+        }
+      )
+    }
+
+    // Wait for animation then update state
+    await new Promise(resolve => setTimeout(resolve, 600))
+
+    // Update the topic's masteredCount
+    const updatedTopics = gardenTopics.map((t, idx) => {
+      if (idx === topicIndex) {
+        const newCount = Math.min(t.masteredCount + 1, t.totalCount)
+        const newStage = newCount >= t.totalCount ? 'blooming' :
+                         newCount >= 2 ? 'branch' :
+                         newCount >= 1 ? 'sprout' : 'seed'
+        return { ...t, masteredCount: newCount, stage: newStage }
+      }
+      return t
+    })
+    setGardenTopics(updatedTopics)
+
+    // Update selected topic if it's the same
+    if (selectedTopic?.slug === slug) {
+      const updated = updatedTopics.find(t => t.slug === slug)
+      setSelectedTopic(updated)
+    }
+
+    playGrow()
+    setWatering(prev => ({ ...prev, [slug]: false }))
+  }, [gardenTopics, selectedTopic, watering, playWater, playGrow])
 
   useEffect(() => {
     async function loadGarden() {
@@ -104,6 +176,8 @@ export default function GrowthGarden() {
   }, [])
 
   const totalMastered = gardenTopics.reduce((sum, t) => sum + (t.masteredCount || 0), 0)
+  const allMastered = gardenTopics.every(t => t.masteredCount >= t.totalCount)
+  const hasAnyWords = gardenTopics.some(t => t.totalCount > 0)
 
   return (
     <div className="growth-garden animate-fade-in">
@@ -143,63 +217,90 @@ export default function GrowthGarden() {
             Topic Tree Branches
           </h3>
 
-          <div className="growth-garden__plants-grid">
-            {gardenTopics.map(topic => {
-              const isSelected = selectedTopic?.slug === topic.slug
-              return (
-                <div
-                  key={topic.slug}
-                  className={`plant-card card-base plant-card--${topic.stage} ${isSelected ? 'plant-card--selected' : ''}`}
-                  onClick={() => setSelectedTopic(topic)}
-                >
-                  <div className="plant-card__icon-wrap">
-                    <span className="material-symbols-outlined">{topic.icon}</span>
-                  </div>
+          {(!hasAnyWords || allMastered) ? (
+            <div className="growth-garden__empty-state">
+              <Mascot variant="neutral" message="Chưa có từ vựng cần ôn tập. Hãy viết bài và học từ mới để cây tri thức của bạn phát triển nhé!" />
+            </div>
+          ) : (
+            <div className="growth-garden__plants-grid">
+              {gardenTopics.map(topic => {
+                const isSelected = selectedTopic?.slug === topic.slug
+                return (
+                  <div
+                    key={topic.slug}
+                    className={`plant-card card-base plant-card--${topic.stage} ${isSelected ? 'plant-card--selected' : ''}`}
+                    onClick={() => setSelectedTopic(topic)}
+                  >
+                    <div className="plant-card__icon-wrap">
+                      <span className="material-symbols-outlined">{topic.icon}</span>
+                    </div>
 
-                  {/* Visual Tree / Stage Illustration */}
-                  <div className="plant-card__stage-art">
-                    {topic.stage === 'seed' && (
-                      <div className="stage-seed">
-                        <span className="material-symbols-outlined">grain</span>
-                        <span>Seed</span>
-                      </div>
-                    )}
-                    {topic.stage === 'sprout' && (
-                      <div className="stage-sprout">
-                        <span className="material-symbols-outlined">spa</span>
-                        <span>Sprouting</span>
-                      </div>
-                    )}
-                    {topic.stage === 'branch' && (
-                      <div className="stage-branch">
-                        <span className="material-symbols-outlined">eco</span>
-                        <span>Branching</span>
-                      </div>
-                    )}
-                    {topic.stage === 'blooming' && (
-                      <div className="stage-blooming">
-                        <span className="material-symbols-outlined">local_florist</span>
-                        <span>Blooming</span>
-                      </div>
-                    )}
-                  </div>
+                    {/* Visual Tree / Stage Illustration */}
+                    <div className="plant-card__stage-art">
+                      {topic.stage === 'seed' && (
+                        <div className="stage-seed">
+                          <span className="material-symbols-outlined">grain</span>
+                          <span>Seed</span>
+                        </div>
+                      )}
+                      {topic.stage === 'sprout' && (
+                        <div className="stage-sprout">
+                          <span className="material-symbols-outlined">spa</span>
+                          <span>Sprouting</span>
+                        </div>
+                      )}
+                      {topic.stage === 'branch' && (
+                        <div className="stage-branch">
+                          <span className="material-symbols-outlined">eco</span>
+                          <span>Branching</span>
+                        </div>
+                      )}
+                      {topic.stage === 'blooming' && (
+                        <div className="stage-blooming">
+                          <span className="material-symbols-outlined">local_florist</span>
+                          <span>Blooming</span>
+                        </div>
+                      )}
+                    </div>
 
-                  <h4 className="plant-card__title">{topic.topic}</h4>
-                  <div className="plant-card__progress">
-                    <div className="plant-card__bar">
+                    <h4 className="plant-card__title">{topic.topic}</h4>
+                    <div className="plant-card__progress">
+                      <div className="plant-card__bar">
+                        <div
+                          className="plant-card__fill"
+                          style={{ width: `${((topic.masteredCount || 0) / (topic.totalCount || 3)) * 100}%` }}
+                        />
+                      </div>
+                      <span className="plant-card__ratio">
+                        {topic.masteredCount} / {topic.totalCount} words
+                      </span>
+                    </div>
+                    <div className="plant-card__actions">
+                      <button
+                        className="btn-water"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleWater(topic.slug)
+                        }}
+                        disabled={watering[topic.slug] || topic.masteredCount >= topic.totalCount}
+                      >
+                        <span className="material-symbols-outlined">water_drop</span>
+                        {watering[topic.slug] ? 'Watering...' : 'Water'}
+                      </button>
                       <div
-                        className="plant-card__fill"
-                        style={{ width: `${((topic.masteredCount || 0) / (topic.totalCount || 3)) * 100}%` }}
+                        ref={(el) => { dropRefs.current[topic.slug] = el }}
+                        className="plant-card__drop"
                       />
                     </div>
-                    <span className="plant-card__ratio">
-                      {topic.masteredCount} / {topic.totalCount} words
-                    </span>
+                    <div
+                      ref={(el) => { plantRefs.current[topic.slug] = el }}
+                      className="plant-card__growth-ring"
+                    />
                   </div>
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
+          )}
         </div>
 
         {/* Selected Topic Detail Drawer */}

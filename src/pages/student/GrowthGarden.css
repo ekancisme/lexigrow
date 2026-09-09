@@ -214,6 +214,73 @@
   font-weight: 600;
 }
 
+.plant-card__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  position: relative;
+  margin-top: 4px;
+}
+
+.btn-water {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.btn-water:hover:not(:disabled) {
+  background: #bfdbfe;
+  transform: scale(1.05);
+}
+
+.btn-water:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-water .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.plant-card__drop {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b82f6;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+}
+
+.plant-card__growth-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(1);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid #22c55e;
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* ── Detail Drawer ── */
 .growth-garden__detail {
   padding: 24px;

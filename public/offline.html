@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Không có kết nối - LexiGrow</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #f5f7fa;
+      color: #1a1a2e;
+      text-align: center;
+      padding: 20px;
+    }
+    .offline-container {
+      max-width: 400px;
+    }
+    .offline-icon {
+      font-size: 80px;
+      margin-bottom: 20px;
+      display: block;
+    }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 12px;
+      color: #005bbf;
+    }
+    p {
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    button {
+      background: #005bbf;
+      color: #fff;
+      border: none;
+      padding: 12px 32px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: #004a9f;
+    }
+  </style>
+</head>
+<body>
+  <div class="offline-container">
+    <span class="offline-icon">📡</span>
+    <h1>Không có kết nối Internet</h1>
+    <p>Vui lòng kiểm tra kết nối mạng của bạn và thử lại.<br />
+    Một số tính năng có thể không hoạt động khi offline.</p>
+    <button onclick="location.reload()">Thử lại</button>
+  </div>
+</body>
+</html>

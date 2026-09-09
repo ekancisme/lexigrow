@@ -1,9 +1,11 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import useDailyQuest from './useDailyQuest.js'
 import { cellsFor, gridFor } from './questGrid.js'
 import './DailyWordQuest.css'
+import confetti from 'canvas-confetti'
+import { useSound } from '../../hooks/useSound.jsx'
 
 export default function DailyWordQuest() {
   const { t, language } = useLanguage(),
@@ -14,6 +16,9 @@ export default function DailyWordQuest() {
     [showExample, setShowExample] = useState(false)
   const [inputDraft, setInputDraft] = useState(null)
   const inputRef = useRef(null)
+  const { play: playFanfare } = useSound('/sounds/fanfare.mp3', { volume: 0.5 })
+  const [flippedCells, setFlippedCells] = useState(new Set())
+  const prevSolvedRef = useRef([])
   const word = quest?.words.find((w) => w.id === selected) || quest?.words[0]
   const wordKeys = word ? cellsFor(word) : []
   const solved = quest?.solved.includes(word?.id)
@@ -64,6 +69,52 @@ export default function DailyWordQuest() {
           .map((key) => cells[key] || ' ')
           .join('')
           .trimEnd()
+
+  // Track solved words to trigger confetti and flip animation
+  useEffect(() => {
+    if (!quest) return
+    const solvedIds = quest.solved || []
+    const prevSolved = prevSolvedRef.current
+
+    // Check for new solves
+    const newSolves = solvedIds.filter(id => !prevSolved.includes(id))
+    if (newSolves.length > 0) {
+      // Trigger confetti for each new solve
+      newSolves.forEach((wordId) => {
+        const wordObj = quest.words.find(w => w.id === wordId)
+        if (wordObj) {
+          const keys = cellsFor(wordObj)
+          // Add to flipped set for animation
+          setFlippedCells(prev => {
+            const newSet = new Set(prev)
+            keys.forEach(key => newSet.add(key))
+            return newSet
+          })
+        }
+      })
+
+      // Fire confetti if all words are solved
+      const allSolved = quest.words.every(w => solvedIds.includes(w.id))
+      if (allSolved) {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        })
+        playFanfare()
+        // Extra burst
+        setTimeout(() => {
+          confetti({
+            particleCount: 50,
+            spread: 50,
+            origin: { y: 0.4 }
+          })
+        }, 300)
+      }
+    }
+
+    prevSolvedRef.current = solvedIds
+  }, [quest, playFanfare])
 
   return (
     <div className="daily-quest">
