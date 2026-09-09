@@ -117,17 +117,17 @@ function App() {
   return (
     <>
       <Routes>
-        {/* Auth routes (no sidebar) */}
+        {/* Auth routes & Onboarding (no sidebar) */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-
+        <Route path="/student/onboarding" element={<Onboarding />} />
+        <Route path="/onboarding" element={<Navigate to="/student/onboarding" replace />} />
 
         {/* Student routes */}
         <Route path="/student" element={<AppLayout role="student" />}>
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<StudentDashboard />} />
-          <Route path="onboarding" element={<Onboarding />} />
           <Route path="write-essay" element={<WriteEssay />} />
           <Route path="explore" element={<Explore />} />
           <Route path="writing" element={<LearningSession />} />
