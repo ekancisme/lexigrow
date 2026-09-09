@@ -108,7 +108,7 @@ export default function Login() {
             return
           }
           try {
-            const loggedUser = await loginWithGoogle(response.code)
+            const loggedUser = await loginWithGoogle({ code: response.code })
             if (loggedUser) {
               navigate(getRoleHome(loggedUser.role, loggedUser))
             }

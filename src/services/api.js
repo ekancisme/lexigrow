@@ -55,6 +55,12 @@ class ApiClient {
 
     if (config.body && typeof config.body === 'object' && !(config.body instanceof FormData)) {
       config.body = JSON.stringify(config.body)
+    } else if (config.body && typeof config.body === 'string' && config.headers['Content-Type']?.includes('application/json')) {
+      try {
+        JSON.parse(config.body)
+      } catch {
+        config.body = JSON.stringify(config.body)
+      }
     }
 
     const response = await fetch(url, config)

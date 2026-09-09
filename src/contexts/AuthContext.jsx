@@ -104,7 +104,8 @@ export function AuthProvider({ children }) {
   const loginWithGoogle = async (googlePayload) => {
     setLoading(true)
     try {
-      const data = await api.post('/auth/google', googlePayload)
+      const payload = typeof googlePayload === 'string' ? { code: googlePayload } : googlePayload
+      const data = await api.post('/auth/google', payload)
       api.setToken(data.token)
       api.setUser(data.user)
       setToken(data.token)
