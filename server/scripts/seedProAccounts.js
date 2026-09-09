@@ -78,13 +78,12 @@ async function seedProAccounts() {
     // 2. Upsert Student Pro
     const studentProEmail = 'student.pro@lexigrow.com'
     let studentProUser = await User.findOne({ email: studentProEmail })
-    const hashedPassword = await bcrypt.hash('123456', 10)
 
     if (!studentProUser) {
       studentProUser = await User.create({
         name: 'Lê Minh Pro (Học Sinh Pro)',
         email: studentProEmail,
-        password: hashedPassword,
+        password: '123456',
         role: 'student',
         isVerified: true,
         institution: 'LexiGrow Academy Pro',
@@ -97,8 +96,9 @@ async function seedProAccounts() {
       })
       console.log(`Created user: ${studentProEmail}`)
     } else {
-      studentProUser.password = hashedPassword
+      studentProUser.password = '123456'
       studentProUser.isVerified = true
+      studentProUser.accountStatus = 'active'
       await studentProUser.save()
       console.log(`Updated user: ${studentProEmail}`)
     }
@@ -123,7 +123,7 @@ async function seedProAccounts() {
         status: 'active',
         maxSponsoredStudents: 0,
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     )
     console.log(`Assigned 1-Year Pro Subscription to ${studentProEmail}`)
 
@@ -135,15 +135,16 @@ async function seedProAccounts() {
       teacherProUser = await User.create({
         name: 'Thầy Hùng Pro (Giáo Viên Pro)',
         email: teacherProEmail,
-        password: hashedPassword,
+        password: '123456',
         role: 'teacher',
         isVerified: true,
         institution: 'Trung Tâm Tiếng Anh LexiGrow Master',
       })
       console.log(`Created user: ${teacherProEmail}`)
     } else {
-      teacherProUser.password = hashedPassword
+      teacherProUser.password = '123456'
       teacherProUser.isVerified = true
+      teacherProUser.accountStatus = 'active'
       await teacherProUser.save()
       console.log(`Updated user: ${teacherProEmail}`)
     }
@@ -165,9 +166,21 @@ async function seedProAccounts() {
         status: 'active',
         maxSponsoredStudents: 60,
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     )
     console.log(`Assigned 1-Year Pro Subscription to ${teacherProEmail}`)
+
+    // 4. Reset ALL existing accounts in database to password '123456'
+    console.log('\n--- Đang đồng bộ mật khẩu 123456 cho toàn bộ tài khoản ---')
+    const allUsersList = await User.find({})
+    for (const u of allUsersList) {
+      u.password = '123456'
+      u.isVerified = true
+      u.accountStatus = 'active'
+      await u.save()
+      const isMatch = await u.matchPassword('123456')
+      console.log(`[PASS CHECK] ${u.email} -> Password '123456': ${isMatch ? '✅ MATCH' : '❌ FAIL'}`)
+    }
 
     // 4. List ALL accounts and their effective tiers
     console.log('\n===============================================================')
