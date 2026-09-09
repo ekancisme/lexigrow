@@ -1,20 +1,23 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
+import confetti from 'canvas-confetti'
 import './VocabHunter.css'
 
 const FALLBACK_WORDS = [
-  { _id: 'f1', word: 'Accolade', definition: 'An award or privilege granted as a special honor or as an acknowledgment of merit.' },
-  { _id: 'f2', word: 'Benevolent', definition: 'Well meaning and kindly; serving a charitable purpose.' },
-  { _id: 'f3', word: 'Capricious', definition: 'Given to sudden and unaccountable changes of mood or behavior.' },
-  { _id: 'f4', word: 'Diligent', definition: 'Having or showing care and conscientiousness in one\'s work or duties.' },
-  { _id: 'f5', word: 'Eloquent', definition: 'Fluent or persuasive in speaking or writing.' },
-  { _id: 'f6', word: 'Frugal', definition: 'Sparing or economical with regard to money or food.' },
-  { _id: 'f7', word: 'Garrulous', definition: 'Excessively talkative, especially on trivial matters.' },
-  { _id: 'f8', word: 'Hypothesis', definition: 'A proposed explanation made on the basis of limited evidence.' },
-  { _id: 'f9', word: 'Impeccable', definition: 'In accordance with the highest standards; faultless.' },
-  { _id: 'f10', word: 'Jubilant', definition: 'Feeling or expressing great happiness and triumph.' }
+  { _id: 'f1', word: 'Accolade', definition: 'An award or privilege granted as special honor or in recognition of merit.', ipa: '/ˈæk.ə.leɪd/' },
+  { _id: 'f2', word: 'Benevolent', definition: 'Well meaning and kindly; serving a charitable purpose.', ipa: '/bəˈnev.əl.ənt/' },
+  { _id: 'f3', word: 'Capricious', definition: 'Given to sudden and unaccountable changes of mood or behavior.', ipa: '/kəˈprɪʃ.əs/' },
+  { _id: 'f4', word: 'Diligent', definition: 'Having or showing care and conscientiousness in one\'s work or duties.', ipa: '/ˈdɪl.ɪ.dʒənt/' },
+  { _id: 'f5', word: 'Eloquent', definition: 'Fluent or persuasive in speaking or writing.', ipa: '/ˈel.ə.kwənt/' },
+  { _id: 'f6', word: 'Frugal', definition: 'Sparing or economical with regard to money or food.', ipa: '/ˈfruː.ɡəl/' },
+  { _id: 'f7', word: 'Garrulous', definition: 'Excessively talkative, especially on trivial matters.', ipa: '/ˈɡær.ə.ləs/' },
+  { _id: 'f8', word: 'Hypothesis', definition: 'A proposed explanation made on the basis of limited evidence.', ipa: '/haɪˈpɒθ.ə.sɪs/' },
+  { _id: 'f9', word: 'Impeccable', definition: 'In accordance with the highest standards; faultless.', ipa: '/ɪmˈpek.ə.bəl/' },
+  { _id: 'f10', word: 'Jubilant', definition: 'Feeling or expressing great happiness and triumph.', ipa: '/ˈdʒuː.bəl.ənt/' },
+  { _id: 'f11', word: 'Tenacious', definition: 'Tending to keep a firm hold of something; clinging or adhering closely.', ipa: '/təˈneɪ.ʃəs/' },
+  { _id: 'f12', word: 'Meticulous', definition: 'Showing great attention to detail; very careful and precise.', ipa: '/məˈtɪk.jə.ləs/' }
 ]
 
 export default function VocabHunter() {
@@ -32,17 +35,23 @@ export default function VocabHunter() {
 
   // Current playing state
   const [targetWord, setTargetWord] = useState(null)
-  const [bubbles, setBubbles] = useState([]) // array of { id, word, x, y, isWrongClicked }
+  const [bubbles, setBubbles] = useState([]) // array of { id, word, ipa, x, y, isWrongClicked, isCorrect }
   const [lives, setLives] = useState(3)
   const [score, setScore] = useState(0)
+  const [streak, setStreak] = useState(0)
+  const [isFrozen, setIsFrozen] = useState(false)
+  const [timer, setTimer] = useState(90)
+  const [soundMuted, setSoundMuted] = useState(false)
 
   // Refs for loop
   const gameInterval = useRef(null)
+  const timerInterval = useRef(null)
   const speedRef = useRef(1.5)
   const livesRef = useRef(3)
 
   // Web Audio sounds
   const playSound = (type) => {
+    if (soundMuted) return
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext
       if (!AudioContext) return
@@ -56,7 +65,7 @@ export default function VocabHunter() {
         osc.type = 'sine'
         osc.frequency.setValueAtTime(659.25, ctx.currentTime) // E5
         osc.frequency.setValueAtTime(880.00, ctx.currentTime + 0.08) // A5
-        gain.gain.setValueAtTime(0.08, ctx.currentTime)
+        gain.gain.setValueAtTime(0.1, ctx.currentTime)
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25)
         osc.start()
         osc.stop(ctx.currentTime + 0.25)
@@ -71,7 +80,7 @@ export default function VocabHunter() {
         osc.type = 'triangle'
         osc.frequency.setValueAtTime(220, ctx.currentTime)
         osc.frequency.setValueAtTime(147, ctx.currentTime + 0.15)
-        gain.gain.setValueAtTime(0.12, ctx.currentTime)
+        gain.gain.setValueAtTime(0.15, ctx.currentTime)
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4)
         osc.start()
         osc.stop(ctx.currentTime + 0.4)
@@ -102,7 +111,7 @@ export default function VocabHunter() {
     try {
       const categoryParam = selectedCategory ? `&category=${selectedCategory}` : ''
       const response = await api.get(`/vocabulary?limit=150${categoryParam}`)
-      
+
       let loaded = []
       if (response.success && response.data && response.data.length >= 4) {
         loaded = response.data
@@ -123,381 +132,402 @@ export default function VocabHunter() {
     setScore(0)
     setLives(3)
     livesRef.current = 3
+    setStreak(0)
     setRoundIndex(0)
-    
-    // Set game speed
+    setTimer(90)
+
     if (speedLevel === 'easy') speedRef.current = 1.0
     else if (speedLevel === 'medium') speedRef.current = 1.6
     else speedRef.current = 2.4
 
     setupNextRound(pool, 0)
     setGameState('playing')
+
+    if (timerInterval.current) clearInterval(timerInterval.current)
+    timerInterval.current = setInterval(() => {
+      setTimer((prev) => {
+        if (prev <= 1) {
+          clearInterval(timerInterval.current)
+          setGameState('gameover')
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
   }
 
   const setupNextRound = (pool, currentIdx) => {
-    // Pick target word
     const shuffledPool = [...pool].sort(() => 0.5 - Math.random())
     const target = shuffledPool[0]
     setTargetWord(target)
 
-    // Generate bubbles: 1 correct + 3 incorrect
     const distractors = shuffledPool.slice(1, 4)
     const options = [target, ...distractors].sort(() => 0.5 - Math.random())
 
-    // X coordinates to avoid layout overlap (columns at 12.5%, 37.5%, 62.5%, 87.5%)
-    const xCoords = [10, 35, 60, 80].sort(() => 0.5 - Math.random())
+    const xCoords = [8, 32, 58, 80].sort(() => 0.5 - Math.random())
 
     const generatedBubbles = options.map((opt, i) => ({
-      id: i,
-      wordObj: opt,
+      id: `${opt._id || opt.word}-${Math.random()}`,
+      word: opt.word,
+      ipa: opt.ipa || `/ˈ${opt.word.toLowerCase()}/`,
+      isTarget: opt.word.toLowerCase() === target.word.toLowerCase(),
       x: xCoords[i],
-      y: -50 - (Math.random() * 40), // slightly staggered vertical starts
-      isWrongClicked: false
+      y: -5 - Math.random() * 15,
+      isWrongClicked: false,
+      isCorrect: false
     }))
 
     setBubbles(generatedBubbles)
+    setRoundIndex(currentIdx + 1)
   }
 
-  // Run the physics/game loop
+  // Game Loop for falling animation
   useEffect(() => {
-    if (gameState === 'playing') {
+    if (gameState !== 'playing') {
       if (gameInterval.current) clearInterval(gameInterval.current)
+      return
+    }
 
-      gameInterval.current = setInterval(() => {
-        setBubbles((prevBubbles) => {
-          let hasMissedCorrect = false
-          let targetIsWord = ''
-          
-          const updated = prevBubbles.map((b) => {
-            const nextY = b.y + speedRef.current
-            
-            // Check if correct bubble reaches the bottom (height threshold e.g. 390px)
-            if (nextY >= 390 && b.wordObj._id === targetWord?._id && !hasMissedCorrect) {
-              hasMissedCorrect = true
-              targetIsWord = b.wordObj.word
-            }
-            return { ...b, y: nextY }
-          })
+    gameInterval.current = setInterval(() => {
+      if (isFrozen) return
 
-          if (hasMissedCorrect) {
-            // Player missed the correct bubble!
-            playSound('lose-life')
-            const nextLives = livesRef.current - 1
-            livesRef.current = nextLives
-            setLives(nextLives)
+      setBubbles((prevBubbles) => {
+        let hitBottom = false
+        const updated = prevBubbles.map((b) => {
+          const nextY = b.y + speedRef.current
+          if (nextY >= 82 && b.isTarget && !b.isCorrect) {
+            hitBottom = true
+          }
+          return { ...b, y: nextY }
+        })
 
-            if ('speechSynthesis' in window) {
-              window.speechSynthesis.cancel()
-              const u = new SpeechSynthesisUtterance(`Missed: ${targetIsWord}`)
-              u.lang = 'en-US'
-              u.rate = 0.95
-              window.speechSynthesis.speak(u)
-            }
+        if (hitBottom) {
+          playSound('lose-life')
+          livesRef.current -= 1
+          setLives(livesRef.current)
+          setStreak(0)
 
-            if (nextLives <= 0) {
-              clearInterval(gameInterval.current)
-              setGameState('gameover')
-              return []
-            } else {
-              // Reset with new round
-              setTimeout(() => {
-                setRoundIndex((r) => {
-                  const nextR = r + 1
-                  if (nextR >= 15) {
-                    clearInterval(gameInterval.current)
-                    setGameState('victory')
-                    playSound('victory')
-                  } else {
-                    // Increase speed slightly
-                    speedRef.current += 0.1
-                    setupNextRound(vocabPool, nextR)
-                  }
-                  return nextR
-                })
-              }, 10)
-              return []
-            }
+          if (livesRef.current <= 0) {
+            clearInterval(gameInterval.current)
+            if (timerInterval.current) clearInterval(timerInterval.current)
+            setGameState('gameover')
+            return []
           }
 
-          return updated
-        })
-      }, 30)
-    } else {
-      if (gameInterval.current) clearInterval(gameInterval.current)
-    }
+          // Reset round if word dropped
+          setTimeout(() => setupNextRound(vocabPool.length ? vocabPool : FALLBACK_WORDS, roundIndex), 300)
+          return []
+        }
+
+        return updated
+      })
+    }, 50)
 
     return () => {
       if (gameInterval.current) clearInterval(gameInterval.current)
     }
-  }, [gameState, targetWord, vocabPool])
+  }, [gameState, isFrozen, roundIndex, vocabPool])
 
-  const speakWord = (text) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel()
-      const u = new SpeechSynthesisUtterance(text)
-      u.lang = 'en-US'
-      u.rate = 0.9
-      window.speechSynthesis.speak(u)
-    }
-  }
+  const handleBubbleClick = (bubble) => {
+    if (gameState !== 'playing' || bubble.isWrongClicked || bubble.isCorrect) return
 
-  // Handle clicking bubble
-  const handleBubbleClick = (bubbleId, isCorrectChoice, wordText) => {
-    if (gameState !== 'playing') return
-
-    if (isCorrectChoice) {
+    if (bubble.isTarget) {
       playSound('correct')
-      speakWord(wordText)
-      setScore((prev) => prev + 1)
-      
-      // Update mastery level in DB
-      const bubble = bubbles.find(b => b.id === bubbleId)
-      if (bubble && bubble.wordObj && !bubble.wordObj._id.startsWith('f')) {
-        api.patch(`/vocabulary/${bubble.wordObj._id}`, { masteryLevel: 'learning' }).catch(() => {})
-      }
+      setBubbles((prev) =>
+        prev.map((b) => (b.id === bubble.id ? { ...b, isCorrect: true } : b))
+      )
+      setScore((prev) => prev + 100 + streak * 20)
+      setStreak((prev) => prev + 1)
 
-      // Next round
-      setRoundIndex((r) => {
-        const nextR = r + 1
-        if (nextR >= 15) {
-          clearInterval(gameInterval.current)
-          setGameState('victory')
-          playSound('victory')
-        } else {
-          speedRef.current += 0.12 // increase speed
-          setupNextRound(vocabPool, nextR)
-        }
-        return nextR
-      })
+      if (roundIndex >= 15) {
+        playSound('victory')
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } })
+        if (gameInterval.current) clearInterval(gameInterval.current)
+        if (timerInterval.current) clearInterval(timerInterval.current)
+        setGameState('victory')
+      } else {
+        setTimeout(() => setupNextRound(vocabPool.length ? vocabPool : FALLBACK_WORDS, roundIndex), 500)
+      }
     } else {
       playSound('wrong')
-      // Mark bubble as wrong clicked so it turns red
+      setStreak(0)
       setBubbles((prev) =>
-        prev.map((b) => (b.id === bubbleId ? { ...b, isWrongClicked: true } : b))
+        prev.map((b) => (b.id === bubble.id ? { ...b, isWrongClicked: true } : b))
       )
-      
-      // Deduct score or lives (let's deduct score by 1 and trigger wrong visual)
-      setScore((prev) => Math.max(0, prev - 1))
     }
   }
 
-  const formatTime = (secs) => {
-    const m = Math.floor(secs / 60).toString().padStart(2, '0')
-    const s = (secs % 60).toString().padStart(2, '0')
-    return `${m}:${s}`
+  // Tactical Power-up: Freeze Time (3 seconds)
+  const handleFreeze = () => {
+    if (isFrozen) return
+    setIsFrozen(true)
+    setTimeout(() => setIsFrozen(false), 3000)
+  }
+
+  // Tactical Power-up: Auto-Lock Hint
+  const handleAutoLock = () => {
+    const target = bubbles.find((b) => b.isTarget)
+    if (target) handleBubbleClick(target)
   }
 
   return (
-    <div className="hunter-page animate-fade-in">
-      {gameState === 'victory' && (
-        <div className="confetti-container">
-          {Array.from({ length: 40 }).map((_, i) => (
-            <div 
-              key={i} 
-              className="confetti-particle"
-              style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 4}s`,
-                transform: `rotate(${Math.random() * 360}deg)`,
-                backgroundColor: `hsl(${Math.random() * 360}, 85%, 60%)`,
-                width: `${Math.random() * 8 + 6}px`,
-                height: `${Math.random() * 8 + 6}px`
-              }}
-            />
-          ))}
-        </div>
-      )}
+    <div className="vocab-hunter-page">
+      {/* Background Grid & Ambience */}
+      <div className="hunter-bg-ambient">
+        <div className="hunter-bg-radial" />
+        <div className="hunter-bg-grid" />
+      </div>
 
-      {/* Config Screen */}
       {gameState === 'config' && (
-        <div className="hunter-card card-base config-panel">
-          <div className="text-center config-header">
-            <span className="material-symbols-outlined config-icon-hunter">target</span>
-            <h2 className="text-headline-lg font-bold">{t('games.hunterTitle', 'Vocab Hunter')}</h2>
-            <p className="text-body-md text-secondary-color">
-              {t('games.hunterDesc', 'Speed reflex challenge! Read the definition at the top and pop the matching vocabulary bubble before it falls off the screen!')}
-            </p>
+        <div className="hunter-config-modal">
+          <div className="config-header">
+            <div style={{ display: 'inline-flex', padding: '10px', borderRadius: '16px', background: 'rgba(179, 92, 0, 0.15)', color: '#B35C00', marginBottom: '8px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>sports_esports</span>
+            </div>
+            <h2>{t('games.hunterTitle', '🎯 Vocab Hunter')}</h2>
+            <p>{t('games.hunterDesc', 'Pop falling vocabulary bubbles matching the target definition before they hit the danger zone!')}</p>
           </div>
 
-          <div className="config-section">
-            <h4 className="text-title-md font-medium">{t('games.hunterSpeed', '1. Select Fall Speed')}</h4>
-            <div className="speed-selector">
-              {[
-                { id: 'easy', label: t('games.hunterSlow', 'Slow'), desc: 'Practice' },
-                { id: 'medium', label: t('games.hunterMedium', 'Medium'), desc: 'Normal' },
-                { id: 'hard', label: t('games.hunterFast', 'Fast'), desc: 'Expert' }
-              ].map((lvl) => (
-                <button
-                  key={lvl.id}
-                  className={`speed-btn ${speedLevel === lvl.id ? 'speed-btn--active' : ''}`}
-                  onClick={() => setSpeedLevel(lvl.id)}
-                >
-                  <span className="speed-title">{lvl.label}</span>
-                  <span className="speed-desc">{lvl.desc}</span>
-                </button>
-              ))}
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+              1. {t('games.selectSpeed', 'Select Falling Speed')}
+            </label>
+            <div className="speed-options-grid">
+              <div
+                className={`speed-card ${speedLevel === 'easy' ? 'speed-card--active' : ''}`}
+                onClick={() => setSpeedLevel('easy')}
+              >
+                <h4>{t('games.easy', 'Practice')}</h4>
+                <span>1.0x Speed</span>
+              </div>
+              <div
+                className={`speed-card ${speedLevel === 'medium' ? 'speed-card--active' : ''}`}
+                onClick={() => setSpeedLevel('medium')}
+              >
+                <h4>{t('games.normal', 'Normal')}</h4>
+                <span>1.6x Speed</span>
+              </div>
+              <div
+                className={`speed-card ${speedLevel === 'hard' ? 'speed-card--active' : ''}`}
+                onClick={() => setSpeedLevel('hard')}
+              >
+                <h4>{t('games.hard', 'Expert')}</h4>
+                <span>2.4x Speed</span>
+              </div>
             </div>
           </div>
 
-          <div className="config-section">
-            <h4 className="text-title-md font-medium">{t('games.matchingSelectCat', '2. Select Category (Optional)')}</h4>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="category-select"
-            >
-              <option value="">{t('games.allCategories', 'All Categories')}</option>
-              <option value="academic">Academic</option>
-              <option value="business">Business</option>
-              <option value="scientific">Scientific</option>
-              <option value="daily">Daily Use</option>
-            </select>
-          </div>
-
-          <button className="start-game-btn-hunter" onClick={loadVocabulary}>
+          <button
+            className="arcade-btn-3d arcade-btn--hunter"
+            onClick={loadVocabulary}
+          >
+            <span>{t('games.startHunting', 'Start Hunting')}</span>
             <span className="material-symbols-outlined">play_arrow</span>
-            {t('games.startGame', 'Start Game')}
           </button>
         </div>
       )}
 
-      {/* Loading Screen */}
-      {gameState === 'loading' && (
-        <div className="loading-panel text-center">
-          <span className="material-symbols-outlined animate-spin loading-spinner">
-            progress_activity
-          </span>
-          <p className="text-body-lg">{t('common.loading', 'Spawning vocabulary bubbles...')}</p>
-        </div>
-      )}
+      {gameState === 'playing' && (
+        <>
+          {/* Top HUD Header */}
+          <header className="hunter-hud-header">
+            <div className="hunter-hud-left">
+              <button className="hunter-exit-btn" onClick={() => navigate('/student/game')}>
+                <span className="material-symbols-outlined">arrow_back</span>
+                <span>Exit to Hub</span>
+              </button>
+              <div className="hunter-title-badge">
+                <span className="material-symbols-outlined">sports_esports</span>
+                <span>VocabHunter</span>
+              </div>
+            </div>
 
-      {/* Gameplay Screen */}
-      {gameState === 'playing' && targetWord && (
-        <div className="hunter-gameplay-container">
-          <div className="gameplay-header">
-            <button className="back-btn" onClick={() => setGameState('config')}>
-              <span className="material-symbols-outlined">arrow_back</span>
-              {t('common.exit', 'Exit')}
-            </button>
-            <div className="stats-row">
-              <div className="lives-display">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <span
-                    key={i}
-                    className="material-symbols-outlined heart-icon"
-                    style={{ color: i < lives ? '#E53935' : '#B0BEC5', fontVariationSettings: i < lives ? "'FILL' 1" : "'FILL' 0" }}
+            <div className="hunter-hud-center">
+              {/* Lives */}
+              <div className="hud-stat-pill">
+                <span style={{ fontSize: '11px', fontFamily: 'JetBrains Mono', color: 'var(--color-on-surface-variant)' }}>LIVES</span>
+                <div className="hud-lives">
+                  {[1, 2, 3].map((heart) => (
+                    <span
+                      key={heart}
+                      className={`material-symbols-outlined heart-icon ${heart > lives ? 'heart-icon--lost' : ''}`}
+                    >
+                      favorite
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Score */}
+              <div className="hud-stat-pill">
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#16A34A' }}>stars</span>
+                <span style={{ fontSize: '11px', fontFamily: 'JetBrains Mono', color: 'var(--color-on-surface-variant)' }}>SCORE:</span>
+                <span className="hud-score-val">{score}</span>
+              </div>
+
+              {/* Round */}
+              <div className="hud-stat-pill">
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-primary)' }}>flag</span>
+                <span style={{ fontSize: '11px', fontFamily: 'JetBrains Mono', color: 'var(--color-on-surface-variant)' }}>ROUND:</span>
+                <span style={{ fontFamily: 'JetBrains Mono', color: 'var(--color-primary)', fontWeight: 800 }}>{roundIndex}/15</span>
+              </div>
+
+              {/* Streak */}
+              {streak > 1 && (
+                <div className="hud-stat-pill hud-streak-pill">
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>local_fire_department</span>
+                  <span>{streak}x STREAK</span>
+                </div>
+              )}
+            </div>
+
+            <div className="hunter-hud-right">
+              <div className="hud-timer">
+                <span className="material-symbols-outlined">timer</span>
+                <span>00:{timer < 10 ? `0${timer}` : timer}</span>
+              </div>
+
+              <button
+                className="hunter-exit-btn"
+                onClick={() => setSoundMuted(!soundMuted)}
+                title={soundMuted ? 'Unmute' : 'Mute'}
+              >
+                <span className="material-symbols-outlined">{soundMuted ? 'volume_off' : 'volume_up'}</span>
+              </button>
+            </div>
+          </header>
+
+          {/* Target Definition Banner */}
+          <div className="hunter-target-banner">
+            <div className="target-banner-top">
+              <span className="target-badge">
+                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>crisis_alert</span>
+                🎯 TARGET DEFINITION
+              </span>
+              <span style={{ fontSize: '11px', fontFamily: 'JetBrains Mono', color: 'var(--color-on-surface-variant)' }}>
+                · Academic Level Target
+              </span>
+            </div>
+            <p className="target-definition-text">
+              “{targetWord?.definition || 'Loading definition...'}”
+            </p>
+          </div>
+
+          {/* Main Battle Arena & Sidebar */}
+          <main className="hunter-main-layout">
+            <div className="hunter-battle-canvas">
+              {/* Bubble Arena */}
+              <div className="hunter-bubble-arena">
+                {bubbles.map((b) => (
+                  <div
+                    key={b.id}
+                    className={`hunter-bubble ${b.isWrongClicked ? 'hunter-bubble--wrong' : ''} ${b.isCorrect ? 'hunter-bubble--correct' : ''}`}
+                    style={{ left: `${b.x}%`, top: `${b.y}%` }}
+                    onClick={() => handleBubbleClick(b)}
                   >
-                    favorite
-                  </span>
+                    <div className="hunter-bubble-card">
+                      <span className="bubble-word-text">{b.word}</span>
+                      <span className="bubble-ipa-text">{b.ipa}</span>
+                    </div>
+                  </div>
                 ))}
               </div>
-              <div className="stat-pill">
-                <span className="material-symbols-outlined">sports_score</span>
-                <span>{t('games.score', 'Score')}: {score}</span>
-              </div>
-              <div className="stat-pill">
-                <span className="material-symbols-outlined">tour</span>
-                <span>{t('games.round', 'Round')}: {roundIndex + 1} / 15</span>
+
+              {/* Bottom Danger Zone */}
+              <div className="hunter-danger-zone">
+                <div className="hazard-stripe">
+                  <div className="hazard-text">
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>warning</span>
+                    ════ DANGER ZONE — DON&apos;T LET WORDS DROP ════
+                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>warning</span>
+                  </div>
+                </div>
+
+                <div className="hunter-turret-base">
+                  <span className="turret-status-text">
+                    ⚡ Defense Turret Online · Click or tap the correct floating bubble!
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Target Definition Box */}
-          <div className="target-definition-box text-center card-base">
-            <span className="definition-tag-hunter">{t('games.hunterTargetDef', 'Target Definition:')}</span>
-            <p className="definition-phrase font-medium">"{targetWord.definition}"</p>
-          </div>
+            {/* Right Metrics & Tactical Arsenal */}
+            <aside className="hunter-sidebar">
+              <div className="hunter-card-panel">
+                <div className="panel-header">
+                  <span>Hunter Metrics</span>
+                  <span style={{ color: 'var(--color-primary)', fontSize: '11px', fontFamily: 'JetBrains Mono' }}>LIVE</span>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <div style={{ padding: '10px', borderRadius: '12px', background: 'var(--color-surface-container-lowest)', border: '1px solid var(--color-outline-variant)' }}>
+                    <span style={{ fontSize: '10px', fontFamily: 'JetBrains Mono', color: 'var(--color-on-surface-variant)', display: 'block' }}>WAVE</span>
+                    <strong style={{ fontSize: '16px', color: '#16A34A' }}>{roundIndex}/15</strong>
+                  </div>
+                  <div style={{ padding: '10px', borderRadius: '12px', background: 'var(--color-surface-container-lowest)', border: '1px solid var(--color-outline-variant)' }}>
+                    <span style={{ fontSize: '10px', fontFamily: 'JetBrains Mono', color: 'var(--color-on-surface-variant)', display: 'block' }}>STREAK</span>
+                    <strong style={{ fontSize: '16px', color: '#B35C00' }}>{streak}x</strong>
+                  </div>
+                </div>
+              </div>
 
-          {/* Falling Bubbles Canvas Area */}
-          <div className="hunter-canvas-area">
-            {bubbles.map((b) => {
-              const isCorrectChoice = b.wordObj._id === targetWord._id
-              return (
-                <button
-                  key={b.id}
-                  className={`word-bubble ${b.isWrongClicked ? 'bubble-wrong animate-shake' : ''}`}
-                  style={{
-                    left: `${b.x}%`,
-                    top: `${b.y}px`
-                  }}
-                  onClick={() => handleBubbleClick(b.id, isCorrectChoice, b.wordObj.word)}
-                >
-                  <span className="bubble-text">{b.wordObj.word}</span>
-                </button>
-              )
-            })}
-            
-            {/* Safe zone boundary indicator */}
-            <div className="danger-zone-line" />
-          </div>
-        </div>
+              <div className="hunter-card-panel" style={{ flex: 1 }}>
+                <div className="panel-header">
+                  <span>Tactical Arsenal</span>
+                  <span style={{ fontSize: '11px', color: 'var(--color-on-surface-variant)' }}>POWER-UPS</span>
+                </div>
+                <div className="powerup-grid">
+                  <button
+                    className="powerup-btn"
+                    onClick={handleFreeze}
+                    disabled={isFrozen}
+                  >
+                    <span style={{ fontSize: '18px' }}>❄️</span>
+                    <div>
+                      <div>Freeze Time</div>
+                      <div style={{ fontSize: '10px', color: 'var(--color-on-surface-variant)' }}>Pause falling (3s)</div>
+                    </div>
+                  </button>
+
+                  <button
+                    className="powerup-btn"
+                    onClick={handleAutoLock}
+                  >
+                    <span style={{ fontSize: '18px' }}>🎯</span>
+                    <div>
+                      <div>Auto-Lock Target</div>
+                      <div style={{ fontSize: '10px', color: 'var(--color-on-surface-variant)' }}>Instantly shoot correct word</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+            </aside>
+          </main>
+        </>
       )}
 
-      {/* Game Over Screen */}
-      {gameState === 'gameover' && (
-        <div className="hunter-card gameover-panel card-base text-center">
-          <div className="gameover-icon-wrap">
-            <span className="material-symbols-outlined skull-icon">heart_broken</span>
+      {(gameState === 'gameover' || gameState === 'victory') && (
+        <div className="hunter-config-modal" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '8px' }}>
+            {gameState === 'victory' ? '🏆' : '💀'}
           </div>
-          <h2 className="text-headline-lg font-bold text-error">{t('games.gameOver', 'Game Over!')}</h2>
-          <p className="text-body-md text-secondary-color">
-            You ran out of lives (all 3 lost). Keep practicing and try again!
+          <h2>{gameState === 'victory' ? 'Victory! Sector Cleared' : 'Game Over'}</h2>
+          <p style={{ fontSize: '1.2rem', fontWeight: 700, color: '#B35C00' }}>
+            Final Score: {score} pts · Rounds Cleared: {roundIndex}/15
           </p>
-
-          <div className="score-summary-grid">
-            <div className="summary-item">
-              <span className="summary-value">{score}</span>
-              <span className="summary-label">{t('common.score', 'Target Words Hit')}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-value">+{score * 5} XP</span>
-              <span className="summary-label">{t('games.xpEarned', 'XP Earned')}</span>
-            </div>
-          </div>
-
-          <div className="victory-actions">
-            <button className="play-again-btn-hunter" onClick={() => setGameState('config')}>
-              <span className="material-symbols-outlined">replay</span>
-              {t('common.retry', 'Try Again')}
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '16px' }}>
+            <button
+              className="arcade-btn-3d arcade-btn--hunter"
+              onClick={() => setGameState('config')}
+              style={{ width: 'auto' }}
+            >
+              Play Again
             </button>
-            <button className="return-btn" onClick={() => navigate('/student/vocabulary')}>
-              <span className="material-symbols-outlined">menu_book</span>
-              {t('games.wordLibrary', 'Word Library')}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Victory Screen */}
-      {gameState === 'victory' && (
-        <div className="hunter-card victory-panel card-base text-center">
-          <div className="victory-crown">
-            <span className="material-symbols-outlined crown-icon">emoji_events</span>
-          </div>
-          <h2 className="text-headline-lg font-bold text-primary-color">{t('games.congratulations', 'Master Vocab Hunter!')}</h2>
-          <p className="text-body-md text-secondary-color">
-            {t('games.scrambleDesc', 'Congratulations! You successfully completed all 15 rapid-fire rounds!')}
-          </p>
-
-          <div className="score-summary-grid">
-            <div className="summary-item">
-              <span className="summary-value">{score}</span>
-              <span className="summary-label">{t('common.score', 'Final Score')}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-value">+{score * 20} XP</span>
-              <span className="summary-label">{t('games.xpEarned', 'XP Earned')}</span>
-            </div>
-          </div>
-
-          <div className="victory-actions">
-            <button className="play-again-btn-hunter" onClick={() => setGameState('config')}>
-              <span className="material-symbols-outlined">replay</span>
-              {t('games.playAgain', 'Play Again')}
-            </button>
-            <button className="return-btn" onClick={() => navigate('/student/vocabulary')}>
-              <span className="material-symbols-outlined">menu_book</span>
-              {t('games.wordLibrary', 'Word Library')}
+            <button
+              className="hunter-exit-btn"
+              onClick={() => navigate('/student/game')}
+              style={{ padding: '12px 20px', borderRadius: '16px' }}
+            >
+              Exit to Hub
             </button>
           </div>
         </div>

@@ -1,46 +1,39 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
+import confetti from 'canvas-confetti'
 import './ContextFiller.css'
 
 const FALLBACK_WORDS = [
-  { _id: 'f1', word: 'stagnant', definition: 'Not growing or developing; stale or inactive.', examples: ['The economy has remained stagnant for the past few quarters.'] },
-  { _id: 'f2', word: 'evaluate', definition: 'Form an idea of the amount, number, or value of.', examples: ['We need to evaluate the results of the project before proceeding.'] },
-  { _id: 'f3', word: 'synthesize', definition: 'Combine separate elements to form a coherent whole.', examples: ['The author tries to synthesize different scientific theories in her book.'] },
-  { _id: 'f4', word: 'significant', definition: 'Great or important; worthy of attention.', examples: ['There has been a significant increase in online sales this year.'] },
-  { _id: 'f5', word: 'empirical', definition: 'Based on observation or experience rather than theory.', examples: ['They provided empirical evidence to support their research findings.'] },
-  { _id: 'f6', word: 'methodology', definition: 'A system of methods used in a particular area of study.', examples: ['The research methodology must be clearly explained in your essay.'] }
+  { _id: 'f1', word: 'stagnant', definition: 'Not growing or developing; stale or inactive.', examples: ['The economy has remained _______ for the past few quarters, with no signs of growth.'] },
+  { _id: 'f2', word: 'evaluate', definition: 'Form an idea of the amount, number, or value of.', examples: ['Researchers must _______ all evidence carefully before drawing firm conclusions.'] },
+  { _id: 'f3', word: 'synthesize', definition: 'Combine separate elements to form a coherent whole.', examples: ['The author aims to _______ diverse perspectives into a unified narrative.'] },
+  { _id: 'f4', word: 'significant', definition: 'Great or important; worthy of attention.', examples: ['There has been a _______ breakthrough in renewable energy technology this year.'] },
+  { _id: 'f5', word: 'empirical', definition: 'Based on observation or experience rather than theory.', examples: ['The scientists presented _______ data collected over five years of fieldwork.'] }
 ]
 
 export default function ContextFiller() {
   const navigate = useNavigate()
   const { t } = useLanguage()
 
-  // Game state
-  const [gameState, setGameState] = useState('config') // 'config' | 'loading' | 'playing' | 'victory'
+  const [gameState, setGameState] = useState('config')
   const [roundCount, setRoundCount] = useState(5)
   const [selectedCategory, setSelectedCategory] = useState('')
 
-  // Word list and gameplay
   const [words, setWords] = useState([])
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0)
   const [currentWord, setCurrentWord] = useState(null)
   const [blankedSentence, setBlankedSentence] = useState('')
   const [options, setOptions] = useState([])
-  
-  // Scoring & selection
-  const [selectedOption, setSelectedOption] = useState(null) // selected word string
+
+  const [selectedOption, setSelectedOption] = useState(null)
   const [isAnswered, setIsAnswered] = useState(false)
-  const [isFirstTryCorrect, setIsFirstTryCorrect] = useState(true)
   const [score, setScore] = useState(0)
-  const [attempts, setAttempts] = useState(0)
-  
-  // Timer
+  const [streak, setStreak] = useState(0)
   const [timer, setTimer] = useState(0)
   const timerInterval = useRef(null)
 
-  // Web Audio Context sounds
   const playSound = (type) => {
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext
@@ -53,35 +46,19 @@ export default function ContextFiller() {
 
       if (type === 'correct') {
         osc.type = 'sine'
-        osc.frequency.setValueAtTime(440, ctx.currentTime) // A4
-        osc.frequency.setValueAtTime(554.37, ctx.currentTime + 0.08) // C#5
-        osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.16) // E5
-        gain.gain.setValueAtTime(0.08, ctx.currentTime)
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3)
+        osc.frequency.setValueAtTime(440, ctx.currentTime)
+        osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.1)
+        gain.gain.setValueAtTime(0.1, ctx.currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3)
         osc.start()
         osc.stop(ctx.currentTime + 0.3)
       } else if (type === 'wrong') {
         osc.type = 'sawtooth'
-        osc.frequency.setValueAtTime(180, ctx.currentTime)
-        gain.gain.setValueAtTime(0.12, ctx.currentTime)
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25)
+        osc.frequency.setValueAtTime(160, ctx.currentTime)
+        gain.gain.setValueAtTime(0.15, ctx.currentTime)
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3)
         osc.start()
-        osc.stop(ctx.currentTime + 0.25)
-      } else if (type === 'victory') {
-        const now = ctx.currentTime
-        const notes = [261.63, 329.63, 392.00, 523.25]
-        notes.forEach((freq, idx) => {
-          const o = ctx.createOscillator()
-          const g = ctx.createGain()
-          o.connect(g)
-          g.connect(ctx.destination)
-          o.type = 'sine'
-          o.frequency.setValueAtTime(freq, now + idx * 0.1)
-          g.gain.setValueAtTime(0.08, now + idx * 0.1)
-          g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.25)
-          o.start(now + idx * 0.1)
-          o.stop(now + idx * 0.1 + 0.3)
-        })
+        osc.stop(ctx.currentTime + 0.3)
       }
     } catch (e) {
       console.warn(e)
@@ -93,325 +70,283 @@ export default function ContextFiller() {
     try {
       const categoryParam = selectedCategory ? `&category=${selectedCategory}` : ''
       const response = await api.get(`/vocabulary?limit=150${categoryParam}`)
-      
+
       let loaded = []
       if (response.success && response.data && response.data.length > 0) {
-        // filter words that have at least one example sentence
-        loaded = response.data.filter(w => w.examples && w.examples.length > 0 && w.examples[0].trim() !== '')
-        if (loaded.length < 4) {
-          loaded = FALLBACK_WORDS
-        }
-      } else {
-        loaded = FALLBACK_WORDS
+        loaded = response.data.filter((w) => w.examples && w.examples.length > 0)
       }
+      if (loaded.length < 4) loaded = FALLBACK_WORDS
 
       const selection = [...loaded].sort(() => 0.5 - Math.random()).slice(0, Math.min(roundCount, loaded.length))
       setWords(selection)
       setCurrentRoundIndex(0)
       setScore(0)
+      setStreak(0)
       setTimer(0)
-      
+
       setupRound(selection, 0, loaded)
       setGameState('playing')
 
       if (timerInterval.current) clearInterval(timerInterval.current)
-      timerInterval.current = setInterval(() => {
-        setTimer(prev => prev + 1)
-      }, 1000)
+      timerInterval.current = setInterval(() => setTimer((prev) => prev + 1), 1000)
     } catch (e) {
       console.error(e)
       setWords(FALLBACK_WORDS)
-      setCurrentRoundIndex(0)
-      setScore(0)
-      setTimer(0)
       setupRound(FALLBACK_WORDS, 0, FALLBACK_WORDS)
       setGameState('playing')
     }
   }
 
-  const setupRound = (roundWords, index, pool) => {
-    const wordObj = roundWords[index]
-    setCurrentWord(wordObj)
-    
-    // Blank out word in sentence
-    const sentence = wordObj.examples[0]
-    // Use regex to case-insensitively replace the word with blanks
-    const escapedWord = wordObj.word.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')
-    const regex = new RegExp(`\\b${escapedWord}\\b`, 'gi')
-    const blanked = sentence.replace(regex, '_______')
+  const setupRound = (list, index, fullPool) => {
+    const target = list[index]
+    if (!target) return
+    setCurrentWord(target)
+
+    const rawSentence = (target.examples && target.examples[0]) || `The word _______ fits this sentence.`
+    const regex = new RegExp(target.word, 'gi')
+    const blanked = rawSentence.includes('_______')
+      ? rawSentence
+      : rawSentence.replace(regex, '_______')
+
     setBlankedSentence(blanked)
 
-    // Generate multiple choice options: correct word + 3 random distractors from pool
-    const distractors = pool
-      .filter(w => w.word.toLowerCase() !== wordObj.word.toLowerCase())
-      .sort(() => 0.5 - Math.random())
-      .slice(0, 3)
-      .map(w => w.word)
+    const pool = (fullPool || words).filter((w) => w.word.toLowerCase() !== target.word.toLowerCase())
+    const shuffledPool = [...pool].sort(() => 0.5 - Math.random()).slice(0, 3)
+    const opts = [target, ...shuffledPool].sort(() => 0.5 - Math.random())
 
-    const shuffledOptions = [wordObj.word, ...distractors].sort(() => 0.5 - Math.random())
-    setOptions(shuffledOptions)
-
+    setOptions(opts)
     setSelectedOption(null)
     setIsAnswered(false)
-    setIsFirstTryCorrect(true)
-    setAttempts(0)
   }
 
-  const speakWord = (text) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel()
-      const u = new SpeechSynthesisUtterance(text)
-      u.lang = 'en-US'
-      u.rate = 0.9
-      window.speechSynthesis.speak(u)
-    }
-  }
-
-  const handleOptionClick = (opt) => {
+  const handleSelectOption = (opt) => {
     if (isAnswered) return
-    
-    setSelectedOption(opt)
-    const isCorrectChoice = opt.toLowerCase() === currentWord.word.toLowerCase()
+    setSelectedOption(opt.word)
+    setIsAnswered(true)
 
-    if (isCorrectChoice) {
-      setIsAnswered(true)
+    const isCorrect = opt.word.toLowerCase() === currentWord.word.toLowerCase()
+    if (isCorrect) {
       playSound('correct')
-      speakWord(currentWord.word)
-
-      if (isFirstTryCorrect) {
-        setScore(prev => prev + 1)
-      }
-
-      // Asynchronously update mastery level in DB
-      if (!currentWord._id.startsWith('f')) {
-        api.patch(`/vocabulary/${currentWord._id}`, { masteryLevel: 'learning' }).catch(() => {})
-      }
+      setScore((prev) => prev + 1)
+      setStreak((prev) => prev + 1)
     } else {
       playSound('wrong')
-      setIsFirstTryCorrect(false)
-      setAttempts(prev => prev + 1)
-      // reset selectedOption after brief delay so user can try again
-      setTimeout(() => setSelectedOption(null), 1000)
+      setStreak(0)
     }
   }
 
-  const handleNextRound = () => {
-    const nextIndex = currentRoundIndex + 1
-    if (nextIndex >= words.length) {
-      clearInterval(timerInterval.current)
-      setGameState('victory')
-      playSound('victory')
-    } else {
-      setCurrentRoundIndex(nextIndex)
-      setupRound(words, nextIndex, words)
-    }
-  }
-
-  useEffect(() => {
-    return () => {
+  const handleNextQuestion = () => {
+    if (currentRoundIndex + 1 >= words.length) {
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } })
       if (timerInterval.current) clearInterval(timerInterval.current)
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel()
+      setGameState('victory')
+    } else {
+      setCurrentRoundIndex((prev) => prev + 1)
+      setupRound(words, currentRoundIndex + 1, words)
     }
-  }, [])
+  }
 
-  const formatTime = (secs) => {
-    const m = Math.floor(secs / 60).toString().padStart(2, '0')
-    const s = (secs % 60).toString().padStart(2, '0')
-    return `${m}:${s}`
+  const formatTimer = (secs) => {
+    const m = Math.floor(secs / 60)
+    const s = secs % 60
+    return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`
   }
 
   return (
-    <div className="filler-page animate-fade-in">
-      {gameState === 'victory' && (
-        <div className="confetti-container">
-          {Array.from({ length: 40 }).map((_, i) => (
-            <div 
-              key={i} 
-              className="confetti-particle"
-              style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 4}s`,
-                transform: `rotate(${Math.random() * 360}deg)`,
-                backgroundColor: `hsl(${Math.random() * 360}, 85%, 60%)`,
-                width: `${Math.random() * 9 + 5}px`,
-                height: `${Math.random() * 9 + 5}px`
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Config Screen */}
+    <div className="context-filler-page">
       {gameState === 'config' && (
-        <div className="filler-card card-base config-panel">
-          <div className="text-center config-header">
-            <span className="material-symbols-outlined config-icon-filler">rate_review</span>
-            <h2 className="text-headline-lg font-bold">{t('games.fillerTitle', 'Context Filler')}</h2>
-            <p className="text-body-md text-secondary-color">
-              {t('games.fillerDesc', 'Learn vocabulary in context! Read real-world sample sentences and choose the most appropriate word to complete each blank.')}
-            </p>
+        <div className="hunter-config-modal">
+          <div className="config-header">
+            <div style={{ display: 'inline-flex', padding: '10px', borderRadius: '16px', background: 'rgba(0, 91, 191, 0.15)', color: '#005BBF', marginBottom: '8px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>psychology</span>
+            </div>
+            <h2>{t('games.fillerTitle', '📝 Context Filler')}</h2>
+            <p>{t('games.fillerDesc', 'Read authentic sentences from literature & news, choose the missing vocabulary in context.')}</p>
           </div>
 
-          <div className="config-section">
-            <h4 className="text-title-md font-medium">{t('games.fillerRounds', '1. Number of Questions')}</h4>
-            <div className="round-selector">
-              {[5, 10, 15].map((num) => (
-                <button
-                  key={num}
-                  className={`round-btn-filler ${roundCount === num ? 'round-btn-filler--active' : ''}`}
-                  onClick={() => setRoundCount(num)}
-                >
-                  {num} {t('onboarding.question', 'Questions')}
-                </button>
-              ))}
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+              1. {t('games.selectRounds', 'Select Question Count')}
+            </label>
+            <div className="speed-options-grid">
+              <div
+                className={`speed-card ${roundCount === 5 ? 'speed-card--active' : ''}`}
+                onClick={() => setRoundCount(5)}
+              >
+                <h4>5 Questions</h4>
+                <span>Quick Sprint</span>
+              </div>
+              <div
+                className={`speed-card ${roundCount === 8 ? 'speed-card--active' : ''}`}
+                onClick={() => setRoundCount(8)}
+              >
+                <h4>8 Questions</h4>
+                <span>Standard</span>
+              </div>
+              <div
+                className={`speed-card ${roundCount === 12 ? 'speed-card--active' : ''}`}
+                onClick={() => setRoundCount(12)}
+              >
+                <h4>12 Questions</h4>
+                <span>Mastery</span>
+              </div>
             </div>
           </div>
 
-          <div className="config-section">
-            <h4 className="text-title-md font-medium">{t('games.matchingSelectCat', '2. Select Category (Optional)')}</h4>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="category-select"
-            >
-              <option value="">{t('games.allCategories', 'All Categories')}</option>
-              <option value="academic">Academic</option>
-              <option value="business">Business</option>
-              <option value="scientific">Scientific</option>
-              <option value="daily">Daily Use</option>
-            </select>
-          </div>
-
-          <button className="start-game-btn-filler" onClick={loadWords}>
+          <button
+            className="arcade-btn-3d arcade-btn--filler"
+            onClick={loadWords}
+          >
+            <span>Start Practice</span>
             <span className="material-symbols-outlined">play_arrow</span>
-            {t('games.startGame', 'Start Game')}
           </button>
         </div>
       )}
 
-      {/* Loading Screen */}
-      {gameState === 'loading' && (
-        <div className="loading-panel text-center">
-          <span className="material-symbols-outlined animate-spin loading-spinner">
-            progress_activity
-          </span>
-          <p className="text-body-lg">{t('common.loading', 'Finding suitable contextual sentences...')}</p>
-        </div>
-      )}
-
-      {/* Gameplay Screen */}
-      {gameState === 'playing' && currentWord && (
-        <div className="filler-gameplay-container">
-          <div className="gameplay-header">
-            <button className="back-btn" onClick={() => setGameState('config')}>
-              <span className="material-symbols-outlined">arrow_back</span>
-              {t('common.exit', 'Exit')}
-            </button>
-            <div className="stats-row">
-              <div className="stat-pill">
-                <span className="material-symbols-outlined">schedule</span>
-                <span>{formatTime(timer)}</span>
-              </div>
-              <div className="stat-pill">
-                <span className="material-symbols-outlined">check_circle</span>
-                <span>{t('games.score', 'Score')}: {score} / {words.length}</span>
-              </div>
-              <div className="stat-pill">
-                <span className="material-symbols-outlined">quiz</span>
-                <span>{t('onboarding.question', 'Question')}: {currentRoundIndex + 1} / {words.length}</span>
+      {gameState === 'playing' && (
+        <>
+          {/* Top HUD Header */}
+          <header className="hunter-hud-header">
+            <div className="hunter-hud-left">
+              <button className="hunter-exit-btn" onClick={() => navigate('/student/game')}>
+                <span className="material-symbols-outlined">arrow_back</span>
+                <span>Exit</span>
+              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--color-primary)', fontWeight: 800 }}>
+                <span>📝</span>
+                <span>Context Filler</span>
               </div>
             </div>
-          </div>
 
-          <div className="filler-card-playing card-base">
-            {/* Sentence box */}
-            <div className="sentence-display-box">
-              <p className="sentence-text">
-                "{blankedSentence}"
+            <div className="hunter-hud-center">
+              <div className="hud-stat-pill">
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-primary)' }}>timer</span>
+                <span>{formatTimer(timer)}</span>
+              </div>
+
+              <div className="hud-stat-pill">
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#16A34A' }}>military_tech</span>
+                <span>Score: <strong style={{ color: '#16A34A' }}>{score}</strong>/{words.length}</span>
+              </div>
+
+              <div className="hud-stat-pill">
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-primary)' }}>flag</span>
+                <span>Question: <strong>{currentRoundIndex + 1}</strong>/{words.length}</span>
+              </div>
+
+              {streak > 1 && (
+                <div className="hud-stat-pill hud-streak-pill" style={{ background: 'rgba(0, 91, 191, 0.15)', color: 'var(--color-primary)' }}>
+                  <span>🔥 {streak}x Streak</span>
+                </div>
+              )}
+            </div>
+
+            <div className="hunter-hud-right">
+              <button className="hunter-exit-btn" onClick={() => navigate('/student/game')}>
+                <span className="material-symbols-outlined">settings</span>
+              </button>
+            </div>
+          </header>
+
+          <div className="filler-container">
+            {/* Authentic Sentence Card */}
+            <div className="filler-sentence-card">
+              <span className="sentence-tag">
+                <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>menu_book</span>
+                AUTHENTIC LITERATURE & NEWS CONTEXT
+              </span>
+              <p className="filler-quote-text">
+                “{blankedSentence.split('_______').map((part, i, arr) => (
+                  <span key={i}>
+                    {part}
+                    {i < arr.length - 1 && (
+                      <span className={`sentence-blank-slot ${isAnswered && selectedOption ? 'sentence-blank-slot--filled' : ''}`}>
+                        {isAnswered && selectedOption ? selectedOption : '_______'}
+                      </span>
+                    )}
+                  </span>
+                ))}”
               </p>
             </div>
 
-            {/* Options grid */}
-            <div className="options-grid">
-              {options.map((opt, idx) => {
-                const isSelected = selectedOption === opt
-                const isCorrectAnswer = opt.toLowerCase() === currentWord.word.toLowerCase()
-                
-                let btnClass = ''
-                if (isSelected) {
-                  btnClass = isCorrectAnswer ? 'opt-btn--correct' : 'opt-btn--wrong'
-                } else if (isAnswered && isCorrectAnswer) {
-                  btnClass = 'opt-btn--correct'
+            {/* 4 Options Grid */}
+            <div className="filler-options-grid">
+              {options.map((opt, i) => {
+                const letter = String.fromCharCode(65 + i)
+                const isSelected = selectedOption === opt.word
+                const isTarget = opt.word.toLowerCase() === currentWord.word.toLowerCase()
+                let statusClass = ''
+
+                if (isAnswered) {
+                  if (isTarget) statusClass = 'filler-option-card--correct'
+                  else if (isSelected && !isTarget) statusClass = 'filler-option-card--wrong'
                 }
 
                 return (
-                  <button
-                    key={idx}
-                    className={`option-button-item ${btnClass}`}
-                    onClick={() => handleOptionClick(opt)}
-                    disabled={isAnswered && !isCorrectAnswer}
+                  <div
+                    key={opt._id || opt.word}
+                    className={`filler-option-card ${statusClass} ${isAnswered ? 'filler-option-card--disabled' : ''}`}
+                    onClick={() => handleSelectOption(opt)}
                   >
-                    <span className="option-letter">{String.fromCharCode(65 + idx)}.</span>
-                    <span className="option-text font-bold">{opt}</span>
-                  </button>
+                    <div className="option-badge-key">{letter}</div>
+                    <div className="option-word-title">{opt.word}</div>
+                  </div>
                 )
               })}
             </div>
 
-            {/* Next step panel */}
+            {/* Explanation & Next Question Panel */}
             {isAnswered && (
-              <div className="filler-next-panel text-center animate-scale-up">
-                <p className="definition-explanation">
-                  <strong>{currentWord.word}:</strong> {currentWord.definition}
-                </p>
-                <button className="next-round-btn-filler" onClick={handleNextRound}>
-                  {t('games.fillerNext', 'Next Question')}
+              <div className="filler-explanation-panel animate-fade-in">
+                <div>
+                  <div style={{ fontWeight: 800, color: selectedOption?.toLowerCase() === currentWord?.word?.toLowerCase() ? '#16A34A' : '#E53935', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <span className="material-symbols-outlined">
+                      {selectedOption?.toLowerCase() === currentWord?.word?.toLowerCase() ? 'check_circle' : 'error'}
+                    </span>
+                    <span>
+                      {selectedOption?.toLowerCase() === currentWord?.word?.toLowerCase() ? 'Correct!' : 'Incorrect!'}
+                    </span>
+                  </div>
+                  <p style={{ margin: '4px 0 0', fontSize: '14px', color: 'var(--color-on-surface)' }}>
+                    <strong>{currentWord.word}</strong>: {currentWord.definition}
+                  </p>
+                </div>
+
+                <button
+                  className="arcade-btn-3d arcade-btn--tertiary"
+                  onClick={handleNextQuestion}
+                  style={{ width: 'auto', minWidth: '180px' }}
+                >
+                  <span>Next Question</span>
                   <span className="material-symbols-outlined">arrow_forward</span>
                 </button>
               </div>
             )}
           </div>
-        </div>
+        </>
       )}
 
-      {/* Victory Screen */}
       {gameState === 'victory' && (
-        <div className="filler-card victory-panel card-base text-center">
-          <div className="victory-crown">
-            <span className="material-symbols-outlined crown-icon-filler">emoji_events</span>
-          </div>
-          <h2 className="text-headline-lg font-bold text-primary-color">{t('games.congratulations', 'Congratulations! Victory!')}</h2>
-          <p className="text-body-md text-secondary-color">
-            {t('games.fillerDesc', 'You successfully completed the Context Filler challenge!')}
+        <div className="hunter-config-modal" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '8px' }}>🏆</div>
+          <h2>Context Mastery Complete!</h2>
+          <p style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--color-primary)' }}>
+            Score: {score} / {words.length} in {formatTimer(timer)}
           </p>
-
-          <div className="score-summary-grid">
-            <div className="summary-item">
-              <span className="summary-value">{formatTime(timer)}</span>
-              <span className="summary-label">{t('games.time', 'Time')}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-value">{score} / {words.length}</span>
-              <span className="summary-label">{t('common.score', 'Score')}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-value">{Math.round((score / words.length) * 100)}%</span>
-              <span className="summary-label">{t('games.accuracy', 'Accuracy')}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-value">+{score * 12} XP</span>
-              <span className="summary-label">{t('games.xpEarned', 'XP Earned')}</span>
-            </div>
-          </div>
-
-          <div className="victory-actions">
-            <button className="play-again-btn-filler" onClick={() => setGameState('config')}>
-              <span className="material-symbols-outlined">replay</span>
-              {t('games.playAgain', 'Play Again')}
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '16px' }}>
+            <button
+              className="arcade-btn-3d arcade-btn--filler"
+              onClick={() => setGameState('config')}
+              style={{ width: 'auto' }}
+            >
+              Play Again
             </button>
-            <button className="return-btn" onClick={() => navigate('/student/vocabulary')}>
-              <span className="material-symbols-outlined">menu_book</span>
-              {t('games.wordLibrary', 'Word Library')}
+            <button
+              className="hunter-exit-btn"
+              onClick={() => navigate('/student/game')}
+              style={{ padding: '12px 20px', borderRadius: '16px' }}
+            >
+              Exit to Hub
             </button>
           </div>
         </div>

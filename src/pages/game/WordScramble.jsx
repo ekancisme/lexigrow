@@ -1,45 +1,44 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
+import confetti from 'canvas-confetti'
 import './WordScramble.css'
 
 const FALLBACK_WORDS = [
-  { _id: 'f1', word: 'Evaluate', definition: 'Form an idea of the amount, number, or value of; assess.', partOfSpeech: 'verb', ipa: '/ɪˈvæljueɪt/' },
-  { _id: 'f2', word: 'Synthesize', definition: 'Combine a number of things into a coherent whole.', partOfSpeech: 'verb', ipa: '/ˈsɪnθəsaɪz/' },
-  { _id: 'f3', word: 'Significant', definition: 'Sufficiently great or important to be worthy of attention; noteworthy.', partOfSpeech: 'adjective', ipa: '/sɪɡˈnɪfɪkənt/' },
-  { _id: 'f4', word: 'Empirical', definition: 'Based on, concerned with, or verifiable by observation or experience rather than theory.', partOfSpeech: 'adjective', ipa: '/ɪmˈpɪrɪkl/' },
-  { _id: 'f5', word: 'Methodology', definition: 'A system of methods used in a particular area of study or activity.', partOfSpeech: 'noun', ipa: '/ˌmeθəˈdɒlədʒi/' }
+  { _id: 'f1', word: 'Evaluate', definition: 'Form an idea of the amount, number, or value of; assess.', partOfSpeech: 'verb', ipa: '/ɪˈvæl.ju.eɪt/' },
+  { _id: 'f2', word: 'Synthesize', definition: 'Combine a number of things into a coherent whole.', partOfSpeech: 'verb', ipa: '/ˈsɪn.θə.saɪz/' },
+  { _id: 'f3', word: 'Significant', definition: 'Sufficiently great or important to be worthy of attention; noteworthy.', partOfSpeech: 'adjective', ipa: '/sɪɡˈnɪf.ɪ.kənt/' },
+  { _id: 'f4', word: 'Empirical', definition: 'Based on, concerned with, or verifiable by observation or experience rather than theory.', partOfSpeech: 'adjective', ipa: '/ɪmˈpɪr.ɪ.kəl/' },
+  { _id: 'f5', word: 'Eloquent', definition: 'Fluent or persuasive in speaking or writing.', partOfSpeech: 'adjective', ipa: '/ˈel.ə.kwənt/' },
+  { _id: 'f6', word: 'Frugal', definition: 'Sparing or economical with regard to money or food.', partOfSpeech: 'adjective', ipa: '/ˈfruː.ɡəl/' }
 ]
 
 export default function WordScramble() {
   const navigate = useNavigate()
   const { t } = useLanguage()
-  
+
   // Game state
   const [gameState, setGameState] = useState('config') // 'config' | 'loading' | 'playing' | 'victory'
   const [roundCount, setRoundCount] = useState(5)
   const [selectedCategory, setSelectedCategory] = useState('')
-  
+
   // Word list state
   const [words, setWords] = useState([])
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0)
-  
+
   // Current playing word state
   const [currentWordObj, setCurrentWordObj] = useState(null)
-  const [scrambledWord, setScrambledWord] = useState('')
+  const [scrambledLetters, setScrambledLetters] = useState([])
   const [userInput, setUserInput] = useState('')
   const [isCorrect, setIsCorrect] = useState(null) // null | true | false
-  const [attempts, setAttempts] = useState(0)
-  const [hintLevel, setHintLevel] = useState(0) // 0: no hint, 1: show first letter, 2: show first & last letters
+  const [hintLevel, setHintLevel] = useState(0)
   const [score, setScore] = useState(0)
-  const [skips, setSkips] = useState(0)
-  
-  // Stats
+  const [streak, setStreak] = useState(0)
   const [timer, setTimer] = useState(0)
+  const inputRef = useRef(null)
   const timerInterval = useRef(null)
 
-  // Web Audio Context sound effects
   const playSound = (type) => {
     try {
       const AudioContext = window.AudioContext || window.webkitAudioContext
@@ -52,8 +51,8 @@ export default function WordScramble() {
 
       if (type === 'correct') {
         osc.type = 'sine'
-        osc.frequency.setValueAtTime(587.33, ctx.currentTime) // D5
-        osc.frequency.setValueAtTime(880.00, ctx.currentTime + 0.1) // A5
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime)
+        osc.frequency.setValueAtTime(880.00, ctx.currentTime + 0.1)
         gain.gain.setValueAtTime(0.1, ctx.currentTime)
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.25)
         osc.start()
@@ -61,49 +60,23 @@ export default function WordScramble() {
       } else if (type === 'wrong') {
         osc.type = 'sawtooth'
         osc.frequency.setValueAtTime(150, ctx.currentTime)
-        osc.frequency.setValueAtTime(120, ctx.currentTime + 0.1)
         gain.gain.setValueAtTime(0.15, ctx.currentTime)
         gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35)
         osc.start()
         osc.stop(ctx.currentTime + 0.35)
-      } else if (type === 'victory') {
-        const now = ctx.currentTime
-        const notes = [523.25, 659.25, 783.99, 1046.50] // C5, E5, G5, C6
-        notes.forEach((freq, i) => {
-          const o = ctx.createOscillator()
-          const g = ctx.createGain()
-          o.connect(g)
-          g.connect(ctx.destination)
-          o.type = 'sine'
-          o.frequency.setValueAtTime(freq, now + i * 0.1)
-          g.gain.setValueAtTime(0.1, now + i * 0.1)
-          g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.1 + 0.3)
-          o.start(now + i * 0.1)
-          o.stop(now + i * 0.1 + 0.35)
-        })
       }
     } catch (e) {
-      console.warn('Audio Context error:', e)
+      console.warn(e)
     }
   }
 
-  // Scramble function
   const scramble = (word) => {
-    const letters = word.split('')
-    let scrambled = ''
-    let safetyCounter = 0
-    
-    // Shuffle letters until scrambled word is different from original
-    do {
-      for (let i = letters.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [letters[i], letters[j]] = [letters[j], letters[i]]
-      }
-      scrambled = letters.join('')
-      safetyCounter++
-    } while (scrambled.toLowerCase() === word.toLowerCase() && safetyCounter < 50)
-    
-    return scrambled.toUpperCase()
+    const letters = word.toUpperCase().split('')
+    for (let i = letters.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [letters[i], letters[j]] = [letters[j], letters[i]]
+    }
+    return letters
   }
 
   const loadWords = async () => {
@@ -111,7 +84,7 @@ export default function WordScramble() {
     try {
       const categoryParam = selectedCategory ? `&category=${selectedCategory}` : ''
       const response = await api.get(`/vocabulary?limit=150${categoryParam}`)
-      
+
       let loaded = []
       if (response.success && response.data && response.data.length > 0) {
         loaded = response.data
@@ -119,336 +92,306 @@ export default function WordScramble() {
         loaded = FALLBACK_WORDS
       }
 
-      // Shuffle and pick roundCount words
       const selection = [...loaded].sort(() => 0.5 - Math.random()).slice(0, Math.min(roundCount, loaded.length))
       setWords(selection)
-      
-      // Init gameplay variables
       setCurrentRoundIndex(0)
       setScore(0)
-      setSkips(0)
+      setStreak(0)
       setTimer(0)
-      
+
       setupRound(selection, 0)
       setGameState('playing')
 
       if (timerInterval.current) clearInterval(timerInterval.current)
-      timerInterval.current = setInterval(() => {
-        setTimer(prev => prev + 1)
-      }, 1000)
+      timerInterval.current = setInterval(() => setTimer((prev) => prev + 1), 1000)
     } catch (e) {
       console.error(e)
       const selection = [...FALLBACK_WORDS].slice(0, Math.min(roundCount, FALLBACK_WORDS.length))
       setWords(selection)
       setCurrentRoundIndex(0)
       setScore(0)
-      setSkips(0)
+      setStreak(0)
       setTimer(0)
       setupRound(selection, 0)
       setGameState('playing')
     }
   }
 
-  const setupRound = (roundWords, index) => {
-    const wordObj = roundWords[index]
+  const setupRound = (list, index) => {
+    const wordObj = list[index]
+    if (!wordObj) return
     setCurrentWordObj(wordObj)
-    setScrambledWord(scramble(wordObj.word))
+    setScrambledLetters(scramble(wordObj.word))
     setUserInput('')
     setIsCorrect(null)
-    setAttempts(0)
     setHintLevel(0)
+    setTimeout(() => inputRef.current?.focus(), 150)
   }
 
-  const handleSpeak = () => {
-    if (!currentWordObj) return
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel()
-      const u = new SpeechSynthesisUtterance(currentWordObj.word)
-      u.lang = 'en-US'
-      u.rate = 0.85
-      window.speechSynthesis.speak(u)
-    }
+  const handleLetterClick = (letter) => {
+    if (isCorrect === true) return
+    setUserInput((prev) => prev + letter)
   }
 
-  const handleVerify = (e) => {
-    e?.preventDefault()
-    if (!userInput.trim()) return
+  const handleCheck = () => {
+    if (!currentWordObj || !userInput.trim()) return
 
-    const sanitizedInput = userInput.trim().toLowerCase()
-    const correctWord = currentWordObj.word.trim().toLowerCase()
-    const nextAttempts = attempts + 1
-    setAttempts(nextAttempts)
+    const correctWord = currentWordObj.word.toUpperCase().trim()
+    const entered = userInput.toUpperCase().trim()
 
-    if (sanitizedInput === correctWord) {
-      setIsCorrect(true)
-      setScore(prev => prev + 1)
+    if (entered === correctWord) {
       playSound('correct')
-      handleSpeak()
+      setIsCorrect(true)
+      setScore((prev) => prev + 1)
+      setStreak((prev) => prev + 1)
 
-      // Asynchronously update DB mastery level
-      if (!currentWordObj._id.startsWith('f')) {
-        api.patch(`/vocabulary/${currentWordObj._id}`, { masteryLevel: 'learning' }).catch(() => {})
-      }
+      setTimeout(() => {
+        if (currentRoundIndex + 1 >= words.length) {
+          confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } })
+          if (timerInterval.current) clearInterval(timerInterval.current)
+          setGameState('victory')
+        } else {
+          setCurrentRoundIndex((prev) => prev + 1)
+          setupRound(words, currentRoundIndex + 1)
+        }
+      }, 1000)
     } else {
-      setIsCorrect(false)
       playSound('wrong')
+      setIsCorrect(false)
+      setStreak(0)
       setTimeout(() => setIsCorrect(null), 1000)
     }
   }
 
-  const handleNextRound = () => {
-    const nextIndex = currentRoundIndex + 1
-    if (nextIndex >= words.length) {
-      clearInterval(timerInterval.current)
-      setGameState('victory')
-      playSound('victory')
-    } else {
-      setCurrentRoundIndex(nextIndex)
-      setupRound(words, nextIndex)
-    }
+  const handleHint = () => {
+    if (!currentWordObj) return
+    setHintLevel((prev) => Math.min(prev + 1, 2))
   }
 
-  const handleSkipRound = () => {
-    setSkips(prev => prev + 1)
-    setIsCorrect(true) // Treat as answered to show the correct word
-    setUserInput(currentWordObj.word)
-    handleSpeak()
-  }
-
-  const getHint = () => {
-    if (hintLevel < 2) {
-      setHintLevel(prev => prev + 1)
-    }
-  }
-
-  const renderHintText = () => {
-    const w = currentWordObj.word
-    if (hintLevel === 0) return ''
-    if (hintLevel === 1) return `Hint: Starts with "${w[0].toUpperCase()}"`
-    return `Hint: Starts with "${w[0].toUpperCase()}" and ends with "${w[w.length - 1].toUpperCase()}"`
-  }
-
-  useEffect(() => {
-    return () => {
+  const handleSkip = () => {
+    setStreak(0)
+    if (currentRoundIndex + 1 >= words.length) {
       if (timerInterval.current) clearInterval(timerInterval.current)
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel()
+      setGameState('victory')
+    } else {
+      setCurrentRoundIndex((prev) => prev + 1)
+      setupRound(words, currentRoundIndex + 1)
     }
-  }, [])
+  }
 
-  const formatTime = (secs) => {
-    const m = Math.floor(secs / 60).toString().padStart(2, '0')
-    const s = (secs % 60).toString().padStart(2, '0')
-    return `${m}:${s}`
+  const formatTimer = (secs) => {
+    const m = Math.floor(secs / 60)
+    const s = secs % 60
+    return `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`
   }
 
   return (
-    <div className="scramble-page animate-fade-in">
-      {gameState === 'victory' && (
-        <div className="confetti-container">
-          {Array.from({ length: 40 }).map((_, i) => (
-            <div 
-              key={i} 
-              className="confetti-particle"
-              style={{
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 4}s`,
-                transform: `rotate(${Math.random() * 360}deg)`,
-                backgroundColor: `hsl(${Math.random() * 360}, 85%, 60%)`,
-                width: `${Math.random() * 8 + 6}px`,
-                height: `${Math.random() * 8 + 6}px`
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Config Screen */}
+    <div className="word-scramble-page">
       {gameState === 'config' && (
-        <div className="scramble-card card-base config-panel">
-          <div className="text-center config-header">
-            <span className="material-symbols-outlined config-icon-scramble">spellcheck</span>
-            <h2 className="text-headline-lg font-bold">{t('games.scrambleTitle', 'Word Scramble')}</h2>
-            <p className="text-body-md text-secondary-color">
-              {t('games.scrambleDesc', 'Build spelling reflexes! Rearrange scrambled letters to form the complete word using clues, IPA, and definitions.')}
-            </p>
+        <div className="hunter-config-modal">
+          <div className="config-header">
+            <div style={{ display: 'inline-flex', padding: '10px', borderRadius: '16px', background: 'rgba(124, 58, 237, 0.15)', color: '#7C3AED', marginBottom: '8px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>spellcheck</span>
+            </div>
+            <h2>{t('games.scrambleTitle', '🔤 Word Scramble')}</h2>
+            <p>{t('games.scrambleDesc', 'Spelling mastery! Rearrange scrambled letters with phonetic IPA and definitions.')}</p>
           </div>
 
-          <div className="config-section">
-            <h4 className="text-title-md font-medium">{t('games.scrambleRounds', '1. Number of Words')}</h4>
-            <div className="round-selector">
-              {[5, 10, 15].map((num) => (
-                <button
-                  key={num}
-                  className={`round-btn ${roundCount === num ? 'round-btn--active' : ''}`}
-                  onClick={() => setRoundCount(num)}
-                >
-                  {num} {t('games.wordsCount', 'Words')}
-                </button>
-              ))}
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+              1. {t('games.selectRounds', 'Select Puzzle Count')}
+            </label>
+            <div className="speed-options-grid">
+              <div
+                className={`speed-card ${roundCount === 5 ? 'speed-card--active' : ''}`}
+                onClick={() => setRoundCount(5)}
+              >
+                <h4>5 Words</h4>
+                <span>Quick Sprint</span>
+              </div>
+              <div
+                className={`speed-card ${roundCount === 10 ? 'speed-card--active' : ''}`}
+                onClick={() => setRoundCount(10)}
+              >
+                <h4>10 Words</h4>
+                <span>Standard</span>
+              </div>
+              <div
+                className={`speed-card ${roundCount === 15 ? 'speed-card--active' : ''}`}
+                onClick={() => setRoundCount(15)}
+              >
+                <h4>15 Words</h4>
+                <span>Mastery</span>
+              </div>
             </div>
           </div>
 
-          <div className="config-section">
-            <h4 className="text-title-md font-medium">{t('games.matchingSelectCat', '2. Select Category (Optional)')}</h4>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="category-select"
-            >
-              <option value="">{t('games.allCategories', 'All Categories')}</option>
-              <option value="academic">Academic</option>
-              <option value="business">Business</option>
-              <option value="scientific">Scientific</option>
-              <option value="daily">Daily Use</option>
-            </select>
-          </div>
-
-          <button className="start-game-btn" onClick={loadWords}>
+          <button
+            className="arcade-btn-3d arcade-btn--scramble"
+            onClick={loadWords}
+          >
+            <span>Start Scramble</span>
             <span className="material-symbols-outlined">play_arrow</span>
-            {t('games.startGame', 'Start Game')}
           </button>
         </div>
       )}
 
-      {/* Loading Screen */}
-      {gameState === 'loading' && (
-        <div className="loading-panel text-center">
-          <span className="material-symbols-outlined animate-spin loading-spinner">
-            progress_activity
-          </span>
-          <p className="text-body-lg">{t('common.loading', 'Generating puzzle set...')}</p>
-        </div>
-      )}
-
-      {/* Gameplay Screen */}
-      {gameState === 'playing' && currentWordObj && (
-        <div className="scramble-gameplay-container">
-          <div className="gameplay-header">
-            <button className="back-btn" onClick={() => setGameState('config')}>
-              <span className="material-symbols-outlined">arrow_back</span>
-              {t('common.exit', 'Exit')}
-            </button>
-            <div className="stats-row">
-              <div className="stat-pill">
-                <span className="material-symbols-outlined">schedule</span>
-                <span>{formatTime(timer)}</span>
-              </div>
-              <div className="stat-pill">
-                <span className="material-symbols-outlined">check_circle</span>
-                <span>{t('games.score', 'Score')}: {score} / {words.length}</span>
-              </div>
-              <div className="stat-pill">
-                <span className="material-symbols-outlined">quiz</span>
-                <span>{t('games.round', 'Word')}: {currentRoundIndex + 1} / {words.length}</span>
+      {gameState === 'playing' && (
+        <>
+          {/* Top HUD Header */}
+          <header className="hunter-hud-header">
+            <div className="hunter-hud-left">
+              <button className="hunter-exit-btn" onClick={() => navigate('/student/game')}>
+                <span className="material-symbols-outlined">arrow_back</span>
+                <span>Exit</span>
+              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#7C3AED', fontWeight: 800 }}>
+                <span>🔤</span>
+                <span>Word Scramble</span>
               </div>
             </div>
-          </div>
 
-          <div className="scramble-card-playing card-base">
-            {/* Scrambled word display */}
-            <div className="scrambled-letters-container">
-              {scrambledWord.split('').map((letter, idx) => (
-                <span key={idx} className="letter-badge">{letter}</span>
-              ))}
-            </div>
-
-            {/* Clues */}
-            <div className="clues-panel">
-              <div className="clue-tag-row">
-                {currentWordObj.partOfSpeech && (
-                  <span className="clue-tag part-of-speech">{currentWordObj.partOfSpeech}</span>
-                )}
-                {currentWordObj.ipa && (
-                  <span className="clue-tag ipa">{currentWordObj.ipa}</span>
-                )}
+            <div className="hunter-hud-center">
+              <div className="hud-stat-pill">
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#7C3AED' }}>timer</span>
+                <span>{formatTimer(timer)}</span>
               </div>
-              <p className="clue-definition">
-                <strong>{t('flashcards.definition', 'Definition')}:</strong> {currentWordObj.definition}
-              </p>
-              {hintLevel > 0 && (
-                <p className="clue-hint-text text-label-md">{renderHintText()}</p>
+
+              <div className="hud-stat-pill">
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: '#16A34A' }}>military_tech</span>
+                <span>Score: <strong style={{ color: '#16A34A' }}>{score}</strong>/{words.length}</span>
+              </div>
+
+              <div className="hud-stat-pill">
+                <span className="material-symbols-outlined" style={{ fontSize: '18px', color: 'var(--color-primary)' }}>layers</span>
+                <span>Word: <strong>{currentRoundIndex + 1}</strong>/{words.length}</span>
+              </div>
+
+              {streak > 1 && (
+                <div className="hud-stat-pill hud-streak-pill" style={{ background: 'rgba(124, 58, 237, 0.15)', color: '#7C3AED' }}>
+                  <span>🔥 {streak}x Streak</span>
+                </div>
               )}
             </div>
 
-            {/* User interaction */}
-            {isCorrect === true ? (
-              <div className="result-success-panel text-center">
-                <span className="material-symbols-outlined check-icon-success">check_circle</span>
-                <h4 className="text-title-lg font-bold text-success">{t('games.scrambleCorrect', 'Correct!')}</h4>
-                <p className="text-body-md font-medium">Target Word: <span className="text-primary-color font-bold">{currentWordObj.word}</span></p>
-                <button className="next-round-btn" onClick={handleNextRound}>
-                  {t('common.next', 'Next Word')}
-                  <span className="material-symbols-outlined">arrow_forward</span>
+            <div className="hunter-hud-right">
+              <button className="hunter-exit-btn" onClick={() => navigate('/student/game')}>
+                <span className="material-symbols-outlined">settings</span>
+              </button>
+            </div>
+          </header>
+
+          <div className="scramble-container">
+            {/* Academic Clue Card */}
+            <div className="scramble-clue-card">
+              <div className="clue-meta-row">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                  <span className="pos-tag">{currentWordObj?.partOfSpeech || 'vocabulary'}</span>
+                  {currentWordObj?.ipa && (
+                    <div className="ipa-box">
+                      <span>{currentWordObj.ipa}</span>
+                    </div>
+                  )}
+                </div>
+
+                {hintLevel > 0 && (
+                  <div className="hint-badge-box">
+                    <span>💡 Hint: Starts with <strong>&quot;{currentWordObj?.word[0]}&quot;</strong></span>
+                    {hintLevel === 2 && (
+                      <span> and ends with <strong>&quot;{currentWordObj?.word[currentWordObj.word.length - 1]}&quot;</strong></span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <p className="clue-definition-text">
+                “{currentWordObj?.definition || 'Loading definition...'}”
+              </p>
+            </div>
+
+            {/* Letter Tiles Stage */}
+            <div className="scramble-tiles-stage">
+              <div className="tiles-row">
+                {scrambledLetters.map((l, i) => (
+                  <button
+                    key={i}
+                    className="letter-tile"
+                    onClick={() => handleLetterClick(l)}
+                  >
+                    {l}
+                  </button>
+                ))}
+              </div>
+
+              {/* Input Field */}
+              <div className="scramble-input-box">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  className={`scramble-input ${isCorrect === true ? 'scramble-input--correct' : ''} ${isCorrect === false ? 'scramble-input--wrong' : ''}`}
+                  placeholder="TYPE WORD..."
+                  value={userInput}
+                  onChange={(e) => setUserInput(e.target.value.toUpperCase())}
+                  onKeyDown={(e) => e.key === 'Enter' && handleCheck()}
+                  maxLength={currentWordObj?.word.length + 3}
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="scramble-actions-row">
+                <button
+                  className="arcade-btn-3d arcade-btn--scramble"
+                  style={{ flex: 2 }}
+                  onClick={handleCheck}
+                >
+                  <span>Check Word</span>
+                  <span className="material-symbols-outlined">check_circle</span>
+                </button>
+
+                <button
+                  className="hunter-exit-btn"
+                  style={{ flex: 1, padding: '12px' }}
+                  onClick={handleHint}
+                >
+                  <span className="material-symbols-outlined">lightbulb</span>
+                  <span>Hint</span>
+                </button>
+
+                <button
+                  className="hunter-exit-btn"
+                  style={{ flex: 1, padding: '12px' }}
+                  onClick={handleSkip}
+                >
+                  <span className="material-symbols-outlined">skip_next</span>
+                  <span>Skip</span>
                 </button>
               </div>
-            ) : (
-              <form className="scramble-form" onSubmit={handleVerify}>
-                <input
-                  type="text"
-                  placeholder={t('games.scrambleInputPlaceholder', 'Type the unscrambled word here...')}
-                  value={userInput}
-                  onChange={(e) => setUserInput(e.target.value)}
-                  className={`scramble-input ${isCorrect === false ? 'shake-animation border-error' : ''}`}
-                  autoFocus
-                  disabled={isCorrect === true}
-                />
-                
-                <div className="scramble-actions">
-                  <button type="submit" className="submit-btn" disabled={!userInput.trim()}>
-                    {t('games.scrambleCheck', 'Check')}
-                  </button>
-                  <button type="button" className="hint-btn" onClick={getHint} disabled={hintLevel >= 2}>
-                    <span className="material-symbols-outlined">emoji_objects</span>
-                    {t('games.scrambleHint', 'Hint')}
-                  </button>
-                  <button type="button" className="skip-btn" onClick={handleSkipRound}>
-                    {t('games.scrambleSkip', 'Skip')}
-                  </button>
-                </div>
-              </form>
-            )}
+            </div>
           </div>
-        </div>
+        </>
       )}
 
-      {/* Victory Screen */}
       {gameState === 'victory' && (
-        <div className="scramble-card victory-panel card-base text-center">
-          <div className="victory-crown">
-            <span className="material-symbols-outlined crown-icon-scramble">emoji_events</span>
-          </div>
-          <h2 className="text-headline-lg font-bold text-primary-color">{t('games.congratulations', 'Congratulations! Victory!')}</h2>
-          <p className="text-body-md text-secondary-color">
-            {t('games.scrambleDesc', 'You successfully completed the Word Scramble challenge!')}
+        <div className="hunter-config-modal" style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '8px' }}>🏆</div>
+          <h2>Scramble Challenge Complete!</h2>
+          <p style={{ fontSize: '1.2rem', fontWeight: 700, color: '#7C3AED' }}>
+            Score: {score} / {words.length} correct in {formatTimer(timer)}
           </p>
-
-          <div className="score-summary-grid">
-            <div className="summary-item">
-              <span className="summary-value">{formatTime(timer)}</span>
-              <span className="summary-label">{t('games.time', 'Time')}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-value">{score} / {words.length}</span>
-              <span className="summary-label">{t('common.score', 'Score')}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-value">{skips}</span>
-              <span className="summary-label">{t('games.scrambleSkip', 'Skipped')}</span>
-            </div>
-            <div className="summary-item">
-              <span className="summary-value">+{score * 15} XP</span>
-              <span className="summary-label">{t('games.xpEarned', 'XP Earned')}</span>
-            </div>
-          </div>
-
-          <div className="victory-actions">
-            <button className="play-again-btn" onClick={() => setGameState('config')}>
-              <span className="material-symbols-outlined">replay</span>
-              {t('games.playAgain', 'Play Again')}
+          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', marginTop: '16px' }}>
+            <button
+              className="arcade-btn-3d arcade-btn--scramble"
+              onClick={() => setGameState('config')}
+              style={{ width: 'auto' }}
+            >
+              Play Again
             </button>
-            <button className="return-btn" onClick={() => navigate('/student/vocabulary')}>
-              <span className="material-symbols-outlined">menu_book</span>
-              {t('games.wordLibrary', 'Word Library')}
+            <button
+              className="hunter-exit-btn"
+              onClick={() => navigate('/student/game')}
+              style={{ padding: '12px 20px', borderRadius: '16px' }}
+            >
+              Exit to Hub
             </button>
           </div>
         </div>

@@ -1,242 +1,517 @@
-/* ==========================================================================
-   Vocab Hunter Stylesheet
+﻿/* ==========================================================================
+   VocabHunter - Arcade Word Shooter
+   Stitch Project: 16402852567940569945
+   Fully Adaptive Light & Dark Mode
    ========================================================================== */
 
-.hunter-page {
+.vocab-hunter-page {
+  position: relative;
+  width: 100%;
+  min-height: calc(100vh - var(--topnav-height, 64px));
+  background: var(--color-background);
+  color: var(--color-on-surface);
+  overflow: hidden;
+  user-select: none;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - 120px);
-  padding: var(--spacing-md);
-  position: relative;
+  justify-content: space-between;
+}
+
+/* Ambient Background Grid */
+.hunter-bg-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
   overflow: hidden;
 }
 
-.hunter-card {
-  max-width: 600px;
+.hunter-bg-radial {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(179, 92, 0, 0.08) 0%, transparent 75%);
+}
+
+[data-theme="dark"] .hunter-bg-radial {
+  background: radial-gradient(circle at center, #1A2234 0%, #061422 85%);
+  opacity: 0.95;
+}
+
+.hunter-bg-grid {
+  position: absolute;
+  inset: 0;
+  opacity: 0.08;
+  background-image: linear-gradient(to right, var(--color-primary) 1px, transparent 1px),
+                    linear-gradient(to bottom, var(--color-primary) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+/* ==========================================================================
+   TOP HUD HEADER
+   ========================================================================== */
+.hunter-hud-header {
+  position: relative;
+  z-index: 30;
   width: 100%;
-  padding: var(--spacing-xl);
+  padding: 12px 24px;
   display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
-  border-radius: var(--radius-2xl);
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--color-outline-variant);
   background: var(--color-surface-container-low);
-  border: 1px solid var(--color-surface-variant);
-  box-shadow: var(--shadow-md);
-  animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.config-icon-hunter {
-  font-size: 56px;
-  color: #B35C00;
-  margin-bottom: var(--spacing-sm);
-}
-
-.speed-selector {
-  display: grid;
-  grid-template-cols: repeat(3, 1fr);
-  gap: var(--spacing-sm);
-}
-
-.speed-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-md) var(--spacing-sm);
-  background: var(--color-surface);
-  border: 1.5px solid var(--color-surface-variant);
-  border-radius: var(--radius-xl);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.speed-btn:hover {
-  background: var(--color-surface-container);
-  border-color: var(--color-primary-fixed);
-}
-
-.speed-btn--active {
-  background: var(--color-primary-fixed);
-  border-color: var(--color-primary);
-  color: var(--color-on-primary-fixed);
-}
-
-.speed-title {
-  font-size: var(--font-title-sm);
-  font-weight: var(--weight-bold);
-}
-
-.speed-desc {
-  font-size: var(--font-label-sm);
-  opacity: 0.8;
-}
-
-.start-game-btn-hunter {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--spacing-xs);
-  width: 100%;
-  padding: 14px;
-  background: #B35C00;
-  color: #FFFFFF;
-  border: none;
-  border-radius: var(--radius-pill);
-  font-size: var(--font-title-md);
-  font-weight: var(--weight-semibold);
-  cursor: pointer;
+  backdrop-filter: blur(12px);
   box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hunter-hud-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hunter-exit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-container-high);
+  border: 1px solid var(--color-outline-variant);
+  color: var(--color-on-surface);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
   transition: all var(--transition-fast);
 }
 
-.start-game-btn-hunter:hover {
-  background: #CC6A00;
-  box-shadow: var(--shadow-md);
-  transform: translateY(-1px);
+.hunter-exit-btn:hover {
+  background: var(--color-surface-bright);
+  color: #B35C00;
+  border-color: #B35C00;
 }
 
-/* Gameplay Layout */
-.hunter-gameplay-container {
-  width: 100%;
-  max-width: 660px;
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-md);
-  animation: fade-in 0.3s ease-out;
-}
-
-.lives-display {
+.hunter-title-badge {
   display: flex;
   align-items: center;
-  gap: 2px;
-  background: var(--color-surface-container-high);
-  border: 1.5px solid var(--color-surface-variant);
+  gap: 6px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #B35C00;
+}
+
+/* Center HUD Cluster */
+.hunter-hud-center {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.hud-stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 6px 14px;
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: var(--shadow-sm);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.hud-lives {
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
 
 .heart-icon {
-  font-size: 20px;
-  transition: transform 0.2s ease;
+  color: #E53935;
+  font-size: 18px;
+  filter: drop-shadow(0 0 6px rgba(229, 57, 53, 0.4));
 }
 
-.target-definition-box {
+.heart-icon--lost {
+  color: var(--color-outline);
+  opacity: 0.35;
+  filter: none;
+}
+
+.hud-score-val {
+  color: #16A34A;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.hud-streak-pill {
+  background: rgba(179, 92, 0, 0.15);
+  border-color: rgba(179, 92, 0, 0.4);
+  color: #B35C00;
+}
+
+/* Right HUD Utilities */
+.hunter-hud-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hud-timer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-container-high);
+  border: 1.5px solid var(--color-outline-variant);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 700;
+  color: #B35C00;
+}
+
+/* ==========================================================================
+   TARGET DEFINITION BANNER
+   ========================================================================== */
+.hunter-target-banner {
+  position: relative;
+  z-index: 20;
+  max-width: 900px;
+  width: calc(100% - 32px);
+  margin: 12px auto 6px;
+  padding: 14px 20px;
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-container-low);
+  border: 2px solid #B35C00;
+  box-shadow: 0 8px 24px rgba(179, 92, 0, 0.15);
+  backdrop-filter: blur(12px);
+}
+
+.target-banner-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.target-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  color: #B35C00;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.target-definition-text {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-on-surface);
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   BATTLE ARENA & BUBBLE FIELD
+   ========================================================================== */
+.hunter-main-layout {
+  position: relative;
+  z-index: 10;
+  max-width: 1300px;
   width: 100%;
-  padding: var(--spacing-md) var(--spacing-lg);
-  background: var(--color-surface-container);
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--color-surface-variant);
-  box-shadow: var(--shadow-sm);
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+  flex: 1;
+}
+
+.hunter-battle-canvas {
+  position: relative;
+  flex: 1;
+  min-height: 480px;
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-container-lowest);
+  border: 2px solid var(--color-outline-variant);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  justify-content: space-between;
 }
 
-.definition-tag-hunter {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: #B35C00;
-  font-weight: var(--weight-bold);
-}
-
-.definition-phrase {
-  font-size: var(--font-title-md);
-  line-height: 1.45;
-  color: var(--color-on-surface);
-}
-
-/* Falling Bubbles Canvas Area */
-.hunter-canvas-area {
+.hunter-bubble-arena {
   position: relative;
   width: 100%;
   height: 400px;
-  background: radial-gradient(circle at bottom, var(--color-surface-container-low), var(--color-surface-container-lowest));
-  border-radius: var(--radius-2xl);
-  border: 2.5px solid var(--color-surface-variant);
   overflow: hidden;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-.word-bubble {
+/* Falling Bubble Styling */
+.hunter-bubble {
   position: absolute;
-  padding: 10px 18px;
-  background: radial-gradient(circle at 30% 30%, #FFFFFF, var(--color-primary-fixed));
-  color: var(--color-on-primary-fixed);
-  border: 1.5px solid var(--color-primary);
-  border-radius: 30px;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 91, 191, 0.15);
-  font-size: var(--font-label-lg);
-  font-weight: var(--weight-bold);
-  transition: background 0.1s, transform 0.1s;
   user-select: none;
-  min-width: 100px;
-  text-align: center;
-  display: inline-block;
-  white-space: nowrap;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.word-bubble:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 14px rgba(0, 91, 191, 0.25);
+.hunter-bubble-card {
+  padding: 10px 20px;
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-container-low);
+  border: 2px solid var(--color-outline-variant);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transition: all var(--transition-fast);
 }
 
-.bubble-wrong {
-  background: radial-gradient(circle at 30% 30%, #FFDAD6, var(--color-error-container)) !important;
-  color: var(--color-on-error-container) !important;
-  border-color: var(--color-error) !important;
-  box-shadow: 0 4px 10px rgba(186, 26, 26, 0.2) !important;
+.hunter-bubble-card:hover {
+  transform: scale(1.06);
+  border-color: #B35C00;
+  box-shadow: 0 6px 20px rgba(179, 92, 0, 0.3);
 }
 
-/* Safe zone danger indicator */
-.danger-zone-line {
-  position: absolute;
-  bottom: 12px;
-  left: 0;
+.hunter-bubble-card:active {
+  transform: scale(0.96);
+}
+
+.bubble-word-text {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-on-surface);
+}
+
+.bubble-ipa-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--color-on-surface-variant);
+}
+
+.hunter-bubble--wrong .hunter-bubble-card {
+  background: rgba(229, 57, 53, 0.15);
+  border-color: #E53935;
+  animation: shake-error 0.4s ease;
+}
+
+.hunter-bubble--correct .hunter-bubble-card {
+  background: rgba(22, 163, 74, 0.2);
+  border-color: #16A34A;
+  box-shadow: 0 0 24px rgba(22, 163, 74, 0.5);
+  transform: scale(1.15);
+}
+
+@keyframes shake-error {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+/* ==========================================================================
+   BOTTOM DANGER ZONE
+   ========================================================================== */
+.hunter-danger-zone {
+  position: relative;
   width: 100%;
-  height: 2px;
-  background-color: var(--color-error);
-  opacity: 0.35;
-  border-style: dashed;
-  border-width: 1.5px 0 0 0;
-  pointer-events: none;
+  z-index: 20;
 }
 
-/* Gameover panel */
-.gameover-icon-wrap {
-  margin-top: -30px;
-}
-
-.skull-icon {
-  font-size: 72px;
-  color: var(--color-error);
-  animation: pulse-slow 2s infinite ease-in-out;
-}
-
-.play-again-btn-hunter {
-  flex: 1;
+.hazard-stripe {
+  width: 100%;
+  padding: 8px 16px;
+  border-top: 2px solid #E53935;
+  border-bottom: 2px solid #E53935;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-xxs);
-  padding: 12px;
-  background: #B35C00;
-  color: #FFFFFF;
-  border: none;
-  border-radius: var(--radius-pill);
-  font-size: var(--font-title-sm);
-  font-weight: var(--weight-semibold);
+  background: repeating-linear-gradient(
+    -45deg,
+    rgba(229, 57, 53, 0.15),
+    rgba(229, 57, 53, 0.15) 12px,
+    rgba(229, 57, 53, 0.05) 12px,
+    rgba(229, 57, 53, 0.05) 24px
+  );
+}
+
+.hazard-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  color: #E53935;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hunter-turret-base {
+  height: 60px;
+  background: var(--color-surface-container-low);
+  border-top: 1px solid var(--color-outline-variant);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 0 16px;
+}
+
+.turret-status-text {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+}
+
+/* ==========================================================================
+   SIDEBAR METRICS & POWER-UPS
+   ========================================================================== */
+.hunter-sidebar {
+  width: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+@media (max-width: 990px) {
+  .hunter-sidebar {
+    display: none;
+  }
+}
+
+.hunter-card-panel {
+  padding: 16px;
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: var(--shadow-sm);
+}
+
+.panel-header {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--color-on-surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.powerup-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.powerup-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+  color: var(--color-on-surface);
+  font-size: 12px;
+  font-weight: 700;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
-.play-again-btn-hunter:hover {
-  background: #CC6A00;
+.powerup-btn:hover:not(:disabled) {
+  border-color: #B35C00;
+  background: rgba(179, 92, 0, 0.08);
+  transform: translateX(2px);
 }
 
-.animate-shake {
-  animation: shake 0.4s ease;
+.powerup-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ==========================================================================
+   CONFIG SCREEN
+   ========================================================================== */
+.hunter-config-modal {
+  max-width: 600px;
+  width: calc(100% - 32px);
+  margin: 40px auto;
+  padding: 32px;
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-container-low);
+  border: 2px solid var(--color-outline-variant);
+  box-shadow: var(--shadow-xl);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.config-header {
+  text-align: center;
+}
+
+.config-header h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0 0 6px;
+  color: var(--color-on-surface);
+}
+
+.config-header p {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+}
+
+.speed-options-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.speed-card {
+  padding: 14px;
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-container-lowest);
+  border: 2px solid var(--color-outline-variant);
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.speed-card:hover {
+  border-color: #B35C00;
+}
+
+.speed-card--active {
+  border-color: #B35C00;
+  background: rgba(179, 92, 0, 0.12);
+}
+
+.speed-card h4 {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.speed-card span {
+  font-size: 11px;
+  color: var(--color-on-surface-variant);
+  font-family: 'JetBrains Mono', monospace;
 }
