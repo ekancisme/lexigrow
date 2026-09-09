@@ -93,9 +93,25 @@ app.use('/api/subscriptions', paymentRoutes)
 // Serve built frontend assets in production (Docker container or dist build)
 const distPath = path.resolve(__dirname, '../../dist')
 if (fs.existsSync(distPath)) {
-  app.use(express.static(distPath))
+  // Static assets with hash in filename can be cached long-term
+  app.use('/assets', express.static(path.join(distPath, 'assets'), {
+    maxAge: '1y',
+    immutable: true
+  }))
+  app.use(express.static(distPath, {
+    setHeaders: (res, filePath) => {
+      if (filePath.endsWith('.html')) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+        res.setHeader('Pragma', 'no-cache')
+        res.setHeader('Expires', '0')
+      }
+    }
+  }))
   app.use((req, res, next) => {
     if (req.method === 'GET' && !req.path.startsWith('/api')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+      res.setHeader('Pragma', 'no-cache')
+      res.setHeader('Expires', '0')
       return res.sendFile(path.join(distPath, 'index.html'))
     }
     next()

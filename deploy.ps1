@@ -77,7 +77,7 @@ set -e
 cd $RemoteSourceDir
 tar -xzf source.tar.gz
 rm -f source.tar.gz
-docker build -t $ImageName -f $Dockerfile .
+docker build --no-cache -t $ImageName -f $Dockerfile .
 rm -rf $RemoteSourceDir
 "@
 
@@ -107,12 +107,34 @@ docker run -d \
   $RemoteEnvFlag \
   $ImageName
 
-if ! grep -q '$Domain' /root/caddy/Caddyfile; then
-  echo "" >> /root/caddy/Caddyfile
-  echo "$Domain {" >> /root/caddy/Caddyfile
-  echo "    reverse_proxy ${AppName}:${ContainerPort}" >> /root/caddy/Caddyfile
-  echo "}" >> /root/caddy/Caddyfile
-fi
+# Update or add domain block in Caddyfile
+python3 -c "
+import re
+caddyfile = '/root/caddy/Caddyfile'
+with open(caddyfile, 'r') as f:
+    content = f.read()
+
+block = '''$Domain {
+    reverse_proxy ${AppName}:${ContainerPort}
+}'''
+
+if '$Domain' in content:
+    content = re.sub(r'$Domain\s*\{[^}]*\}', block, content)
+else:
+    content += '\n\n' + block + '\n'
+
+with open(caddyfile, 'w') as f:
+    f.write(content)
+" 2>/dev/null || (
+  if ! grep -q '$Domain' /root/caddy/Caddyfile; then
+    echo "" >> /root/caddy/Caddyfile
+    echo "$Domain {" >> /root/caddy/Caddyfile
+    echo "    reverse_proxy ${AppName}:${ContainerPort}" >> /root/caddy/Caddyfile
+    echo "}" >> /root/caddy/Caddyfile
+  else
+    sed -i "/$Domain/,/}/ s/reverse_proxy .*/reverse_proxy ${AppName}:${ContainerPort}/" /root/caddy/Caddyfile
+  fi
+)
 
 docker exec -w /etc/caddy caddy caddy reload
 "@
