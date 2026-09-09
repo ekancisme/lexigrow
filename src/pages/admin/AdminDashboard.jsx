@@ -1,10 +1,49 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
+import api from '../../services/api.js'
+import AnimatedCounter from '../../components/common/AnimatedCounter.jsx'
 import './AdminPages.css'
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
   const { t, language } = useLanguage()
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    totalClasses: 0,
+    aiRequests: 0,
+    systemDict: 0,
+    loading: true
+  })
+
+  useEffect(() => {
+    async function loadAdminStats() {
+      try {
+        const [analyticsRes, aiRes, vocabRes] = await Promise.allSettled([
+          api.get('/admin/analytics'),
+          api.get('/admin/ai/monitoring'),
+          api.get('/admin/global-vocabulary/stats')
+        ])
+
+        const totalUsers = analyticsRes.status === 'fulfilled' ? (analyticsRes.value?.data?.metrics?.totalUsers || 0) : 0
+        const totalClasses = analyticsRes.status === 'fulfilled' ? (analyticsRes.value?.data?.metrics?.totalClasses || 0) : 0
+        const aiRequests = aiRes.status === 'fulfilled' ? (aiRes.value?.data?.metrics?.totalCalls || 0) : 0
+        const systemDict = vocabRes.status === 'fulfilled' ? (vocabRes.value?.data?.totalCount || vocabRes.value?.stats?.totalCount || 0) : 0
+
+        setStats({
+          totalUsers,
+          totalClasses,
+          aiRequests,
+          systemDict,
+          loading: false
+        })
+      } catch (err) {
+        console.error('Error fetching admin dashboard stats:', err)
+        setStats(prev => ({ ...prev, loading: false }))
+      }
+    }
+    loadAdminStats()
+  }, [])
 
   const adminTasks = [
     {
@@ -40,6 +79,14 @@ export default function AdminDashboard() {
       path: '/admin/vocabulary',
     },
     {
+      id: 'pricing',
+      title: language === 'vi' ? 'Gói Cước & Doanh Thu PayOS' : 'Pricing & PayOS Revenue',
+      desc: language === 'vi' ? 'Quản lý các gói tài khoản học sinh/giáo viên, hạn mức tài trợ học sinh và kiểm tra giao dịch.' : 'Manage student & teacher subscription tiers, student sponsorship allowances, and verify transactions.',
+      badge: 'Admin',
+      icon: 'payments',
+      path: '/admin/pricing',
+    },
+    {
       id: 'logs',
       title: language === 'vi' ? 'Nhật Ký Hệ Thống & Báo Cáo' : 'System Logs & Reports',
       desc: language === 'vi' ? 'Xem thống kê sử dụng tổng hợp và theo dõi lịch sử thay đổi của quản trị viên (Audit Logs).' : 'View aggregated usage stats and track administrator change history (Audit Logs).',
@@ -66,7 +113,9 @@ export default function AdminDashboard() {
             <span className="material-symbols-outlined">group</span>
           </div>
           <div>
-            <p className="admin-stat-card__value">1,248</p>
+            <p className="admin-stat-card__value">
+              {stats.loading ? '—' : <AnimatedCounter value={stats.totalUsers} />}
+            </p>
             <p className="admin-stat-card__label">{t('adminDashboard.totalUsers', 'Total Users')}</p>
           </div>
         </div>
@@ -76,7 +125,9 @@ export default function AdminDashboard() {
             <span className="material-symbols-outlined">domain</span>
           </div>
           <div>
-            <p className="admin-stat-card__value">42</p>
+            <p className="admin-stat-card__value">
+              {stats.loading ? '—' : <AnimatedCounter value={stats.totalClasses} />}
+            </p>
             <p className="admin-stat-card__label">{t('adminDashboard.totalClasses', 'Total Classes')}</p>
           </div>
         </div>
@@ -86,8 +137,10 @@ export default function AdminDashboard() {
             <span className="material-symbols-outlined">analytics</span>
           </div>
           <div>
-            <p className="admin-stat-card__value">15.2k</p>
-            <p className="admin-stat-card__label">{t('adminDashboard.aiRequests', 'AI Requests (Monthly)')}</p>
+            <p className="admin-stat-card__value">
+              {stats.loading ? '—' : <AnimatedCounter value={stats.aiRequests} />}
+            </p>
+            <p className="admin-stat-card__label">{t('adminDashboard.aiRequests', 'AI Requests')}</p>
           </div>
         </div>
 
@@ -96,7 +149,9 @@ export default function AdminDashboard() {
             <span className="material-symbols-outlined">menu_book</span>
           </div>
           <div>
-            <p className="admin-stat-card__value">3,500</p>
+            <p className="admin-stat-card__value">
+              {stats.loading ? '—' : <AnimatedCounter value={stats.systemDict} />}
+            </p>
             <p className="admin-stat-card__label">{t('adminDashboard.systemDict', 'System Dictionary')}</p>
           </div>
         </div>

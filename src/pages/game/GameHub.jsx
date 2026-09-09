@@ -1,14 +1,44 @@
-﻿import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
+import api from '../../services/api.js'
 import gsap from 'gsap'
 import './GameHub.css'
 import QuestGardenCard from './QuestGardenCard.jsx'
 
 export default function GameHub() {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const { t } = useLanguage()
   const cardsRef = useRef([])
+
+  const [overview, setOverview] = useState(null)
+  const [questSummary, setQuestSummary] = useState(null)
+  const [streakData, setStreakData] = useState({ streakDays: user?.streakDays || 0 })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadHubStats() {
+      try {
+        setLoading(true)
+        const [overviewRes, questRes, streakRes] = await Promise.allSettled([
+          api.get('/progress/overview'),
+          api.get('/daily-quests/summary'),
+          api.get('/progress/streak')
+        ])
+
+        if (overviewRes.status === 'fulfilled') setOverview(overviewRes.value?.data || null)
+        if (questRes.status === 'fulfilled') setQuestSummary(questRes.value?.data || null)
+        if (streakRes.status === 'fulfilled') setStreakData(streakRes.value?.data || { streakDays: user?.streakDays || 0 })
+      } catch (err) {
+        console.error('Error loading GameHub stats:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadHubStats()
+  }, [user])
 
   useEffect(() => {
     if (cardsRef.current.length > 0) {
@@ -27,12 +57,33 @@ export default function GameHub() {
     }
   }, [])
 
+  const currentStreak = streakData.streakDays || user?.streakDays || 0
+  const totalVocab = overview?.totalVocab || 0
+  const totalEssays = overview?.totalEssays || 0
+  const fireflies = questSummary?.fireflies || 0
+  const earnedXP = totalVocab * 10 + totalEssays * 50 + fireflies * 20
+
+  const userRank = overview?.rank || 'A1'
+  const leagueMap = {
+    A1: { name: 'Bronze League', icon: 'military_tech', rankNum: '#42' },
+    A2: { name: 'Silver League', icon: 'military_tech', rankNum: '#28' },
+    B1: { name: 'Gold League', icon: 'military_tech', rankNum: '#19' },
+    B2: { name: 'Platinum League', icon: 'military_tech', rankNum: '#12' },
+    C1: { name: 'Diamond League', icon: 'military_tech', rankNum: '#5' },
+    C2: { name: 'Master League', icon: 'military_tech', rankNum: '#1' },
+  }
+  const currentLeague = leagueMap[userRank] || leagueMap.A1
+
+  const solvedQuest = questSummary?.solved || 0
+  const totalQuest = questSummary?.total || 6
+  const questPercent = totalQuest > 0 ? Math.min(100, Math.round((solvedQuest / totalQuest) * 100)) : 0
+
   const games = [
     {
       id: 'hunter',
       title: t('games.hunterTitle', '🎯 Vocab Hunter'),
       category: t('games.hunterCategory', 'Arcade Reflex'),
-      stat: t('games.hunterStat', 'Best: 3,450 pts'),
+      stat: `${totalVocab} ${t('common.words', 'Words Pool')}`,
       statIcon: 'military_tech',
       subtitle: t('games.hunterSubtitle', 'Speed Drills · 90s Time Attack'),
       description: t('games.hunterDesc', 'Pop falling bubbles before they hit danger zone! Speed reading & target definition reflex testing lexical rapid-recall.'),
@@ -47,7 +98,7 @@ export default function GameHub() {
       id: 'filler',
       title: t('games.fillerTitle', '📝 Context Filler'),
       category: t('games.fillerCategory', 'Editorial Practice'),
-      stat: t('games.fillerStat', 'Accuracy: 94%'),
+      stat: `TTR ${Math.round((overview?.avgTTR || 0.6) * 100)}%`,
       statIcon: 'grade',
       subtitle: t('games.fillerSubtitle', 'Literature & News Cloze Drills'),
       description: t('games.fillerDesc', 'Read authentic sentences from literature & news, choose the missing vocabulary in context with syntactic accuracy.'),
@@ -62,11 +113,11 @@ export default function GameHub() {
       id: 'scramble',
       title: t('games.scrambleTitle', '🔤 Word Scramble'),
       category: t('games.scrambleCategory', 'Spelling & IPA'),
-      stat: t('games.scrambleStat', 'Level 18 Unlocked'),
+      stat: `Tier: ${userRank}`,
       statIcon: 'explore',
       subtitle: t('games.scrambleSubtitle', 'Phonetic Transcription & Anagrams'),
       description: t('games.scrambleDesc', 'Rearrange scrambled letters with phonetic IPA, definitions, and spelling hints to unlock root etymologies.'),
-      featureLeft: 'IPA clue: /ˌep.ɪˈfæn.i/',
+      featureLeft: 'Phonetic IPA clues',
       featureRight: '+60 XP / puzzle',
       icon: 'spellcheck',
       cardClass: 'arcade-card--scramble',
@@ -77,7 +128,7 @@ export default function GameHub() {
       id: 'matching',
       title: t('games.matchingTitle', '🧩 Word Matching'),
       category: t('games.matchingCategory', 'Memory 3D'),
-      stat: t('games.matchingStat', 'Best Streak: 12 Pairs'),
+      stat: `${totalVocab > 8 ? 'Active 4x4' : 'Active 2x3'}`,
       statIcon: 'military_tech',
       subtitle: t('games.matchingSubtitle', 'Pairs Flip & Semantic Association'),
       description: t('games.matchingDesc', '3D memory card flip challenge. Match advanced target words with their exact definitions and usage nuances under pressure.'),
@@ -112,14 +163,14 @@ export default function GameHub() {
 
           {/* Player Stats HUD Pills */}
           <div className="game-hub-hud">
-            <div className="hud-pill hud-pill--streak" title="7-Day Streak">
+            <div className="hud-pill hud-pill--streak" title={`${currentStreak}-Day Streak`}>
               <span className="material-symbols-outlined hud-pill__icon">local_fire_department</span>
-              <span>7 <span className="hud-pill__label">Days</span></span>
+              <span>{currentStreak} <span className="hud-pill__label">{t('dashboard.streak', 'Days')}</span></span>
             </div>
 
             <div className="hud-pill hud-pill--xp" title="Earned Fireflies & XP">
               <span className="material-symbols-outlined hud-pill__icon">grade</span>
-              <span>1,420 <span className="hud-pill__label">XP</span></span>
+              <span>{earnedXP.toLocaleString()} <span className="hud-pill__label">XP</span></span>
             </div>
 
             <div className="hud-pill hud-pill--hearts" title="Life Energy 5/5">
@@ -134,7 +185,7 @@ export default function GameHub() {
           <div>
             <div className="hero-tag">
               <span className="hero-tag__dot" />
-              <span>Live Battle Arena · Season 4</span>
+              <span>Live Battle Arena · {userRank} Tier</span>
             </div>
             <div className="hero-title-row">
               <h1 className="hero-title">{t('games.hubTitle', 'LexiGrow Play Zone')}</h1>
@@ -148,12 +199,12 @@ export default function GameHub() {
           {/* Quick League Status Widget */}
           <div className="hero-league-widget">
             <div className="league-icon-box">
-              <span className="material-symbols-outlined">military_tech</span>
+              <span className="material-symbols-outlined">{currentLeague.icon}</span>
             </div>
             <div className="league-meta">
-              <div className="league-meta__tier">Diamond League</div>
+              <div className="league-meta__tier">{currentLeague.name}</div>
               <div className="league-meta__rank">
-                Rank #14 <span>▲ +3 today</span>
+                Rank {currentLeague.rankNum} <span>▲ Top 10%</span>
               </div>
             </div>
           </div>
@@ -237,10 +288,10 @@ export default function GameHub() {
               <span className="material-symbols-outlined">sports_esports</span>
             </div>
             <div className="strip-item-info">
-              <span className="strip-item-label">Daily Goal</span>
-              <div className="strip-item-value">3 / 5 Games Completed</div>
+              <span className="strip-item-label">Daily Quest Goal</span>
+              <div className="strip-item-value">{solvedQuest} / {totalQuest} Words Solved</div>
               <div className="strip-item-track">
-                <div className="strip-item-fill" style={{ width: '60%' }} />
+                <div className="strip-item-fill" style={{ width: `${questPercent}%` }} />
               </div>
             </div>
           </div>
@@ -251,11 +302,11 @@ export default function GameHub() {
               <span className="material-symbols-outlined">grade</span>
             </div>
             <div className="strip-item-info">
-              <span className="strip-item-label">Today&apos;s Harvest</span>
+              <span className="strip-item-label">Today&apos;s Fireflies & XP</span>
               <div className="strip-item-value" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <span>+240 XP Gained</span>
+                <span>+{fireflies > 0 ? fireflies * 20 : 50} XP Today</span>
                 <span style={{ fontSize: '11px', padding: '2px 6px', borderRadius: '12px', background: 'rgba(124, 58, 237, 0.15)', color: '#7C3AED', fontWeight: 600 }}>
-                  🔥 Double XP
+                  🔥 Active
                 </span>
               </div>
             </div>
@@ -268,7 +319,7 @@ export default function GameHub() {
             </div>
             <div className="strip-item-info">
               <span className="strip-item-label">Competitive Ladder</span>
-              <div className="strip-item-value">Rank #14 in Diamond League</div>
+              <div className="strip-item-value">Rank {currentLeague.rankNum} in {currentLeague.name}</div>
             </div>
           </div>
         </section>

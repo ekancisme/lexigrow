@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
@@ -24,9 +24,10 @@ export default function QuestGardenCard({ garden = false }) {
   }, [])
 
   const rawStatus = summary?.status || 'new'
-  const solvedCount = summary?.solvedCount ?? 6
-  const totalCount = summary?.totalWords ?? 10
-  const percent = Math.min(100, Math.round((solvedCount / totalCount) * 100))
+  const solvedCount = summary?.solved ?? summary?.solvedCount ?? 0
+  const totalCount = summary?.total ?? summary?.totalWords ?? 6
+  const fireflies = summary?.fireflies ?? 0
+  const percent = totalCount > 0 ? Math.min(100, Math.round((solvedCount / totalCount) * 100)) : 0
 
   return (
     <section className="quest-garden-banner" aria-label={t('quest.title', 'Daily Word Quest')}>
@@ -45,7 +46,7 @@ export default function QuestGardenCard({ garden = false }) {
                 {t('quest.dailyBadge', 'DAILY VOCABULARY QUEST')}
               </span>
               <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', color: 'var(--color-on-surface-variant)' }}>
-                · {t('quest.dayStatus', `Day 3 of 30 · ${percent}% Solved`)}
+                · {t('quest.dayStatus', `Today · ${percent}% Solved`)}
               </span>
             </div>
 
@@ -63,7 +64,9 @@ export default function QuestGardenCard({ garden = false }) {
                 <span>
                   Sprout Progress: <strong>{solvedCount} / {totalCount} Clues Solved</strong>
                 </span>
-                <span style={{ color: 'var(--color-success, #16A34A)', fontWeight: 700 }}>+120 Firefly XP</span>
+                <span style={{ color: 'var(--color-success, #16A34A)', fontWeight: 700 }}>
+                  {fireflies > 0 ? `+${fireflies * 20} Fireflies` : '+120 Firefly XP'}
+                </span>
               </div>
               <div className="sprout-progress-track">
                 <div className="sprout-progress-fill" style={{ width: `${percent}%` }} />
