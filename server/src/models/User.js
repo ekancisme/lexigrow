@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema({
     interests: { type: [String], default: [] },
     targetLevel: { type: String, enum: ['A2', 'B1', 'B2', 'C1'], default: 'B1' },
     dailyGoalMinutes: { type: Number, enum: [5, 10, 15, 20], default: 10 },
+    pace: { type: String, enum: ['standard', 'intensive', 'relaxed'], default: 'standard' },
     onboardingCompleted: { type: Boolean, default: false },
     timezone: { type: String, default: 'Asia/Ho_Chi_Minh' },
   },

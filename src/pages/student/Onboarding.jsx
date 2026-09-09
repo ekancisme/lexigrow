@@ -153,9 +153,10 @@ export default function Onboarding() {
 
     try {
       const res = await api.put('/profile/learning', payload)
+      const savedProfile = res?.data || payload
       if (updateUser) {
         updateUser({
-          learningProfile: res.data?.data || payload
+          learningProfile: savedProfile
         })
       }
     } catch (err) {
@@ -167,6 +168,27 @@ export default function Onboarding() {
       }
     } finally {
       setIsSubmitting(false)
+      navigate('/student/dashboard')
+    }
+  }
+
+  const handleSkip = async () => {
+    try {
+      const res = await api.put('/profile/learning', { onboardingCompleted: true })
+      const savedProfile = res?.data || { onboardingCompleted: true }
+      if (updateUser) {
+        updateUser({
+          learningProfile: savedProfile
+        })
+      }
+    } catch (err) {
+      console.warn('Could not save skip status to server', err)
+      if (updateUser) {
+        updateUser({
+          learningProfile: { onboardingCompleted: true }
+        })
+      }
+    } finally {
       navigate('/student/dashboard')
     }
   }
@@ -211,7 +233,7 @@ export default function Onboarding() {
           <button
             type="button"
             className="onboarding-skip-btn"
-            onClick={() => navigate('/student/dashboard')}
+            onClick={handleSkip}
           >
             <span>{t('onboarding.skip', 'Skip for now')}</span>
             <span className="material-symbols-outlined">arrow_forward</span>

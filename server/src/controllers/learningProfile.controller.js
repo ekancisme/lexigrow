@@ -18,6 +18,7 @@ export const updateLearningProfile = asyncHandler(async (req, res) => {
     'interests',
     'targetLevel',
     'dailyGoalMinutes',
+    'pace',
     'onboardingCompleted',
     'timezone',
   ]
@@ -48,6 +49,11 @@ export const updateLearningProfile = asyncHandler(async (req, res) => {
     ![5, 10, 15, 20].includes(b.dailyGoalMinutes)
   )
     fail('Invalid dailyGoalMinutes')
+  if (
+    b.pace !== undefined &&
+    !['standard', 'intensive', 'relaxed'].includes(b.pace)
+  )
+    fail('Invalid pace')
   if (
     b.onboardingCompleted !== undefined &&
     typeof b.onboardingCompleted !== 'boolean'
