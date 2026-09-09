@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    VocabHunter - Arcade Word Shooter
    Stitch Project: 16402852567940569945
    Fully Adaptive Light & Dark Mode
@@ -264,7 +264,8 @@
   position: absolute;
   cursor: pointer;
   user-select: none;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  will-change: transform;
+  top: 0;
 }
 
 .hunter-bubble-card {

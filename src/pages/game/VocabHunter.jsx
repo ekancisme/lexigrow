@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
@@ -43,11 +43,19 @@ export default function VocabHunter() {
   const [timer, setTimer] = useState(90)
   const [soundMuted, setSoundMuted] = useState(false)
 
-  // Refs for loop
-  const gameInterval = useRef(null)
-  const timerInterval = useRef(null)
-  const speedRef = useRef(1.5)
+  // Refs for high-performance 60FPS animation loop
+  const animFrameRef = useRef(null)
+  const lastTimeRef = useRef(performance.now())
+  const bubblesRef = useRef([])
+  const speedRef = useRef(15) // % height per second
   const livesRef = useRef(3)
+  const isFrozenRef = useRef(false)
+  const timerInterval = useRef(null)
+
+  // Sync isFrozen state to ref for RAF loop
+  useEffect(() => {
+    isFrozenRef.current = isFrozen
+  }, [isFrozen])
 
   // Web Audio sounds
   const playSound = (type) => {
@@ -63,8 +71,8 @@ export default function VocabHunter() {
 
       if (type === 'correct') {
         osc.type = 'sine'
-        osc.frequency.setValueAtTime(659.25, ctx.currentTime) // E5
-        osc.frequency.setValueAtTime(880.00, ctx.currentTime + 0.08) // A5
+        osc.frequency.setValueAtTime(659.25, ctx.currentTime)
+        osc.frequency.setValueAtTime(880.00, ctx.currentTime + 0.08)
         gain.gain.setValueAtTime(0.1, ctx.currentTime)
         gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25)
         osc.start()
@@ -136,9 +144,10 @@ export default function VocabHunter() {
     setRoundIndex(0)
     setTimer(90)
 
-    if (speedLevel === 'easy') speedRef.current = 1.0
-    else if (speedLevel === 'medium') speedRef.current = 1.6
-    else speedRef.current = 2.4
+    // Percentage of arena height to fall per second
+    if (speedLevel === 'easy') speedRef.current = 10
+    else if (speedLevel === 'medium') speedRef.current = 16
+    else speedRef.current = 24
 
     setupNextRound(pool, 0)
     setGameState('playing')
@@ -156,8 +165,9 @@ export default function VocabHunter() {
     }, 1000)
   }
 
-  const setupNextRound = (pool, currentIdx) => {
-    const shuffledPool = [...pool].sort(() => 0.5 - Math.random())
+  const setupNextRound = useCallback((pool, currentIdx) => {
+    const activePool = pool && pool.length ? pool : vocabPool.length ? vocabPool : FALLBACK_WORDS
+    const shuffledPool = [...activePool].sort(() => 0.5 - Math.random())
     const target = shuffledPool[0]
     setTargetWord(target)
 
@@ -177,29 +187,38 @@ export default function VocabHunter() {
       isCorrect: false
     }))
 
+    bubblesRef.current = generatedBubbles
     setBubbles(generatedBubbles)
     setRoundIndex(currentIdx + 1)
-  }
+  }, [vocabPool])
 
-  // Game Loop for falling animation
+  // High-performance 60fps RequestAnimationFrame Loop
   useEffect(() => {
     if (gameState !== 'playing') {
-      if (gameInterval.current) clearInterval(gameInterval.current)
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
       return
     }
 
-    gameInterval.current = setInterval(() => {
-      if (isFrozen) return
+    lastTimeRef.current = performance.now()
 
-      setBubbles((prevBubbles) => {
+    const loop = (timestamp) => {
+      const dt = Math.min((timestamp - lastTimeRef.current) / 1000, 0.1) // limit max step
+      lastTimeRef.current = timestamp
+
+      if (!isFrozenRef.current && bubblesRef.current.length > 0) {
         let hitBottom = false
-        const updated = prevBubbles.map((b) => {
-          const nextY = b.y + speedRef.current
+        const speed = speedRef.current
+
+        const updated = bubblesRef.current.map((b) => {
+          const nextY = b.y + speed * dt
           if (nextY >= 82 && b.isTarget && !b.isCorrect) {
             hitBottom = true
           }
           return { ...b, y: nextY }
         })
+
+        bubblesRef.current = updated
+        setBubbles([...updated])
 
         if (hitBottom) {
           playSound('lose-life')
@@ -208,52 +227,55 @@ export default function VocabHunter() {
           setStreak(0)
 
           if (livesRef.current <= 0) {
-            clearInterval(gameInterval.current)
+            if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
             if (timerInterval.current) clearInterval(timerInterval.current)
             setGameState('gameover')
-            return []
+            return
           }
 
-          // Reset round if word dropped
-          setTimeout(() => setupNextRound(vocabPool.length ? vocabPool : FALLBACK_WORDS, roundIndex), 300)
-          return []
+          // Reset round after life drop
+          bubblesRef.current = []
+          setTimeout(() => setupNextRound(vocabPool, roundIndex), 300)
+          return
         }
+      }
 
-        return updated
-      })
-    }, 50)
+      animFrameRef.current = requestAnimationFrame(loop)
+    }
+
+    animFrameRef.current = requestAnimationFrame(loop)
 
     return () => {
-      if (gameInterval.current) clearInterval(gameInterval.current)
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
     }
-  }, [gameState, isFrozen, roundIndex, vocabPool])
+  }, [gameState, roundIndex, setupNextRound, vocabPool])
 
   const handleBubbleClick = (bubble) => {
     if (gameState !== 'playing' || bubble.isWrongClicked || bubble.isCorrect) return
 
     if (bubble.isTarget) {
       playSound('correct')
-      setBubbles((prev) =>
-        prev.map((b) => (b.id === bubble.id ? { ...b, isCorrect: true } : b))
-      )
+      const updated = bubblesRef.current.map((b) => (b.id === bubble.id ? { ...b, isCorrect: true } : b))
+      bubblesRef.current = updated
+      setBubbles(updated)
       setScore((prev) => prev + 100 + streak * 20)
       setStreak((prev) => prev + 1)
 
       if (roundIndex >= 15) {
         playSound('victory')
         confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } })
-        if (gameInterval.current) clearInterval(gameInterval.current)
+        if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
         if (timerInterval.current) clearInterval(timerInterval.current)
         setGameState('victory')
       } else {
-        setTimeout(() => setupNextRound(vocabPool.length ? vocabPool : FALLBACK_WORDS, roundIndex), 500)
+        setTimeout(() => setupNextRound(vocabPool, roundIndex), 400)
       }
     } else {
       playSound('wrong')
       setStreak(0)
-      setBubbles((prev) =>
-        prev.map((b) => (b.id === bubble.id ? { ...b, isWrongClicked: true } : b))
-      )
+      const updated = bubblesRef.current.map((b) => (b.id === bubble.id ? { ...b, isWrongClicked: true } : b))
+      bubblesRef.current = updated
+      setBubbles(updated)
     }
   }
 
@@ -266,7 +288,7 @@ export default function VocabHunter() {
 
   // Tactical Power-up: Auto-Lock Hint
   const handleAutoLock = () => {
-    const target = bubbles.find((b) => b.isTarget)
+    const target = bubblesRef.current.find((b) => b.isTarget)
     if (target) handleBubbleClick(target)
   }
 
@@ -422,7 +444,10 @@ export default function VocabHunter() {
                   <div
                     key={b.id}
                     className={`hunter-bubble ${b.isWrongClicked ? 'hunter-bubble--wrong' : ''} ${b.isCorrect ? 'hunter-bubble--correct' : ''}`}
-                    style={{ left: `${b.x}%`, top: `${b.y}%` }}
+                    style={{
+                      left: `${b.x}%`,
+                      transform: `translate3d(0, ${b.y * 4}px, 0)`
+                    }}
                     onClick={() => handleBubbleClick(b)}
                   >
                     <div className="hunter-bubble-card">
