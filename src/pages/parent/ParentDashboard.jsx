@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import './ParentDashboard.css'
@@ -11,24 +12,11 @@ const RELATIONSHIPS = [
   { value: 'other', label: 'Other' },
 ]
 
-const STATUS_META = {
-  on_track: { label: 'On track', icon: 'check_circle' },
-  watch: { label: 'Keep an eye on', icon: 'visibility' },
-  needs_attention: { label: 'Needs attention', icon: 'error' },
-}
-
-function formatRelativeDate(value) {
-  if (!value) return 'No recent activity'
-  const days = Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / 86400000))
-  if (days === 0) return 'Active today'
-  if (days === 1) return 'Active yesterday'
-  return `Active ${days} days ago`
-}
-
 export default function ParentDashboard() {
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const { updateUser, selectParentChild } = useAuth()
+  const { t } = useLanguage()
   const [children, setChildren] = useState([])
   const [linkCode, setLinkCode] = useState('')
   const [relationship, setRelationship] = useState('guardian')
@@ -134,13 +122,13 @@ export default function ParentDashboard() {
     <div className="parent-dashboard">
       <header className="parent-dashboard__header">
         <div>
-          <p className="parent-dashboard__eyebrow">Parent workspace</p>
-          <h2 className="text-headline-lg">Family overview</h2>
-          <p className="text-body-md">See what changed this week and where your support matters most.</p>
+          <p className="parent-dashboard__eyebrow">{t('header.parentWorkspace', 'Parent workspace')}</p>
+          <h2 className="text-headline-lg">{t('parent.dashboardTitle', 'Family overview')}</h2>
+          <p className="text-body-md">{t('parent.dashboardSubtitle', 'See what changed this week and where your support matters most.')}</p>
         </div>
         <button type="button" className="parent-dashboard__link-button" onClick={openLinkModal}>
           <span className="material-symbols-outlined">person_add</span>
-          Link student
+          {t('nav.linkStudent', 'Link student')}
         </button>
       </header>
 
@@ -149,10 +137,10 @@ export default function ParentDashboard() {
 
       {!loading && children.length > 0 && (
         <section className="parent-dashboard__family-stats" aria-label="Family learning summary">
-          <div><span>Linked students</span><strong>{children.length}</strong></div>
-          <div><span>New words this week</span><strong>{totalWordsThisWeek}</strong></div>
-          <div><span>Weekly goals</span><strong>{averageGoalCompletion}%</strong></div>
-          <div className={totalAlerts > 0 ? 'is-alert' : ''}><span>Open alerts</span><strong>{totalAlerts}</strong></div>
+          <div><span>{t('parent.linkedChildren', 'Linked students')}</span><strong>{children.length}</strong></div>
+          <div><span>{t('parent.weeklyActivity', 'New words this week')}</span><strong>{totalWordsThisWeek}</strong></div>
+          <div><span>{t('nav.weeklyGoals', 'Weekly goals')}</span><strong>{averageGoalCompletion}%</strong></div>
+          <div className={totalAlerts > 0 ? 'is-alert' : ''}><span>{t('nav.alerts', 'Open alerts')}</span><strong>{totalAlerts}</strong></div>
         </section>
       )}
 
@@ -161,7 +149,7 @@ export default function ParentDashboard() {
           <div className="parent-dashboard__attention-heading">
             <span className="material-symbols-outlined">notifications_active</span>
             <div>
-              <h3>Needs your attention</h3>
+              <h3>{t('teacher.interventionNeeded', 'Needs your attention')}</h3>
               <p>Review recent changes before they become longer-term learning gaps.</p>
             </div>
           </div>
@@ -180,8 +168,8 @@ export default function ParentDashboard() {
       <section className="parent-dashboard__students" aria-busy={loading}>
         <div className="parent-dashboard__section-heading">
           <div>
-            <h3 className="text-title-lg">Your students</h3>
-            <p>Weekly progress at a glance</p>
+            <h3 className="text-title-lg">{t('parent.linkedChildren', 'Your students')}</h3>
+            <p>{t('header.familyOverview', 'Weekly progress at a glance')}</p>
           </div>
           {!loading && children.length > 0 && <button type="button" onClick={loadChildren} aria-label="Refresh family overview"><span className="material-symbols-outlined">refresh</span></button>}
         </div>
@@ -193,9 +181,9 @@ export default function ParentDashboard() {
         ) : children.length === 0 ? (
           <div className="parent-dashboard__empty">
             <span className="material-symbols-outlined">family_restroom</span>
-            <strong>No students linked yet</strong>
+            <strong>{t('parent.noLinkedChildren', 'No students linked yet')}</strong>
             <p>Link a student with their one-time code to start following learning progress.</p>
-            <button type="button" onClick={openLinkModal}>Link your first student</button>
+            <button type="button" onClick={openLinkModal}>{t('nav.linkStudent', 'Link your first student')}</button>
           </div>
         ) : (
           <div className="parent-dashboard__student-grid">
@@ -210,23 +198,23 @@ export default function ParentDashboard() {
                     <p>{child.className || 'No active class'}{child.teacherName ? ` · ${child.teacherName}` : ''}</p>
                   </div>
                   <span className={`parent-dashboard__status parent-dashboard__status--${child.overallStatus || 'on_track'}`}>
-                    <span className="material-symbols-outlined">{STATUS_META[child.overallStatus]?.icon || 'check_circle'}</span>
-                    {STATUS_META[child.overallStatus]?.label || 'On track'}
+                    <span className="material-symbols-outlined">check_circle</span>
+                    {t('teacher.lowRisk', 'On track')}
                   </span>
                 </div>
                 <div className="parent-dashboard__student-metrics">
                   <div>
-                    <span>Latest score</span>
+                    <span>{t('feedback.overallBand', 'Latest score')}</span>
                     <strong>{child.latestScore !== null && child.latestScore !== undefined ? child.latestScore.toFixed(1) : '—'}</strong>
                     <small className={(child.scoreChange || 0) >= 0 ? 'is-positive' : 'is-negative'}>{child.scoreChange === null || child.scoreChange === undefined ? 'No comparison yet' : `${child.scoreChange >= 0 ? '+' : ''}${child.scoreChange} vs previous`}</small>
                   </div>
                   <div>
-                    <span>New words</span>
+                    <span>{t('parent.wordsMastered', 'New words')}</span>
                     <strong>{child.wordsThisWeek || 0}</strong>
                     <small className={(child.wordsChange || 0) >= 0 ? 'is-positive' : 'is-negative'}>{`${(child.wordsChange || 0) >= 0 ? '+' : ''}${child.wordsChange || 0} vs last week`}</small>
                   </div>
                   <div>
-                    <span>Weekly goals</span>
+                    <span>{t('nav.weeklyGoals', 'Weekly goals')}</span>
                     <strong>{child.goalsConfigured ? `${child.goalCompletionRate || 0}%` : '—'}</strong>
                     <small>{child.goalsConfigured ? 'Current completion' : 'Not configured'}</small>
                   </div>
@@ -236,15 +224,15 @@ export default function ParentDashboard() {
                 </div>
                 <div className="parent-dashboard__student-activity">
                   <span className="material-symbols-outlined">history</span>
-                  <div><strong>{child.latestEssay?.title || 'No essays submitted yet'}</strong><small>{formatRelativeDate(child.lastActivityAt)}</small></div>
+                  <div><strong>{child.latestEssay?.title || t('dashboard.noEssays', 'No essays submitted yet')}</strong></div>
                   <span className="parent-dashboard__level">{child.englishLevel || 'N/A'}</span>
                 </div>
                 <div className="parent-dashboard__student-actions">
                   <button type="button" className="parent-dashboard__view" onClick={() => openChildView(child._id, 'progress')}>
                     <span className="material-symbols-outlined">monitoring</span>
-                    <span>View progress</span>
+                    <span>{t('parent.viewChildDetail', 'View progress')}</span>
                   </button>
-                  <button type="button" onClick={() => openChildView(child._id, 'essays')}><span className="material-symbols-outlined">history_edu</span><span>Essays</span></button>
+                  <button type="button" onClick={() => openChildView(child._id, 'essays')}><span className="material-symbols-outlined">history_edu</span><span>{t('nav.essays', 'Essays')}</span></button>
                   <details className="parent-dashboard__more">
                     <summary aria-label={`More actions for ${child.name}`}><span className="material-symbols-outlined">more_vert</span></summary>
                     <button type="button" className="parent-dashboard__unlink" onClick={() => handleUnlink(child)}><span className="material-symbols-outlined">link_off</span>Unlink student</button>
@@ -260,14 +248,14 @@ export default function ParentDashboard() {
         <div className="parent-dashboard__modal-overlay" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) closeLinkModal() }}>
           <section className="parent-dashboard__modal" role="dialog" aria-modal="true" aria-labelledby="link-student-title">
             <div className="parent-dashboard__modal-header">
-              <div><p>Family access</p><h3 id="link-student-title">Link a student</h3></div>
+              <div><p>Family access</p><h3 id="link-student-title">{t('nav.linkStudent', 'Link a student')}</h3></div>
               <button type="button" onClick={closeLinkModal} aria-label="Close link student dialog"><span className="material-symbols-outlined">close</span></button>
             </div>
             <p className="parent-dashboard__modal-copy">Ask the student to generate a one-time code from Settings. The code expires after 15 minutes and can only be used once.</p>
             <form className="parent-dashboard__link-form" onSubmit={handleLink}>
               <label><span>One-time code</span><input value={linkCode} onChange={event => setLinkCode(event.target.value.toUpperCase())} placeholder="ABCD2345" maxLength={10} autoComplete="off" autoFocus required /></label>
               <label><span>Your relationship</span><select value={relationship} onChange={event => setRelationship(event.target.value)}>{RELATIONSHIPS.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
-              <div className="parent-dashboard__modal-actions"><button type="button" onClick={closeLinkModal}>Cancel</button><button type="submit" disabled={submitting || linkCode.trim().length < 8}>{submitting ? 'Linking...' : 'Link student'}</button></div>
+              <div className="parent-dashboard__modal-actions"><button type="button" onClick={closeLinkModal}>{t('common.cancel', 'Cancel')}</button><button type="submit" disabled={submitting || linkCode.trim().length < 8}>{submitting ? 'Linking...' : t('nav.linkStudent', 'Link student')}</button></div>
             </form>
           </section>
         </div>

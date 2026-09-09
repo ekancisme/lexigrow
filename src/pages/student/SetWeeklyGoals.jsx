@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
 import api from '../../services/api.js'
 import CircularProgress from '../../components/common/CircularProgress'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import './SetWeeklyGoals.css'
 
 export default function SetWeeklyGoals() {
+  const { t } = useLanguage()
   const [weeklyGoalDoc, setWeeklyGoalDoc] = useState(null)
   const [goals, setGoals] = useState([])
   const [recommendations, setRecommendations] = useState([])
@@ -38,7 +40,7 @@ export default function SetWeeklyGoals() {
     setSaving(true)
     try {
       await api.put(`/goals/${weeklyGoalDoc._id}`, { goals })
-      alert('Goals updated successfully!')
+      alert(t('goals.savedSuccess', 'Goals updated successfully!'))
     } catch (err) {
       alert('Error updating goals: ' + err.message)
     } finally {
@@ -60,14 +62,14 @@ export default function SetWeeklyGoals() {
     <div className="weekly-goals">
       <section className="weekly-goals__header">
         <div>
-          <h2 className="text-headline-lg">Set Weekly Goals</h2>
+          <h2 className="text-headline-lg">{t('goals.title', 'Set Weekly Goals')}</h2>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-            Define your targets and track your progress throughout the week
+            {t('goals.subtitle', 'Define your targets and track your progress throughout the week')}
           </p>
         </div>
         <button className="weekly-goals__save-btn" onClick={handleSave} disabled={saving}>
           <span className="material-symbols-outlined">check</span>
-          {saving ? 'Saving...' : 'Save Goals'}
+          {saving ? t('goals.saving', 'Saving...') : t('goals.saveBtn', 'Save Goals')}
         </button>
       </section>
 
@@ -90,7 +92,7 @@ export default function SetWeeklyGoals() {
 
       {/* Goal Configuration */}
       <section className="weekly-goals__config card-base">
-        <h3 className="text-title-lg" style={{ marginBottom: 24 }}>Configure Goals</h3>
+        <h3 className="text-title-lg" style={{ marginBottom: 24 }}>{t('goals.configTitle', 'Configure Goals')}</h3>
         <div className="weekly-goals__config-list">
           {goals.map(goal => (
             <div key={goal.label} className="weekly-goals__config-item">
@@ -130,7 +132,7 @@ export default function SetWeeklyGoals() {
       <section className="weekly-goals__tips card-base">
         <h3 className="text-title-lg" style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
           <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>psychology</span>
-          AI Recommendations
+          {t('goals.aiRecs', 'AI Recommendations')}
         </h3>
         <div className="weekly-goals__tips-grid">
           {recommendations.length > 0 ? (
@@ -141,7 +143,7 @@ export default function SetWeeklyGoals() {
               </div>
             ))
           ) : (
-            <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>No recommendations available yet.</p>
+            <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>{t('goals.noRecs', 'No recommendations available yet.')}</p>
           )}
         </div>
       </section>

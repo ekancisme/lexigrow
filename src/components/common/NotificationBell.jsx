@@ -4,19 +4,22 @@ import { useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
 import { getSocket } from '../../services/socket.js'
 import { useAuth } from '../../contexts/AuthContext.jsx'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import './NotificationBell.css'
 
 /* ── Helpers ────────────────────────────────────────────── */
-function formatRelativeTime(dateStr) {
+function formatRelativeTime(dateStr, language = 'en') {
   const diffMs = Date.now() - new Date(dateStr).getTime()
   const diffMin = Math.floor(diffMs / 60000)
   const diffHr  = Math.floor(diffMs / 3600000)
   const diffDay = Math.floor(diffMs / 86400000)
-  if (diffMin < 1)  return 'Just now'
-  if (diffMin < 60) return `${diffMin} minute${diffMin === 1 ? '' : 's'} ago`
-  if (diffHr  < 24) return `${diffHr} hour${diffHr === 1 ? '' : 's'} ago`
-  if (diffDay < 7)  return `${diffDay} day${diffDay === 1 ? '' : 's'} ago`
-  return new Date(dateStr).toLocaleDateString('en-GB')
+  const isVi = language === 'vi'
+
+  if (diffMin < 1)  return isVi ? 'Vừa xong' : 'Just now'
+  if (diffMin < 60) return isVi ? `${diffMin} phút trước` : `${diffMin} minute${diffMin === 1 ? '' : 's'} ago`
+  if (diffHr  < 24) return isVi ? `${diffHr} giờ trước` : `${diffHr} hour${diffHr === 1 ? '' : 's'} ago`
+  if (diffDay < 7)  return isVi ? `${diffDay} ngày trước` : `${diffDay} day${diffDay === 1 ? '' : 's'} ago`
+  return new Date(dateStr).toLocaleDateString(isVi ? 'vi-VN' : 'en-GB')
 }
 
 function getTypeIcon(type) {
@@ -34,6 +37,7 @@ export default function NotificationBell() {
   const navigate    = useNavigate()
   const dropdownRef = useRef(null)
   const { token }   = useAuth()
+  const { t, language } = useLanguage()
 
   const [open, setOpen]           = useState(false)
   const [notifications, setNotifications] = useState([])
@@ -62,13 +66,8 @@ export default function NotificationBell() {
     if (!socket) return
 
     const handleNewNotification = (notif) => {
-      // 1. Increment unread count
       setUnreadCount(prev => prev + 1)
-
-      // 2. Prepend new notification to the list
       setNotifications(prev => [notif, ...prev])
-
-      // 3. Update count and notifications list
     }
 
     socket.on('notification', handleNewNotification)
@@ -107,7 +106,6 @@ export default function NotificationBell() {
 
   /* ── Mark single notification as read ── */
   async function handleNotificationClick(notif) {
-    // Mark as read if unread
     if (!notif.isRead) {
       try {
         await api.patch(`/notifications/${notif._id}/read`)
@@ -119,7 +117,6 @@ export default function NotificationBell() {
         // non-critical
       }
     }
-    // Navigate if link exists
     if (notif.link) {
       navigate(notif.link)
       setOpen(false)
@@ -175,7 +172,7 @@ export default function NotificationBell() {
         <button
           id="notification-bell-btn"
           className={`topnav__icon-btn notif-bell__btn ${open ? 'notif-bell__btn--active' : ''}`}
-          aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ''}`}
+          aria-label={`${t('notif.title', 'Notifications')}${unreadCount > 0 ? ` (${unreadCount} ${t('notif.unread', 'unread')})` : ''}`}
           aria-expanded={open}
           onClick={() => {
             const nextOpen = !open
@@ -199,9 +196,9 @@ export default function NotificationBell() {
             {/* Header */}
             <div className="notif-dropdown__header">
               <div>
-                <h3 className="text-title-lg notif-dropdown__title">Notifications</h3>
+                <h3 className="text-title-lg notif-dropdown__title">{t('notif.title', 'Notifications')}</h3>
                 {unreadCount > 0 && (
-                  <span className="notif-dropdown__unread-label">{unreadCount} unread</span>
+                  <span className="notif-dropdown__unread-label">{unreadCount} {t('notif.unread', 'unread')}</span>
                 )}
               </div>
               {unreadCount > 0 && (
@@ -212,7 +209,7 @@ export default function NotificationBell() {
                 >
                   {markingAll
                     ? <span className="material-symbols-outlined animate-spin" style={{ fontSize: 16 }}>progress_activity</span>
-                    : 'Mark all as read'
+                    : t('notif.markAll', 'Mark all as read')
                   }
                 </button>
               )}
@@ -236,7 +233,7 @@ export default function NotificationBell() {
                   <span className="material-symbols-outlined" style={{ fontSize: 40, color: 'var(--color-outline)' }}>
                     notifications_off
                   </span>
-                  <p className="text-body-md">No notifications</p>
+                  <p className="text-body-md">{t('notif.empty', 'No notifications')}</p>
                 </div>
               ) : (
                 notifications.map(notif => {
@@ -263,12 +260,12 @@ export default function NotificationBell() {
                             {responses[notif._id] === 'approved' || (notif.isRead && notif.message.toLowerCase().includes('approved')) ? (
                               <span className="notif-item__status notif-item__status--approved">
                                 <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: 'middle', marginRight: 4 }}>check_circle</span>
-                                Approved
+                                {t('notif.approved', 'Approved')}
                               </span>
                             ) : responses[notif._id] === 'rejected' || (notif.isRead && notif.message.toLowerCase().includes('declined')) ? (
                               <span className="notif-item__status notif-item__status--rejected">
                                 <span className="material-symbols-outlined" style={{ fontSize: 14, verticalAlign: 'middle', marginRight: 4 }}>cancel</span>
-                                Declined
+                                {t('notif.declined', 'Declined')}
                               </span>
                             ) : (
                               <>
@@ -277,14 +274,14 @@ export default function NotificationBell() {
                                   onClick={() => handleRespondParentRequest(notif._id, 'approve')}
                                   disabled={respondingId === notif._id}
                                 >
-                                  Approve
+                                  {t('notif.approve', 'Approve')}
                                 </button>
                                 <button
                                   className="notif-item__action-btn notif-item__action-btn--reject"
                                   onClick={() => handleRespondParentRequest(notif._id, 'reject')}
                                   disabled={respondingId === notif._id}
                                 >
-                                  Decline
+                                  {t('notif.decline', 'Decline')}
                                 </button>
                               </>
                             )}
@@ -293,7 +290,7 @@ export default function NotificationBell() {
 
                         <span className="notif-item__time">
                           <span className="material-symbols-outlined" style={{ fontSize: 12 }}>schedule</span>
-                          {formatRelativeTime(notif.createdAt)}
+                          {formatRelativeTime(notif.createdAt, language)}
                         </span>
                       </div>
                       {!notif.isRead && <span className="notif-item__dot" aria-label="Unread" />}
@@ -307,7 +304,7 @@ export default function NotificationBell() {
             {!loading && notifications.length > 0 && (
               <div className="notif-dropdown__footer">
                 <button className="notif-dropdown__see-all" onClick={() => setOpen(false)}>
-                  Close
+                  {t('notif.close', 'Close')}
                 </button>
               </div>
             )}

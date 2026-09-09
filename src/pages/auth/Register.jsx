@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import './Register.css'
 
@@ -17,6 +18,7 @@ export default function Register() {
   const [isVerifying, setIsVerifying] = useState(false)
 
   const { register, verifyEmail, loading, loginWithGoogle } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
 
   async function handleSubmit(e) {
@@ -154,12 +156,12 @@ export default function Register() {
             </span>
           </div>
           <h1 className="text-headline-lg">
-            {verificationEmail ? 'Verify Your Email' : 'Create Account'}
+            {verificationEmail ? 'Verify Your Email' : t('auth.registerTitle', 'Create Account')}
           </h1>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
             {verificationEmail 
               ? 'Enter the 6-digit verification code to activate your account.'
-              : 'Join LexiGrow and start tracking your vocabulary growth'
+              : t('auth.registerSubtitle', 'Join LexiGrow and start tracking your vocabulary growth')
             }
           </p>
         </div>
@@ -243,7 +245,7 @@ export default function Register() {
                   onClick={() => setRole('student')}
                 >
                   <span className="material-symbols-outlined">school</span>
-                  <span>Student</span>
+                  <span>{t('auth.roleStudent', 'Student')}</span>
                 </button>
                 <button
                   type="button"
@@ -251,7 +253,7 @@ export default function Register() {
                   onClick={() => setRole('teacher')}
                 >
                   <span className="material-symbols-outlined">cast_for_education</span>
-                  <span>Teacher</span>
+                  <span>{t('auth.roleTeacher', 'Teacher')}</span>
                 </button>
                 <button
                   type="button"
@@ -259,14 +261,14 @@ export default function Register() {
                   onClick={() => setRole('parent')}
                 >
                   <span className="material-symbols-outlined">family_restroom</span>
-                  <span>Parent</span>
+                  <span>{t('auth.roleParent', 'Parent')}</span>
                 </button>
               </div>
 
               <form onSubmit={handleSubmit} className="register__form">
                 {/* Name */}
                 <div className="register__field">
-                  <label htmlFor="reg-name" className="register__label text-label-md">Full Name</label>
+                  <label htmlFor="reg-name" className="register__label text-label-md">{t('auth.fullName', 'Full Name')}</label>
                   <div className="register__input-wrap">
                     <span className="material-symbols-outlined register__input-icon">person</span>
                     <input id="reg-name" type="text" className="register__input" placeholder="Enter your full name" required />
@@ -275,7 +277,7 @@ export default function Register() {
 
                 {/* Email */}
                 <div className="register__field">
-                  <label htmlFor="reg-email" className="register__label text-label-md">Email Address</label>
+                  <label htmlFor="reg-email" className="register__label text-label-md">{t('auth.emailLabel', 'Email Address')}</label>
                   <div className="register__input-wrap">
                     <span className="material-symbols-outlined register__input-icon">mail</span>
                     <input id="reg-email" type="email" className="register__input" placeholder="name@example.com" required />
@@ -284,7 +286,7 @@ export default function Register() {
 
                 {/* Password */}
                 <div className="register__field">
-                  <label htmlFor="reg-password" className="register__label text-label-md">Password</label>
+                  <label htmlFor="reg-password" className="register__label text-label-md">{t('auth.passwordLabel', 'Password')}</label>
                   <div className="register__input-wrap">
                     <span className="material-symbols-outlined register__input-icon">lock</span>
                     <input
@@ -343,7 +345,7 @@ export default function Register() {
                     <span className="material-symbols-outlined animate-spin">progress_activity</span>
                   ) : (
                     <>
-                      <span>Create Account</span>
+                      <span>{t('auth.registerBtn', 'Create Account')}</span>
                       <span className="material-symbols-outlined" style={{ fontSize: 20 }}>arrow_forward</span>
                     </>
                   )}
@@ -351,7 +353,7 @@ export default function Register() {
 
                 {/* Divider */}
                 <div className="register__divider">
-                  <span>or sign up with</span>
+                  <span>{t('auth.orContinueWith', 'or sign up with')}</span>
                 </div>
 
                 {/* Social */}
@@ -362,7 +364,7 @@ export default function Register() {
                     <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
                     <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
                   </svg>
-                  <span>Sign up with Google</span>
+                  <span>{t('auth.googleSignIn', 'Sign up with Google')}</span>
                 </button>
               </form>
             </>
@@ -372,8 +374,8 @@ export default function Register() {
         {/* Login CTA */}
         <div className="register__login-cta">
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-            Already have an account?{' '}
-            <Link to="/login" className="register__login-link">Sign in</Link>
+            {t('auth.alreadyHaveAccount', 'Already have an account?')}{' '}
+            <Link to="/login" className="register__login-link">{t('auth.loginBtn', 'Sign in')}</Link>
           </p>
         </div>
       </main>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import './ForgotPassword.css'
 
@@ -11,6 +12,7 @@ export default function ForgotPassword() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
+  const { t } = useLanguage()
   const navigate = useNavigate()
 
   async function handleSendCode(e) {
@@ -63,9 +65,9 @@ export default function ForgotPassword() {
               lock_reset
             </span>
           </div>
-          <h1 className="text-headline-lg">Reset Password</h1>
+          <h1 className="text-headline-lg">{t('auth.forgotTitle', 'Reset Password')}</h1>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-            {step === 1 ? 'Enter your email to receive a password reset code' : 'Enter the 6-digit code and your new password'}
+            {step === 1 ? t('auth.forgotDesc', 'Enter your email to receive a password reset code') : 'Enter the 6-digit code and your new password'}
           </p>
         </div>
 
@@ -87,7 +89,7 @@ export default function ForgotPassword() {
             <form onSubmit={handleSendCode} className="forgot-password__form">
               {/* Email */}
               <div className="forgot-password__field">
-                <label htmlFor="fp-email" className="forgot-password__label text-label-md">Email Address</label>
+                <label htmlFor="fp-email" className="forgot-password__label text-label-md">{t('auth.emailLabel', 'Email Address')}</label>
                 <div className="forgot-password__input-wrap">
                   <span className="material-symbols-outlined forgot-password__input-icon">mail</span>
                   <input
@@ -108,7 +110,7 @@ export default function ForgotPassword() {
                   <span className="material-symbols-outlined animate-spin">progress_activity</span>
                 ) : (
                   <>
-                    <span>Send Verification Code</span>
+                    <span>{t('auth.sendResetLink', 'Send Verification Code')}</span>
                     <span className="material-symbols-outlined" style={{ fontSize: 20 }}>arrow_forward</span>
                   </>
                 )}
@@ -118,7 +120,7 @@ export default function ForgotPassword() {
             <form onSubmit={handleResetPassword} className="forgot-password__form">
               {/* Email (readonly display) */}
               <div className="forgot-password__field">
-                <label className="forgot-password__label text-label-md">Email Address</label>
+                <label className="forgot-password__label text-label-md">{t('auth.emailLabel', 'Email Address')}</label>
                 <div className="forgot-password__input-wrap">
                   <span className="material-symbols-outlined forgot-password__input-icon" style={{ opacity: 0.5 }}>mail</span>
                   <input
@@ -152,7 +154,7 @@ export default function ForgotPassword() {
 
               {/* New Password */}
               <div className="forgot-password__field">
-                <label htmlFor="fp-password" className="forgot-password__label text-label-md">New Password</label>
+                <label htmlFor="fp-password" className="forgot-password__label text-label-md">{t('auth.passwordLabel', 'New Password')}</label>
                 <div className="forgot-password__input-wrap">
                   <span className="material-symbols-outlined forgot-password__input-icon">lock</span>
                   <input
@@ -174,7 +176,7 @@ export default function ForgotPassword() {
                   <span className="material-symbols-outlined animate-spin">progress_activity</span>
                 ) : (
                   <>
-                    <span>Reset Password</span>
+                    <span>{t('auth.forgotTitle', 'Reset Password')}</span>
                     <span className="material-symbols-outlined" style={{ fontSize: 20 }}>arrow_forward</span>
                   </>
                 )}
@@ -186,8 +188,8 @@ export default function ForgotPassword() {
         {/* Back to Login */}
         <div className="forgot-password__back-cta">
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-            Remembered your password?{' '}
-            <Link to="/login" className="forgot-password__login-link">Sign in</Link>
+            {t('auth.alreadyHaveAccount', 'Remembered your password?')}{' '}
+            <Link to="/login" className="forgot-password__login-link">{t('auth.backToLogin', 'Sign in')}</Link>
           </p>
         </div>
       </main>

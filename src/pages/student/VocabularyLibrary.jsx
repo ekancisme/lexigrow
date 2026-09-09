@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import './VocabularyLibrary.css'
 
 export default function VocabularyLibrary() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [words, setWords] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -173,9 +175,9 @@ export default function VocabularyLibrary() {
       {/* Header */}
       <section className="vocab-lib__header">
         <div>
-          <h2 className="text-headline-lg">Vocabulary Library</h2>
+          <h2 className="text-headline-lg">{t('vocabLib.title', 'Vocabulary Library')}</h2>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-            Expand your lexicon. Add words manually or write essays to discover new vocabulary.
+            {t('vocabLib.subtitle', 'Expand your lexicon. Add words manually or write essays to discover new vocabulary.')}
           </p>
         </div>
         <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -189,7 +191,7 @@ export default function VocabularyLibrary() {
               }}
             >
               <span className="material-symbols-outlined">style</span>
-              <span>Review {selectedCategory ? getCategoryLabel(selectedCategory) : 'All'}</span>
+              <span>{t('vocabLib.reviewNow', 'Review Due Cards')}</span>
               <span className="vocab-lib__review-badge">{dueCount}</span>
             </button>
           )}
@@ -198,14 +200,14 @@ export default function VocabularyLibrary() {
             onClick={() => navigate('/student/game')}
           >
             <span className="material-symbols-outlined">sports_esports</span>
-            <span>Play Games</span>
+            <span>{t('vocabLib.playGames', 'Play Games')}</span>
           </button>
           <button
             className="vocab-lib__add-btn"
             onClick={() => setIsAddModalOpen(true)}
           >
             <span className="material-symbols-outlined">add</span>
-            <span>Add New Word</span>
+            <span>{t('vocabLib.addWord', 'Add New Word')}</span>
           </button>
         </div>
       </section>
@@ -216,7 +218,7 @@ export default function VocabularyLibrary() {
           <span className="material-symbols-outlined vocab-lib__search-icon">search</span>
           <input
             type="text"
-            placeholder="Search word or definition..."
+            placeholder={t('vocabLib.searchPlaceholder', 'Search word or definition...')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="vocab-lib__search-field"
@@ -234,13 +236,13 @@ export default function VocabularyLibrary() {
         </div>
         <div className="vocab-lib__filters">
           <div className="vocab-lib__filter-group">
-            <label className="text-label-sm">Category</label>
+            <label className="text-label-sm">{t('vocabLib.filterCat', 'Category')}</label>
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="vocab-lib__select"
             >
-              <option value="">All Categories</option>
+              <option value="">{t('vocabLib.allCat', 'All Categories')}</option>
               <option value="academic">Academic</option>
               <option value="business">Business</option>
               <option value="scientific">Scientific</option>
@@ -249,27 +251,27 @@ export default function VocabularyLibrary() {
           </div>
 
           <div className="vocab-lib__filter-group">
-            <label className="text-label-sm">Mastery</label>
+            <label className="text-label-sm">{t('vocabLib.filterMastery', 'Mastery')}</label>
             <select
               value={selectedMastery}
               onChange={(e) => setSelectedMastery(e.target.value)}
               className="vocab-lib__select"
             >
-              <option value="">All Mastery Levels</option>
-              <option value="new">New</option>
-              <option value="learning">Learning</option>
-              <option value="mastered">Mastered</option>
+              <option value="">{t('vocabLib.allMastery', 'All Mastery Levels')}</option>
+              <option value="new">{t('common.new', 'New')}</option>
+              <option value="learning">{t('common.learning', 'Learning')}</option>
+              <option value="mastered">{t('common.mastered', 'Mastered')}</option>
             </select>
           </div>
 
           <div className="vocab-lib__filter-group">
-            <label className="text-label-sm">Theme</label>
+            <label className="text-label-sm">{t('vocabLib.filterTheme', 'Theme')}</label>
             <select
               value={selectedTheme}
               onChange={(e) => setSelectedTheme(e.target.value)}
               className="vocab-lib__select"
             >
-              <option value="">All Themes</option>
+              <option value="">{t('vocabLib.allThemes', 'All Themes')}</option>
               {themesList.map(theme => (
                 <option key={theme} value={theme}>{theme}</option>
               ))}
@@ -282,21 +284,21 @@ export default function VocabularyLibrary() {
       {loading ? (
         <div className="vocab-lib__loading">
           <span className="material-symbols-outlined animate-spin">progress_activity</span>
-          <p className="text-body-md">Loading your library...</p>
+          <p className="text-body-md">{t('common.loading', 'Loading your library...')}</p>
         </div>
       ) : words.length === 0 ? (
         <div className="vocab-lib__empty card-base">
           <span className="material-symbols-outlined vocab-lib__empty-icon">menu_book</span>
-          <h3 className="text-title-lg">No words found</h3>
+          <h3 className="text-title-lg">{t('vocabLib.noWords', 'No words found')}</h3>
           <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>
-            Try adjusting your filters, searching for something else, or adding a new word.
+            {t('vocabLib.noWordsDesc', 'Try adjusting your filters, searching for something else, or adding a new word.')}
           </p>
         </div>
       ) : (
         <>
           <div className="vocab-lib__meta-row">
             <span className="vocab-lib__meta-count">
-              Showing <strong>{startIndex}–{endIndex}</strong> of <strong>{totalCount}</strong> words
+              {t('vocabLib.showing', 'Showing')} <strong>{startIndex}–{endIndex}</strong> {t('vocabLib.of', 'of')} <strong>{totalCount}</strong> {t('vocabLib.words', 'words')}
             </span>
           </div>
 
@@ -334,7 +336,7 @@ export default function VocabularyLibrary() {
           {totalPages > 1 && (
             <div className="vocab-lib__pagination card-base">
               <div className="vocab-pagination__info">
-                Page <strong>{page}</strong> of <strong>{totalPages}</strong>
+                {t('vocabLib.page', 'Page')} <strong>{page}</strong> {t('vocabLib.of', 'of')} <strong>{totalPages}</strong>
               </div>
 
               <div className="vocab-pagination__controls">
@@ -346,7 +348,7 @@ export default function VocabularyLibrary() {
                   aria-label="Previous page"
                 >
                   <span className="material-symbols-outlined">chevron_left</span>
-                  <span>Prev</span>
+                  <span>{t('vocabLib.prev', 'Prev')}</span>
                 </button>
 
                 <div className="vocab-pagination__numbers">
@@ -418,14 +420,14 @@ export default function VocabularyLibrary() {
             <div className="vocab-modal__content">
               {/* Definition */}
               <div className="vocab-modal__section">
-                <h4 className="text-label-sm vocab-modal__section-title">Definition</h4>
+                <h4 className="text-label-sm vocab-modal__section-title">{t('vocabLib.definition', 'Definition')}</h4>
                 <p className="text-body-md vocab-modal__text">{selectedWord.definition || 'No definition available.'}</p>
               </div>
 
               {/* Example */}
               {selectedWord.exampleSentence && (
                 <div className="vocab-modal__section">
-                  <h4 className="text-label-sm vocab-modal__section-title">Context Example</h4>
+                  <h4 className="text-label-sm vocab-modal__section-title">{t('vocabLib.examples', 'Context Example')}</h4>
                   <p className="text-body-md vocab-modal__text vocab-modal__text--example">
                     "{selectedWord.exampleSentence}"
                   </p>
@@ -436,7 +438,7 @@ export default function VocabularyLibrary() {
               <div className="vocab-modal__syn-ant">
                 {selectedWord.synonyms && selectedWord.synonyms.length > 0 && (
                   <div className="vocab-modal__syn-ant-col">
-                    <h4 className="text-label-sm vocab-modal__section-title">Synonyms</h4>
+                    <h4 className="text-label-sm vocab-modal__section-title">{t('vocabLib.synonyms', 'Synonyms')}</h4>
                     <div className="vocab-modal__tags-list">
                       {selectedWord.synonyms.map(s => (
                         <span key={s} className="vocab-modal__tag vocab-modal__tag--syn">{s}</span>
@@ -446,7 +448,7 @@ export default function VocabularyLibrary() {
                 )}
                 {selectedWord.antonyms && selectedWord.antonyms.length > 0 && (
                   <div className="vocab-modal__syn-ant-col">
-                    <h4 className="text-label-sm vocab-modal__section-title">Antonyms</h4>
+                    <h4 className="text-label-sm vocab-modal__section-title">{t('vocabLib.antonyms', 'Antonyms')}</h4>
                     <div className="vocab-modal__tags-list">
                       {selectedWord.antonyms.map(a => (
                         <span key={a} className="vocab-modal__tag vocab-modal__tag--ant">{a}</span>
@@ -458,7 +460,7 @@ export default function VocabularyLibrary() {
 
               {/* Mastery toggle */}
               <div className="vocab-modal__section vocab-modal__mastery-section">
-                <h4 className="text-label-sm vocab-modal__section-title">Mastery Level</h4>
+                <h4 className="text-label-sm vocab-modal__section-title">{t('vocabLib.filterMastery', 'Mastery Level')}</h4>
                 <div className="vocab-modal__mastery-options">
                   {['new', 'learning', 'mastered'].map(lvl => (
                     <button
@@ -470,7 +472,7 @@ export default function VocabularyLibrary() {
                       <span className="material-symbols-outlined">
                         {lvl === 'mastered' ? 'verified' : lvl === 'learning' ? 'school' : 'new_releases'}
                       </span>
-                      <span>{lvl.charAt(0).toUpperCase() + lvl.slice(1)}</span>
+                      <span>{lvl === 'mastered' ? t('common.mastered', 'Mastered') : lvl === 'learning' ? t('common.learning', 'Learning') : t('common.new', 'New')}</span>
                     </button>
                   ))}
                 </div>
@@ -488,16 +490,16 @@ export default function VocabularyLibrary() {
             <button className="vocab-modal__close" onClick={() => !isAdding && setIsAddModalOpen(false)} disabled={isAdding}>
               <span className="material-symbols-outlined">close</span>
             </button>
-            <h3 className="text-title-lg" style={{ marginBottom: 16 }}>Add New Word</h3>
+            <h3 className="text-title-lg" style={{ marginBottom: 16 }}>{t('vocabLib.addNewTitle', 'Add New Word')}</h3>
 
             {addError && <div className="vocab-modal__error">{addError}</div>}
 
             <form onSubmit={handleAddWord}>
               <div className="vocab-modal__form-group">
-                <label className="text-label-sm">Word</label>
+                <label className="text-label-sm">{t('vocabLib.wordInputLabel', 'Word')}</label>
                 <input
                   type="text"
-                  placeholder="Enter english word..."
+                  placeholder={t('vocabLib.wordInputPlaceholder', 'Enter english word...')}
                   value={newWordData.word}
                   onChange={(e) => setNewWordData(prev => ({ ...prev, word: e.target.value }))}
                   required
@@ -509,7 +511,7 @@ export default function VocabularyLibrary() {
 
               <div className="vocab-modal__form-row">
                 <div className="vocab-modal__form-group">
-                  <label className="text-label-sm">Category</label>
+                  <label className="text-label-sm">{t('vocabLib.filterCat', 'Category')}</label>
                   <select
                     value={newWordData.category}
                     onChange={(e) => setNewWordData(prev => ({ ...prev, category: e.target.value }))}
@@ -524,10 +526,10 @@ export default function VocabularyLibrary() {
                 </div>
 
                 <div className="vocab-modal__form-group">
-                  <label className="text-label-sm">Theme</label>
+                  <label className="text-label-sm">{t('vocabLib.themeInputLabel', 'Theme')}</label>
                   <input
                     type="text"
-                    placeholder="General, Travel, Tech..."
+                    placeholder={t('vocabLib.themeInputPlaceholder', 'General, Travel, Tech...')}
                     value={newWordData.theme}
                     onChange={(e) => setNewWordData(prev => ({ ...prev, theme: e.target.value }))}
                     disabled={isAdding}
@@ -544,12 +546,12 @@ export default function VocabularyLibrary() {
                 {isAdding ? (
                   <>
                     <span className="material-symbols-outlined animate-spin" style={{ marginRight: 8 }}>progress_activity</span>
-                    <span>AI Enriching Word Details...</span>
+                    <span>{t('common.loading', 'AI Enriching Word Details...')}</span>
                   </>
                 ) : (
                   <>
                     <span className="material-symbols-outlined">auto_awesome</span>
-                    <span>Add Word & Enrich with AI</span>
+                    <span>{t('vocabLib.addWord', 'Add Word & Enrich with AI')}</span>
                   </>
                 )}
               </button>

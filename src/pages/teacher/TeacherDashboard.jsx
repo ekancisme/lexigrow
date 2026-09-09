@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import StatCard from '../../components/common/StatCard'
 import './TeacherDashboard.css'
 
 export default function TeacherDashboard() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
 
@@ -54,30 +56,34 @@ export default function TeacherDashboard() {
     <div className="teacher-dash">
       <section className="teacher-dash__header">
         <div>
-          <h2 className="text-headline-lg">Welcome to Teacher Dashboard</h2>
-          <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>Here is your classroom growth summary for today.</p>
+          <h2 className="text-headline-lg">{t('teacher.dashboardTitle', 'Welcome to Teacher Dashboard')}</h2>
+          <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
+            {t('teacher.dashboardSubtitle', 'Here is your classroom growth summary for today.')}
+          </p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button className="teacher-dash__btn-primary" onClick={() => navigate('/teacher/classes')}>Manage Classes</button>
+          <button className="teacher-dash__btn-primary" onClick={() => navigate('/teacher/classes')}>
+            {t('nav.classes', 'Manage Classes')}
+          </button>
         </div>
       </section>
 
       <section className="teacher-dash__stats">
-        <StatCard label="Total Classes" value={totalClasses} icon="class" color="primary" />
-        <StatCard label="Total Students" value={totalStudents} icon="group" color="secondary" />
-        <StatCard label="Growing" value={growing} icon="trending_up" color="primary" progress={growingPct} />
-        <StatCard label="Stagnating" value={stagnating} icon="trending_flat" color="tertiary" progress={stagnatingPct} />
-        <StatCard label="Declining" value={declining} icon="trending_down" color="error" progress={decliningPct} />
+        <StatCard label={t('teacher.activeClasses', 'Total Classes')} value={totalClasses} icon="class" color="primary" />
+        <StatCard label={t('teacher.totalStudents', 'Total Students')} value={totalStudents} icon="group" color="secondary" />
+        <StatCard label={t('teacher.lowRisk', 'Growing')} value={growing} icon="trending_up" color="primary" progress={growingPct} />
+        <StatCard label={t('teacher.mediumRisk', 'Stagnating')} value={stagnating} icon="trending_flat" color="tertiary" progress={stagnatingPct} />
+        <StatCard label={t('teacher.highRisk', 'Declining')} value={declining} icon="trending_down" color="error" progress={decliningPct} />
       </section>
 
       <div className="teacher-dash__body">
         <div className="teacher-dash__classes">
           <div className="teacher-dash__classes-header">
-            <h4 className="text-title-lg">Your Classes</h4>
+            <h4 className="text-title-lg">{t('teacher.myClasses', 'Your Classes')}</h4>
           </div>
           {classes.length === 0 ? (
             <div className="card-base" style={{ padding: 32, textAlign: 'center', color: 'var(--color-outline)' }}>
-              No classes created yet. Click "Manage Classes" to create one.
+              {t('teacher.dashboardSubtitle', 'No classes created yet.')}
             </div>
           ) : (
             classes.map((cls, idx) => {
@@ -92,7 +98,7 @@ export default function TeacherDashboard() {
                       <h5 className="text-title-lg teacher-dash__class-name">{cls.name}</h5>
                       <div className="teacher-dash__class-meta">
                         <span className="text-label-md" style={{ color: 'var(--color-outline)' }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>group</span> {cls.students} Students
+                          <span className="material-symbols-outlined" style={{ fontSize: 18 }}>group</span> {cls.students} {t('teacher.totalStudents', 'Students')}
                         </span>
                         <span className="text-label-md" style={{ color: 'var(--color-outline)' }}>
                           <span className="material-symbols-outlined" style={{ fontSize: 18 }}>query_stats</span> Avg TTR: {cls.avgTTR?.toFixed(2) || '0.00'}
@@ -101,7 +107,7 @@ export default function TeacherDashboard() {
                     </div>
                   </div>
                   <div className="teacher-dash__class-actions">
-                    <button className="teacher-dash__details-btn">View Details</button>
+                    <button className="teacher-dash__details-btn">{t('teacher.viewDetails', 'View Details')}</button>
                   </div>
                 </div>
               )
@@ -112,14 +118,14 @@ export default function TeacherDashboard() {
         <aside className="teacher-dash__alerts">
           <div className="card-base" style={{ height: '100%' }}>
             <div className="teacher-dash__alerts-header">
-              <h4 className="text-title-lg" style={{ fontWeight: 700 }}>Recent Alerts</h4>
+              <h4 className="text-title-lg" style={{ fontWeight: 700 }}>{t('teacher.earlyWarnings', 'Recent Alerts')}</h4>
               {recentAlerts.length > 0 && (
-                <span className="teacher-dash__alert-count">{recentAlerts.length} NEW</span>
+                <span className="teacher-dash__alert-count">{recentAlerts.length} {t('common.new', 'NEW')}</span>
               )}
             </div>
             <div className="teacher-dash__alerts-list">
               {recentAlerts.length === 0 ? (
-                <p className="text-body-md" style={{ color: 'var(--color-outline)', padding: 16, textAlign: 'center' }}>No recent alerts.</p>
+                <p className="text-body-md" style={{ color: 'var(--color-outline)', padding: 16, textAlign: 'center' }}>{t('teacher.dashboardSubtitle', 'No recent alerts.')}</p>
               ) : (
                 recentAlerts.map((a, i) => {
                   const alertType = a.type === 'critical' ? 'error' : a.type === 'warning' ? 'warning' : 'info'
@@ -136,17 +142,17 @@ export default function TeacherDashboard() {
                         </div>
                       </div>
                       <p className="text-label-sm" style={{ color: 'var(--color-on-surface-variant)', margin: '8px 0 12px' }}>
-                        Alert created on {new Date(a.createdAt).toLocaleDateString()}
+                        {new Date(a.createdAt).toLocaleDateString()}
                       </p>
                       <button className={`teacher-dash__alert-btn teacher-dash__alert-btn--${alertType}`} onClick={() => navigate(`/teacher/student/${a.student?._id}`)}>
-                        Review Profile
+                        {t('common.viewDetails', 'Review Profile')}
                       </button>
                     </div>
                   )
                 })
               )}
             </div>
-            <button className="teacher-dash__see-all" onClick={() => navigate('/teacher/alerts')}>See All Notifications</button>
+            <button className="teacher-dash__see-all" onClick={() => navigate('/teacher/alerts')}>{t('common.viewDetails', 'See All Notifications')}</button>
           </div>
         </aside>
       </div>

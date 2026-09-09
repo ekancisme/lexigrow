@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import './ClassManagement.css'
 
 export default function ClassManagement() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [classes, setClasses] = useState([])
   const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
@@ -64,18 +66,20 @@ export default function ClassManagement() {
     <div className="class-mgmt">
       <section className="class-mgmt__header">
         <div>
-          <h2 className="text-headline-lg">Class Management</h2>
-          <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>Create, edit, and manage your classes and student rosters</p>
+          <h2 className="text-headline-lg">{t('classMgmt.title', 'Class Management')}</h2>
+          <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
+            {t('classMgmt.subtitle', 'Create, edit, and manage your classes and student rosters')}
+          </p>
         </div>
         <button className="class-mgmt__create-btn" onClick={() => setShowModal(true)}>
-          <span className="material-symbols-outlined">add</span> Create New Class
+          <span className="material-symbols-outlined">add</span> {t('classMgmt.createClass', 'Create New Class')}
         </button>
       </section>
 
       <div className="class-mgmt__grid">
         {classes.length === 0 ? (
           <div className="card-base" style={{ padding: 32, gridColumn: '1 / -1', textAlign: 'center', color: 'var(--color-outline)' }}>
-            No classes created yet. Click "Create New Class" to get started.
+            {t('classMgmt.noClasses', 'No classes created yet. Click "Create New Class" to get started.')}
           </div>
         ) : (
           classes.map(cls => (
@@ -87,15 +91,17 @@ export default function ClassManagement() {
               <div className="class-mgmt__card-details">
                 <div className="class-mgmt__detail">
                   <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-outline)' }}>group</span>
-                  <span className="text-label-md">{(cls.students || []).length} Students</span>
+                  <span className="text-label-md">{(cls.students || []).length} {t('classMgmt.studentsCount', 'Students')}</span>
                 </div>
                 <div className="class-mgmt__detail">
                   <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-outline)' }}>schedule</span>
-                  <span className="text-label-md">{cls.schedule || 'No schedule'}</span>
+                  <span className="text-label-md">{cls.schedule || t('classMgmt.noSchedule', 'No schedule')}</span>
                 </div>
               </div>
               <div className="class-mgmt__card-actions">
-                <button className="class-mgmt__view-btn" onClick={() => navigate(`/teacher/class/${cls._id}`)}>View Roster</button>
+                <button className="class-mgmt__view-btn" onClick={() => navigate(`/teacher/class/${cls._id}`)}>
+                  {t('classMgmt.viewRoster', 'View Roster')}
+                </button>
               </div>
             </div>
           ))
@@ -105,9 +111,9 @@ export default function ClassManagement() {
       {showModal && (
         <div className="class-mgmt__modal-overlay" onClick={() => setShowModal(false)}>
           <form className="class-mgmt__modal card-base" onClick={e => e.stopPropagation()} onSubmit={handleCreateClass}>
-            <h3 className="text-headline-md" style={{ marginBottom: 20 }}>Create New Class</h3>
+            <h3 className="text-headline-md" style={{ marginBottom: 20 }}>{t('classMgmt.createClass', 'Create New Class')}</h3>
             <div className="class-mgmt__form-field">
-              <label className="text-label-md">Class Name</label>
+              <label className="text-label-md">{t('classMgmt.className', 'Class Name')}</label>
               <input
                 type="text"
                 placeholder="e.g., English 201"
@@ -118,7 +124,7 @@ export default function ClassManagement() {
               />
             </div>
             <div className="class-mgmt__form-field">
-              <label className="text-label-md">Description</label>
+              <label className="text-label-md">{t('classMgmt.description', 'Description')}</label>
               <textarea
                 placeholder="Brief description..."
                 className="class-mgmt__textarea"
@@ -128,7 +134,7 @@ export default function ClassManagement() {
               />
             </div>
             <div className="class-mgmt__form-field">
-              <label className="text-label-md">Schedule</label>
+              <label className="text-label-md">{t('classMgmt.schedule', 'Schedule')}</label>
               <input
                 type="text"
                 placeholder="e.g., Mon, Wed, Fri"
@@ -138,9 +144,11 @@ export default function ClassManagement() {
               />
             </div>
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 20 }}>
-              <button type="button" className="class-mgmt__cancel-btn" onClick={() => setShowModal(false)}>Cancel</button>
+              <button type="button" className="class-mgmt__cancel-btn" onClick={() => setShowModal(false)}>
+                {t('common.cancel', 'Cancel')}
+              </button>
               <button type="submit" className="class-mgmt__submit-btn" disabled={submitting}>
-                {submitting ? 'Creating...' : 'Create Class'}
+                {submitting ? t('classMgmt.creating', 'Creating...') : t('classMgmt.createBtn', 'Create Class')}
               </button>
             </div>
           </form>

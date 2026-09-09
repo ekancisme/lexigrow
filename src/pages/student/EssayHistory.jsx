@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import './EssayHistory.css'
 
 export default function EssayHistory() {
   const navigate = useNavigate()
+  const { t, language } = useLanguage()
 
   // States
   const [essays, setEssays] = useState([])
@@ -67,9 +69,9 @@ export default function EssayHistory() {
       {/* Header */}
       <section className="essay-history__header">
         <div>
-          <h2 className="text-headline-lg">Essay History</h2>
+          <h2 className="text-headline-lg">{t('essayHistory.title', 'Essay History')}</h2>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-            Review all your submitted writing entries and check detailed feedback.
+            {t('essayHistory.subtitle', 'Review all your submitted writing entries and check detailed feedback.')}
           </p>
         </div>
         <button
@@ -77,7 +79,7 @@ export default function EssayHistory() {
           onClick={() => navigate('/student/write-essay')}
         >
           <span className="material-symbols-outlined">add</span>
-          <span>Write New Essay</span>
+          <span>{t('essayHistory.writeNew', 'Write New Essay')}</span>
         </button>
       </section>
 
@@ -92,7 +94,7 @@ export default function EssayHistory() {
               }`}
               onClick={() => handleFilterChange(status)}
             >
-              {status.toUpperCase()}
+              {status === 'all' ? t('essayHistory.filterAll', 'ALL') : status === 'draft' ? t('essayHistory.filterDraft', 'DRAFT') : status.toUpperCase()}
             </button>
           ))}
         </div>
@@ -113,16 +115,16 @@ export default function EssayHistory() {
         {loading ? (
           <div className="essay-history__loading">
             <span className="material-symbols-outlined animate-spin">progress_activity</span>
-            <p>Loading essays...</p>
+            <p>{t('common.loading', 'Loading essays...')}</p>
           </div>
         ) : filteredEssays.length === 0 ? (
           <div className="essay-history__empty">
             <span className="material-symbols-outlined">history_edu</span>
-            <h3>No essays found</h3>
+            <h3>{t('essayHistory.noEssays', 'No essays found')}</h3>
             <p>
               {searchTerm
                 ? 'Try matching other keywords or clearing the search.'
-                : `You don't have any essays under the "${filterStatus}" filter.`}
+                : t('essayHistory.noEssaysDesc', "You don't have any essays under this filter.")}
             </p>
             {!searchTerm && filterStatus === 'all' && (
               <button
@@ -130,7 +132,7 @@ export default function EssayHistory() {
                 style={{ marginTop: 'var(--spacing-md)' }}
                 onClick={() => navigate('/student/write-essay')}
               >
-                Write Your First Essay
+                {t('essayHistory.writeNew', 'Write Your First Essay')}
               </button>
             )}
           </div>
@@ -139,12 +141,12 @@ export default function EssayHistory() {
             <table className="essay-history__table">
               <thead>
                 <tr>
-                  <th className="text-label-sm">DATE</th>
-                  <th className="text-label-sm">TITLE</th>
-                  <th className="text-label-sm">THEME</th>
-                  <th className="text-label-sm">WORDS</th>
-                  <th className="text-label-sm">STATUS</th>
-                  <th className="text-label-sm">ACTIONS</th>
+                  <th className="text-label-sm">{t('essayHistory.date', 'DATE')}</th>
+                  <th className="text-label-sm">{t('essayHistory.topic', 'TITLE')}</th>
+                  <th className="text-label-sm">{t('vocabLib.filterTheme', 'THEME')}</th>
+                  <th className="text-label-sm">{t('essayHistory.wordsCount', 'WORDS')}</th>
+                  <th className="text-label-sm">{t('adminPricing.status', 'STATUS')}</th>
+                  <th className="text-label-sm">{t('adminPricing.actions', 'ACTIONS')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -157,7 +159,7 @@ export default function EssayHistory() {
                     }
                   }}>
                     <td className="text-body-md essay-history__date">
-                      {new Date(essay.submittedAt || essay.createdAt).toLocaleDateString(undefined, {
+                      {new Date(essay.submittedAt || essay.createdAt).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US', {
                         month: 'short',
                         day: 'numeric',
                         year: 'numeric'
@@ -174,17 +176,17 @@ export default function EssayHistory() {
                     </td>
                     <td>
                       <span className={`essay-history__status-badge ${getStatusClass(essay.status)}`}>
-                        {essay.status.toUpperCase()}
+                        {essay.status === 'draft' ? t('essayHistory.statusDraft', 'DRAFT') : essay.status === 'reviewed' ? t('essayHistory.statusGraded', 'REVIEWED') : essay.status.toUpperCase()}
                       </span>
                     </td>
                     <td onClick={(e) => e.stopPropagation()}>
                       {essay.status === 'draft' ? (
                         <Link to={`/student/write-essay?id=${essay._id}`} className="essay-history__action-link">
-                          Edit Draft
+                          {t('writing.saveDraft', 'Edit Draft')}
                         </Link>
                       ) : (
                         <Link to={`/student/feedback?id=${essay._id}`} className="essay-history__action-link">
-                          View Feedback
+                          {t('essayHistory.viewFeedback', 'View Feedback')}
                         </Link>
                       )}
                     </td>
@@ -205,7 +207,7 @@ export default function EssayHistory() {
             disabled={page === 1}
           >
             <span className="material-symbols-outlined">chevron_left</span>
-            <span>Previous</span>
+            <span>{t('vocabLib.prev', 'Previous')}</span>
           </button>
           
           <div className="essay-history__page-numbers">
@@ -225,7 +227,7 @@ export default function EssayHistory() {
             onClick={() => setPage(prev => Math.min(totalPages, prev + 1))}
             disabled={page === totalPages}
           >
-            <span>Next</span>
+            <span>{t('vocabLib.next', 'Next')}</span>
             <span className="material-symbols-outlined">chevron_right</span>
           </button>
         </section>

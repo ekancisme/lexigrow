@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import './Login.css'
 
 function getRoleHome(role) {
@@ -15,6 +16,7 @@ export default function Login() {
   const [error, setError] = useState('')
   const [infoMessage, setInfoMessage] = useState('')
   const { login, loading, isAuthenticated, user, loginWithGoogle } = useAuth()
+  const { t } = useLanguage()
   const navigate = useNavigate()
   const location = useLocation()
   const particleRef = useRef(null)
@@ -100,13 +102,9 @@ export default function Login() {
             return
           }
           try {
-            const loggedInUser = await loginWithGoogle({ code: response.code })
-            if (loggedInUser.role === 'teacher') {
-              navigate('/teacher/dashboard')
-            } else if (loggedInUser.role === 'parent') {
-              navigate('/parent/dashboard')
-            } else {
-              navigate('/student/dashboard')
+            const user = await loginWithGoogle(response.code)
+            if (user) {
+              navigate(getRoleHome(user.role))
             }
           } catch (err) {
             setError(err.message || 'Google authentication failed')
@@ -134,7 +132,7 @@ export default function Login() {
           </div>
           <h1 className="text-headline-lg">LexiGrow</h1>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-            Track your English writing growth with AI
+            {t('auth.loginSubtitle', 'Track your English writing growth with AI')}
           </p>
         </div>
 
@@ -153,7 +151,7 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="login__form">
             {/* Email */}
             <div className="login__field">
-              <label htmlFor="login-email" className="login__label text-label-md">Email Address</label>
+              <label htmlFor="login-email" className="login__label text-label-md">{t('auth.emailLabel', 'Email Address')}</label>
               <div className="login__input-wrap">
                 <span className="material-symbols-outlined login__input-icon">mail</span>
                 <input
@@ -168,7 +166,7 @@ export default function Login() {
 
             {/* Password */}
             <div className="login__field">
-              <label htmlFor="login-password" className="login__label text-label-md">Password</label>
+              <label htmlFor="login-password" className="login__label text-label-md">{t('auth.passwordLabel', 'Password')}</label>
               <div className="login__input-wrap">
                 <span className="material-symbols-outlined login__input-icon">lock</span>
                 <input
@@ -194,9 +192,9 @@ export default function Login() {
             <div className="login__utilities">
               <label className="login__remember">
                 <input type="checkbox" className="login__checkbox" />
-                <span className="text-label-md">Remember me</span>
+                <span className="text-label-md">{t('auth.rememberMe', 'Remember me')}</span>
               </label>
-              <Link to="/forgot-password" className="login__forgot text-label-md">Forgot password?</Link>
+              <Link to="/forgot-password" className="login__forgot text-label-md">{t('auth.forgotPassword', 'Forgot password?')}</Link>
             </div>
 
             {/* Submit */}
@@ -205,7 +203,7 @@ export default function Login() {
                 <span className="material-symbols-outlined animate-spin">progress_activity</span>
               ) : (
                 <>
-                  <span>Login</span>
+                  <span>{t('auth.loginBtn', 'Login')}</span>
                   <span className="material-symbols-outlined" style={{ fontSize: 20 }}>arrow_forward</span>
                 </>
               )}
@@ -213,7 +211,7 @@ export default function Login() {
 
             {/* Divider */}
             <div className="login__divider">
-              <span>or continue with</span>
+              <span>{t('auth.orContinueWith', 'or continue with')}</span>
             </div>
 
             {/* Social */}
@@ -224,7 +222,7 @@ export default function Login() {
                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
               </svg>
-              <span>Sign in with Google</span>
+              <span>{t('auth.googleSignIn', 'Sign in with Google')}</span>
             </button>
           </form>
         </div>
@@ -232,8 +230,8 @@ export default function Login() {
         {/* Register CTA */}
         <div className="login__register-cta">
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-            Don't have an account?{' '}
-            <Link to="/register" className="login__register-link">Create new account</Link>
+            {t('auth.noAccount', "Don't have an account?")}{' '}
+            <Link to="/register" className="login__register-link">{t('auth.createAccount', 'Create new account')}</Link>
           </p>
         </div>
 
@@ -241,11 +239,11 @@ export default function Login() {
         <div className="login__badges">
           <div className="login__badge">
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>verified_user</span>
-            <span>Secure SSL Encryption</span>
+            <span>{t('auth.secureSSL', 'Secure SSL Encryption')}</span>
           </div>
           <div className="login__badge">
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>shield</span>
-            <span>Data Privacy Compliant</span>
+            <span>{t('auth.dataPrivacy', 'Data Privacy Compliant')}</span>
           </div>
         </div>
       </main>
