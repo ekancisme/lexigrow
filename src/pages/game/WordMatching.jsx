@@ -23,7 +23,7 @@ export default function WordMatching() {
   
   // Game Configuration State
   const [gameState, setGameState] = useState('config') // 'config' | 'loading' | 'playing' | 'victory'
-  const [pairCount, setPairCount] = useState(6) // 6 | 8 | 10
+  const [pairCount, setPairCount] = useState(4) // 4 | 6 | 8
   const [selectedCategory, setSelectedCategory] = useState('')
   
   // Vocabulary Source State
@@ -298,7 +298,7 @@ export default function WordMatching() {
           <div className="config-section">
             <h4 className="text-title-md font-medium">{t('games.matchingSelectPairs', '1. Select Number of Word Pairs')}</h4>
             <div className="pair-count-selector">
-              {[6, 8, 10].map((num) => (
+              {[4, 6, 8].map((num) => (
                 <button
                   key={num}
                   type="button"

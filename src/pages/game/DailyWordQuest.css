@@ -352,55 +352,108 @@
   color: var(--color-on-surface-variant);
 }
 .quest-banner {
+  grid-column: 1 / -1;
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 20px;
   width: 100%;
   box-sizing: border-box;
-  padding: 24px;
-  margin: 0 0 24px;
-  border: 1px solid var(--color-outline-variant);
-  border-left: 4px solid var(--color-primary);
-  border-radius: 16px;
-  background: var(--color-surface-container-lowest);
+  padding: var(--spacing-xl);
+  border: 1px solid var(--color-surface-variant);
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-container-low);
+  box-shadow: var(--shadow-sm);
   color: var(--color-on-surface);
+  position: relative;
+  overflow: hidden;
+  transition: all var(--transition-slow);
 }
+
+.quest-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--color-primary);
+}
+
+.quest-banner:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary-fixed);
+}
+
 .quest-banner-copy {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xxs);
 }
-.quest-banner h2 {
-  font-size: 22px;
-  margin: 8px 0;
+
+.quest-banner h2,
+.quest-banner h3 {
+  font-size: 1.25rem;
+  font-weight: var(--weight-bold);
+  margin: 0;
+  color: var(--color-on-surface);
 }
+
 .quest-banner p {
-  font-size: 14px;
-  margin: 0 0 8px;
+  font-size: var(--font-body-sm);
+  color: var(--color-on-surface-variant);
+  line-height: 1.5;
+  margin: 0;
 }
-.quest-banner small {
+
+.quest-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+  background: rgba(0, 91, 191, 0.1);
   color: var(--color-primary);
+  text-transform: capitalize;
 }
+
+.quest-status-badge--completed {
+  background: rgba(46, 125, 50, 0.1);
+  color: #2e7d32;
+}
+
+.quest-status-badge--playing,
+.quest-status-badge--in_progress {
+  background: rgba(230, 81, 0, 0.1);
+  color: #e65100;
+}
+
 .quest-lantern {
   flex-shrink: 0;
-  width: 64px;
-  height: 80px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--color-primary);
-  background: var(--color-primary-fixed);
-  color: var(--color-on-primary-fixed);
-  border-radius: 32px 32px 12px 12px;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 91, 191, 0.1);
+  color: var(--color-primary);
+  border-radius: var(--radius-xl);
 }
+
 .quest-lantern span {
-  font-size: 32px;
+  font-size: 28px;
 }
+
 .quest-fireflies {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px;
   color: var(--color-primary);
-  margin-top: 12px;
-  font-size: 24px;
+  margin-top: 8px;
+  font-size: 18px;
 }
 @keyframes quest-arrive {
   from {

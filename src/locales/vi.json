@@ -566,8 +566,10 @@
     "collectionDescription": "Hoàn thành ô chữ mỗi ngày để thắp sáng thêm đom đóm rực rỡ trong khu vườn của bạn.",
     "fireflies": "Đom đóm",
     "status": {
+      "new": "Sẵn sàng chơi",
       "not_started": "Sẵn sàng chơi",
       "playing": "Đang giải dở",
+      "in_progress": "Đang giải dở",
       "completed": "Đã hoàn thành hôm nay"
     },
     "loading": "Đang tải ô chữ...",

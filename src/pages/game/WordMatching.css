@@ -43,7 +43,7 @@
 
 .pair-count-selector {
   display: grid;
-  grid-template-cols: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: var(--spacing-sm);
 }
 
@@ -196,34 +196,42 @@
 /* ── 4. Card Grids ── */
 .cards-grid {
   display: grid;
-  gap: var(--spacing-sm);
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
   width: 100%;
-  margin-top: var(--spacing-sm);
+  max-width: 960px;
+  margin: 0 auto;
 }
 
 .grid-cols-4 {
-  grid-template-cols: repeat(4, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .grid-cols-5 {
-  grid-template-cols: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 }
 
 @media (max-width: 768px) {
-  .grid-cols-4, .grid-cols-5 {
-    grid-template-cols: repeat(3, 1fr);
+  .cards-grid,
+  .grid-cols-4, 
+  .grid-cols-5 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
   }
 }
 
 @media (max-width: 480px) {
-  .grid-cols-4, .grid-cols-5 {
-    grid-template-cols: repeat(2, 1fr);
+  .cards-grid,
+  .grid-cols-4, 
+  .grid-cols-5 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
   }
 }
 
 /* ── 5. Card Component & Flip Effects ── */
 .match-card-item {
-  height: 140px;
+  height: 108px;
   perspective: 1000px; /* 3D effect container */
   cursor: pointer;
 }

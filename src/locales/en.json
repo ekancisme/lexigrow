@@ -566,8 +566,10 @@
     "collectionDescription": "Complete daily crossword puzzles to release glowing fireflies into your growth garden.",
     "fireflies": "Fireflies",
     "status": {
+      "new": "Ready to play",
       "not_started": "Ready to play",
       "playing": "In progress",
+      "in_progress": "In progress",
       "completed": "Completed today"
     },
     "loading": "Loading quest...",

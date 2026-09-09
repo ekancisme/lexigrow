@@ -22,24 +22,28 @@ export default function QuestGardenCard({ garden = false }) {
       active = false
     }
   }, [])
+
+  const rawStatus = summary?.status || 'new'
+  const statusLabel = failed
+    ? t('quest.summaryError', 'Unable to load status')
+    : garden && summary
+      ? `${summary.fireflies || 0} ${t('quest.fireflies', 'Fireflies')}`
+      : t(`quest.status.${rawStatus}`, rawStatus === 'completed' ? 'Completed' : 'Ready to play')
+
   return (
-    <section className="quest-banner" aria-label={t('quest.title')}>
+    <section className="quest-banner" aria-label={t('quest.title', 'Daily Word Quest')}>
       <div className="quest-lantern" aria-hidden="true">
         <span className="material-symbols-outlined">{garden ? 'emoji_nature' : 'grid_on'}</span>
       </div>
       <div className="quest-banner-copy">
-        <span className="quest-eyebrow">{t(garden ? 'quest.collection' : 'quest.daily')}</span>
-        <h2>{t(garden ? 'quest.fireflyGarden' : 'quest.title')}</h2>
-        <p>{t(garden ? 'quest.collectionDescription' : 'quest.subtitle')}</p>
-        <small aria-live="polite">
-          {failed
-            ? t('quest.summaryError')
-            : summary
-              ? garden
-                ? `${summary.fireflies} ${t('quest.fireflies')}`
-                : t(`quest.status.${summary.status}`)
-              : t('quest.loading')}
-        </small>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <span className="quest-eyebrow">{t(garden ? 'quest.collection' : 'quest.daily', 'Daily Challenge')}</span>
+          <span className={`quest-status-badge quest-status-badge--${rawStatus}`}>
+            {statusLabel}
+          </span>
+        </div>
+        <h3>{t(garden ? 'quest.fireflyGarden' : 'quest.title', 'Daily Word Quest')}</h3>
+        <p>{t(garden ? 'quest.collectionDescription' : 'quest.subtitle', 'Fill in the daily vocabulary crossword to earn garden fireflies and XP.')}</p>
         {garden && summary?.fireflies > 0 && (
           <div className="quest-fireflies" aria-hidden="true">
             {Array.from({ length: Math.min(summary.fireflies, 12) }, (_, i) => (
@@ -48,15 +52,16 @@ export default function QuestGardenCard({ garden = false }) {
           </div>
         )}
       </div>
-      <Link className="quest-primary" to="/student/game/daily-quest">
+      <Link className="play-game-btn matching-theme" to="/student/game/daily-quest" style={{ flexShrink: 0, textDecoration: 'none' }}>
         {t(
           summary?.status === 'completed'
             ? 'quest.viewResult'
-            : summary?.status === 'playing'
+            : summary?.status === 'playing' || summary?.status === 'in_progress'
               ? 'quest.continue'
               : 'quest.start',
+          'Start Quest'
         )}
-        <span aria-hidden="true">→</span>
+        <span className="material-symbols-outlined">arrow_forward</span>
       </Link>
     </section>
   )
