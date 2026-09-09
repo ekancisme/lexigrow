@@ -291,14 +291,20 @@
   "onboarding": {
     "badge": "Trải nghiệm cá nhân hóa",
     "title": "Chào mừng bạn đến với LexiGrow!",
-    "desc": "Thiết lập nhanh 1 phút để AI đề xuất các phiên học từ vựng phù hợp nhất với mục tiêu của bạn.",
+    "desc": "Thiết lập nhanh 1 phút để AI phân tích mục tiêu, gợi ý từ vựng và chủ đề bài học phù hợp nhất với bạn.",
     "step1Title": "Chủ đề nào bạn quan tâm nhất?",
     "step1Hint": "(Chọn ít nhất 1 chủ đề)",
-    "step2Title": "Tự đánh giá trình độ tiếng Anh",
-    "step3Title": "Mục tiêu học tập hàng ngày",
+    "step2Title": "Mức độ tiếng Anh hướng tới",
+    "step3Title": "Thời gian học tập mỗi ngày",
+    "step4Title": "Xem trước Lộ trình học tập do AI đề xuất",
+    "aiPlanTitle": "Chiến lược học tập thông minh cùng AI",
+    "aiPlanDesc": "AI sẽ tự động theo dõi tiến độ, gợi ý từ vựng hàng ngày (Daily Quest) và chấm điểm bài viết bám sát theo lộ trình này.",
+    "targetGoal": "Trình độ mục tiêu",
+    "dailyCommitment": "Thời gian mỗi ngày",
+    "topicsSelected": "Chủ đề yêu thích",
     "skip": "Bỏ qua lúc này",
-    "startSession": "Bắt đầu bài học đầu tiên",
-    "saving": "Đang lưu..."
+    "startSession": "Lưu lộ trình & Bắt đầu",
+    "saving": "Đang lưu lộ trình..."
   },
   "payment": {
     "successTitle": "Thanh toán thành công!",

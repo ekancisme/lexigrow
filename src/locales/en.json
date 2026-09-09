@@ -294,11 +294,17 @@
     "desc": "Quick 1-minute setup so AI can recommend vocabulary sessions tailored to your goals.",
     "step1Title": "What topics interest you most?",
     "step1Hint": "(Select at least 1 topic)",
-    "step2Title": "Self-assessed English Proficiency",
-    "step3Title": "Daily Learning Goal",
+    "step2Title": "Target English Proficiency",
+    "step3Title": "Daily Learning Time Commitment",
+    "step4Title": "Your AI-Driven Learning Path Preview",
+    "aiPlanTitle": "Personalized AI Strategy",
+    "aiPlanDesc": "AI will automatically track your progress, suggest relevant daily quest words, and customize writing feedback according to this plan.",
+    "targetGoal": "Target Goal",
+    "dailyCommitment": "Daily Study",
+    "topicsSelected": "Selected Topics",
     "skip": "Skip for now",
-    "startSession": "Start First Session",
-    "saving": "Saving..."
+    "startSession": "Save & Start First Session",
+    "saving": "Saving Profile..."
   },
   "payment": {
     "successTitle": "Payment Successful!",

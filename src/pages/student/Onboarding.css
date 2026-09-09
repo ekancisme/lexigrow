@@ -1,4 +1,4 @@
-﻿.onboarding-page {
+.onboarding-page {
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -237,6 +237,75 @@
   color: var(--color-on-surface-variant);
 }
 
+/* AI Preview Card */
+.onboarding-ai-card {
+  background: linear-gradient(135deg, rgba(0, 91, 191, 0.06) 0%, rgba(26, 115, 232, 0.12) 100%);
+  border: 1.5px solid rgba(0, 91, 191, 0.25);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5) var(--space-6);
+  margin-top: var(--space-2);
+}
+
+.onboarding-ai-header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.onboarding-ai-icon {
+  font-size: 32px;
+  color: var(--color-primary);
+  background: rgba(0, 91, 191, 0.12);
+  padding: 8px;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.onboarding-ai-title {
+  font-size: var(--text-title-md);
+  font-weight: 700;
+  color: var(--color-primary);
+  margin: 0 0 4px 0;
+}
+
+.onboarding-ai-subtitle {
+  font-size: var(--text-body-sm);
+  color: var(--color-on-surface-variant);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.onboarding-ai-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  background: var(--color-surface, #ffffff);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-outline-variant);
+}
+
+.onboarding-ai-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.onboarding-ai-stat .stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.onboarding-ai-stat .stat-value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-on-surface);
+}
+
 /* Actions */
 .onboarding-actions {
   display: flex;
@@ -254,6 +323,10 @@
   .time-grid {
     grid-template-columns: 1fr;
   }
+  .onboarding-ai-stats {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
   .onboarding-actions {
     flex-direction: column-reverse;
     gap: var(--space-3);
@@ -262,3 +335,4 @@
     width: 100%;
   }
 }
+

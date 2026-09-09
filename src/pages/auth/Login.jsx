@@ -4,10 +4,16 @@ import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import './Login.css'
 
-function getRoleHome(role) {
+function getRoleHome(role, user) {
   if (role === 'admin') return '/admin/dashboard'
   if (role === 'teacher') return '/teacher/dashboard'
   if (role === 'parent') return '/parent/dashboard'
+  if (role === 'student') {
+    if (!user?.learningProfile?.onboardingCompleted) {
+      return '/student/onboarding'
+    }
+    return '/student/dashboard'
+  }
   return '/student/dashboard'
 }
 
@@ -29,9 +35,9 @@ export default function Login() {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      navigate(getRoleHome(user.role))
+      navigate(getRoleHome(user.role, user))
     }
-  }, [isAuthenticated, user])
+  }, [isAuthenticated, user, navigate])
 
   useEffect(() => {
     createParticles()
@@ -66,8 +72,8 @@ export default function Login() {
     const password = e.target['login-password'].value
 
     try {
-      const user = await login(email, password)
-      navigate(getRoleHome(user.role))
+      const loggedUser = await login(email, password)
+      navigate(getRoleHome(loggedUser.role, loggedUser))
     } catch (err) {
       setError(err.message)
     }
@@ -102,9 +108,9 @@ export default function Login() {
             return
           }
           try {
-            const user = await loginWithGoogle(response.code)
-            if (user) {
-              navigate(getRoleHome(user.role))
+            const loggedUser = await loginWithGoogle(response.code)
+            if (loggedUser) {
+              navigate(getRoleHome(loggedUser.role, loggedUser))
             }
           } catch (err) {
             setError(err.message || 'Google authentication failed')

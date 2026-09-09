@@ -65,7 +65,7 @@ export default function Register() {
 
       const user = res
       if (user && user.role === 'student') {
-        navigate('/student/dashboard')
+        navigate('/student/onboarding')
       } else if (user && user.role === 'teacher') {
         navigate('/teacher/dashboard')
       } else if (user && user.role === 'parent') {
@@ -104,6 +104,7 @@ export default function Register() {
     }
 
     try {
+      // Fetch the Google Client ID from server config
       const response = await fetch('/api/auth/config')
       const config = await response.json()
 
@@ -130,6 +131,12 @@ export default function Register() {
               navigate('/teacher/dashboard')
             } else if (loggedInUser.role === 'parent') {
               navigate('/parent/dashboard')
+            } else if (loggedInUser.role === 'student') {
+              if (!loggedInUser.learningProfile?.onboardingCompleted) {
+                navigate('/student/onboarding')
+              } else {
+                navigate('/student/dashboard')
+              }
             } else {
               navigate('/student/dashboard')
             }
