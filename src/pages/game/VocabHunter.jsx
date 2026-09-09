@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
@@ -135,6 +135,14 @@ export default function VocabHunter() {
       startHunterGame(FALLBACK_WORDS)
     }
   }
+
+  // Unmount cleanup to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (timerInterval.current) clearInterval(timerInterval.current)
+      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current)
+    }
+  }, [])
 
   const startHunterGame = (pool) => {
     setScore(0)

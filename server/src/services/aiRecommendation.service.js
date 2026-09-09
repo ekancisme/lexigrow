@@ -1,4 +1,5 @@
 import { getConfigValue } from './ai.service.js'
+import cacheService from './cache.service.js'
 
 /**
  * AI-powered recommendation service for personalized learning paths and daily quests.
@@ -28,6 +29,19 @@ export async function generateAILearningSetRecommendation(student, recentWords =
     const interests = student.learningProfile?.interests || ['general']
     const recentWordsList = recentWords.slice(0, 20).map(w => w.word).join(', ')
     const weakWordsList = weakWords.slice(0, 10).map(w => w.word).join(', ')
+
+    const cacheKey = cacheService.hashKey('ai_rec:learn_set', {
+      level,
+      interests,
+      recentWordsList,
+      weakWordsList,
+      count,
+    })
+
+    const cached = await cacheService.get(cacheKey)
+    if (cached && Array.isArray(cached) && cached.length > 0) {
+      return cached
+    }
 
     const prompt = `You are an expert English vocabulary tutor for the LexiGrow platform. Generate ${count} personalized vocabulary words for a student.
 
@@ -81,7 +95,11 @@ Return ONLY valid JSON, no markdown formatting.`
     }
 
     const result = JSON.parse(jsonStr)
-    return result.words || []
+    const words = result.words || []
+    if (words.length > 0) {
+      await cacheService.set(cacheKey, words, 3600) // 1 hour TTL
+    }
+    return words
   } catch (error) {
     console.error('AI Learning Set Recommendation Error:', error.message)
     // Return empty array on failure - fallback to rule-based
@@ -113,6 +131,20 @@ export async function generateAIDailyQuestWords(student, recentWords = [], dueWo
     const interests = student.learningProfile?.interests || ['general']
     const recentWordsList = recentWords.slice(0, 15).map(w => w.word).join(', ')
     const dueWordsList = dueWords.slice(0, 10).map(w => w.word).join(', ')
+
+    const cacheKey = cacheService.hashKey('ai_rec:daily_quest', {
+      level,
+      interests,
+      recentWordsList,
+      dueWordsList,
+      count,
+      seed,
+    })
+
+    const cached = await cacheService.get(cacheKey)
+    if (cached && Array.isArray(cached) && cached.length > 0) {
+      return cached
+    }
 
     const prompt = `You are an expert English vocabulary tutor for LexiGrow's Daily Word Quest. Generate ${count} vocabulary words for today's crossword puzzle.
 
@@ -162,7 +194,11 @@ Return ONLY valid JSON, no markdown formatting.`
     }
 
     const result = JSON.parse(jsonStr)
-    return result.words || []
+    const words = result.words || []
+    if (words.length > 0) {
+      await cacheService.set(cacheKey, words, 3600) // 1 hour TTL
+    }
+    return words
   } catch (error) {
     console.error('AI Daily Quest Generation Error:', error.message)
     return []

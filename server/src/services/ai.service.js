@@ -66,6 +66,11 @@ const __dirname = path.dirname(__filename)
  */
 export const runNLPAnalysis = (text) => {
   return new Promise((resolve) => {
+    // Guard: Do not spawn Python spaCy for empty or single-word strings (e.g. mini-games)
+    if (!text || typeof text !== 'string' || text.trim().length < 15) {
+      return resolve(null)
+    }
+
     const scriptPath = path.resolve(__dirname, '../utils/nlp_processor.py')
     
     // In production (Ubuntu/Linux), 'python3' is standard, while 'python' is standard on Windows/local

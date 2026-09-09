@@ -2,6 +2,7 @@ import { Router } from 'express'
 import mongoose from 'mongoose'
 import { rateLimit } from 'express-rate-limit'
 import { protect, authorize } from '../middleware/auth.middleware.js'
+import { gamePlayRateLimiter, gameSubmitRateLimiter, gameAIRecommendationLimiter } from '../middleware/gameRateLimit.middleware.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import DailyQuest from '../models/DailyQuest.js'
@@ -12,16 +13,7 @@ import { applyPlay, publicQuest } from '../services/dailyQuest.service.js'
 
 const router = Router()
 router.use(protect, authorize('student'))
-router.use(
-  rateLimit({
-    windowMs: 60_000,
-    limit: 180,
-    standardHeaders: 'draft-7',
-    legacyHeaders: false,
-    keyGenerator: (req) => String(req.user._id),
-    message: { error: 'Too many quest requests. Please try again shortly.' },
-  }),
-)
+router.use(gamePlayRateLimiter)
 
 router.get(
   '/summary',

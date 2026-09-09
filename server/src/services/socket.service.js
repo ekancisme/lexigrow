@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
 import Class from '../models/Class.js'
 import ChatMessage from '../models/ChatMessage.js'
+import gameCleanupService from './gameCleanup.service.js'
 
 let io = null
 
@@ -156,8 +157,19 @@ export const initSocket = (server) => {
     // This is handled in the connection logic above, but we also add an explicit join for admin if not already.
     // We'll also allow any user to join support room.
 
+    socket.on('join_game_room', (roomId) => {
+      gameCleanupService.joinGameRoom(socket, roomId)
+      console.log(`🎮 User ${userId} joined game room: ${roomId}`)
+    })
+
+    socket.on('leave_game_room', (roomId) => {
+      gameCleanupService.leaveGameRoom(socket, roomId)
+      console.log(`🎮 User ${userId} left game room: ${roomId}`)
+    })
+
     socket.on('disconnect', () => {
-      console.log(`🔌 Socket disconnected: User ${userId}`)
+      gameCleanupService.cleanupSocket(socket)
+      console.log(`🔌 Socket disconnected & resources cleaned up: User ${userId}`)
     })
   })
 
