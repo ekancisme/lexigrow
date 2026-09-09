@@ -1,4 +1,15 @@
 {
+  "quest": {
+    "title": "Daily Word Quest", "daily": "Mỗi ngày một chút tiến bộ", "subtitle": "Nối những từ đã học. Thắp thêm ánh sáng cho khu vườn.",
+    "collection": "Bộ sưu tập mỗi ngày", "fireflyGarden": "Góc đom đóm", "collectionDescription": "Mỗi ô chữ hoàn thành mang một chú đom đóm mới đến góc vườn của bạn.", "fireflies": "đom đóm đã sưu tầm",
+    "start": "Giải ô chữ hôm nay", "continue": "Chơi tiếp", "viewResult": "Xem kết quả", "status": {"new": "Ô chữ mới đang chờ bạn · khoảng 3 phút", "playing": "Ô chữ đã được lưu. Tiếp tục từ chỗ bạn dừng lại.", "completed": "Đã nhận đom đóm hôm nay. Hẹn bạn ngày mai!"},
+    "loading": "Đang chuẩn bị ô chữ…", "summaryError": "Chưa tải được trạng thái. Mở ô chữ để thử lại.", "back": "Về khu trò chơi",
+    "conflict": "Ô chữ đã thay đổi ở tab khác. Tải lại để dùng tiến trình mới nhất; thay đổi trên màn hình này sẽ được bỏ.", "expired": "Một ngày mới đã bắt đầu. Mở ô chữ hôm nay để học tiếp.", "networkError": "Chưa kết nối được. Thay đổi của bạn vẫn ở đây; hãy thử lưu lại.", "reload": "Tải ô chữ mới nhất", "retry": "Thử lưu lại",
+    "complete": "Hoàn thành nhiệm vụ hôm nay", "rewardTitle": "Thêm một ánh sáng trong vườn", "rewardDescription": "Bạn nhận được một chú đom đóm. Phần thưởng đã được thêm vào bộ sưu tập.", "independent": "Không xem đáp án", "assisted": "Đã xem đáp án", "visitGarden": "Ghé thăm khu vườn", "tomorrow": "Ngày mai sẽ có ô chữ mới. Phần thưởng hôm nay đã được nhận.",
+    "reset": "Ô chữ mới lúc 00:00 giờ Việt Nam", "saving": "Đang lưu…", "unsaved": "Thay đổi chưa được lưu", "saved": "Đã lưu tiến trình", "solved": "từ đã giải", "rewardShort": "1 đom đóm",
+    "instructions": "Chọn gợi ý, nhập từ tiếng Anh rồi kiểm tra. Không giới hạn thời gian. Bạn có thể rời đi và chơi tiếp ô chữ đã lưu trong ngày.", "grid": "Bảng ô chữ", "row": "Hàng", "column": "cột", "blank": "trống",
+    "gridTip": "Chọn một ô để chọn từ. Chạm lại ô giao nhau để đổi hướng.", "across": "Hàng ngang", "down": "Hàng dọc", "letters": "chữ cái", "answer": "Nhập từ tiếng Anh", "check": "Kiểm tra từ", "checked": "Đã giải ✓", "context": "Xem câu ví dụ", "correct": "Chính xác! Chọn gợi ý khác để tiếp tục nhé.", "incorrect": "Chưa đúng. Đọc lại gợi ý và thử một lần nữa nhé.", "revealed": "Đã hiện đáp án. Đọc lại từ trước khi tiếp tục nhé.", "noTimer": "Cứ thong thả. Mỗi từ là một lần luyện tập.", "reveal": "Hiện đáp án này · ghi nhận có trợ giúp", "clues": "Tất cả gợi ý", "learningNote": "Ô chữ giúp luyện nhớ từ. Mức thành thạo vẫn được ghi nhận qua việc dùng từ trong bài viết."
+  },
   "nav": {
     "today": "Hôm nay",
     "dashboard": "Tổng quan",

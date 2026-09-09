@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import './GameHub.css'
+import QuestGardenCard from './QuestGardenCard.jsx'
 
 export default function GameHub() {
   const navigate = useNavigate()
@@ -58,6 +59,7 @@ export default function GameHub() {
       </div>
 
       <div className="games-grid">
+        <QuestGardenCard />
         {games.map((game) => (
           <div key={game.id} className={`game-hub-card card-base ${game.colorClass}`}>
             <div className="game-card-icon-wrap">

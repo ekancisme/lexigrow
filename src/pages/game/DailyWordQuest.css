@@ -1,0 +1,455 @@
+.daily-quest {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+  color: var(--color-on-surface);
+}
+.quest-back,
+.quest-reveal {
+  border: 0;
+  background: none;
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: 12px 0;
+  font: inherit;
+}
+.quest-heading {
+  margin: 24px 0;
+}
+.quest-heading h1 {
+  font-size: clamp(28px, 4vw, 40px);
+  letter-spacing: -1px;
+  margin: 8px 0;
+}
+.quest-heading p,
+.quest-banner p {
+  color: var(--color-on-surface-variant);
+  line-height: 1.6;
+}
+.quest-eyebrow {
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.quest-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--color-on-surface-variant);
+}
+.quest-progress {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 16px 0 24px;
+  font-size: 14px;
+}
+.quest-progress progress {
+  flex: 1;
+  min-width: 40px;
+  height: 8px;
+  accent-color: var(--color-primary);
+}
+.quest-progress > span {
+  color: var(--color-primary);
+}
+.quest-instructions,
+.quest-board-note,
+.quest-muted {
+  color: var(--color-on-surface-variant);
+  font-size: 13px;
+  line-height: 1.7;
+}
+.quest-instructions {
+  margin-bottom: 16px;
+}
+.quest-play-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+}
+.quest-board {
+  padding: 24px;
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 16px;
+}
+.quest-grid {
+  display: grid;
+  grid-template-columns: repeat(var(--quest-cols), minmax(0, 1fr));
+  gap: 3px;
+  width: 100%;
+  max-width: 480px;
+  margin: auto;
+}
+.quest-cell,
+.quest-cell-empty {
+  aspect-ratio: 1;
+  min-width: 0;
+}
+.quest-cell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-outline);
+  border-radius: 4px;
+  background: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  font: inherit;
+  font-size: clamp(14px, 2vw, 23px);
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+.quest-cell small {
+  position: absolute;
+  top: 1px;
+  left: 3px;
+  font-size: 9px;
+  font-weight: 500;
+}
+.quest-cell.is-selected {
+  background: var(--color-primary-fixed);
+  color: var(--color-on-primary-fixed);
+  border-color: var(--color-primary);
+}
+.quest-cell.is-solved {
+  box-shadow: inset 0 -3px var(--color-success);
+}
+.quest-cell.is-solved::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  right: 3px;
+  bottom: 4px;
+  background: var(--color-success);
+}
+.quest-board-note {
+  margin: 20px 0 0;
+  text-align: center;
+}
+.quest-active-clue {
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 16px;
+  padding: 24px;
+  background: var(--color-surface-container-lowest);
+}
+.quest-active-clue h2 {
+  font-size: 20px;
+  line-height: 1.55;
+  margin: 12px 0 20px;
+  overflow-wrap: anywhere;
+}
+.quest-active-clue label {
+  display: block;
+  font-size: 13px;
+  color: var(--color-on-surface-variant);
+  margin-bottom: 8px;
+}
+.quest-active-clue input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 52px;
+  border: 1px solid var(--color-outline);
+  border-radius: 8px;
+  padding: 12px;
+  font: 700 22px/1.3 monospace;
+  letter-spacing: 3px;
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+}
+.quest-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.quest-primary,
+.quest-secondary {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font: 600 14px/1.4 var(--font-family);
+  text-decoration: none;
+  box-sizing: border-box;
+}
+.quest-primary {
+  color: var(--color-on-primary);
+  background: var(--color-primary);
+  border: 1px solid var(--color-primary);
+}
+.quest-secondary {
+  color: var(--color-on-surface);
+  background: var(--color-surface-container-lowest);
+  border: 1px solid var(--color-outline-variant);
+}
+.daily-quest button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.daily-quest :focus-visible,
+.quest-banner :focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+}
+.quest-feedback {
+  min-height: 40px;
+  margin-top: 16px;
+  line-height: 1.5;
+  font-size: 14px;
+}
+.quest-reveal {
+  text-align: left;
+  font-size: 13px;
+  text-decoration: underline;
+}
+.quest-example {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--color-surface-container-low);
+  border-left: 3px solid var(--color-primary);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.quest-clue-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 16px;
+}
+.quest-clue-list button {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px;
+  text-align: left;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-on-surface);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.quest-clue-list button.is-active {
+  background: var(--color-surface-container-low);
+  border-color: var(--color-outline-variant);
+}
+.quest-clue-list button > span:nth-child(2) {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+.quest-clue-number {
+  color: var(--color-primary);
+  white-space: nowrap;
+  font-weight: 700;
+}
+.quest-muted {
+  margin-top: 24px;
+}
+.quest-error {
+  padding: 16px;
+  margin: 16px 0;
+  border: 1px solid var(--color-error);
+  border-radius: 8px;
+  background: var(--color-error-container);
+  color: var(--color-on-error-container);
+}
+.quest-error p {
+  margin-bottom: 12px;
+}
+.quest-loading {
+  padding: 24px 0;
+}
+.quest-loading div {
+  background: var(--color-surface-container);
+  border-radius: 8px;
+  height: 64px;
+  margin-top: 16px;
+}
+.quest-results {
+  max-width: 640px;
+  margin: 24px auto;
+  text-align: center;
+  padding: 32px 24px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: 16px;
+  background: var(--color-surface-container-lowest);
+}
+.quest-result-icon {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 24px;
+  display: grid;
+  place-items: center;
+  font-size: 56px;
+  color: var(--color-primary);
+  border-radius: 50%;
+  background: var(--color-primary-fixed);
+  animation: quest-arrive 0.5s ease-out;
+}
+.quest-results h2 {
+  font-size: 28px;
+  margin: 12px 0;
+}
+.quest-results > p {
+  line-height: 1.6;
+  color: var(--color-on-surface-variant);
+}
+.quest-result-stats {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin: 24px 0;
+}
+.quest-result-stats strong {
+  display: block;
+  font-size: 32px;
+  color: var(--color-primary);
+}
+.quest-result-stats span {
+  font-size: 13px;
+}
+.quest-review {
+  text-align: left;
+  margin: 24px 0;
+  border-top: 1px solid var(--color-outline-variant);
+}
+.quest-review article {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+.quest-review article > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+.quest-review article > div span {
+  font-size: 11px;
+  color: var(--color-on-surface-variant);
+}
+.quest-review p {
+  margin: 8px 0;
+  font-size: 14px;
+}
+.quest-review small {
+  color: var(--color-on-surface-variant);
+}
+.quest-banner {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 24px;
+  margin: 0 0 24px;
+  border: 1px solid var(--color-outline-variant);
+  border-left: 4px solid var(--color-primary);
+  border-radius: 16px;
+  background: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+}
+.quest-banner-copy {
+  flex: 1;
+  min-width: 0;
+}
+.quest-banner h2 {
+  font-size: 22px;
+  margin: 8px 0;
+}
+.quest-banner p {
+  font-size: 14px;
+  margin: 0 0 8px;
+}
+.quest-banner small {
+  color: var(--color-primary);
+}
+.quest-lantern {
+  flex-shrink: 0;
+  width: 64px;
+  height: 80px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary-fixed);
+  color: var(--color-on-primary-fixed);
+  border-radius: 32px 32px 12px 12px;
+}
+.quest-lantern span {
+  font-size: 32px;
+}
+.quest-fireflies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  color: var(--color-primary);
+  margin-top: 12px;
+  font-size: 24px;
+}
+@keyframes quest-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 760px) {
+  .daily-quest {
+    padding: 16px;
+  }
+  .quest-play-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .quest-board {
+    padding: 12px;
+  }
+  .quest-grid {
+    max-width: 400px;
+  }
+  .quest-cell {
+    font-size: 19px;
+  }
+  .quest-active-clue {
+    padding: 16px;
+  }
+  .quest-banner {
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 20px;
+  }
+  .quest-banner > .quest-primary {
+    width: 100%;
+  }
+  .quest-progress {
+    gap: 8px;
+    font-size: 12px;
+  }
+  .quest-results {
+    padding: 24px 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .quest-result-icon {
+    animation: none;
+  }
+}

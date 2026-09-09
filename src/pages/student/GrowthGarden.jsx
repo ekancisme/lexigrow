@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import './GrowthGarden.css'
+import QuestGardenCard from '../game/QuestGardenCard.jsx'
 
 const initialGardenData = [
   {
@@ -133,6 +134,7 @@ export default function GrowthGarden() {
       </div>
 
       {/* Main Garden Grid */}
+      <QuestGardenCard garden />
       <div className="growth-garden__layout">
         {/* Garden SVG Canvas / Topic Plants */}
         <div className="growth-garden__canvas card-base">

@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 
 /* Auth Pages */
@@ -22,6 +23,7 @@ import WordMatching from './pages/game/WordMatching'
 import WordScramble from './pages/game/WordScramble'
 import ContextFiller from './pages/game/ContextFiller'
 import VocabHunter from './pages/game/VocabHunter'
+const DailyWordQuest = lazy(() => import('./pages/game/DailyWordQuest'))
 import EssayHistory from './pages/student/EssayHistory'
 import StudentClassDetail from './pages/student/StudentClassDetail'
 import Explore from './pages/student/Explore'
@@ -138,6 +140,7 @@ function App() {
           <Route path="game/scramble" element={<WordScramble />} />
           <Route path="game/filler" element={<ContextFiller />} />
           <Route path="game/hunter" element={<VocabHunter />} />
+          <Route path="game/daily-quest" element={<Suspense fallback={<div role="status" aria-label="Loading">…</div>}><DailyWordQuest /></Suspense>} />
           <Route path="essays" element={<EssayHistory />} />
           <Route path="progress" element={<MyProgress />} />
           <Route path="goals" element={<SetWeeklyGoals />} />

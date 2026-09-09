@@ -1,4 +1,15 @@
 {
+  "quest": {
+    "title": "Daily Word Quest", "daily": "A little practice, every day", "subtitle": "Connect the words. Bring a little light to your garden.",
+    "collection": "Your daily collection", "fireflyGarden": "The firefly corner", "collectionDescription": "Every completed word quest brings one new firefly to this corner of your garden.", "fireflies": "fireflies collected",
+    "start": "Start today's quest", "continue": "Continue quest", "viewResult": "View results", "status": {"new": "A fresh crossword is waiting · about 3 minutes", "playing": "Your crossword is saved. Pick up where you left off.", "completed": "Today's firefly is collected. See you tomorrow!"},
+    "loading": "Preparing your crossword…", "summaryError": "Quest status is unavailable. Open the quest to try again.", "back": "Back to games",
+    "conflict": "Your quest changed in another tab. Reload to use the latest saved progress; edits on this screen will be discarded.", "expired": "A new day has begun. Open today's crossword to continue learning.", "networkError": "We could not connect. Your edits are still here; retry to save them.", "reload": "Load latest quest", "retry": "Retry saving",
+    "complete": "Today's quest complete", "rewardTitle": "One more light in your garden", "rewardDescription": "You earned a firefly. It has already been added to your collection.", "independent": "Without reveal", "assisted": "Answer revealed", "visitGarden": "Visit your garden", "tomorrow": "Come back tomorrow for a fresh puzzle. Today's reward is already collected.",
+    "reset": "New puzzle at 00:00 Vietnam time", "saving": "Saving…", "unsaved": "Changes not saved yet", "saved": "Progress saved", "solved": "words solved", "rewardShort": "1 firefly",
+    "instructions": "Choose a clue, type its answer, then check the word. There is no timer. You can leave and continue your saved puzzle today.", "grid": "Crossword grid", "row": "Row", "column": "column", "blank": "empty",
+    "gridTip": "Select a square to choose its word. Tap a crossing again to switch direction.", "across": "Across", "down": "Down", "letters": "letters", "answer": "Type the English word", "check": "Check word", "checked": "Solved ✓", "context": "Example sentence", "correct": "Correct! Choose another clue to keep going.", "incorrect": "Not quite. Check the clue and try again.", "revealed": "Answer revealed. Read it once before moving on.", "noTimer": "Take your time. Every word is a little practice.", "reveal": "Show this answer · counts as assisted", "clues": "All clues", "learningNote": "Crosswords practice recall. Word mastery still comes from using vocabulary in your writing."
+  },
   "nav": {
     "today": "Today",
     "dashboard": "Dashboard",
