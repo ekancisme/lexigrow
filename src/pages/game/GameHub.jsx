@@ -45,16 +45,22 @@ export default function GameHub() {
   return (
     <div className="game-hub-container animate-fade-in">
       <div className="game-hub-header">
-        <button className="back-to-library-btn" onClick={() => navigate('/student/vocabulary')}>
-          <span className="material-symbols-outlined">arrow_back</span>
-          {t('games.wordLibrary', 'Back to Library')}
-        </button>
-        <div className="text-center header-content">
-          <span className="material-symbols-outlined hub-icon-main">sports_esports</span>
-          <h2 className="text-headline-lg font-bold">{t('games.hubTitle', 'LexiGrow Play Zone')}</h2>
-          <p className="text-body-md text-secondary-color">
-            {t('games.hubSubtitle', 'Expand your vocabulary naturally through interactive, high-retention mini-games.')}
-          </p>
+        <div className="game-hub-header__top">
+          <button className="back-to-library-btn" onClick={() => navigate('/student/vocabulary')}>
+            <span className="material-symbols-outlined">arrow_back</span>
+            <span>{t('games.wordLibrary', 'Word Library')}</span>
+          </button>
+        </div>
+        <div className="game-hub-header__main">
+          <div className="game-hub-header__icon-box">
+            <span className="material-symbols-outlined">sports_esports</span>
+          </div>
+          <div className="game-hub-header__text">
+            <h2 className="text-headline-lg font-bold">{t('games.hubTitle', 'LexiGrow Play Zone')}</h2>
+            <p className="text-body-md text-secondary-color">
+              {t('games.hubSubtitle', 'Expand your vocabulary naturally through interactive, high-retention mini-games.')}
+            </p>
+          </div>
         </div>
       </div>
 
