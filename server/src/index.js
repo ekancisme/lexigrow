@@ -7,7 +7,7 @@ import mongoose from 'mongoose'
 if (process.env.NODE_ENV !== 'test') {
   await connectDB()
   // New unique indexes are part of correctness, not just an optimization.
-  await Promise.all(['LearningSession', 'LearningOperation', 'PracticeAttempt', 'ReviewEvent', 'EssayRevision', 'WordUsageEvidence'].map(name => mongoose.model(name).createIndexes()))
+  await Promise.all(['LearningSession', 'LearningOperation', 'PracticeAttempt', 'ReviewEvent', 'EssayRevision', 'WordUsageEvidence', 'DailyQuest'].map(name => mongoose.model(name).createIndexes()))
   const server = app.listen(process.env.PORT || 5000, () => console.log('LexiGrow API started'))
   initSocket(server)
   scheduleEarlyWarningScan()

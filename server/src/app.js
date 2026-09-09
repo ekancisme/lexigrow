@@ -56,6 +56,7 @@ import learningSessionRoutes from './routes/learningSession.routes.js'
 import practiceRoutes from './routes/practice.routes.js'
 import srsRoutes from './routes/srs.routes.js'
 import gardenRoutes from './routes/garden.routes.js'
+import dailyQuestRoutes from './routes/dailyQuest.routes.js'
 import paymentRoutes from './routes/payment.routes.js'
 import adminPricingRoutes from './routes/admin.pricing.routes.js'
 
@@ -84,6 +85,7 @@ app.use('/api/sessions', learningSessionRoutes)
 app.use('/api/practice', practiceRoutes)
 app.use('/api/srs', srsRoutes)
 app.use('/api/garden', gardenRoutes)
+app.use('/api/daily-quests', dailyQuestRoutes)
 app.use('/api/payments', paymentRoutes)
 app.use('/api/subscriptions', paymentRoutes)
 
