@@ -52,6 +52,46 @@ router.post(
     let quest = await DailyQuest.findOne(filter).lean()
     if (!quest) {
       const now = new Date()
+      // Try AI-generated words first, fallback to rule-based
+    let aiWords = []
+    try {
+      const { generateAIDailyQuestWords } = await import('../services/aiRecommendation.service.js')
+      const dueWords = await Vocabulary.find({
+        student: req.user._id,
+        $or: [{ nextReviewDate: null }, { nextReviewDate: { $lte: now } }],
+      })
+        .sort({ nextReviewDate: 1, createdAt: -1 })
+        .limit(20)
+        .lean()
+      const recentWords = await Vocabulary.find({ student: req.user._id })
+        .sort({ createdAt: -1 })
+        .limit(15)
+        .lean()
+      aiWords = await generateAIDailyQuestWords(
+        req.user,
+        recentWords,
+        dueWords,
+        6,
+        `${req.user._id}:${day}`
+      )
+    } catch (err) {
+      console.error('AI daily quest generation failed, falling back to rule-based:', err.message)
+    }
+
+    let candidates
+    if (aiWords && aiWords.length >= 4) {
+      // Convert AI words to the format expected by generateCrossword
+      candidates = aiWords.map(w => ({
+        word: w.word,
+        definition: w.definition,
+        translation: w.translation,
+        exampleSentence: w.exampleSentence,
+        source: 'ai'
+      }))
+      // Add some starter words for variety
+      const shuffledStarters = [...STARTER_WORDS].sort(() => Math.random() - 0.5).slice(0, 2)
+      candidates = [...candidates, ...shuffledStarters]
+    } else {
       const [due, recent, global] = await Promise.all([
         Vocabulary.find({
           student: req.user._id,
@@ -66,15 +106,16 @@ router.post(
           .limit(30)
           .lean(),
       ])
-      const candidates = [
+      candidates = [
         ...due,
         ...recent,
         ...global.map((w) => ({ ...w, source: 'library' })),
         ...STARTER_WORDS,
       ]
-      let puzzle = generateCrossword(candidates, `${req.user._id}:${day}`)
-      if (puzzle.words.length < 5)
-        puzzle = generateCrossword(STARTER_WORDS, `${req.user._id}:${day}`)
+    }
+    let puzzle = generateCrossword(candidates, `${req.user._id}:${day}`)
+    if (puzzle.words.length < 5)
+      puzzle = generateCrossword(STARTER_WORDS, `${req.user._id}:${day}`)
       try {
         quest = (await DailyQuest.create({ ...filter, ...puzzle })).toObject({ flattenMaps: true })
       } catch (error) {

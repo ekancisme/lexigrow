@@ -12,7 +12,7 @@ import { detectAIWriting } from './huggingface.service.js'
 /**
  * Retrieve configuration value from database
  */
-const getConfigValue = async (key, defaultValue) => {
+export const getConfigValue = async (key, defaultValue) => {
   try {
     const config = await Config.findOne({ key })
     return config ? config.value : defaultValue

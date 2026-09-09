@@ -1,7 +1,10 @@
 import ErrorResponse from '../utils/ErrorResponse.js'
 import { wordCells } from './crossword.service.js'
 
-export function publicQuest(quest) {
+export function publicQuest(quest, overrideCells = null) {
+  const cells = overrideCells !== null
+    ? overrideCells
+    : (quest.cells instanceof Map ? Object.fromEntries(quest.cells) : quest.cells)
   return {
     id: String(quest._id),
     day: quest.day,
@@ -10,7 +13,7 @@ export function publicQuest(quest) {
     rows: quest.rows,
     cols: quest.cols,
     revision: quest.revision,
-    cells: quest.cells instanceof Map ? Object.fromEntries(quest.cells) : quest.cells,
+    cells: cells || {},
     solved: quest.solved,
     assisted: quest.assisted,
     startedAt: quest.startedAt,

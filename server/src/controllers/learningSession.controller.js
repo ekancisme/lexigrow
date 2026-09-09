@@ -192,3 +192,55 @@ export const updateSessionStep = asyncHandler(async (req, res) => {
   await session.save()
   res.json({ success: true, data: publicLearning(session) })
 })
+
+export const getLearningPathRecommendation = asyncHandler(async (req, res) => {
+  try {
+    const { getPersonalizedLearningPath } = await import('../services/aiRecommendation.service.js')
+
+    // Get student's learning data
+    const [recentWords, weakWords, completedSessions] = await Promise.all([
+      Vocabulary.find({ student: req.user._id })
+        .sort({ createdAt: -1 })
+        .limit(20)
+        .lean(),
+      Vocabulary.find({ student: req.user._id, masteryLevel: { $in: ['new', 'learning'] } })
+        .sort({ createdAt: -1 })
+        .limit(10)
+        .lean(),
+      LearningSession.countDocuments({ student: req.user._id, status: 'completed' }),
+    ])
+
+    const recommendation = await getPersonalizedLearningPath(req.user, {
+      recentWords,
+      weakWords,
+      completedSessions,
+    })
+
+    res.json({
+      success: true,
+      data: {
+        ...recommendation,
+        currentLevel: req.user.learningProfile?.targetLevel || 'B1',
+        interests: req.user.learningProfile?.interests || [],
+        completedSessions,
+      },
+    })
+  } catch (error) {
+    console.error('Learning path recommendation error:', error.message)
+    // Fallback response
+    res.json({
+      success: true,
+      data: {
+        recommendedLevel: req.user.learningProfile?.targetLevel || 'B1',
+        focusAreas: ['vocabulary'],
+        suggestedTopics: req.user.learningProfile?.interests || ['general'],
+        dailyGoalMinutes: 15,
+        nextMilestone: 'Continue your learning journey!',
+        learningPlan: 'Continue building vocabulary through daily quests and learning sessions.',
+        currentLevel: req.user.learningProfile?.targetLevel || 'B1',
+        interests: req.user.learningProfile?.interests || [],
+        completedSessions: 0,
+      },
+    })
+  }
+})
