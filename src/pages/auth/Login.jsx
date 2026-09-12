@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
@@ -17,6 +17,22 @@ function getRoleHome(role, user) {
   return '/student/dashboard'
 }
 
+// Static, deterministic particle set. Rendering these once in JSX (instead of
+// creating DOM nodes on an interval) avoids layout thrash and per-frame JS.
+// CSS animation handles motion and is disabled under prefers-reduced-motion.
+const PARTICLES = Array.from({ length: 20 }, () => {
+  const duration = 10 + Math.random() * 20
+  const delay = -(Math.random() * duration)
+  const drift = (Math.random() - 0.5) * 200
+  return {
+    left: `${Math.random() * 100}%`,
+    top: `${Math.random() * 100}%`,
+    animationDuration: `${duration}s`,
+    animationDelay: `${delay}s`,
+    '--particle-drift': `${drift}px`,
+  }
+})
+
 export default function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
@@ -25,7 +41,6 @@ export default function Login() {
   const { t } = useLanguage()
   const navigate = useNavigate()
   const location = useLocation()
-  const particleRef = useRef(null)
 
   useEffect(() => {
     if (location.state?.infoMessage) {
@@ -39,31 +54,6 @@ export default function Login() {
     }
   }, [isAuthenticated, user, navigate])
 
-  useEffect(() => {
-    createParticles()
-    const interval = setInterval(createParticles, 15000)
-    return () => clearInterval(interval)
-  }, [])
-
-  function createParticles() {
-    const container = particleRef.current
-    if (!container) return
-    for (let i = 0; i < 20; i++) {
-      const particle = document.createElement('div')
-      particle.className = 'login__particle'
-      particle.style.left = `${Math.random() * 100}%`
-      particle.style.top = `${Math.random() * 100}%`
-      const duration = 10 + Math.random() * 20
-      const delay = Math.random() * 5
-      particle.style.transition = `all ${duration}s linear ${delay}s`
-      container.appendChild(particle)
-      setTimeout(() => {
-        particle.style.transform = `translateY(-${window.innerHeight}px) translateX(${(Math.random() - 0.5) * 200}px)`
-        particle.style.opacity = '0'
-      }, 100)
-      setTimeout(() => particle.remove(), (duration + delay) * 1000)
-    }
-  }
 
   async function handleSubmit(e) {
     e.preventDefault()
@@ -126,7 +116,11 @@ export default function Login() {
 
   return (
     <div className="login-page">
-      <div className="login__particles" ref={particleRef} />
+      <div className="login__particles" aria-hidden="true">
+        {PARTICLES.map((style, i) => (
+          <span key={i} className="login__particle" style={style} />
+        ))}
+      </div>
 
       <main className="login__main">
         {/* Brand */}

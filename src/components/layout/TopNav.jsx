@@ -67,6 +67,7 @@ export default function TopNav({ role = 'student', onMenuToggle }) {
           <input
             type="text"
             className="topnav__search-input"
+            aria-label={role === 'teacher' ? t('header.searchStudent', 'Search students or metrics...') : t('header.searchEssay', 'Search essays or vocabulary...')}
             placeholder={role === 'teacher' ? t('header.searchStudent', 'Search students or metrics...') : t('header.searchEssay', 'Search essays or vocabulary...')}
             onFocus={() => setSearchFocused(true)}
             onBlur={() => setSearchFocused(false)}

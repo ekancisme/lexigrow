@@ -26,16 +26,19 @@ export const createNotification = async (data) => {
  * @returns {Promise<Array<Object>>} The created notification documents
  */
 export const createManyNotifications = async (notificationsArray) => {
+  if (!Array.isArray(notificationsArray) || notificationsArray.length === 0) {
+    return []
+  }
+
   const created = await Notification.insertMany(notificationsArray)
+  const createdIds = created.map(item => item._id)
   
-  const populatedNotifications = []
-  for (const item of created) {
-    const populated = await Notification.findById(item._id)
-      .populate('sender', 'name role')
-      .populate('alert', 'type metric detail')
-      
-    sendNotificationToUser(item.recipient.toString(), populated)
-    populatedNotifications.push(populated)
+  const populatedNotifications = await Notification.find({ _id: { $in: createdIds } })
+    .populate('sender', 'name role')
+    .populate('alert', 'type metric detail')
+
+  for (const item of populatedNotifications) {
+    sendNotificationToUser(item.recipient.toString(), item)
   }
   
   return populatedNotifications

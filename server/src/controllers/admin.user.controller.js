@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import sendEmail from '../utils/sendEmail.js'
+import { logAction } from '../utils/auditLogger.js'
 import Notification from '../models/Notification.js'
 
 /* ── Helpers ─────────────────────────────────────────────── */
@@ -113,6 +114,8 @@ export const updateUserRole = asyncHandler(async (req, res) => {
   await user.save()
 
   console.log(`[ADMIN] ${req.user.name} changed ${user.email} role: ${oldRole} → ${role}`)
+
+  await logAction(req.user._id, 'ADMIN_UPDATE_ROLE', 'User', user._id, { oldRole, newRole: role })
 
   res.status(200).json({ success: true, data: sanitize(user) })
 })

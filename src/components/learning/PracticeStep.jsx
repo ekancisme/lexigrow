@@ -96,7 +96,9 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
     } else {
       onComplete?.({
         total: questions.length,
-        correct: correctCount + (isCorrect ? 1 : 0)
+        // correctCount already includes the current question: handleSelectOption
+        // increments it on answer, so adding isCorrect here double-counts.
+        correct: correctCount
       })
     }
   }

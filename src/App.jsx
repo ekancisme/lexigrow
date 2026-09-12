@@ -11,13 +11,13 @@ import ForgotPassword from './pages/auth/ForgotPassword'
 import AppLayout from './components/layout/AppLayout'
 
 /* Student Pages */
-import StudentDashboard from './pages/student/StudentDashboard'
+const StudentDashboard = lazy(() => import('./pages/student/StudentDashboard'))
 import WriteEssay from './pages/student/WriteEssay'
 import MyProgress from './pages/student/MyProgress'
 import SetWeeklyGoals from './pages/student/SetWeeklyGoals'
 import AIFeedbackReview from './pages/student/AIFeedbackReview'
 import VocabularyLibrary from './pages/student/VocabularyLibrary'
-import FlashcardReview from './pages/student/FlashcardReview'
+const FlashcardReview = lazy(() => import('./pages/student/FlashcardReview'))
 import GameHub from './pages/game/GameHub'
 import WordMatching from './pages/game/WordMatching'
 import WordScramble from './pages/game/WordScramble'
@@ -29,14 +29,14 @@ import StudentClassDetail from './pages/student/StudentClassDetail'
 import Explore from './pages/student/Explore'
 import LearningSession from './pages/student/LearningSession'
 import Onboarding from './pages/student/Onboarding'
-import GrowthGarden from './pages/student/GrowthGarden'
+const GrowthGarden = lazy(() => import('./pages/student/GrowthGarden'))
 
 /* Parent Pages */
 import ParentDashboard from './pages/parent/ParentDashboard'
 import ChildProgress from './pages/parent/ChildProgress'
 
 /* Teacher Pages */
-import TeacherDashboard from './pages/teacher/TeacherDashboard'
+const TeacherDashboard = lazy(() => import('./pages/teacher/TeacherDashboard'))
 import ClassOverview from './pages/teacher/ClassOverview'
 import ClassManagement from './pages/teacher/ClassManagement'
 import StudentAnalyticsDetail from './pages/teacher/StudentAnalyticsDetail'
@@ -48,7 +48,7 @@ import AssignmentDetail from './pages/teacher/AssignmentDetail'
 import AssignmentManagement from './pages/teacher/AssignmentManagement'
 
 /* Admin Pages */
-import AdminDashboard from './pages/admin/AdminDashboard'
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 import AdminUsers from './pages/admin/AdminUsers'
 import AdminClassManagement from './pages/admin/AdminClassManagement'
 import AdminAIMonitoring from './pages/admin/AdminAIMonitoring'
@@ -114,9 +114,38 @@ function ParentProtectedRoute({ children }) {
   return children
 }
 
+function RoleProtectedRoute({ allowedRoles, children }) {
+  const { isAuthenticated, user, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <span className="material-symbols-outlined animate-spin" style={{ fontSize: 48, color: 'var(--color-primary)' }}>
+          progress_activity
+        </span>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+
+  if (!allowedRoles.includes(user?.role)) {
+    return <Navigate to="/login" replace state={{ infoMessage: 'You do not have permission to access this workspace.' }} />
+  }
+
+  return children
+}
+
 function App() {
   return (
     <>
+      <Suspense fallback={
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+          <span className="material-symbols-outlined animate-spin" style={{ fontSize: 48, color: 'var(--color-primary)' }}>progress_activity</span>
+        </div>
+      }>
       <Routes>
         {/* Auth routes & Onboarding (no sidebar) */}
         <Route path="/login" element={<Login />} />
@@ -126,7 +155,14 @@ function App() {
         <Route path="/onboarding" element={<Navigate to="/student/onboarding" replace />} />
 
         {/* Student routes */}
-        <Route path="/student" element={<AppLayout role="student" />}>
+        <Route
+          path="/student"
+          element={
+            <RoleProtectedRoute allowedRoles={['student']}>
+              <AppLayout role="student" />
+            </RoleProtectedRoute>
+          }
+        >
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<StudentDashboard />} />
           <Route path="write-essay" element={<WriteEssay />} />
@@ -151,7 +187,14 @@ function App() {
         </Route>
 
         {/* Teacher routes */}
-        <Route path="/teacher" element={<AppLayout role="teacher" />}>
+        <Route
+          path="/teacher"
+          element={
+            <RoleProtectedRoute allowedRoles={['teacher']}>
+              <AppLayout role="teacher" />
+            </RoleProtectedRoute>
+          }
+        >
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<TeacherDashboard />} />
           <Route path="class/:id" element={<ClassOverview />} />
@@ -218,6 +261,7 @@ function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
+      </Suspense>
       <TextTranslator />
     </>
   )

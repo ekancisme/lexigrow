@@ -10,7 +10,7 @@ import sendEmail from '../utils/sendEmail.js'
  * Generate JWT token
  */
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET || 'default_test_jwt_secret_lexigrow_2026', {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRE || '7d',
   })
 }
@@ -69,7 +69,9 @@ export const register = asyncHandler(async (req, res) => {
     verificationCodeExpire,
   })
 
-  console.log(`[EMAIL VERIFICATION] User: ${pendingUser.email} | Code: ${verificationCode}`)
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`[EMAIL VERIFICATION] User: ${pendingUser.email} | Code: ${verificationCode}`)
+  }
 
   // Send email
   try {
@@ -101,11 +103,18 @@ export const register = asyncHandler(async (req, res) => {
     })
   } catch (err) {
     console.error('Lỗi gửi email xác thực:', err.message)
+    if (process.env.NODE_ENV === 'production' && process.env.ENABLE_DEV_OTP !== 'true') {
+      await PendingUser.deleteOne({ _id: pendingUser._id })
+      return res.status(503).json({
+        success: false,
+        message: 'Không thể gửi email xác thực. Vui lòng thử lại sau.',
+      })
+    }
     res.status(201).json({
       success: true,
       message: 'Đăng ký thành công. Lỗi gửi email, sử dụng mã xác thực kiểm thử.',
       email: pendingUser.email,
-      devCode: verificationCode, // Fallback for local testing
+      devCode: verificationCode, // Fallback for local testing only
     })
   }
 })
@@ -474,7 +483,9 @@ export const resendVerification = asyncHandler(async (req, res) => {
   pending.verificationCodeExpire = Date.now() + 15 * 60 * 1000
   await pending.save()
 
-  console.log(`[EMAIL VERIFICATION RESEND] User: ${pending.email} | Code: ${verificationCode}`)
+  if (process.env.NODE_ENV !== 'production') {
+    console.log(`[EMAIL VERIFICATION RESEND] User: ${pending.email} | Code: ${verificationCode}`)
+  }
 
   try {
     const message = `Mã xác thực mới của bạn là: ${verificationCode}. Mã này có hiệu lực trong vòng 15 phút.`
@@ -504,6 +515,12 @@ export const resendVerification = asyncHandler(async (req, res) => {
     })
   } catch (err) {
     console.error('Lỗi gửi lại email xác thực:', err.message)
+    if (process.env.NODE_ENV === 'production' && process.env.ENABLE_DEV_OTP !== 'true') {
+      return res.status(503).json({
+        success: false,
+        message: 'Không thể gửi email xác thực. Vui lòng thử lại sau.',
+      })
+    }
     res.status(200).json({
       success: true,
       message: 'Gửi lại mã thành công. Sử dụng mã xác thực kiểm thử.',

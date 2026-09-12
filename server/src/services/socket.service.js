@@ -4,6 +4,7 @@ import User from '../models/User.js'
 import Class from '../models/Class.js'
 import ChatMessage from '../models/ChatMessage.js'
 import gameCleanupService from './gameCleanup.service.js'
+import { canAccessEssay, canAccessChatRoom } from '../utils/essayAccess.js'
 
 let io = null
 
@@ -87,9 +88,20 @@ export const initSocket = (server) => {
       console.error(`Error joining rooms for user ${userId}:`, error)
     }
 
-    socket.on('join_essay_comments', (essayId) => {
-      socket.join(`essay:${essayId}`)
-      console.log(`💬 User ${userId} joined essay comment room: essay:${essayId}`)
+    socket.on('join_essay_comments', async (essayId) => {
+      try {
+        const Essay = (await import('../models/Essay.js')).default
+        const essay = await Essay.findById(essayId).select('student')
+        if (!essay || !(await canAccessEssay(socket.user, essay))) {
+          socket.emit('error', { message: 'Unauthorized' })
+          return
+        }
+        socket.join(`essay:${essayId}`)
+        console.log(`💬 User ${userId} joined essay comment room: essay:${essayId}`)
+      } catch (err) {
+        console.error('join_essay_comments error:', err.message)
+        socket.emit('error', { message: 'Unauthorized' })
+      }
     })
 
     socket.on('leave_essay_comments', (essayId) => {
@@ -122,6 +134,11 @@ export const initSocket = (server) => {
           recipient = recipientId
           targetRoom = `user:${senderId}`
         }
+        // LG-10/LG-11: object-level authorization — never let a client inject
+        // messages into a room they do not belong to (class:*, essay:*, user:*).
+        if (!(await canAccessChatRoom(socket.user, targetRoom))) {
+          return socket.emit('chat_error', { message: 'Bạn không có quyền gửi tin nhắn vào phòng này.' })
+        }
 
         // Save to DB
         const message = await ChatMessage.create({
@@ -138,6 +155,11 @@ export const initSocket = (server) => {
         // Emit to room
         const io = getIO()
         io.to(targetRoom).emit('chat_message', message.toObject())
+        // Deliver direct messages to the recipient's personal room too — otherwise
+        // a user-to-user reply only lands in the sender's own room and is lost.
+        if (recipient && recipient.toString() !== senderId) {
+          io.to(`user:${recipient.toString()}`).emit('chat_message', message.toObject())
+        }
         if (targetRoom === 'support' || targetRoom.startsWith('user:')) {
           io.to('admin_support').emit('chat_message', message.toObject())
         }
@@ -147,9 +169,18 @@ export const initSocket = (server) => {
       }
     })
 
-    socket.on('join_chat_room', (room) => {
-      socket.join(room)
-      console.log(`💬 User ${userId} joined chat room: ${room}`)
+    socket.on('join_chat_room', async (room) => {
+      try {
+        if (!(await canAccessChatRoom(socket.user, room))) {
+          socket.emit('error', { message: 'Unauthorized' })
+          return
+        }
+        socket.join(room)
+        console.log(`💬 User ${userId} joined chat room: ${room}`)
+      } catch (err) {
+        console.error('join_chat_room error:', err.message)
+        socket.emit('error', { message: 'Unauthorized' })
+      }
     })
 
     // Admin joins support room automatically (already done above)

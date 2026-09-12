@@ -25,6 +25,26 @@
   border-radius: 50%;
   pointer-events: none;
   opacity: 0.3;
+  animation-name: login-particle-rise;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes login-particle-rise {
+  from {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.3;
+  }
+  to {
+    transform: translate3d(var(--particle-drift, 0), -100vh, 0);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login__particle {
+    animation: none;
+  }
 }
 
 /* Main Content */

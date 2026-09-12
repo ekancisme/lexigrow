@@ -8,12 +8,13 @@ import {
   getMyTransactions,
 } from '../controllers/payment.controller.js'
 import { protect, authorize } from '../middleware/auth.middleware.js'
+import { payosWebhookLimiter } from '../middleware/rateLimit.middleware.js'
 
 const router = Router()
 
 // Public routes
 router.get('/plans', getPlans)
-router.post('/payos-webhook', payosWebhook)
+router.post('/payos-webhook', payosWebhookLimiter, payosWebhook)
 
 // Protected routes
 router.use(protect)

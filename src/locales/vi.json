@@ -730,5 +730,18 @@
     "newPassword": "Mật khẩu mới",
     "updatePassword": "Cập Nhật Mật Khẩu",
     "passwordUpdated": "Đổi mật khẩu thành công!"
+  },
+  "chat": {
+    "title": "Hỗ trợ LexiGrow",
+    "online": "● Trực tuyến",
+    "connecting": "● Đang kết nối...",
+    "open": "Mở cửa sổ chat",
+    "minimize": "Thu nhỏ",
+    "close": "Đóng",
+    "loading": "Đang tải tin nhắn...",
+    "emptyTitle": "👋 Chào bạn! Hãy gửi tin nhắn để được hỗ trợ.",
+    "emptySub": "Chúng tôi sẽ phản hồi trong thời gian sớm nhất.",
+    "system": "Hệ thống",
+    "inputPlaceholder": "Nhập tin nhắn..."
   }
 }

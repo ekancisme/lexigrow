@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
@@ -33,6 +33,13 @@ export default function ContextFiller() {
   const [streak, setStreak] = useState(0)
   const [timer, setTimer] = useState(0)
   const timerInterval = useRef(null)
+
+  // Clear the round timer when the component unmounts (e.g. Exit / navigate away).
+  useEffect(() => {
+    return () => {
+      if (timerInterval.current) clearInterval(timerInterval.current)
+    }
+  }, [])
 
   const playSound = (type) => {
     try {
@@ -92,8 +99,15 @@ export default function ContextFiller() {
     } catch (e) {
       console.error(e)
       setWords(FALLBACK_WORDS)
+      setCurrentRoundIndex(0)
+      setScore(0)
+      setStreak(0)
+      setTimer(0)
       setupRound(FALLBACK_WORDS, 0, FALLBACK_WORDS)
       setGameState('playing')
+
+      if (timerInterval.current) clearInterval(timerInterval.current)
+      timerInterval.current = setInterval(() => setTimer((prev) => prev + 1), 1000)
     }
   }
 
@@ -103,7 +117,8 @@ export default function ContextFiller() {
     setCurrentWord(target)
 
     const rawSentence = (target.examples && target.examples[0]) || `The word _______ fits this sentence.`
-    const regex = new RegExp(target.word, 'gi')
+    const escaped = String(target.word).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    const regex = new RegExp(`\\b${escaped}\\b`, 'gi')
     const blanked = rawSentence.includes('_______')
       ? rawSentence
       : rawSentence.replace(regex, '_______')

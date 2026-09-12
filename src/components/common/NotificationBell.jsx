@@ -54,7 +54,10 @@ export default function NotificationBell() {
     let active = true
     api.get('/notifications/unread-count')
       .then(res => {
-        if (active) setUnreadCount(res.data?.count ?? 0)
+        if (active) {
+          const count = res.unreadCount ?? res.data?.count ?? res.data?.unreadCount ?? (typeof res.count === 'number' ? res.count : 0)
+          setUnreadCount(count)
+        }
       })
       .catch(() => {})
     return () => { active = false }
@@ -68,14 +71,22 @@ export default function NotificationBell() {
     const handleNewNotification = (notif) => {
       setUnreadCount(prev => prev + 1)
       setNotifications(prev => [notif, ...prev])
+
+      // Trigger interactive toast popup when dropdown is closed
+      if (!open) {
+        setActiveToast(notif)
+        if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
+        toastTimerRef.current = setTimeout(() => {
+          setActiveToast(null)
+        }, 5000)
+      }
     }
 
     socket.on('notification', handleNewNotification)
-    const toastTimer = toastTimerRef.current
 
     return () => {
       socket.off('notification', handleNewNotification)
-      if (toastTimer) clearTimeout(toastTimer)
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
     }
   }, [open, token])
 
@@ -85,7 +96,8 @@ export default function NotificationBell() {
     try {
       const res = await api.get('/notifications?limit=15')
       setNotifications(Array.isArray(res.data) ? res.data : [])
-      setUnreadCount(res.unreadCount ?? 0)
+      const count = res.unreadCount ?? res.data?.unreadCount ?? res.data?.count ?? (typeof res.count === 'number' ? res.count : 0)
+      setUnreadCount(count)
     } catch (err) {
       console.error('Error fetching notifications:', err)
     } finally {
@@ -151,11 +163,13 @@ export default function NotificationBell() {
       const res = await api.post(`/notifications/${notifId}/respond-parent-request`, { action })
       if (res.success) {
         setResponses(prev => ({ ...prev, [notifId]: action === 'approve' ? 'approved' : 'rejected' }))
-        setNotifications(prev => prev.map(n => n._id === notifId ? { ...n, message: res.data.message, isRead: true } : n))
-        const wasUnread = notifications.find(n => n._id === notifId && !n.isRead)
-        if (wasUnread) {
-          setUnreadCount(prev => Math.max(0, prev - 1))
-        }
+        setNotifications(prev => {
+          const target = prev.find(n => n._id === notifId)
+          if (target && !target.isRead) {
+            setUnreadCount(u => Math.max(0, u - 1))
+          }
+          return prev.map(n => n._id === notifId ? { ...n, message: res.data.message, isRead: true } : n)
+        })
       }
     } catch (err) {
       alert(err.message)

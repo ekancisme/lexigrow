@@ -1,9 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './WordLesson.css'
 
 export default function WordLesson({ words = [], onComplete, onBack }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
+
+  // Cancel any in-flight speech when the lesson unmounts
+  useEffect(() => {
+    return () => {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel()
+      }
+    }
+  }, [])
 
   if (!words || words.length === 0) {
     return (

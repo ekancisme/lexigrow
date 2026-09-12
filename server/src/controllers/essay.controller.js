@@ -6,6 +6,7 @@ import { processEssayAnalysis, generateTopicsByTheme, runAIHelperService } from 
 import { getIO } from '../services/socket.service.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
+import { canAccessEssay, essayVisibilityFilter } from '../utils/essayAccess.js'
 
 /**
  * @desc    Create a new essay (draft)
@@ -46,7 +47,14 @@ export const createEssay = asyncHandler(async (req, res) => {
 export const getEssays = asyncHandler(async (req, res) => {
   const { status, page = 1, limit = 20 } = req.query
 
-  const query = { student: req.user._id }
+  // LG-15: never return the whole collection — scope the query to the
+  // caller's role (admin: all, student: own, teacher: own classes, parent: children).
+  const visibility = await essayVisibilityFilter(req.user)
+  if (!visibility) {
+    throw new ErrorResponse('Not authorized to view essays', 403)
+  }
+
+  const query = { ...visibility }
   if (status) query.status = status
 
   const essays = await Essay.find(query)
@@ -79,7 +87,9 @@ export const getEssay = asyncHandler(async (req, res) => {
   }
 
   // Students can only view their own essays
-  if (req.user.role === 'student' && essay.student._id.toString() !== req.user._id.toString()) {
+  // Object-level authorization (BOLA/IDOR): admin, owning student, the
+  // student's active teacher, or the student's parent may read.
+  if (!(await canAccessEssay(req.user, essay))) {
     throw new ErrorResponse('Not authorized to access this essay', 403)
   }
 
@@ -233,7 +243,15 @@ export const deleteEssay = asyncHandler(async (req, res) => {
  * @access  Private (teacher)
  */
 export const getEssaysByStudent = asyncHandler(async (req, res) => {
-  const essays = await Essay.find({ student: req.params.studentId })
+  const targetStudentId = req.params.studentId
+
+  // Teachers may only list essays of students in their active classes;
+  // parents only for their own children; admin for anyone.
+  if (!(await canAccessEssay(req.user, { student: targetStudentId }))) {
+    throw new ErrorResponse("Not authorized to view this student's essays", 403)
+  }
+
+  const essays = await Essay.find({ student: targetStudentId })
     .sort({ createdAt: -1 })
 
   res.status(200).json({ success: true, count: essays.length, data: essays })
@@ -275,6 +293,9 @@ export const requestRevision = asyncHandler(async (req, res) => {
   const essay = await Essay.findById(req.params.id)
   if (!essay) {
     throw new ErrorResponse('Essay not found', 404)
+  }
+  if (!(await canAccessEssay(req.user, essay))) {
+    throw new ErrorResponse('Not authorized to request revision for this essay', 403)
   }
 
   essay.status = 'needs_revision'

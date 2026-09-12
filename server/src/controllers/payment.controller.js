@@ -7,6 +7,7 @@ import asyncHandler from '../utils/asyncHandler.js'
 import { createPayOSPaymentLink, verifyPayOSWebhookData } from '../services/payos.service.js'
 import { getUserEffectiveTier } from '../services/tier.service.js'
 import { logAction } from '../utils/auditLogger.js'
+import mongoose from 'mongoose'
 
 /**
  * @desc    Get all active subscription plans
@@ -144,7 +145,7 @@ export const payosWebhook = asyncHandler(async (req, res) => {
   // 1. Verify webhook signature
   let verifiedData = null
   try {
-    verifiedData = verifyPayOSWebhookData(webhookBody)
+    verifiedData = await verifyPayOSWebhookData(webhookBody)
   } catch (err) {
     console.error('❌ PayOS Webhook signature verification failed:', err.message)
     return res.status(400).json({ success: false, message: 'Invalid webhook signature' })
@@ -159,53 +160,123 @@ export const payosWebhook = asyncHandler(async (req, res) => {
 
   // Code '00' indicates successful payment in PayOS
   if (code === '00') {
-    const transaction = await PaymentTransaction.findOne({ orderCode: Number(orderCode) })
+    const orderCodeNum = Number(orderCode)
 
-    if (transaction && transaction.status !== 'PAID') {
-      transaction.status = 'PAID'
-      transaction.paidAt = new Date()
-      transaction.webhookData = verifiedData
-      await transaction.save()
+    // Idempotency fast-path: already paid (e.g. PayOS retry) -> ack and stop.
+    const existing = await PaymentTransaction.findOne({ orderCode: orderCodeNum })
+    if (!existing || existing.status === 'PAID') {
+      return res.status(200).json({ success: true, message: 'Already processed' })
+    }
 
-      const plan = await SubscriptionPlan.findById(transaction.plan)
+    const plan = await SubscriptionPlan.findById(existing.plan)
 
-      // Calculate expiration date (30 days for monthly, 365 days for yearly)
-      const durationDays = transaction.billingCycle === 'yearly' ? 365 : 30
-      const startDate = new Date()
-      const endDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000)
+    // Calculate expiration date (30 days for monthly, 365 days for yearly)
+    const durationDays = existing.billingCycle === 'yearly' ? 365 : 30
+    const startDate = new Date()
+    const endDate = new Date(startDate.getTime() + durationDays * 24 * 60 * 60 * 1000)
 
-      // Deactivate any previous active subscriptions
-      await Subscription.updateMany(
-        { user: transaction.user, status: 'active' },
-        { status: 'expired' }
+    // Claim the transaction (PENDING -> PAID) and create the subscription so BOTH
+    // commit together. If anything fails the claim is rolled back and PayOS can
+    // retry; otherwise we would mark PAID without granting the subscription.
+    const activate = async (tx) => {
+      const sessionOpt = tx ? { session: tx } : {}
+      const claimed = await PaymentTransaction.findOneAndUpdate(
+        { orderCode: orderCodeNum, status: 'PENDING' },
+        { $set: { status: 'PAID', paidAt: new Date(), webhookData: verifiedData } },
+        { new: true, ...sessionOpt }
+      )
+      if (!claimed) return null
+
+      const [subscription] = await Subscription.create(
+        [
+          {
+            user: claimed.user,
+            plan: claimed.plan,
+            planSlug: claimed.planSlug,
+            targetRole: claimed.targetRole,
+            tier: claimed.tier,
+            billingCycle: claimed.billingCycle,
+            amountPaid: claimed.amount,
+            orderCode: claimed.orderCode,
+            startDate,
+            endDate,
+            status: 'active',
+            maxSponsoredStudents: plan?.maxSponsoredStudents || 0,
+            payosTransactionId: verifiedData.reference || '',
+          },
+        ],
+        sessionOpt
       )
 
-      // Create new active subscription
-      const subscription = await Subscription.create({
-        user: transaction.user,
-        plan: transaction.plan,
-        planSlug: transaction.planSlug,
-        targetRole: transaction.targetRole,
-        tier: transaction.tier,
-        billingCycle: transaction.billingCycle,
-        amountPaid: transaction.amount,
-        orderCode: transaction.orderCode,
-        startDate,
-        endDate,
-        status: 'active',
-        maxSponsoredStudents: plan?.maxSponsoredStudents || 0,
-        payosTransactionId: verifiedData.reference || '',
-      })
-
-      await logAction(transaction.user, 'PAYMENT_SUCCESS_ACTIVATE_SUBSCRIPTION', 'Subscription', subscription._id, {
-        orderCode,
-        tier: transaction.tier,
-        billingCycle: transaction.billingCycle,
-        endDate,
-      })
-
-      console.log(`✅ Subscription activated successfully for User ${transaction.user}, Tier: ${transaction.tier}`)
+      // Expire previous subscriptions only AFTER the new one exists, so a failure
+      // while creating it (especially in the non-transactional fallback) cannot
+      // leave the user with no active subscription. Exclude the row just created.
+      await Subscription.updateMany(
+        { user: claimed.user, status: 'active', _id: { $ne: subscription._id } },
+        { status: 'expired' },
+        sessionOpt
+      )
+      return { subscription, claimed }
     }
+
+    let result = null
+    let session = null
+    try {
+      session = await mongoose.startSession()
+      await session.withTransaction(async () => {
+        result = await activate(session)
+      })
+    } catch (err) {
+      const unsupported =
+        err.code === 20 ||
+        (err.message &&
+          (err.message.includes('Transaction numbers are only allowed on a replica set') ||
+            err.message.includes('does not support retryable writes') ||
+            err.message.includes('Transaction is not supported')))
+      if (!unsupported) {
+        if (err.code === 11000) {
+          return res.status(200).json({ success: true, message: 'Already processed' })
+        }
+        // Transaction rolled back: PAID was NOT persisted, PayOS may retry safely.
+        throw err
+      }
+      console.warn(
+        '⚠️ [payosWebhook] MongoDB transaction not supported (standalone mode). ' +
+          'Falling back to sequential subscription activation. For production, use a replica set.'
+      )
+      try {
+        result = await activate(null)
+      } catch (fallbackErr) {
+        if (fallbackErr.code === 11000) {
+          return res.status(200).json({ success: true, message: 'Already processed' })
+        }
+        // No transaction available: undo the PAID claim so PayOS can retry and the
+        // user is not left charged without a subscription.
+        await PaymentTransaction.updateOne(
+          { orderCode: orderCodeNum, status: 'PAID' },
+          { $set: { status: 'PENDING', paidAt: null, webhookData: null } }
+        ).catch(() => {})
+        throw fallbackErr
+      }
+    } finally {
+      if (session) await session.endSession()
+    }
+
+    if (!result) {
+      // Another worker claimed it first.
+      return res.status(200).json({ success: true, message: 'Already processed' })
+    }
+
+    const { subscription, claimed } = result
+
+    await logAction(claimed.user, 'PAYMENT_SUCCESS_ACTIVATE_SUBSCRIPTION', 'Subscription', subscription._id, {
+      orderCode,
+      tier: claimed.tier,
+      billingCycle: claimed.billingCycle,
+      endDate,
+    })
+
+    console.log(`✅ Subscription activated successfully for User ${claimed.user}, Tier: ${claimed.tier}`)
   }
 
   res.status(200).json({ success: true })

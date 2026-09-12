@@ -24,6 +24,19 @@ class GameCleanupService {
   }
 
   /**
+   * Unregister a single completed/cleared timer from tracking
+   */
+  unregisterTimer(socketId, timerId) {
+    const timers = this.activeTimers.get(socketId)
+    if (timers) {
+      timers.delete(timerId)
+      if (timers.size === 0) {
+        this.activeTimers.delete(socketId)
+      }
+    }
+  }
+
+  /**
    * Clear all timers for a given socket
    */
   clearTimers(socketId) {

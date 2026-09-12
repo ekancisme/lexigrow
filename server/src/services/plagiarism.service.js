@@ -15,6 +15,18 @@ const tokenize = (text) => {
 }
 
 /**
+ * Apply `.limit()` + `.lean()` when the query builder supports it, otherwise
+ * return the query/promise unchanged (keeps unit-test doubles working).
+ */
+const finalizeQuery = (query, limit) => {
+  if (query && typeof query.lean === 'function') {
+    const bounded = typeof query.limit === 'function' ? query.limit(limit) : query
+    return bounded.lean()
+  }
+  return query
+}
+
+/**
  * Generate N-Grams from tokens list
  * @param {string[]} tokens 
  * @param {number} n 
@@ -66,11 +78,13 @@ export const checkCrossStudentPlagiarism = async (newEssayId, text) => {
       return { isPlagiarized: false, similarityScore: 0, matchedEssay: null }
     }
 
-    // Find all other essays (not drafts) in database
-    const otherEssays = await Essay.find({
+    // LG-13: bound the comparison set and skip hydration via .lean().
+    // NOTE: the comparison itself is still O(N) per new essay (N <= 200 here).
+    const essaysQuery = Essay.find({
       _id: { $ne: newEssayId },
       status: { $in: ['submitted', 'reviewed'] }
     }).select('_id title content')
+    const otherEssays = await finalizeQuery(essaysQuery, 200)
 
     let highestScore = 0
     let bestMatch = null

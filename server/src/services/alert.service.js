@@ -32,7 +32,7 @@ export const runAlertCheck = async (teacherId) => {
             await createAlertIfNotExists(teacherId, student._id, cls._id, {
               type: 'critical',
               metric: 'TTR Declining',
-              detail: `TTR dropped from ${prevAnalysis.scores.vocabularyDiversity.toFixed(2)} to ${latestAnalysis.scores.vocabularyDiversity.toFixed(2)} in recent essays.`,
+              detail: `TTR dropped from ${(prevAnalysis.scores?.vocabularyDiversity ?? 0).toFixed(2)} to ${(latestAnalysis.scores?.vocabularyDiversity ?? 0).toFixed(2)} in recent essays.`,
               icon: 'warning',
             })
           }
@@ -60,7 +60,7 @@ export const runAlertCheck = async (teacherId) => {
           await createAlertIfNotExists(teacherId, student._id, cls._id, {
             type: 'warning',
             metric: 'Low TTR',
-            detail: `TTR below 0.50 threshold (current: ${latestAnalysis.scores.vocabularyDiversity.toFixed(2)}).`,
+            detail: `TTR below 0.50 threshold (current: ${(latestAnalysis.scores?.vocabularyDiversity ?? 0).toFixed(2)}).`,
             icon: 'trending_down',
           })
         }

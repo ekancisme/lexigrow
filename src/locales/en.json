@@ -730,5 +730,18 @@
     "newPassword": "New Password",
     "updatePassword": "Update Password",
     "passwordUpdated": "Password updated successfully!"
+  },
+  "chat": {
+    "title": "LexiGrow Support",
+    "online": "● Online",
+    "connecting": "● Connecting...",
+    "open": "Open chat",
+    "minimize": "Minimize",
+    "close": "Close",
+    "loading": "Loading messages...",
+    "emptyTitle": "👋 Hi there! Send a message to get support.",
+    "emptySub": "We will get back to you as soon as possible.",
+    "system": "System",
+    "inputPlaceholder": "Type a message..."
   }
 }

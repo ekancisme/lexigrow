@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import TopNav from './TopNav'
@@ -42,7 +42,15 @@ export default function AppLayout({ role, children }) {
       <div className="app-layout__main">
         <TopNav role={resolvedRole} onMenuToggle={() => setMobileMenuOpen(open => !open)} />
         <main className={`app-layout__content${isFullBleed ? ' app-layout__content--no-padding' : ''}${resolvedRole === 'parent' ? ' app-layout__content--parent' : ''}`}>
-          {children || <Outlet />}
+          <Suspense fallback={
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
+              <span className="material-symbols-outlined animate-spin" style={{ fontSize: 36, color: 'var(--color-primary)' }}>
+                progress_activity
+              </span>
+            </div>
+          }>
+            {children || <Outlet />}
+          </Suspense>
         </main>
       </div>
       {resolvedRole === 'parent' && (

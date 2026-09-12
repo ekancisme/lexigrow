@@ -109,11 +109,14 @@ export const adminGetTransactions = asyncHandler(async (req, res) => {
   const query = {}
   if (status) query.status = status
 
+  const pageNum = Math.max(1, parseInt(page, 10) || 1)
+  const limitNum = Math.max(1, Math.min(100, parseInt(limit, 10) || 50))
+
   const transactions = await PaymentTransaction.find(query)
     .populate('user', 'name email role')
     .sort({ createdAt: -1 })
-    .skip((Number(page) - 1) * Number(limit))
-    .limit(Number(limit))
+    .skip((pageNum - 1) * limitNum)
+    .limit(limitNum)
 
   const total = await PaymentTransaction.countDocuments(query)
 
@@ -127,6 +130,8 @@ export const adminGetTransactions = asyncHandler(async (req, res) => {
     success: true,
     count: transactions.length,
     total,
+    page: pageNum,
+    pages: Math.ceil(total / limitNum) || 1,
     totalRevenue: revenueStats[0]?.totalRevenue || 0,
     paidCount: revenueStats[0]?.count || 0,
     data: transactions,
@@ -167,14 +172,9 @@ export const adminGrantSubscription = asyncHandler(async (req, res) => {
   const plan = await SubscriptionPlan.findOne({ slug: planSlug })
   if (!plan) throw new ErrorResponse('Gói cước không tồn tại.', 404)
 
-  const orderCode = Math.floor(100000 + Math.random() * 900000)
+  const orderCode = Number(String(Date.now()).slice(-6) + Math.floor(100 + Math.random() * 900))
   const startDate = new Date()
   const endDate = new Date(startDate.getTime() + Number(durationDays) * 24 * 60 * 60 * 1000)
-
-  await Subscription.updateMany(
-    { user: user._id, status: 'active' },
-    { status: 'expired' }
-  )
 
   const subscription = await Subscription.create({
     user: user._id,
@@ -190,6 +190,12 @@ export const adminGrantSubscription = asyncHandler(async (req, res) => {
     status: 'active',
     maxSponsoredStudents: plan.maxSponsoredStudents || 0,
   })
+
+  // Deactivate previous active subscriptions after the new one is safely created
+  await Subscription.updateMany(
+    { user: user._id, _id: { $ne: subscription._id }, status: 'active' },
+    { status: 'expired' }
+  )
 
   await logAction(req.user._id, 'ADMIN_MANUALLY_GRANT_SUBSCRIPTION', 'Subscription', subscription._id, {
     grantedToUser: user.email,

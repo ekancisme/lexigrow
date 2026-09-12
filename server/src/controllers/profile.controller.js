@@ -62,7 +62,15 @@ export const changePassword = asyncHandler(async (req, res) => {
  */
 export const updateNotifications = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id)
-  user.notifications = { ...user.notifications, ...req.body }
+
+  // LG-38: mass-assignment guard — only whitelisted notification fields may
+  // be updated (real User.notifications schema keys: email, push, weekly).
+  const ALLOWED = ['email', 'push', 'weekly']
+  const updates = {}
+  for (const field of ALLOWED) {
+    if (typeof req.body[field] === 'boolean') updates[field] = req.body[field]
+  }
+  user.notifications = { ...(user.notifications?.toObject?.() || user.notifications || {}), ...updates }
   await user.save()
 
   res.status(200).json({ success: true, data: user.notifications })

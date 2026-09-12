@@ -40,6 +40,15 @@ export function questDay(now = new Date()) {
   }).format(now)
 }
 
+/**
+ * Escape regex metacharacters in an answer before building a mask pattern.
+ * @param {string} value
+ * @returns {string}
+ */
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 export function prepareWords(words) {
   const seen = new Set()
   return words.flatMap((item) => {
@@ -47,10 +56,13 @@ export function prepareWords(words) {
       .trim()
       .toUpperCase()
     if (!/^[A-Z]{3,10}$/.test(answer) || seen.has(answer)) return []
+    // LG-40: word-boundary match so "CAT" is not masked inside "CONCATENATE".
+    // `\b` still anchors correctly when the answer is a multi-word phrase.
+    const answerPattern = new RegExp(`\\b${escapeRegExp(answer)}\\b`, 'gi')
     const mask = (text) =>
       String(text || '')
         .slice(0, 600)
-        .replace(new RegExp(answer, 'gi'), '_____')
+        .replace(answerPattern, '_____')
     const clue = mask(item.definition)
     if (!clue.trim() || clue === '_____') return []
     seen.add(answer)

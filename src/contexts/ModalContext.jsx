@@ -33,7 +33,8 @@ export function ModalProvider({ children }) {
       type,
       confirmText: 'OK',
       cancelText: 'Cancel',
-      onConfirm: () => closeModal()
+      onConfirm: null,
+      onCancel: null
     })
   }
 
@@ -46,21 +47,28 @@ export function ModalProvider({ children }) {
       confirmText: 'OK',
       cancelText: 'Cancel',
       onConfirm: () => {
-        closeModal()
+        setModalConfig(prev => ({ ...prev, isOpen: false }))
         if (onConfirm) onConfirm()
       },
       onCancel: () => {
-        closeModal()
+        setModalConfig(prev => ({ ...prev, isOpen: false }))
         if (onCancel) onCancel()
       }
     })
   }
 
+  // closeModal ONLY closes the dialog. It never invokes a callback, so any
+  // caller (X, backdrop, Escape) must go through handleCancel when a cancel
+  // callback is expected.
   const closeModal = () => {
     setModalConfig(prev => ({ ...prev, isOpen: false }))
-    if (modalConfig.type === 'confirm' && modalConfig.onCancel) {
-      modalConfig.onCancel()
-    }
+  }
+
+  // Cancel path used by the X button, backdrop click, Escape and Cancel button.
+  const handleCancel = () => {
+    const onCancel = modalConfig.onCancel
+    closeModal()
+    if (onCancel) onCancel()
   }
 
   return (
@@ -68,7 +76,7 @@ export function ModalProvider({ children }) {
       {children}
       <Modal
         isOpen={modalConfig.isOpen}
-        onClose={closeModal}
+        onClose={handleCancel}
         title={modalConfig.title}
         message={modalConfig.message}
         type={modalConfig.type}

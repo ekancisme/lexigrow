@@ -3,6 +3,7 @@ import User from '../models/User.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import { getIO } from '../services/socket.service.js'
+import { canAccessChatRoom } from '../utils/essayAccess.js'
 
 /**
  * @desc    Get chat history for a room
@@ -13,11 +14,9 @@ export const getChatHistory = asyncHandler(async (req, res) => {
   const { room } = req.params
   const { limit = 50, before } = req.query
 
-  // Only allow user to access their own support room or admin access to all
-  const isAdmin = req.user.role === 'admin'
-  const isOwnRoom = room === `user:${req.user._id}` || room === 'support'
-
-  if (!isAdmin && !isOwnRoom) {
+  // Object-level authorization: admins may read any room; everyone else only
+  // the rooms they own or belong to (support, user:<own>, class/essay rooms).
+  if (!(await canAccessChatRoom(req.user, room))) {
     throw new ErrorResponse('Bạn không có quyền truy cập phòng chat này.', 403)
   }
 
@@ -31,6 +30,8 @@ export const getChatHistory = asyncHandler(async (req, res) => {
     .sort({ createdAt: -1 })
     .limit(Number(limit))
     .lean()
+
+  const isAdmin = req.user?.role === 'admin'
 
   // Mark messages as read if recipient is current user
   if (!isAdmin) {
@@ -80,6 +81,12 @@ export const sendMessage = asyncHandler(async (req, res) => {
     recipient = recipientId
     // For private chat with admin, room format: user:{userId}
     targetRoom = `user:${senderId}`
+  }
+
+  // Object-level authorization for room-targeted messages (support is open
+  // to any authenticated user; other rooms must be ones the sender belongs to).
+  if (!(await canAccessChatRoom(req.user, targetRoom))) {
+    throw new ErrorResponse('Bạn không có quyền gửi tin nhắn vào phòng này.', 403)
   }
 
   const message = await ChatMessage.create({
@@ -168,10 +175,9 @@ export const getChatRooms = asyncHandler(async (req, res) => {
 export const markRoomRead = asyncHandler(async (req, res) => {
   const { room } = req.params
 
-  const isAdmin = req.user.role === 'admin'
-  const isOwnRoom = room === `user:${req.user._id}`
-
-  if (!isAdmin && !isOwnRoom) {
+  // Object-level authorization: admins may mark any room read; users only
+  // rooms they are allowed to access.
+  if (!(await canAccessChatRoom(req.user, room))) {
     throw new ErrorResponse('Bạn không có quyền đánh dấu đọc cho phòng này.', 403)
   }
 

@@ -29,6 +29,12 @@ vi.mock('../src/models/Config.js', () => ({
   }
 }))
 
+// LG-05: request-revision now enforces object-level authorization; the teacher
+// must own an active class containing the essay's student.
+vi.mock('../src/models/Class.js', () => ({
+  default: { exists: vi.fn().mockResolvedValue(true) }
+}))
+
 vi.mock('../src/models/Comment.js', () => {
   const mockComment = {
     _id: 'mock_comment_id',
@@ -88,6 +94,7 @@ describe('Comments & Revision API', () => {
     Essay.findById.mockResolvedValue({
       _id: 'mock_essay_id',
       title: 'Mock Essay Title',
+      student: 'mock_student_id',
       status: 'reviewed',
       save: saveMock
     })

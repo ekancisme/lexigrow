@@ -60,6 +60,7 @@ export function useChat(room = 'support') {
 
   // Load initial messages
   const loadHistory = useCallback(async (limit = 50) => {
+    if (!token || !user) return
     setIsLoading(true)
     try {
       const response = await chatService.getHistory(room, limit)
@@ -69,7 +70,7 @@ export function useChat(room = 'support') {
     } finally {
       setIsLoading(false)
     }
-  }, [room])
+  }, [room, token, user])
 
   useEffect(() => {
     loadHistory()

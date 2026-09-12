@@ -1,17 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useChat } from '../../hooks/useChat.js'
 import { useAuth } from '../../contexts/AuthContext.jsx'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import './ChatWidget.css'
 
 const ChatWidget = () => {
   const { isAuthenticated, user } = useAuth()
+  const { t } = useLanguage()
   const [isOpen, setIsOpen] = useState(false)
   const [inputMessage, setInputMessage] = useState('')
   const [isMinimized, setIsMinimized] = useState(false)
   const messagesContainerRef = useRef(null)
-
-  // Only show chat if user is authenticated
-  if (!isAuthenticated || !user) return null
 
   // Use the chat hook for support room
   const { messages, sendMessage, isConnected, isLoading, error, loadHistory, messagesEndRef } = useChat('support')
@@ -22,6 +21,9 @@ const ChatWidget = () => {
       messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
     }
   }, [messages])
+
+  // Only show chat if user is authenticated — keep this AFTER all hooks so hook order stays stable
+  if (!isAuthenticated || !user) return null
 
   const toggleChat = () => {
     setIsOpen(!isOpen)
@@ -56,7 +58,7 @@ const ChatWidget = () => {
     <div className="chat-widget">
       {/* Floating button */}
       {!isOpen && (
-        <button className="chat-toggle-btn" onClick={toggleChat} aria-label="Open chat">
+        <button className="chat-toggle-btn" onClick={toggleChat} aria-label={t('chat.open', 'Open chat')}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
           </svg>
@@ -69,16 +71,16 @@ const ChatWidget = () => {
           {/* Header */}
           <div className="chat-header">
             <div className="chat-header-left">
-              <span className="chat-title">Hỗ trợ LexiGrow</span>
+              <span className="chat-title">{t('chat.title', 'LexiGrow Support')}</span>
               <span className={`chat-status ${isConnected ? 'online' : 'offline'}`}>
-                {isConnected ? '● Trực tuyến' : '● Đang kết nối...'}
+                {isConnected ? t('chat.online', '● Online') : t('chat.connecting', '● Connecting...')}
               </span>
             </div>
             <div className="chat-header-actions">
-              <button onClick={toggleMinimize} className="chat-header-btn" aria-label="Minimize">
+              <button onClick={toggleMinimize} className="chat-header-btn" aria-label={t('chat.minimize', 'Minimize')}>
                 {isMinimized ? '□' : '−'}
               </button>
-              <button onClick={toggleChat} className="chat-header-btn" aria-label="Close">
+              <button onClick={toggleChat} className="chat-header-btn" aria-label={t('chat.close', 'Close')}>
                 ✕
               </button>
             </div>
@@ -88,15 +90,15 @@ const ChatWidget = () => {
           {!isMinimized && (
             <div className="chat-messages" ref={messagesContainerRef}>
               {isLoading && (
-                <div className="chat-loading">Đang tải tin nhắn...</div>
+                <div className="chat-loading">{t('chat.loading', 'Loading messages...')}</div>
               )}
               {error && (
                 <div className="chat-error">{error}</div>
               )}
               {!isLoading && messages.length === 0 && !error && (
                 <div className="chat-empty">
-                  <p>👋 Chào bạn! Hãy gửi tin nhắn để được hỗ trợ.</p>
-                  <p className="chat-empty-sub">Chúng tôi sẽ phản hồi trong thời gian sớm nhất.</p>
+                  <p>{t('chat.emptyTitle', 'Hi there! Send a message to get support.')}</p>
+                  <p className="chat-empty-sub">{t('chat.emptySub', 'We will get back to you as soon as possible.')}</p>
                 </div>
               )}
               {messages.map((msg) => (
@@ -106,7 +108,7 @@ const ChatWidget = () => {
                 >
                   <div className="chat-message-content">
                     <div className="chat-message-sender">
-                      {msg.sender?.name || 'Hệ thống'}
+                      {msg.sender?.name || t('chat.system', 'System')}
                       {msg.sender?.role === 'admin' && ' ⭐'}
                     </div>
                     <div className="chat-message-text">{msg.content}</div>
@@ -123,7 +125,7 @@ const ChatWidget = () => {
             <form className="chat-input-area" onSubmit={handleSendMessage}>
               <input
                 type="text"
-                placeholder="Nhập tin nhắn..."
+                placeholder={t('chat.inputPlaceholder', 'Type a message...')}
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 disabled={!isConnected}

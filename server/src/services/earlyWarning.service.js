@@ -12,6 +12,18 @@ const ONE_DAY_MS = 24 * 60 * 60 * 1000
 const SCAN_BATCH_SIZE = 10
 const MIN_GRAMMAR_TOTAL_DROP = 0.5
 const MIN_OVERALL_SCORE_TOTAL_DROP = 1
+/**
+ * Apply `.limit()` + `.lean()` when the query builder supports it, otherwise
+ * return the query/promise unchanged (keeps unit-test doubles working).
+ */
+const finalizeQuery = (query, limit) => {
+  if (query && typeof query.lean === 'function') {
+    const bounded = typeof query.limit === 'function' ? query.limit(limit) : query
+    return bounded.lean()
+  }
+  return query
+}
+
 
 const escapeHtml = value => String(value)
   .replaceAll('&', '&amp;')
@@ -81,7 +93,7 @@ export const checkGrammarDecline = async (studentId) => {
   }
 
   const essayIds = essays.map(e => e._id)
-  const analyses = await AIAnalysis.find({ essay: { $in: essayIds } })
+  const analyses = await finalizeQuery(AIAnalysis.find({ essay: { $in: essayIds } }), 50)
 
   // Keep the sorted order of essays (index 0 is most recent, index 2 is oldest of the three)
   const sortedAnalyses = essays.map(essay =>
@@ -120,7 +132,7 @@ export const checkOverallScoreDecline = async (studentId) => {
     return { isDeclining: false, scores: [] }
   }
 
-  const analyses = await AIAnalysis.find({ essay: { $in: essays.map(essay => essay._id) } })
+  const analyses = await finalizeQuery(AIAnalysis.find({ essay: { $in: essays.map(essay => essay._id) } }), 50)
   const sortedAnalyses = essays.map(essay =>
     analyses.find(analysis => analysis.essay.toString() === essay._id.toString())
   ).filter(Boolean)
@@ -182,31 +194,57 @@ export const checkMissedAssignmentDeadlines = async (studentId, now = new Date()
  */
 export const runEarlyWarningScan = async () => {
   const startedAt = new Date()
-  const students = await User.find({ role: 'student', accountStatus: 'active' })
   const summary = {
     startedAt: startedAt.toISOString(),
     finishedAt: null,
-    scanned: students.length,
+    scanned: 0,
     created: 0,
     failed: 0,
     failures: [],
   }
 
-  for (let offset = 0; offset < students.length; offset += SCAN_BATCH_SIZE) {
-    const batch = students.slice(offset, offset + SCAN_BATCH_SIZE)
-    const results = await Promise.allSettled(batch.map(scanStudent))
+  const batchSize = 100
+  let page = 0
+  let hasMore = true
 
-    results.forEach((result, index) => {
-      if (result.status === 'fulfilled') {
-        summary.created += result.value
-      } else {
-        summary.failed++
-        summary.failures.push({
-          studentId: batch[index]._id.toString(),
-          error: result.reason?.message || 'Unknown scan error',
-        })
-      }
-    })
+  while (hasMore) {
+    const rawQuery = User.find({ role: 'student', accountStatus: 'active' })
+    const isMongooseQuery = rawQuery && typeof rawQuery.skip === 'function'
+
+    const students = isMongooseQuery
+      ? await rawQuery.skip(page * batchSize).limit(batchSize).lean()
+      : await finalizeQuery(rawQuery, batchSize)
+
+    if (!students || students.length === 0) {
+      hasMore = false
+      break
+    }
+
+    summary.scanned += students.length
+
+    for (let offset = 0; offset < students.length; offset += SCAN_BATCH_SIZE) {
+      const batch = students.slice(offset, offset + SCAN_BATCH_SIZE)
+      const results = await Promise.allSettled(batch.map(scanStudent))
+
+      results.forEach((result, index) => {
+        if (result.status === 'fulfilled') {
+          summary.created += result.value
+        } else {
+          summary.failed++
+          summary.failures.push({
+            studentId: batch[index]._id.toString(),
+            error: result.reason?.message || 'Unknown scan error',
+          })
+        }
+      })
+    }
+
+    // If query is not a chained Mongoose query (e.g. unit test mock) or returned fewer than batchSize
+    if (!isMongooseQuery || students.length < batchSize) {
+      hasMore = false
+    } else {
+      page++
+    }
   }
 
   summary.finishedAt = new Date().toISOString()
@@ -225,7 +263,7 @@ export async function createAndNotifyAlert(student, type, metric, detail) {
 
   if (existingAlert) return false
 
-  const studentClass = await Class.findOne({ students: student._id, status: 'active' })
+  const studentClass = await finalizeQuery(Class.findOne({ students: student._id, status: 'active' }), 1)
   const teacherId = studentClass?.teacher || null
   const classId = studentClass?._id || null
 
@@ -242,7 +280,7 @@ export async function createAndNotifyAlert(student, type, metric, detail) {
 
   await alert.save()
 
-  const parents = await User.find({ role: 'parent', children: student._id })
+  const parents = await finalizeQuery(User.find({ role: 'parent', children: student._id }), 20)
   const notifications = []
 
   if (teacherId) {

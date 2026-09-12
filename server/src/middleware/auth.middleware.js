@@ -2,6 +2,10 @@ import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
+if (!process.env.JWT_SECRET) {
+  throw new Error('FATAL: JWT_SECRET is not configured')
+}
+
 
 /**
  * Protect routes — verify JWT token
