@@ -29,29 +29,54 @@ export function LanguageProvider({ children }) {
   }, [language])
 
 
-  const t = useCallback((path, fallback = '') => {
+  const t = useCallback((path, fallback = '', params = {}) => {
     if (!path) return fallback
+    let actualFallback = fallback
+    let actualParams = params
+
+    if (typeof fallback === 'object' && fallback !== null) {
+      actualParams = fallback
+      actualFallback = path
+    }
+
     const keys = path.split('.')
     let current = translations[language] || translations.en
+    let found = true
     
     for (const key of keys) {
       if (current && typeof current === 'object' && key in current) {
         current = current[key]
       } else {
-        // Fallback to English if key missing
-        let fbVal = translations.en
-        for (const fbKey of keys) {
-          if (fbVal && typeof fbVal === 'object' && fbKey in fbVal) {
-            fbVal = fbVal[fbKey]
-          } else {
-            return fallback || path
-          }
-        }
-        return fbVal || fallback || path
+        found = false
+        break
       }
     }
 
-    return typeof current === 'string' ? current : (fallback || path)
+    if (!found || typeof current !== 'string') {
+      // Fallback to English if key missing in current language
+      let fbVal = translations.en
+      let fbFound = true
+      for (const fbKey of keys) {
+        if (fbVal && typeof fbVal === 'object' && fbKey in fbVal) {
+          fbVal = fbVal[fbKey]
+        } else {
+          fbFound = false
+          break
+        }
+      }
+      current = (fbFound && typeof fbVal === 'string') ? fbVal : (actualFallback || path)
+    }
+
+    let result = typeof current === 'string' ? current : (actualFallback || path)
+
+    // Interpolate {param} placeholders
+    if (actualParams && typeof actualParams === 'object') {
+      Object.keys(actualParams).forEach((pKey) => {
+        result = result.replaceAll(`{${pKey}}`, String(actualParams[pKey]))
+      })
+    }
+
+    return result
   }, [language])
 
   return (
