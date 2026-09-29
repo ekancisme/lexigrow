@@ -35,3 +35,11 @@ APIKEY.txt
 # Local AI agent files
 .claude/
 
+# Documents, office and deployment files
+*.docx
+*.xlsx
+*.pptx
+*.pdf
+deploy.*
+Person1_*
+
