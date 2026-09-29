@@ -9,11 +9,11 @@ lerna-debug.log*
 
 node_modules
 dist
-dist-ssr
+dist-ssr 
 *.local
 .env
 .DS_Store
-
+docs
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -27,3 +27,11 @@ dist-ssr
 
 # graft's local graph cache — regenerable, not committed (run `graft build`).
 /graft/
+
+# Local secret files — never commit
+APIKEY.txt
+*.vpp
+
+# Local AI agent files
+.claude/
+

@@ -209,13 +209,9 @@ export default function AdminVocabulary() {
 
   // --- Export Action ---
   const handleExport = async () => {
-    setError('')
     try {
-      const token = api.getToken()
       const response = await fetch('/api/admin/global-vocabulary/export', {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
+        credentials: 'include',
       })
       if (!response.ok) {
         throw new Error('Server error exporting data.')

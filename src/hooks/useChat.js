@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext.jsx'
 import chatService from '../services/chat.service.js'
 
 export function useChat(room = 'support') {
-  const { user, token } = useAuth()
+  const { user } = useAuth()
   const [messages, setMessages] = useState([])
   const [isConnected, setIsConnected] = useState(false)
   const [error, setError] = useState(null)
@@ -14,11 +14,11 @@ export function useChat(room = 'support') {
 
   // Connect to socket
   useEffect(() => {
-    if (!token || !user) return
+    if (!user) return
 
     const socket = io({
-      auth: { token },
-      transports: ['websocket'],
+      withCredentials: true,
+      transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionAttempts: 5,
     })
@@ -56,11 +56,11 @@ export function useChat(room = 'support') {
     return () => {
       socket.disconnect()
     }
-  }, [token, user, room])
+  }, [user, room])
 
   // Load initial messages
   const loadHistory = useCallback(async (limit = 50) => {
-    if (!token || !user) return
+    if (!user) return
     setIsLoading(true)
     try {
       const response = await chatService.getHistory(room, limit)
@@ -70,7 +70,7 @@ export function useChat(room = 'support') {
     } finally {
       setIsLoading(false)
     }
-  }, [room, token, user])
+  }, [room, user])
 
   useEffect(() => {
     loadHistory()

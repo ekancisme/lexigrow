@@ -36,7 +36,7 @@ function getTypeIcon(type) {
 export default function NotificationBell() {
   const navigate    = useNavigate()
   const dropdownRef = useRef(null)
-  const { token }   = useAuth()
+  const { user }    = useAuth()
   const { t, language } = useLanguage()
 
   const [open, setOpen]           = useState(false)
@@ -88,7 +88,7 @@ export default function NotificationBell() {
       socket.off('notification', handleNewNotification)
       if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
     }
-  }, [open, token])
+  }, [open, user])
 
   /* ── Fetch notifications when dropdown opens ── */
   const fetchNotifications = useCallback(async () => {

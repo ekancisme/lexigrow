@@ -71,7 +71,7 @@ const LEVEL_OPTIONS = [
 
 const PACE_OPTIONS = [
   {
-    id: 'steady',
+    id: 'standard',
     titleVi: 'Bền vững & Chắc chắn (60 - 90 ngày)',
     titleEn: 'Steady & Sustainable (60 - 90 Days)',
     badgeVi: 'Khuyên dùng',
@@ -114,7 +114,7 @@ export default function Onboarding() {
   const [selectedInterests, setSelectedInterests] = useState(
     user?.learningProfile?.interests?.length ? user.learningProfile.interests : ['daily-life', 'technology', 'career']
   )
-  const [selectedPace, setSelectedPace] = useState(user?.learningProfile?.pace || 'steady')
+  const [selectedPace, setSelectedPace] = useState(user?.learningProfile?.pace || 'standard')
   const [selectedMinutes, setSelectedMinutes] = useState(user?.learningProfile?.dailyGoalMinutes || 10)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -159,16 +159,14 @@ export default function Onboarding() {
           learningProfile: savedProfile
         })
       }
+      // Only navigate on success — never swallow API errors silently
+      navigate('/student/dashboard')
     } catch (err) {
-      console.warn('Could not save profile to server, continuing with local state', err)
-      if (updateUser) {
-        updateUser({
-          learningProfile: payload
-        })
-      }
+      console.error('Failed to save learning profile:', err)
+      const msg = err?.response?.data?.message || err?.message || 'Không thể lưu hồ sơ. Vui lòng thử lại.'
+      alert(msg)
     } finally {
       setIsSubmitting(false)
-      navigate('/student/dashboard')
     }
   }
 

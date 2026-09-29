@@ -457,12 +457,32 @@ export default function PricingPage() {
             <div>
               <strong>{t('pricing.currentPlanAlert', 'Your current plan')}: </strong>
               <span className="pricing__tier-tag">{currentTierInfo.tier.toUpperCase()}</span>
-              {currentTierInfo.source === 'teacher_sponsored' && (
-                <span> ({currentTierInfo.planName})</span>
+
+              {/* Sponsored by teacher */}
+              {currentTierInfo.source === 'teacher_sponsored' && currentTierInfo.sponsoredByTeacher?.name && (
+                <span className="pricing__plan-source">
+                  {' '}({t('pricing.sponsoredPlanDetail', 'Sponsored by Teacher {name} ({tier})', {
+                    name: currentTierInfo.sponsoredByTeacher.name,
+                    tier: currentTierInfo.tier.toUpperCase(),
+                  })})
+                </span>
               )}
+
+              {/* Personal subscription — show plan name if available */}
+              {currentTierInfo.source === 'personal_subscription' && currentTierInfo.planName && (
+                <span className="pricing__plan-source">
+                  {' '}({currentTierInfo.planName})
+                </span>
+              )}
+
+              {/* Expiry date */}
               {currentTierInfo.expiresAt && (
                 <span className="pricing__expire-text">
-                  {' '}— {new Date(currentTierInfo.expiresAt).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US')}
+                  {' '}—{' '}{t('pricing.expiresOn', 'Valid until')}{' '}
+                  {new Date(currentTierInfo.expiresAt).toLocaleDateString(
+                    language === 'vi' ? 'vi-VN' : 'en-US',
+                    { day: 'numeric', month: 'numeric', year: 'numeric' }
+                  )}
                 </span>
               )}
             </div>

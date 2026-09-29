@@ -69,8 +69,9 @@ export const createPayment = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Gói cước miễn phí không cần thanh toán.', 400)
   }
 
-  // PayOS orderCode must be a positive integer <= 9007199254740991
-  const orderCode = Math.floor(100000 + Math.random() * 900000) + Math.floor(Date.now() % 1000000)
+  // Generate a collision-safe orderCode: timestamp in ms (13 digits) is already within JS safe int range
+  // and unique enough without DB lookup for concurrent requests
+  const orderCode = Date.now() * 1000 + Math.floor(Math.random() * 1000)
 
   const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173'
   const returnUrl = `${clientUrl}/payment/success?orderCode=${orderCode}`
@@ -79,25 +80,7 @@ export const createPayment = asyncHandler(async (req, res) => {
   const cycleText = billingCycle === 'yearly' ? '1 Năm' : '1 Tháng'
   const description = `${plan.tier.toUpperCase()} ${cycleText}`.substring(0, 25)
 
-  // 1. Call PayOS API
-  const payosResponse = await createPayOSPaymentLink({
-    orderCode,
-    amount,
-    description,
-    buyerName: req.user.name,
-    buyerEmail: req.user.email,
-    returnUrl,
-    cancelUrl,
-    items: [
-      {
-        name: `${plan.name} (${cycleText})`,
-        quantity: 1,
-        price: amount,
-      },
-    ],
-  })
-
-  // 2. Save Transaction into DB
+  // 1. Save PENDING transaction first — if PayOS call fails, we clean up; never create orphan links
   const transaction = await PaymentTransaction.create({
     orderCode,
     user: req.user._id,
@@ -109,9 +92,43 @@ export const createPayment = asyncHandler(async (req, res) => {
     billingCycle,
     amount,
     status: 'PENDING',
-    payosPaymentLinkId: payosResponse.paymentLinkId || '',
-    checkoutUrl: payosResponse.checkoutUrl,
-    qrCode: payosResponse.qrCode,
+    payosPaymentLinkId: '',
+    checkoutUrl: '',
+    qrCode: '',
+  })
+
+  let payosResponse
+  try {
+    // 2. Call PayOS API after DB record exists
+    payosResponse = await createPayOSPaymentLink({
+      orderCode,
+      amount,
+      description,
+      buyerName: req.user.name,
+      buyerEmail: req.user.email,
+      returnUrl,
+      cancelUrl,
+      items: [
+        {
+          name: `${plan.name} (${cycleText})`,
+          quantity: 1,
+          price: amount,
+        },
+      ],
+    })
+  } catch (payosErr) {
+    // PayOS failed — remove the PENDING record to avoid orphan transactions
+    await PaymentTransaction.deleteOne({ _id: transaction._id })
+    throw new ErrorResponse(`PayOS error: ${payosErr.message}`, 502)
+  }
+
+  // 3. Update transaction with PayOS link details
+  await PaymentTransaction.findByIdAndUpdate(transaction._id, {
+    $set: {
+      payosPaymentLinkId: payosResponse.paymentLinkId || '',
+      checkoutUrl: payosResponse.checkoutUrl,
+      qrCode: payosResponse.qrCode,
+    },
   })
 
   await logAction(req.user._id, 'CREATE_PAYMENT_LINK', 'PaymentTransaction', transaction._id, {
@@ -164,8 +181,18 @@ export const payosWebhook = asyncHandler(async (req, res) => {
 
     // Idempotency fast-path: already paid (e.g. PayOS retry) -> ack and stop.
     const existing = await PaymentTransaction.findOne({ orderCode: orderCodeNum })
-    if (!existing || existing.status === 'PAID') {
+    if (!existing) {
+      console.warn(`⚠️  Webhook for unknown orderCode ${orderCodeNum}`)
+      return res.status(200).json({ success: true, message: 'Unknown order, ignored' })
+    }
+    if (existing.status === 'PAID') {
       return res.status(200).json({ success: true, message: 'Already processed' })
+    }
+
+    // Amount invariant — reject if webhook amount differs from what we stored
+    if (verifiedData.amount !== undefined && Number(verifiedData.amount) !== existing.amount) {
+      console.error(`❌ Webhook amount mismatch for order ${orderCodeNum}: expected ${existing.amount}, got ${verifiedData.amount}`)
+      return res.status(400).json({ success: false, message: 'Amount mismatch' })
     }
 
     const plan = await SubscriptionPlan.findById(existing.plan)

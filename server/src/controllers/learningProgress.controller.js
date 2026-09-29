@@ -51,23 +51,63 @@ export const gardenStage = (count) =>
         ? 'leafy'
         : 'blooming'
 export const getGardenStatus = asyncHandler(async (req, res) => {
-  const [mastered, themes] = await Promise.all([
+  const [mastered, sessions] = await Promise.all([
     WordUsageEvidence.aggregate(masteredPipeline(req.user._id)),
-    LearningSession.distinct('theme', { student: req.user._id }),
+    LearningSession.find({ student: req.user._id })
+      .select('theme targetWords')
+      .lean(),
   ])
-  const counts = new Map(themes.filter(Boolean).map((t) => [t, 0]))
+  const totals = new Map()
+  for (const session of sessions) {
+    if (!session.theme) continue
+    const words = Array.isArray(session.targetWords) ? session.targetWords : []
+    const total = words.reduce((set, item) => {
+      const word = typeof item === 'string' ? item : item?.word
+      if (word) set.add(String(word).toLowerCase())
+      return set
+    }, new Set()).size
+    totals.set(session.theme, Math.max(totals.get(session.theme) || 0, total))
+  }
+  for (const word of mastered) {
+    for (const theme of word.themes.filter(Boolean)) {
+      totals.set(theme, totals.get(theme) || 0)
+    }
+  }
+  const masteredByTheme = new Map()
   for (const word of mastered)
     for (const theme of word.themes.filter(Boolean))
-      counts.set(theme, (counts.get(theme) || 0) + 1)
+      masteredByTheme.set(theme, (masteredByTheme.get(theme) || 0) + 1)
   res.json({
     success: true,
-    data: [...counts]
+    data: [...totals]
       .sort(([a], [b]) => a.localeCompare(b))
-      .map(([theme, masteredCount]) => ({
-        theme,
-        masteredCount,
-        stage: gardenStage(masteredCount),
-      })),
+      .map(([theme, totalCount]) => {
+        const masteredCount = masteredByTheme.get(theme) || 0
+        return {
+          theme,
+          totalCount,
+          masteredCount,
+          stage: gardenStage(masteredCount),
+        }
+      }),
+  })
+})
+// Watering is a gamified action only: it never writes Vocabulary.masteryLevel.
+// masteredCount is always derived from WordUsageEvidence via masteredPipeline,
+// so this endpoint re-reads that state instead of creating fake mastery.
+export const waterGarden = asyncHandler(async (req, res) => {
+  const theme = text(req.body.theme || req.body.slug, 'theme', 100)
+  const student = req.user._id
+  const themes = await LearningSession.distinct('theme', { student })
+  if (!themes.filter(Boolean).includes(theme))
+    fail('Topic not found in your garden', 404)
+  const mastered = await WordUsageEvidence.aggregate(masteredPipeline(student))
+  let masteredCount = 0
+  for (const word of mastered)
+    if (word.themes.filter(Boolean).includes(theme)) masteredCount += 1
+  res.json({
+    success: true,
+    data: { theme, masteredCount, stage: gardenStage(masteredCount), watered: true },
   })
 })
 export const getLexicalErrors = asyncHandler(async (req, res) => {

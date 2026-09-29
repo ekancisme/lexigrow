@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
-import GrowthGarden from './GrowthGarden'
+import GrowthGardenWidget from '../../components/student/GrowthGardenWidget.jsx'
 import './MyProgress.css'
 
 export default function MyProgress() {
@@ -9,8 +9,8 @@ export default function MyProgress() {
   const [activeTab, setActiveTab] = useState('overview') // 'overview' | 'garden' | 'evidence'
   const [overview, setOverview] = useState(null)
   const [categories, setCategories] = useState([])
-  const [milestones, setMilestones] = useState([])
-  const [growthData, setGrowthData] = useState([])
+  const [, setMilestones] = useState([])
+  const [, setGrowthData] = useState([])
   const [activeVocabStats, setActiveVocabStats] = useState({
     savedCount: 0,
     retainedCount: 0,
@@ -214,7 +214,7 @@ export default function MyProgress() {
 
       {/* TAB 2: GROWTH GARDEN */}
       {activeTab === 'garden' && (
-        <GrowthGarden />
+        <GrowthGardenWidget />
       )}
 
       {/* TAB 3: VERIFIED EVIDENCE WALL */}

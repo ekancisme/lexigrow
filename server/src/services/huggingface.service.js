@@ -112,7 +112,7 @@ const runLocalAIHeuristics = (text) => {
  * @returns {Promise<{isAI: boolean, score: number}>}
  */
 export const detectAIWriting = async (text) => {
-  let token = ''
+  let token
   try {
     const config = await Config.findOne({ key: 'HF_API_TOKEN' })
     token = config ? config.value : (globalThis.process.env.HF_API_TOKEN || '')
@@ -121,8 +121,9 @@ export const detectAIWriting = async (text) => {
     token = globalThis.process.env.HF_API_TOKEN || ''
   }
 
-  console.log('[AI Detection Debug] Read HF_API_TOKEN:', token ? `${token.substring(0, 6)}... (len: ${token.length})` : 'undefined/null');
-  
+  // Never log the token (or its prefix) — presence only.
+  console.log('[AI Detection Debug] HF_API_TOKEN:', token ? 'configured' : 'undefined/null');
+
   if (!token || token.startsWith('your_hf_token') || token.trim() === '') {
     console.log('[AI Detection] No Hugging Face token found. Using local heuristic fallback.')
     return runLocalAIHeuristics(text)

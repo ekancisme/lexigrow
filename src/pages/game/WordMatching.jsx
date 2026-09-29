@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
@@ -31,12 +31,33 @@ export default function WordMatching() {
   const [streak, setStreak] = useState(0)
   const [timer, setTimer] = useState(0)
   const timerInterval = useRef(null)
+  const audioCtxRef = useRef(null)
+  const timeoutRefs = useRef([])
+
+  // Cleanup on unmount: clear timer, pending timeouts, close AudioContext
+  useEffect(() => {
+    return () => {
+      if (timerInterval.current) clearInterval(timerInterval.current)
+      timeoutRefs.current.forEach(id => clearTimeout(id))
+      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
+        audioCtxRef.current.close()
+      }
+    }
+  }, [])
 
   const playSound = (type) => {
     try {
-      const AudioContext = window.AudioContext || window.webkitAudioContext
-      if (!AudioContext) return
-      const ctx = new AudioContext()
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext
+      if (!AudioContextClass) return
+
+      // Reuse singleton AudioContext — creating a new one per call leaks resources
+      if (!audioCtxRef.current || audioCtxRef.current.state === 'closed') {
+        audioCtxRef.current = new AudioContextClass()
+      }
+      const ctx = audioCtxRef.current
+      // Resume if suspended (browser autoplay policy)
+      if (ctx.state === 'suspended') ctx.resume()
+
       const osc = ctx.createOscillator()
       const gain = ctx.createGain()
       osc.connect(gain)
@@ -139,13 +160,15 @@ export default function WordMatching() {
         if (nextMatched.length === pairCount) {
           confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } })
           if (timerInterval.current) clearInterval(timerInterval.current)
-          setTimeout(() => setGameState('victory'), 600)
+          const t1 = setTimeout(() => setGameState('victory'), 600)
+          timeoutRefs.current.push(t1)
         }
       } else {
         // MISMATCH
         playSound('mismatch')
         setStreak(0)
-        setTimeout(() => setFlippedIndices([]), 900)
+        const t2 = setTimeout(() => setFlippedIndices([]), 900)
+        timeoutRefs.current.push(t2)
       }
     }
   }

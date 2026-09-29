@@ -18,6 +18,7 @@ export default function AIFeedbackReview() {
   const [copied, setCopied] = useState(false)
   const [addedWords, setAddedWords] = useState({})
   const [copiedSynonym, setCopiedSynonym] = useState('')
+  const [teacherFeedback, setTeacherFeedback] = useState(null)
 
   // Portal states when no id is present in URL
   const [essayList, setEssayList] = useState([])
@@ -77,6 +78,9 @@ export default function AIFeedbackReview() {
       return
     }
 
+    // Switching essays must not keep the previous essay's teacher feedback
+    setTeacherFeedback(null)
+
     let intervalId = null
 
     async function fetchAnalysis() {
@@ -95,14 +99,14 @@ export default function AIFeedbackReview() {
               if (fbRes.data) {
                 setTeacherFeedback(fbRes.data)
               }
-            } catch (fbErr) {
-              // ignore if no teacher feedback yet
+            } catch {
+              // Teacher feedback is optional and may not exist yet.
             }
 
             setLoading(false)
             if (intervalId) clearInterval(intervalId)
           }
-        } catch (analysisErr) {
+        } catch {
           // AI analysis is still generating in background
           setLoading(true)
         }
@@ -515,6 +519,61 @@ export default function AIFeedbackReview() {
                 </div>
               )) || <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>No suggestions generated.</p>}
             </div>
+          </div>
+
+          {/* Teacher's Manual Written Feedback */}
+          <div className="card-base">
+            <h3 className="text-title-lg" style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>grading</span>
+              Teacher Feedback
+            </h3>
+            {teacherFeedback ? (
+              <div style={{ textAlign: 'left' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
+                  <span className="text-body-md" style={{ fontWeight: 600 }}>
+                    {teacherFeedback.teacher?.name || 'Your teacher'}
+                  </span>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <span style={{
+                      fontSize: '11px', fontWeight: 'bold', padding: '2px 8px', borderRadius: 12, textTransform: 'uppercase',
+                      backgroundColor: teacherFeedback.status === 'submitted' ? 'rgba(52, 168, 83, 0.1)' : 'rgba(249, 171, 0, 0.1)',
+                      color: teacherFeedback.status === 'submitted' ? 'var(--color-success, #34a853)' : '#f9ab00'
+                    }}>
+                      {teacherFeedback.status}
+                    </span>
+                    {teacherFeedback.submittedAt && (
+                      <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>
+                        {new Date(teacherFeedback.submittedAt).toLocaleDateString()}
+                      </span>
+                    )}
+                  </div>
+                </div>
+                {teacherFeedback.scores && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 12, marginBottom: 16 }}>
+                    {[
+                      ['Grammar', teacherFeedback.scores.grammar],
+                      ['Vocabulary', teacherFeedback.scores.vocabulary],
+                      ['Coherence', teacherFeedback.scores.coherence],
+                      ['Complexity', teacherFeedback.scores.complexity],
+                    ].map(([label, score]) => (
+                      <div key={label} style={{ padding: '10px 12px', borderRadius: 12, backgroundColor: 'var(--color-surface-container-low)', textAlign: 'center' }}>
+                        <div className="text-data-mono" style={{ fontWeight: 700 }}>{score ?? '-'}/10</div>
+                        <div className="text-label-sm" style={{ color: 'var(--color-outline)' }}>{label}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {teacherFeedback.feedbackText ? (
+                  <p className="text-body-md" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>{teacherFeedback.feedbackText}</p>
+                ) : (
+                  <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>No written comments yet.</p>
+                )}
+              </div>
+            ) : (
+              <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>
+                Teacher feedback is not available yet.
+              </p>
+            )}
           </div>
 
 

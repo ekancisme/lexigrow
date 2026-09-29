@@ -185,6 +185,10 @@
     "popular": "Phổ biến nhất",
     "bestValueBadge": "Đỉnh cao AI",
     "currentPlanAlert": "Gói hiện tại của bạn",
+    "sponsoredByTeacher": "Được bảo trợ bởi Giáo viên",
+    "sponsoredPlanDetail": "Được GV {name} bảo trợ ({tier})",
+    "personalPlan": "Đăng ký cá nhân",
+    "expiresOn": "Có hiệu lực đến",
     "loginPrompt": "Vui lòng đăng nhập để nâng cấp gói cước học tập.",
     "checkoutError": "Không nhận được liên kết thanh toán từ PayOS. Vui lòng thử lại."
   },

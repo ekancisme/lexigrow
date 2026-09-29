@@ -104,7 +104,7 @@ export default function ClassLeaderboard({ classId }) {
             if (is3rd) iconClass += ' class-leaderboard__podium-icon--3rd'
 
             return (
-              <div key={student.studentId} className={cardClass}>
+              <div key={student.studentId || student.rank || student.anonymousNickname} className={cardClass}>
                 <div className={badgeClass}>
                   {student.rank}
                 </div>
@@ -144,7 +144,7 @@ export default function ClassLeaderboard({ classId }) {
             <tbody>
               {others.map((student) => (
                 <tr
-                  key={student.studentId}
+                  key={student.studentId || student.rank || student.anonymousNickname}
                   className={student.isCurrentUser ? 'class-leaderboard__row--current' : ''}
                 >
                   <td style={{ fontWeight: 700, paddingLeft: '24px' }}>#{student.rank}</td>

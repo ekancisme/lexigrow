@@ -4,80 +4,26 @@ import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import gsap from 'gsap'
 import { useSound } from '../../hooks/useSound.jsx'
-import './GrowthGarden.css'
-import QuestGardenCard from '../game/QuestGardenCard.jsx'
-import Mascot from '../../components/common/Mascot.jsx'
+import '../../pages/student/GrowthGarden.css'
+import QuestGardenCard from '../../pages/game/QuestGardenCard.jsx'
+import Mascot from '../common/Mascot.jsx'
 
-const initialGardenData = [
-  {
-    topic: 'Daily Life',
-    slug: 'daily-life',
-    level: 'A2',
-    icon: 'wb_sunny',
-    masteredCount: 3,
-    totalCount: 3,
-    stage: 'blooming', // 'seed' | 'sprout' | 'branch' | 'blooming'
-    words: [
-      { word: 'routine', status: 'mastered', evidence: 'I try to stick to my daily routine even on weekends.' },
-      { word: 'commute', status: 'mastered', evidence: 'It takes me 30 minutes to commute to work by bus.' },
-      { word: 'grocery', status: 'mastered', evidence: 'We do our grocery shopping every Sunday afternoon.' }
-    ]
-  },
-  {
-    topic: 'Travel & Discovery',
-    slug: 'travel',
-    level: 'B1',
-    icon: 'flight_takeoff',
-    masteredCount: 2,
-    totalCount: 3,
-    stage: 'branch',
-    words: [
-      { word: 'itinerary', status: 'mastered', evidence: 'Our travel itinerary includes visiting historical museums.' },
-      { word: 'accommodation', status: 'mastered', evidence: 'We booked our accommodation near the city center.' },
-      { word: 'landmark', status: 'learning', evidence: null }
-    ]
-  },
-  {
-    topic: 'Hobbies & Art',
-    slug: 'hobbies',
-    level: 'B1',
-    icon: 'palette',
-    masteredCount: 1,
-    totalCount: 3,
-    stage: 'sprout',
-    words: [
-      { word: 'photography', status: 'mastered', evidence: 'Photography allows me to capture nature.' },
-      { word: 'gardening', status: 'learning', evidence: null },
-      { word: 'cooking', status: 'learning', evidence: null }
-    ]
-  },
-  {
-    topic: 'Technology & AI',
-    slug: 'technology',
-    level: 'B2',
-    icon: 'smart_toy',
-    masteredCount: 0,
-    totalCount: 3,
-    stage: 'seed',
-    words: [
-      { word: 'algorithm', status: 'seed', evidence: null },
-      { word: 'automation', status: 'seed', evidence: null },
-      { word: 'breakthrough', status: 'seed', evidence: null }
-    ]
-  }
-]
-
-export default function GrowthGarden() {
+export default function GrowthGardenWidget() {
   const navigate = useNavigate()
   const { t } = useLanguage()
-  const [gardenTopics, setGardenTopics] = useState(initialGardenData)
-  const [selectedTopic, setSelectedTopic] = useState(initialGardenData[0])
-  const [loading, setLoading] = useState(false)
+  const [gardenTopics, setGardenTopics] = useState([])
+  const [selectedTopic, setSelectedTopic] = useState(null)
   const [watering, setWatering] = useState({})
   const plantRefs = useRef({})
   const dropRefs = useRef({})
   const { play: playWater } = useSound('/sounds/water_drop.mp3', { volume: 0.3 })
   const { play: playGrow } = useSound('/sounds/plant_grow.mp3', { volume: 0.4 })
+
+  // Normalize stage name from server: 'leafy' → 'branch' for visual compat
+  const normalizeStage = (stage) => {
+    if (stage === 'leafy') return 'branch'
+    return stage || 'seed'
+  }
 
   const handleWater = useCallback(async (slug) => {
     if (watering[slug]) return
@@ -117,59 +63,69 @@ export default function GrowthGarden() {
       )
     }
 
-    // Wait for animation then update state
+    // Wait for animation then call API
     await new Promise(resolve => setTimeout(resolve, 600))
 
-    // Update the topic's masteredCount
-    const updatedTopics = gardenTopics.map((t, idx) => {
-      if (idx === topicIndex) {
-        const newCount = Math.min(t.masteredCount + 1, t.totalCount)
-        const newStage = newCount >= t.totalCount ? 'blooming' :
-                         newCount >= 2 ? 'branch' :
-                         newCount >= 1 ? 'sprout' : 'seed'
-        return { ...t, masteredCount: newCount, stage: newStage }
+    try {
+      // Call real water API — server tracks mastery
+      const res = await api.post('/garden/water', { slug })
+      const serverData = res?.data
+
+      // Recompute stage from server response or derive locally
+      const newCount = serverData?.masteredCount !== undefined
+        ? serverData.masteredCount
+        : Math.min(topic.masteredCount + 1, topic.totalCount)
+      const rawStage = serverData?.stage
+        || (newCount >= topic.totalCount ? 'blooming' : newCount >= 2 ? 'branch' : newCount >= 1 ? 'sprout' : 'seed')
+      const newStage = normalizeStage(rawStage)
+
+      const updatedTopics = gardenTopics.map((t, idx) => {
+        if (idx === topicIndex) {
+          return { ...t, masteredCount: newCount, stage: newStage }
+        }
+        return t
+      })
+      setGardenTopics(updatedTopics)
+
+      // Update selected topic if it's the same
+      if (selectedTopic?.slug === slug) {
+        const updated = updatedTopics.find(t => t.slug === slug)
+        setSelectedTopic(updated)
       }
-      return t
-    })
-    setGardenTopics(updatedTopics)
 
-    // Update selected topic if it's the same
-    if (selectedTopic?.slug === slug) {
-      const updated = updatedTopics.find(t => t.slug === slug)
-      setSelectedTopic(updated)
+      playGrow()
+    } catch (err) {
+      console.error('Failed to water plant:', err)
+      // Revert watering indicator but do NOT update state optimistically
+    } finally {
+      setWatering(prev => ({ ...prev, [slug]: false }))
     }
-
-    playGrow()
-    setWatering(prev => ({ ...prev, [slug]: false }))
   }, [gardenTopics, selectedTopic, watering, playWater, playGrow])
 
   useEffect(() => {
     async function loadGarden() {
       try {
-        setLoading(true)
         const res = await api.get('/garden/status')
         if (res.data && Array.isArray(res.data) && res.data.length > 0) {
-          const merged = initialGardenData.map(topic => {
-            const serverItem = res.data.find(d => 
-              (d.theme || d.topic)?.toLowerCase() === topic.topic.toLowerCase() || 
-              (d.theme || d.topic)?.toLowerCase() === topic.slug.toLowerCase()
-            )
-            if (serverItem) {
-              return {
-                ...topic,
-                masteredCount: serverItem.masteredCount !== undefined ? serverItem.masteredCount : topic.masteredCount,
-                stage: serverItem.stage || (serverItem.masteredCount >= 3 ? 'blooming' : serverItem.masteredCount >= 2 ? 'branch' : serverItem.masteredCount >= 1 ? 'sprout' : 'seed')
-              }
-            }
-            return topic
-          })
-          setGardenTopics(merged)
-          setSelectedTopic(merged[0])
+          const normalized = res.data.map(item => ({
+            ...item,
+            // The status endpoint keys topics by `theme`; map the display
+            // fields the grid expects so watering and rendering work.
+            slug: item.slug || item.theme,
+            topic: item.topic || item.theme,
+            icon: item.icon || 'eco',
+            totalCount: item.totalCount ?? 0,
+            stage: normalizeStage(item.stage),
+          }))
+          setGardenTopics(normalized)
+          setSelectedTopic(normalized[0])
+        } else {
+          setGardenTopics([])
+          setSelectedTopic(null)
         }
       } catch {
-        // Fallback to initial rich dataset
-      } finally {
-        setLoading(false)
+        setGardenTopics([])
+        setSelectedTopic(null)
       }
     }
     loadGarden()

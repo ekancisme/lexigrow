@@ -581,6 +581,8 @@ export const getClassLeaderboard = asyncHandler(async (req, res) => {
     return nickname
   }
 
+  const isStudentViewer = req.user.role === 'student'
+
   const leaderboard = await Promise.all(cls.students.map(async (student) => {
     // 1. Generate nickname
     const anonName = await generateUniqueNickname(student)
@@ -598,12 +600,14 @@ export const getClassLeaderboard = asyncHandler(async (req, res) => {
       createdAt: { $gte: oneWeekAgo }
     })
 
+    const isCurrent = student._id.toString() === req.user._id.toString()
+
     return {
-      studentId: student._id,
+      ...(isStudentViewer ? {} : { studentId: student._id }),
       anonymousNickname: anonName,
       essaysCompleted: essayCount,
       vocabAccumulated: vocabCount,
-      isCurrentUser: student._id.toString() === req.user._id.toString()
+      isCurrentUser: isCurrent
     }
   }))
 

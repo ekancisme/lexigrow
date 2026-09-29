@@ -11,7 +11,7 @@ import sendEmail from '../utils/sendEmail.js'
  */
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRE || '7d',
+    expiresIn: process.env.JWT_EXPIRE || '24h',
   })
 }
 
@@ -21,17 +21,29 @@ const generateToken = (id) => {
 const sendTokenResponse = async (user, statusCode, res) => {
   const token = generateToken(user._id)
 
-  if (user.role === 'parent') {
+  if (user.role === 'parent' && typeof user.populate === 'function') {
     await user.populate('children', 'name email avatar englishLevel')
   }
 
-  // Remove password from output
-  const userData = user.toObject()
+  // Remove password and sensitive reset fields from output
+  const userData = user.toObject ? user.toObject() : { ...user }
   delete userData.password
+  delete userData.resetPasswordCode
+  delete userData.resetPasswordExpire
+
+  const cookieOptions = {
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+    path: '/',
+  }
+  if (typeof res.cookie === 'function') {
+    res.cookie('token', token, cookieOptions)
+  }
 
   res.status(statusCode).json({
     success: true,
-    token,
     user: userData,
   })
 }
@@ -103,18 +115,10 @@ export const register = asyncHandler(async (req, res) => {
     })
   } catch (err) {
     console.error('Lỗi gửi email xác thực:', err.message)
-    if (process.env.NODE_ENV === 'production' && process.env.ENABLE_DEV_OTP !== 'true') {
-      await PendingUser.deleteOne({ _id: pendingUser._id })
-      return res.status(503).json({
-        success: false,
-        message: 'Không thể gửi email xác thực. Vui lòng thử lại sau.',
-      })
-    }
-    res.status(201).json({
-      success: true,
-      message: 'Đăng ký thành công. Lỗi gửi email, sử dụng mã xác thực kiểm thử.',
-      email: pendingUser.email,
-      devCode: verificationCode, // Fallback for local testing only
+    await PendingUser.deleteOne({ _id: pendingUser._id })
+    return res.status(503).json({
+      success: false,
+      message: 'Không thể gửi email xác thực. Vui lòng thử lại sau.',
     })
   }
 })
@@ -168,14 +172,22 @@ export const login = asyncHandler(async (req, res) => {
  * @access  Private
  */
 export const getMe = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id)
-  if (user && user.role === 'parent') {
+  const query = User.findById(req.user._id)
+  const user = await (typeof query?.select === 'function' ? query.select('-resetPasswordCode -resetPasswordExpire') : query)
+  if (user && user.role === 'parent' && typeof user.populate === 'function') {
     await user.populate('children', 'name email avatar englishLevel')
+  }
+
+  const userData = user ? (user.toObject ? user.toObject() : { ...user }) : null
+  if (userData) {
+    delete userData.password
+    delete userData.resetPasswordCode
+    delete userData.resetPasswordExpire
   }
 
   res.status(200).json({
     success: true,
-    user,
+    user: userData,
   })
 })
 
@@ -336,11 +348,14 @@ export const resetPassword = asyncHandler(async (req, res) => {
     throw new ErrorResponse('Please provide email, verification code, and new password', 400)
   }
 
-  const user = await User.findOne({
+  const query = User.findOne({
     email,
     resetPasswordCode: code,
     resetPasswordExpire: { $gt: Date.now() },
   })
+  const user = await (typeof query?.select === 'function'
+    ? query.select('+password +resetPasswordCode +resetPasswordExpire')
+    : query)
 
   if (!user) {
     throw new ErrorResponse('Invalid or expired verification code', 400)
@@ -515,18 +530,33 @@ export const resendVerification = asyncHandler(async (req, res) => {
     })
   } catch (err) {
     console.error('Lỗi gửi lại email xác thực:', err.message)
-    if (process.env.NODE_ENV === 'production' && process.env.ENABLE_DEV_OTP !== 'true') {
-      return res.status(503).json({
-        success: false,
-        message: 'Không thể gửi email xác thực. Vui lòng thử lại sau.',
-      })
-    }
-    res.status(200).json({
-      success: true,
-      message: 'Gửi lại mã thành công. Sử dụng mã xác thực kiểm thử.',
-      devCode: verificationCode
+    return res.status(503).json({
+      success: false,
+      message: 'Không thể gửi email xác thực. Vui lòng thử lại sau.',
     })
   }
+})
+
+/**
+ * @desc    Log user out / clear cookie
+ * @route   POST /api/auth/logout
+ * @access  Public
+ */
+export const logout = asyncHandler(async (req, res) => {
+  if (typeof res.cookie === 'function') {
+    res.cookie('token', 'none', {
+      expires: new Date(Date.now() + 5 * 1000),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'strict' : 'lax',
+      path: '/',
+    })
+  }
+  res.status(200).json({
+    success: true,
+    message: 'User logged out successfully',
+    data: {},
+  })
 })
 
 

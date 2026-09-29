@@ -1,4 +1,3 @@
-/* global process */
 import { spawn } from 'child_process'
 import path from 'path'
 import { fileURLToPath } from 'url'

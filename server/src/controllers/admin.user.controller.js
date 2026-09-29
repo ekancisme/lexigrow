@@ -1,5 +1,4 @@
 import User from '../models/User.js'
-import bcrypt from 'bcryptjs'
 import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import sendEmail from '../utils/sendEmail.js'

@@ -3,6 +3,7 @@ import Essay from '../models/Essay.js'
 import AIAnalysis from '../models/AIAnalysis.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
+import { canAccessEssay } from '../utils/essayAccess.js'
 
 /**
  * Helper: compute overall score from teacher's 4 manual scores (each 1-10).
@@ -174,7 +175,13 @@ export const submitFeedback = asyncHandler(async (req, res) => {
  * @access  Private
  */
 export const getFeedbackByEssay = asyncHandler(async (req, res) => {
-  const feedback = await ManualFeedback.findOne({ essay: req.params.essayId })
+  const essay = await Essay.findById(req.params.essayId).select('student')
+  if (!essay || !(await canAccessEssay(req.user, essay))) {
+    // Do not reveal whether an inaccessible essay or its feedback exists.
+    throw new ErrorResponse('Essay not found', 404)
+  }
+
+  const feedback = await ManualFeedback.findOne({ essay: essay._id })
     .populate('teacher', 'name')
 
   if (!feedback) {

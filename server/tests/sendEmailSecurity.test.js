@@ -19,4 +19,19 @@ describe('Mail transport safety after dependency update', () => {
     })
     expect(sendMail.mock.calls[0][0]).not.toHaveProperty('raw')
   })
+
+  it('uses LexiGrow branding when SMTP_FROM is not configured', async () => {
+    delete process.env.SMTP_FROM
+    process.env.SMTP_USER = 'noreply@example.test'
+    const sendMail = vi.fn().mockResolvedValue({ messageId: 'branding-test' })
+    nodemailer.createTransport.mockReturnValue({ sendMail })
+
+    await sendEmail({
+      email: 'student@example.test',
+      subject: 'Feedback',
+      message: 'Your feedback is ready',
+    })
+
+    expect(sendMail.mock.calls[0][0].from).toBe('"LexiGrow" <noreply@example.test>')
+  })
 })

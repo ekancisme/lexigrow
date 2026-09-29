@@ -13,7 +13,9 @@ if (!process.env.JWT_SECRET) {
 export const protect = asyncHandler(async (req, res, next) => {
   let token
 
-  if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+  if (req.cookies?.token && req.cookies.token !== 'none') {
+    token = req.cookies.token
+  } else if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1]
   }
 

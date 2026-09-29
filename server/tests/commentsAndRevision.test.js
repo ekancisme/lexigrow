@@ -23,16 +23,15 @@ vi.mock('../src/models/Essay.js', () => ({
   }
 }))
 
+vi.mock('../src/utils/essayAccess.js', () => ({
+  canAccessEssay: vi.fn().mockResolvedValue(true),
+  essayVisibilityFilter: vi.fn().mockResolvedValue({}),
+}))
+
 vi.mock('../src/models/Config.js', () => ({
   default: {
     findOne: vi.fn(),
   }
-}))
-
-// LG-05: request-revision now enforces object-level authorization; the teacher
-// must own an active class containing the essay's student.
-vi.mock('../src/models/Class.js', () => ({
-  default: { exists: vi.fn().mockResolvedValue(true) }
 }))
 
 vi.mock('../src/models/Comment.js', () => {
@@ -87,6 +86,7 @@ import app from '../src/index.js'
 import Essay from '../src/models/Essay.js'
 import Comment from '../src/models/Comment.js'
 import Config from '../src/models/Config.js'
+import { canAccessEssay } from '../src/utils/essayAccess.js'
 
 describe('Comments & Revision API', () => {
   it('should successfully transition an essay status to needs_revision', async () => {
@@ -94,7 +94,6 @@ describe('Comments & Revision API', () => {
     Essay.findById.mockResolvedValue({
       _id: 'mock_essay_id',
       title: 'Mock Essay Title',
-      student: 'mock_student_id',
       status: 'reviewed',
       save: saveMock
     })
@@ -146,6 +145,37 @@ describe('Comments & Revision API', () => {
 
     expect(res.body.success).toBe(true)
     expect(res.body.data.content).toBe('Mock discussion message content')
+  })
+
+  it('should deny GET comments when user is not authorized to access essay', async () => {
+    Essay.findById.mockResolvedValue({
+      _id: 'unauthorized_essay_id',
+      student: 'other_student_id'
+    })
+    canAccessEssay.mockResolvedValueOnce(false)
+
+    const res = await request(app)
+      .get('/api/comments/essay/unauthorized_essay_id')
+      .expect(403)
+
+    expect(res.body.success).toBe(false)
+    expect(res.body.message).toBe('Access denied')
+  })
+
+  it('should deny POST comment when user is not authorized to access essay', async () => {
+    Essay.findById.mockResolvedValue({
+      _id: 'unauthorized_essay_id',
+      student: 'other_student_id'
+    })
+    canAccessEssay.mockResolvedValueOnce(false)
+
+    const res = await request(app)
+      .post('/api/comments/essay/unauthorized_essay_id')
+      .send({ content: 'Unauthorized comment attempt' })
+      .expect(403)
+
+    expect(res.body.success).toBe(false)
+    expect(res.body.message).toBe('Access denied')
   })
 
   describe('GET /api/essays/paste-config', () => {

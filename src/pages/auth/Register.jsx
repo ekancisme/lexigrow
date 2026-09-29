@@ -14,7 +14,6 @@ export default function Register() {
   // Verification states
   const [verificationEmail, setVerificationEmail] = useState('')
   const [verificationCode, setVerificationCode] = useState('')
-  const [devCode, setDevCode] = useState('')
   const [isVerifying, setIsVerifying] = useState(false)
 
   const { register, verifyEmail, loading, loginWithGoogle } = useAuth()
@@ -39,9 +38,6 @@ export default function Register() {
       const res = await register(formData)
       setVerificationEmail(formData.email)
       setSuccessMessage(res.message || 'A verification code has been sent to your email.')
-      if (res.devCode) {
-        setDevCode(res.devCode)
-      }
     } catch (err) {
       setError(err.message || 'Registration failed. Please try again.')
     }
@@ -86,9 +82,6 @@ export default function Register() {
     try {
       const res = await api.post('/auth/resend-verify', { email: verificationEmail })
       setSuccessMessage(res.message || 'Verification code resent!')
-      if (res.devCode) {
-        setDevCode(res.devCode)
-      }
     } catch (err) {
       setError(err.message || 'Unable to resend verification code.')
     }
@@ -190,11 +183,6 @@ export default function Register() {
           {verificationEmail ? (
             /* VERIFICATION FORM STEP */
             <form onSubmit={handleVerifySubmit} className="register__form">
-              {devCode && (
-                <div style={{ background: 'rgba(251, 188, 5, 0.1)', color: '#b06000', padding: '12px 16px', borderRadius: 12, marginBottom: 16, fontSize: 13, border: '1px solid rgba(251, 188, 5, 0.25)', fontWeight: 'bold', textAlign: 'center' }}>
-                  Dev Testing: Enter code <span>{devCode}</span> for quick activation.
-                </div>
-              )}
 
               <div className="register__field">
                 <label className="register__label text-label-md">Verification Code</label>

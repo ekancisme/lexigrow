@@ -94,7 +94,9 @@ describe('Parent authentication', () => {
       .expect(200)
 
     expect(response.body.pendingApproval).toBeUndefined()
-    expect(response.body.token).toBeTruthy()
+    const setCookie = response.headers['set-cookie']
+    expect(setCookie).toBeDefined()
+    expect(setCookie.some(c => c.startsWith('token='))).toBe(true)
     expect(response.body.user.role).toBe('parent')
     expect(response.body.user.accountStatus).toBe('active')
   })

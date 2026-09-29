@@ -7,16 +7,15 @@ let socket = null
  * @param {string} token - JWT Auth token
  * @returns {Object} The socket client instance
  */
-export const connectSocket = (token) => {
+export const connectSocket = () => {
   if (socket) {
     socket.disconnect()
   }
 
   // Uses default origin as we proxied /socket.io in Vite
+  // withCredentials: true ensures HttpOnly cookies are passed in WebSocket handshake
   socket = io({
-    auth: {
-      token: token || localStorage.getItem('lexigrow_token')
-    },
+    withCredentials: true,
     autoConnect: true,
     reconnection: true,
     reconnectionAttempts: 5,

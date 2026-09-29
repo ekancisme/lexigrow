@@ -45,7 +45,7 @@ export default function VocabHunter() {
 
   // Refs for high-performance 60FPS animation loop
   const animFrameRef = useRef(null)
-  const lastTimeRef = useRef(performance.now())
+  const lastTimeRef = useRef(null)
   const bubblesRef = useRef([])
   const speedRef = useRef(15) // % height per second
   const livesRef = useRef(3)
@@ -207,9 +207,10 @@ export default function VocabHunter() {
       return
     }
 
-    lastTimeRef.current = performance.now()
+    lastTimeRef.current = null
 
     const loop = (timestamp) => {
+      if (lastTimeRef.current === null) lastTimeRef.current = timestamp
       const dt = Math.min((timestamp - lastTimeRef.current) / 1000, 0.1) // limit max step
       lastTimeRef.current = timestamp
 

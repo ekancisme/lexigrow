@@ -29,7 +29,7 @@ import StudentClassDetail from './pages/student/StudentClassDetail'
 import Explore from './pages/student/Explore'
 import LearningSession from './pages/student/LearningSession'
 import Onboarding from './pages/student/Onboarding'
-const GrowthGarden = lazy(() => import('./pages/student/GrowthGarden'))
+const GrowthGarden = lazy(() => import('./pages/student/GrowthGardenPage.jsx'))
 
 /* Parent Pages */
 import ParentDashboard from './pages/parent/ParentDashboard'

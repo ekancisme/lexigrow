@@ -375,6 +375,39 @@ export const seedMockData = asyncHandler(async (req, res) => {
   })
 })
 
+export const isSensitiveConfigKey = (key) => {
+  if (!key || typeof key !== 'string') return false
+  const upper = key.toUpperCase()
+  return (
+    upper.endsWith('_KEY') ||
+    upper.endsWith('_TOKEN') ||
+    upper.endsWith('_SECRET') ||
+    upper.endsWith('_PASSWORD') ||
+    upper.endsWith('_PASS') ||
+    upper.endsWith('_CREDENTIALS') ||
+    upper.includes('SECRET') ||
+    upper.includes('APIKEY') ||
+    upper.includes('API_KEY') ||
+    upper.includes('TOKEN') ||
+    upper.includes('PASSWORD') ||
+    upper.includes('CHECKSUM')
+  )
+}
+
+export const maskSecretValue = (value) => {
+  if (!value) return ''
+  const str = String(value)
+  if (str.length <= 12) {
+    return '••••••••'
+  }
+  return `${str.substring(0, 3)}••••••••${str.substring(str.length - 3)}`
+}
+
+const isMaskedSecret = (val) => {
+  if (typeof val !== 'string') return false
+  return val.includes('...') || val.includes('***') || val.includes('•••') || val.includes('••••')
+}
+
 /**
  * @desc    Get system settings (API keys masked)
  * @route   GET /api/admin/config
@@ -383,12 +416,14 @@ export const seedMockData = asyncHandler(async (req, res) => {
 export const getConfigs = asyncHandler(async (req, res) => {
   const configs = await Config.find({})
   
-  // Mask API Keys for security
+  // Mask API Keys and sensitive settings for security
   const maskedConfigs = configs.map(c => {
-    const isApiKey = c.key.endsWith('_API_KEY') || c.key.endsWith('_TOKEN')
+    const isSensitive = isSensitiveConfigKey(c.key)
     return {
       key: c.key,
-      value: isApiKey && c.value ? `${c.value.substring(0, 6)}...${c.value.substring(c.value.length - 4)}` : c.value,
+      value: isSensitive && c.value ? maskSecretValue(c.value) : c.value,
+      isSecret: isSensitive,
+      isConfigured: isSensitive ? Boolean(c.value) : undefined,
       description: c.description
     }
   })
@@ -404,6 +439,13 @@ export const getConfigs = asyncHandler(async (req, res) => {
  * @route   PUT /api/admin/config
  * @access  Private (Admin)
  */
+// Lightweight provider format checks so a Groq key can't be saved as a
+// Hugging Face token and vice versa. Not a substitute for a health check.
+const TOKEN_FORMATS = {
+  GROQ_API_KEY: /^gsk_[A-Za-z0-9_-]+$/,
+  HF_API_TOKEN: /^hf_[A-Za-z0-9]+$/,
+}
+
 export const updateConfigs = asyncHandler(async (req, res) => {
   const { settings } = req.body
 
@@ -415,20 +457,32 @@ export const updateConfigs = asyncHandler(async (req, res) => {
   const logDetails = {}
 
   for (const item of settings) {
-    const { key, value } = item
-    
+    const key = item.key
+    // Normalize whitespace around secrets before validating/storing.
+    const value = typeof item.value === 'string' ? item.value.trim() : item.value
+
     const config = await Config.findOne({ key })
     if (config) {
-      const isApiKey = key.endsWith('_API_KEY') || key.endsWith('_TOKEN')
-      if (isApiKey && (value.includes('...') || value.includes('***'))) {
+      const isSensitive = isSensitiveConfigKey(key)
+      if (isSensitive && isMaskedSecret(value)) {
         continue
       }
-      
+
+      // Validate provider-specific format; empty values clear the key.
+      const expected = TOKEN_FORMATS[key]
+      if (expected && value && !expected.test(value)) {
+        throw new ErrorResponse(`Value for ${key} does not match the expected format`, 400)
+      }
+
       const oldValue = config.value
       config.value = value
       await config.save()
-      
-      updatedSettings.push({ key, value })
+
+      updatedSettings.push({
+        key,
+        value: isSensitive && value ? maskSecretValue(value) : value,
+        isSecret: isSensitive,
+      })
       logDetails[key] = { from: oldValue ? 'masked' : 'empty', to: value ? 'updated' : 'empty' }
     }
   }

@@ -81,7 +81,9 @@ describe('AI Config & Monitoring API', () => {
       
       // Verification of key masking
       const groqConfig = res.body.data.find(c => c.key === 'GROQ_API_KEY')
-      expect(groqConfig.value).toBe('gsk_du...ya5T') // should be masked
+      expect(groqConfig.isSecret).toBe(true)
+      expect(groqConfig.value).not.toBe('gsk_dummy_test_key_groq_masked_value_for_testing_ya5T')
+      expect(groqConfig.value).toContain('••••••••')
       
       const modelConfig = res.body.data.find(c => c.key === 'DEFAULT_AI_MODEL')
       expect(modelConfig.value).toBe('llama-3.3-70b-versatile') // should NOT be masked
@@ -115,6 +117,64 @@ describe('AI Config & Monitoring API', () => {
       
       expect(mockModelConfig.value).toBe('llama-3.1-8b-instant')
       expect(mockGroqConfig.value).toBe('old_key') // remained unchanged
+    })
+
+    it('accepts a valid HF token (C-03)', async () => {
+      const mockSave = vi.fn().mockResolvedValue(true)
+      const mockHfConfig = { key: 'HF_API_TOKEN', value: '', save: mockSave }
+      Config.findOne.mockResolvedValueOnce(mockHfConfig)
+
+      const res = await request(app)
+        .put('/api/admin/config')
+        .send({ settings: [{ key: 'HF_API_TOKEN', value: 'hf_AbC123XyZ' }] })
+        .expect(200)
+
+      expect(mockHfConfig.value).toBe('hf_AbC123XyZ')
+      expect(res.body.data[0].key).toBe('HF_API_TOKEN')
+    })
+
+    it('rejects a Groq key saved as HF token (C-04) and an HF token saved as Groq key (C-05)', async () => {
+      const mockSave = vi.fn().mockResolvedValue(true)
+      Config.findOne.mockResolvedValue({ key: 'HF_API_TOKEN', value: '', save: mockSave })
+
+      await request(app)
+        .put('/api/admin/config')
+        .send({ settings: [{ key: 'HF_API_TOKEN', value: 'gsk_not_a_hf_token' }] })
+        .expect(400)
+
+      Config.findOne.mockResolvedValue({ key: 'GROQ_API_KEY', value: '', save: mockSave })
+      await request(app)
+        .put('/api/admin/config')
+        .send({ settings: [{ key: 'GROQ_API_KEY', value: 'hf_not_a_groq_key' }] })
+        .expect(400)
+
+      expect(mockSave).not.toHaveBeenCalled()
+    })
+
+    it('allows clearing a token with an empty value (C-06)', async () => {
+      const mockSave = vi.fn().mockResolvedValue(true)
+      const mockHfConfig = { key: 'HF_API_TOKEN', value: 'hf_AbC123XyZ', save: mockSave }
+      Config.findOne.mockResolvedValueOnce(mockHfConfig)
+
+      await request(app)
+        .put('/api/admin/config')
+        .send({ settings: [{ key: 'HF_API_TOKEN', value: '' }] })
+        .expect(200)
+
+      expect(mockHfConfig.value).toBe('')
+    })
+
+    it('trims surrounding whitespace before validating and saving (C-07)', async () => {
+      const mockSave = vi.fn().mockResolvedValue(true)
+      const mockHfConfig = { key: 'HF_API_TOKEN', value: '', save: mockSave }
+      Config.findOne.mockResolvedValueOnce(mockHfConfig)
+
+      await request(app)
+        .put('/api/admin/config')
+        .send({ settings: [{ key: 'HF_API_TOKEN', value: '  hf_AbC123XyZ\n' }] })
+        .expect(200)
+
+      expect(mockHfConfig.value).toBe('hf_AbC123XyZ')
     })
   })
 

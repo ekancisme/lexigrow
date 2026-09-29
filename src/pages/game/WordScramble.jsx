@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
@@ -38,6 +38,13 @@ export default function WordScramble() {
   const [timer, setTimer] = useState(0)
   const inputRef = useRef(null)
   const timerInterval = useRef(null)
+
+  // Cleanup timer on unmount to prevent memory leaks and setState on unmounted component
+  useEffect(() => {
+    return () => {
+      if (timerInterval.current) clearInterval(timerInterval.current)
+    }
+  }, [])
 
   const playSound = (type) => {
     try {

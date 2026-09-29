@@ -92,14 +92,11 @@ export async function getUserEffectiveTier(userOrId) {
               email: cls.teacher.email,
               className: cls.name,
             },
-            planName: `Được bảo trợ bởi GV ${cls.teacher.name} (${teacherSub.tier.toUpperCase()})`,
+            // planName kept for backward-compat; frontend should use sponsoredByTeacher.name + t()
+            planName: `${cls.teacher.name} (${teacherSub.tier.toUpperCase()})`,
             dailyAiEssayLimit: dailyLimit,
             isUnlimitedAi: isUnlimited,
-            features: [
-              `Quyền lợi ${teacherSub.tier.toUpperCase()} được giáo viên ${cls.teacher.name} bảo trợ miễn phí`,
-              'Không giới hạn lượt học từ vựng SRS',
-              'Sử dụng đầy đủ Vườn Tri Thức và phân tích AI',
-            ],
+            features: [],
             expiresAt: teacherSub.endDate,
           }
         }
@@ -111,10 +108,10 @@ export async function getUserEffectiveTier(userOrId) {
   return {
     tier: 'free',
     source: 'free',
-    planName: 'Gói Miễn Phí (Free)',
+    planName: 'Free',
     dailyAiEssayLimit: 3,
     isUnlimitedAi: false,
-    features: ['3 bài chấm AI/ngày', 'Tham gia 1 lớp học', '3 bộ từ vựng cơ bản'],
+    features: [],
   }
 }
 

@@ -4,6 +4,7 @@ import Essay from '../models/Essay.js'
 import AIAnalysis from '../models/AIAnalysis.js'
 import User from '../models/User.js'
 import Class from '../models/Class.js'
+import ReviewEvent from '../models/ReviewEvent.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 

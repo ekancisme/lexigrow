@@ -221,6 +221,45 @@ describe('Global Vocabulary API', () => {
     expect(res.body.errors[2].message).toContain('không hợp lệ')
   })
 
+  it('should return accurate stats with data (A-06)', async () => {
+    GlobalVocabulary.countDocuments
+      .mockResolvedValueOnce(1000) // totalCount
+      .mockResolvedValueOnce(250)  // awlCount
+    GlobalVocabulary.aggregate.mockResolvedValueOnce([
+      { _id: 'A1', count: 100 },
+      { _id: 'B1', count: 200 },
+      { _id: 'C2', count: 700 },
+    ])
+
+    const res = await request(app)
+      .get('/api/admin/global-vocabulary/stats')
+      .expect(200)
+
+    expect(res.body.success).toBe(true)
+    expect(res.body.data.totalCount).toBe(1000)
+    expect(res.body.data.awlCount).toBe(250)
+    expect(res.body.data.cefr).toEqual({ A1: 100, A2: 0, B1: 200, B2: 0, C1: 0, C2: 700 })
+  })
+
+  it('should group null/unknown CEFR values without crashing (A-08)', async () => {
+    GlobalVocabulary.countDocuments
+      .mockResolvedValueOnce(10)
+      .mockResolvedValueOnce(0)
+    GlobalVocabulary.aggregate.mockResolvedValueOnce([
+      { _id: null, count: 3 },
+      { _id: 'Z9', count: 2 },
+      { _id: 'B2', count: 5 },
+    ])
+
+    const res = await request(app)
+      .get('/api/admin/global-vocabulary/stats')
+      .expect(200)
+
+    expect(res.body.data.cefr.B2).toBe(5)
+    expect(res.body.data.cefr.unknown).toBe(5)
+    expect(res.body.data.totalCount).toBe(10)
+  })
+
   it('should export vocabulary as CSV text', async () => {
     const mockWords = [
       { word: 'abandon', ipa: '/əˈbændən/', partOfSpeech: 'verb', definition: 'Cease to support or look after.', cefr: 'B2', awl: 'Sublist 8', replace: () => {} }

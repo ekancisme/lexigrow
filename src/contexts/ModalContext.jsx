@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import Modal from '../components/common/Modal.jsx'
 
 const ModalContext = createContext(null)
@@ -15,17 +15,7 @@ export function ModalProvider({ children }) {
     onCancel: null
   })
 
-  useEffect(() => {
-    const originalAlert = window.alert
-    window.alert = (message) => {
-      showAlert('Notification', String(message))
-    }
-    return () => {
-      window.alert = originalAlert
-    }
-  }, [])
-
-  const showAlert = (title, message, type = 'info') => {
+  const showAlert = useCallback((title, message, type = 'info') => {
     setModalConfig({
       isOpen: true,
       title,
@@ -36,7 +26,17 @@ export function ModalProvider({ children }) {
       onConfirm: null,
       onCancel: null
     })
-  }
+  }, [])
+
+  useEffect(() => {
+    const originalAlert = window.alert
+    window.alert = (message) => {
+      showAlert('Notification', String(message))
+    }
+    return () => {
+      window.alert = originalAlert
+    }
+  }, [showAlert])
 
   const showConfirm = (title, message, onConfirm, onCancel) => {
     setModalConfig({

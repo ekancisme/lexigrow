@@ -1,6 +1,5 @@
 import { Router } from 'express'
 import mongoose from 'mongoose'
-import { rateLimit } from 'express-rate-limit'
 import { protect, authorize } from '../middleware/auth.middleware.js'
 import { gamePlayRateLimiter, gameSubmitRateLimiter, gameAIRecommendationLimiter } from '../middleware/gameRateLimit.middleware.js'
 import asyncHandler from '../utils/asyncHandler.js'
@@ -38,6 +37,7 @@ router.get(
 
 router.post(
   '/today',
+  gameAIRecommendationLimiter,
   asyncHandler(async (req, res) => {
     const day = questDay(),
       filter = { student: req.user._id, day }
@@ -121,6 +121,7 @@ router.post(
 
 router.post(
   '/:id/play',
+  gameSubmitRateLimiter,
   asyncHandler(async (req, res) => {
     if (!mongoose.isValidObjectId(req.params.id)) throw new ErrorResponse('Quest not found', 404)
     const filter = { _id: req.params.id, student: req.user._id }

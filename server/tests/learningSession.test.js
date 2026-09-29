@@ -353,7 +353,7 @@ describe('Learning API with real Mongo transactions and JWT', () => {
     expect(r.body.data.masteredCount).toBe(1)
     const g = await auth(request(app).get('/api/garden/status')).expect(200)
     expect(g.body.data).toEqual([
-      { theme: 'Daily Life', masteredCount: 1, stage: 'sprout' },
+      { theme: 'Daily Life', totalCount: 0, masteredCount: 1, stage: 'sprout' },
     ])
     const other = await auth(
       request(app).get('/api/progress/evidence/routine'),

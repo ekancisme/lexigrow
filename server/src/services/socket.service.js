@@ -5,6 +5,7 @@ import Class from '../models/Class.js'
 import ChatMessage from '../models/ChatMessage.js'
 import gameCleanupService from './gameCleanup.service.js'
 import { canAccessEssay, canAccessChatRoom } from '../utils/essayAccess.js'
+import { parseCookies } from '../utils/cookie.js'
 
 let io = null
 
@@ -21,11 +22,17 @@ export const initSocket = (server) => {
     }
   })
 
-  // Middleware to authenticate socket connection using JWT token
+  // Middleware to authenticate socket connection using JWT token or HttpOnly cookie
   io.use(async (socket, next) => {
     try {
-      const token = socket.handshake.auth?.token || socket.handshake.query?.token
-      if (!token) {
+      let token = socket.handshake.auth?.token || socket.handshake.query?.token
+
+      if (!token && socket.handshake.headers?.cookie) {
+        const cookies = parseCookies(socket.handshake.headers.cookie)
+        token = cookies.token
+      }
+
+      if (!token || token === 'none') {
         return next(new Error('Authentication error: Token missing'))
       }
 

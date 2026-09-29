@@ -3,7 +3,6 @@ import Class from '../models/Class.js'
 import Essay from '../models/Essay.js'
 import AIAnalysis from '../models/AIAnalysis.js'
 import Vocabulary from '../models/Vocabulary.js'
-import WeeklyGoal from '../models/WeeklyGoal.js'
 
 /**
  * Run alert checks for a teacher's students.

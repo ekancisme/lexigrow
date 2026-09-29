@@ -185,6 +185,10 @@
     "popular": "Most Popular",
     "bestValueBadge": "Top AI Value",
     "currentPlanAlert": "Your current plan",
+    "sponsoredByTeacher": "Sponsored by Teacher",
+    "sponsoredPlanDetail": "Sponsored by Teacher {name} ({tier})",
+    "personalPlan": "Personal subscription",
+    "expiresOn": "Valid until",
     "loginPrompt": "Please log in to upgrade your subscription plan.",
     "checkoutError": "Did not receive checkout link from PayOS. Please try again."
   },

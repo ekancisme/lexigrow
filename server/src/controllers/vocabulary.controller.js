@@ -63,7 +63,7 @@ export const getVocabulary = asyncHandler(async (req, res) => {
  * @access  Private (student)
  */
 export const createVocabulary = asyncHandler(async (req, res) => {
-  const { word, category, theme, masteryLevel } = req.body
+  const { word, category, theme } = req.body
 
   if (!word) {
     throw new (await import('../utils/ErrorResponse.js')).default('Please provide a word', 400)
@@ -250,23 +250,33 @@ export const getVocabGrowth = asyncHandler(async (req, res) => {
  * @access  Private (student)
  */
 export const updateMastery = asyncHandler(async (req, res) => {
-  if (req.body.masteryLevel !== undefined) {
-    throw new (await import('../utils/ErrorResponse.js')).default('Mastery is calculated from review and writing evidence; use the review endpoint', 403)
-  }
+  const ErrorResponse = (await import('../utils/ErrorResponse.js')).default
   const word = await Vocabulary.findOne({ _id: req.params.id, student: req.user._id })
 
   if (!word) {
-    throw new (await import('../utils/ErrorResponse.js')).default('Word not found', 404)
+    throw new ErrorResponse('Word not found', 404)
   }
 
   const requested = req.body.masteryLevel
-  if (requested && requested !== word.masteryLevel) {
-    if (requested === 'mastered' || word.masteryLevel === 'mastered') {
-      throw new (await import('../utils/ErrorResponse.js')).default(
-        "Mastery level transitions involving 'mastered' cannot be changed manually without evidence-based review.",
-        403
-      )
-    }
+  // No mastery change requested — return the word unchanged.
+  if (requested === undefined) {
+    return res.status(200).json({ success: true, data: word })
+  }
+
+  if (!['new', 'learning', 'mastered'].includes(requested)) {
+    throw new ErrorResponse('masteryLevel must be one of: new, learning, mastered', 400)
+  }
+
+  // 'mastered' is evidence-based only: it comes from SRS review or writing
+  // evidence, never from a manual PATCH — in either direction.
+  if (requested === 'mastered' || word.masteryLevel === 'mastered') {
+    throw new ErrorResponse(
+      "Mastery level transitions involving 'mastered' cannot be changed manually without evidence-based review.",
+      403
+    )
+  }
+
+  if (requested !== word.masteryLevel) {
     word.masteryLevel = requested
     await word.save()
   }

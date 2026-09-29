@@ -1,6 +1,7 @@
 import Comment from '../models/Comment.js'
 import Essay from '../models/Essay.js'
 import { getIO } from '../services/socket.service.js'
+import { canAccessEssay } from '../utils/essayAccess.js'
 
 // @desc    Get comments for an essay
 // @route   GET /api/comments/essay/:essayId
@@ -15,17 +16,9 @@ export const getComments = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Essay not found' })
     }
 
-    // Role verification: check if teacher is associated with class, parent is associated with child, or user is student
-    const isTeacher = req.user.role === 'teacher'
-    const isParent = req.user.role === 'parent'
-    const isStudent = req.user.role === 'student' && essay.student.toString() === req.user._id.toString()
-
-    if (isParent) {
-      const isLinked = req.user.children && req.user.children.some(childId => childId.toString() === essay.student.toString())
-      if (!isLinked) {
-        return res.status(403).json({ success: false, message: 'Access denied: not your child' })
-      }
-    } else if (!isTeacher && !isStudent) {
+    // Role & ownership verification via centralised access control helper
+    const hasAccess = await canAccessEssay(req.user, essay)
+    if (!hasAccess) {
       return res.status(403).json({ success: false, message: 'Access denied' })
     }
 
@@ -57,17 +50,9 @@ export const createComment = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Essay not found' })
     }
 
-    // Access check
-    const isTeacher = req.user.role === 'teacher'
-    const isParent = req.user.role === 'parent'
-    const isStudent = req.user.role === 'student' && essay.student.toString() === req.user._id.toString()
-
-    if (isParent) {
-      const isLinked = req.user.children && req.user.children.some(childId => childId.toString() === essay.student.toString())
-      if (!isLinked) {
-        return res.status(403).json({ success: false, message: 'Access denied: not your child' })
-      }
-    } else if (!isTeacher && !isStudent) {
+    // Role & ownership verification via centralised access control helper
+    const hasAccess = await canAccessEssay(req.user, essay)
+    if (!hasAccess) {
       return res.status(403).json({ success: false, message: 'Access denied' })
     }
 

@@ -1,14 +1,14 @@
-import dotenv from 'dotenv'
+import 'dotenv/config'
 import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-if (process.env.NODE_ENV !== 'test') dotenv.config({ path: path.join(__dirname, '../.env') })
 import express from 'express'
 import cors from 'cors'
 
 import errorHandler from './middleware/error.middleware.js'
+import { parseCookies } from './utils/cookie.js'
 
 const app = express()
 
@@ -18,6 +18,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use((req, res, next) => {
   req.body ??= {}
   res.set('X-Content-Type-Options', 'nosniff')
+  req.cookies = parseCookies(req.headers.cookie)
   next()
 })
 

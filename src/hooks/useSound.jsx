@@ -66,7 +66,10 @@ export const useSound = (soundPath, options = {}) => {
     };
   }, []);
 
-  return { play, stop, isPlaying: isPlayingRef.current };
+  // Playing state is intentionally kept in a ref because it is only used by
+  // the imperative audio controls; exposing it as render state would require
+  // a second state subscription and is not used by current callers.
+  return { play, stop };
 };
 
 export default useSound;

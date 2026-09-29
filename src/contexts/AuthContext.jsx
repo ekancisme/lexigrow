@@ -13,31 +13,51 @@ function getStoredParentChildId(user) {
 export function AuthProvider({ children }) {
   // Retrieve stored data from localStorage before render to maintain state on page reload
   const [user, setUser] = useState(api.getUser())
-  const [token, setToken] = useState(api.getToken())
   const [loading, setLoading] = useState(false)
   const [selectedParentChildId, setSelectedParentChildId] = useState(() => getStoredParentChildId(api.getUser()))
   const parentChildStorageKey = user?._id && user.role === 'parent' ? `lexigrow_parent_child_${user._id}` : ''
 
-  // Manage Socket.io connection lifecycle based on authentication token
+  // Manage Socket.io connection lifecycle based on authenticated user session
   useEffect(() => {
-    if (token) {
-      connectSocket(token)
+    if (user) {
+      connectSocket()
     } else {
       disconnectSocket()
     }
     return () => {
       disconnectSocket()
     }
-  }, [token])
+  }, [user])
+
+  // Verify server session / HttpOnly cookie validity on initial mount
+  useEffect(() => {
+    let active = true
+    if (user) {
+      api.get('/auth/me')
+        .then((res) => {
+          if (active && res?.user) {
+            setUser(res.user)
+            api.setUser(res.user)
+          }
+        })
+        .catch(() => {
+          if (active) {
+            setUser(null)
+            api.removeToken()
+          }
+        })
+    }
+    return () => {
+      active = false
+    }
+  }, [])
 
   // 1. Login function
   const login = async (email, password) => {
     setLoading(true)
     try {
       const data = await api.post('/auth/login', { email, password })
-      api.setToken(data.token)
       api.setUser(data.user)
-      setToken(data.token)
       setUser(data.user)
       setSelectedParentChildId(getStoredParentChildId(data.user) || data.user.children?.[0]?._id || '')
       return data.user
@@ -65,9 +85,7 @@ export function AuthProvider({ children }) {
       if (data.pendingApproval) {
         return { pendingApproval: true, message: data.message }
       }
-      api.setToken(data.token)
       api.setUser(data.user)
-      setToken(data.token)
       setUser(data.user)
       setSelectedParentChildId(getStoredParentChildId(data.user) || data.user.children?.[0]?._id || '')
       return data.user
@@ -78,8 +96,8 @@ export function AuthProvider({ children }) {
 
   // 3. Logout function
   const logout = () => {
+    api.post('/auth/logout').catch(() => {})
     api.removeToken()
-    setToken(null)
     setUser(null)
     setSelectedParentChildId('')
   }
@@ -106,9 +124,7 @@ export function AuthProvider({ children }) {
     try {
       const payload = typeof googlePayload === 'string' ? { code: googlePayload } : googlePayload
       const data = await api.post('/auth/google', payload)
-      api.setToken(data.token)
       api.setUser(data.user)
-      setToken(data.token)
       setUser(data.user)
       setSelectedParentChildId(getStoredParentChildId(data.user) || data.user.children?.[0]?._id || '')
       return data.user
@@ -127,12 +143,12 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const isAuthenticated = !!token && !!user
+  const isAuthenticated = Boolean(user)
 
   return (
     <AuthContext.Provider value={{ 
       user, 
-      token, 
+      token: null, 
       loading, 
       login, 
       register, 

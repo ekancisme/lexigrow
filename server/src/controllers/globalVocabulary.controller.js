@@ -81,6 +81,36 @@ export const getGlobalVocabularies = asyncHandler(async (req, res) => {
 })
 
 /**
+ * @desc    Get global vocabulary library statistics
+ * @route   GET /api/admin/global-vocabulary/stats
+ * @access  Private (Admin)
+ */
+export const getGlobalVocabularyStats = asyncHandler(async (req, res) => {
+  const [totalCount, awlCount, cefrStats] = await Promise.all([
+    GlobalVocabulary.countDocuments(),
+    GlobalVocabulary.countDocuments({ awl: { $ne: '' } }),
+    GlobalVocabulary.aggregate([
+      { $group: { _id: '$cefr', count: { $sum: 1 } } }
+    ])
+  ])
+
+  // Unknown/null CEFR values are grouped under 'unknown' instead of crashing.
+  const cefr = { A1: 0, A2: 0, B1: 0, B2: 0, C1: 0, C2: 0 }
+  for (const { _id, count } of cefrStats) {
+    if (_id && Object.prototype.hasOwnProperty.call(cefr, _id)) {
+      cefr[_id] = count
+    } else {
+      cefr.unknown = (cefr.unknown || 0) + count
+    }
+  }
+
+  res.status(200).json({
+    success: true,
+    data: { totalCount, awlCount, cefr }
+  })
+})
+
+/**
  * @desc    Get a single global vocabulary by ID
  * @route   GET /api/admin/global-vocabulary/:id
  * @access  Private (Admin)
