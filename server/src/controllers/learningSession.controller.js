@@ -14,6 +14,7 @@ import {
   publicLearning,
   integer,
 } from '../utils/learning.js'
+import { selectAdaptiveTargets, getCompetencySnapshot } from '../services/competency.service.js'
 export const startLearningSession = asyncHandler(async (req, res) => {
   const active = await LearningSession.findOne({
     student: req.user._id,
@@ -25,6 +26,69 @@ export const startLearningSession = asyncHandler(async (req, res) => {
       data: publicLearning(active),
       message: 'Continue your current learning session',
     })
+  const adaptiveRequested = req.body.adaptive === true || req.body.mode === 'adaptive' || req.body.recommendationId
+  if (adaptiveRequested && !req.body.assignmentId) {
+    const count = integer(req.body.count, 5, 1, 10)
+    const theme = typeof req.body.theme === 'string' && req.body.theme.trim()
+      ? req.body.theme.trim().slice(0, 100)
+      : 'Adaptive Learning'
+    const rationale = typeof req.body.rationale === 'string' ? req.body.rationale.trim().slice(0, 500) : ''
+    const { snapshot, targets } = await selectAdaptiveTargets(req.user, {
+      count,
+      theme,
+      requestedWords: req.body.targetWords,
+    })
+    if (targets.length < 1) fail('No vocabulary available for an adaptive session', 404)
+    let created
+    try {
+      created = await mongoose.connection.transaction(async (tx) => {
+        const [session] = await LearningSession.create([{
+          student: req.user._id,
+          learningSet: null,
+          learningSetSlug: null,
+          theme,
+          level: snapshot?.level || req.user.learningProfile?.targetLevel || 'B1',
+          sessionType: 'adaptive_recommendation',
+          targetWords: targets,
+          snapshot: {
+            targetWords: targets,
+            rationale,
+            recommendationId: String(req.body.recommendationId || ''),
+            competencyVersion: snapshot?.version || null,
+          },
+        }], { session: tx })
+        for (const word of targets) {
+          if (word.wordId?.startsWith('adaptive:')) {
+            await Vocabulary.updateOne(
+              { student: req.user._id, word: word.word },
+              { $setOnInsert: {
+                student: req.user._id,
+                word: word.word,
+                theme,
+                definition: word.definition,
+                partOfSpeech: word.partOfSpeech,
+                ipa: word.phonetic,
+                exampleSentence: word.exampleSentences?.[0] || '',
+                masteryLevel: 'new',
+              } },
+              { upsert: true, session: tx },
+            )
+          }
+        }
+        return session
+      })
+    } catch (err) {
+      if (err.code !== 11000) throw err
+      const existing = await LearningSession.findOne({ student: req.user._id, status: 'in_progress' })
+      if (!existing) throw err
+      return res.json({ success: true, data: publicLearning(existing), message: 'Continue your current learning session' })
+    }
+    return res.status(201).json({
+      success: true,
+      data: publicLearning(created),
+      _meta: { source: 'deterministic_competency', isFallback: false, competencyVersion: snapshot?.version || null },
+    })
+  }
   let assignment = null
   if (req.body.assignmentId) {
     assignment = await Assignment.findById(
@@ -82,6 +146,8 @@ export const startLearningSession = asyncHandler(async (req, res) => {
             setVersion: set.updatedAt,
             targetWords: targets,
             assignment: assignment?._id || null,
+            sessionType: assignment ? 'assignment' : 'curated_set',
+            snapshot: { targetWords: targets, rationale: 'Published learning set', recommendationId: '', competencyVersion: null },
           },
         ],
         { session: tx },
@@ -194,40 +260,34 @@ export const updateSessionStep = asyncHandler(async (req, res) => {
 })
 
 export const getLearningPathRecommendation = asyncHandler(async (req, res) => {
+  const snapshot = await getCompetencySnapshot(req.user, { force: false })
+  const { targets } = await selectAdaptiveTargets(req.user, { count: 5 })
+  const completedSessions = await LearningSession.countDocuments({ student: req.user._id, status: 'completed' })
+  const recommendationId = `adaptive-${String(req.user._id)}-${snapshot?.version || 1}`
+  const deterministic = {
+    recommendationId,
+    targetWords: targets,
+    rationale: `Prioritize ${snapshot?.summary?.due || 0} due words, ${snapshot?.summary?.struggling || 0} struggling words, then new CEFR-matched vocabulary.`,
+    metrics: snapshot?.summary || {},
+  }
   try {
     const { getPersonalizedLearningPath } = await import('../services/aiRecommendation.service.js')
-
-    // Get student's learning data
-    const [recentWords, weakWords, completedSessions] = await Promise.all([
-      Vocabulary.find({ student: req.user._id })
-        .sort({ createdAt: -1 })
-        .limit(20)
-        .lean(),
-      Vocabulary.find({ student: req.user._id, masteryLevel: { $in: ['new', 'learning'] } })
-        .sort({ createdAt: -1 })
-        .limit(10)
-        .lean(),
-      LearningSession.countDocuments({ student: req.user._id, status: 'completed' }),
-    ])
-
-    const recommendation = await getPersonalizedLearningPath(req.user, {
-      recentWords,
-      weakWords,
-      completedSessions,
-    })
-
+    const recentWords = (snapshot?.words || []).filter((word) => word.state !== 'unseen').slice(0, 20)
+    const weakWords = (snapshot?.words || []).filter((word) => word.state === 'struggling' || word.state === 'due').slice(0, 10)
+    const recommendation = await getPersonalizedLearningPath(req.user, { recentWords, weakWords, completedSessions })
     res.json({
       success: true,
       data: {
         ...recommendation,
+        ...deterministic,
         currentLevel: req.user.learningProfile?.targetLevel || 'B1',
         interests: req.user.learningProfile?.interests || [],
         completedSessions,
       },
+      _meta: { source: 'ai', isFallback: false, competencyVersion: snapshot?.version || null },
     })
   } catch (error) {
     console.error('Learning path recommendation error:', error.message)
-    // Fallback response
     res.json({
       success: true,
       data: {
@@ -239,8 +299,10 @@ export const getLearningPathRecommendation = asyncHandler(async (req, res) => {
         learningPlan: 'Continue building vocabulary through daily quests and learning sessions.',
         currentLevel: req.user.learningProfile?.targetLevel || 'B1',
         interests: req.user.learningProfile?.interests || [],
-        completedSessions: 0,
+        completedSessions,
+        ...deterministic,
       },
+      _meta: { source: 'offline_fallback', isFallback: true, competencyVersion: snapshot?.version || null },
     })
   }
 })

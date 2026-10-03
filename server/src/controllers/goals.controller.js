@@ -3,6 +3,8 @@ import Essay from '../models/Essay.js'
 import Vocabulary from '../models/Vocabulary.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
+import LearningSession from '../models/LearningSession.js'
+import { completeAI } from '../services/aiGateway.service.js'
 
 /**
  * Get the start of current week (Monday)
@@ -107,7 +109,25 @@ export const updateGoals = asyncHandler(async (req, res) => {
   }
 
   if (req.body.goals) {
+    if (!Array.isArray(req.body.goals) || req.body.goals.length > 10) {
+      throw new ErrorResponse('Invalid goals', 400)
+    }
+    for (const item of req.body.goals) {
+      if (!item || typeof item.label !== 'string' || !Number.isFinite(Number(item.target)) || Number(item.target) < 0 || Number(item.target) > 100000) {
+        throw new ErrorResponse('Invalid goal target', 400)
+      }
+    }
     goal.goals = req.body.goals
+  }
+  if (req.body.recommendation) {
+    const recommendation = req.body.recommendation
+    goal.recommendation = {
+      source: ['deterministic', 'ai', 'offline_fallback'].includes(recommendation.source) ? recommendation.source : 'deterministic',
+      isAccepted: Boolean(recommendation.isAccepted ?? true),
+      rationale: typeof recommendation.rationale === 'string' ? recommendation.rationale.slice(0, 1000) : '',
+      metrics: recommendation.metrics || {},
+      generatedAt: recommendation.generatedAt || new Date(),
+    }
   }
   await goal.save()
 
@@ -115,38 +135,76 @@ export const updateGoals = asyncHandler(async (req, res) => {
 })
 
 /**
+ * Build bounded goal targets from deterministic progress metrics. The model may
+ * explain these targets, but it never gets to choose unbounded values.
+ */
+export async function buildGoalRecommendation(studentId) {
+  const { weekStart, weekEnd } = getWeekBounds()
+  const previousStart = new Date(weekStart)
+  previousStart.setDate(previousStart.getDate() - 7)
+  const [totalVocab, totalEssays, overdueWords, completedSessions, essaysThisWeek, wordsThisWeek] = await Promise.all([
+    Vocabulary.countDocuments({ student: studentId }),
+    Essay.countDocuments({ student: studentId, status: { $ne: 'draft' } }),
+    Vocabulary.countDocuments({ student: studentId, $or: [{ nextReviewDate: null }, { nextReviewDate: { $lte: new Date() } }] }),
+    LearningSession.countDocuments({ student: studentId, status: 'completed' }),
+    Essay.countDocuments({ student: studentId, status: { $ne: 'draft' }, submittedAt: { $gte: weekStart, $lte: weekEnd } }),
+    Essay.aggregate([
+      { $match: { student: studentId, status: { $ne: 'draft' }, submittedAt: { $gte: weekStart, $lte: weekEnd } } },
+      { $group: { _id: null, total: { $sum: '$wordCount' } } },
+    ]),
+  ])
+  const totalWordsThisWeek = wordsThisWeek[0]?.total || 0
+  const targets = [
+    { label: 'New Words', target: Math.min(50, Math.max(10, Math.ceil(Math.max(totalVocab, 10) / 10))), current: 0, icon: 'dictionary', color: 'primary' },
+    { label: 'Essays Written', target: Math.min(5, Math.max(1, totalEssays >= 5 ? 3 : 2)), current: essaysThisWeek, icon: 'edit_note', color: 'secondary' },
+    { label: 'Writing Length (words)', target: Math.min(5000, Math.max(500, totalWordsThisWeek || 1000)), current: totalWordsThisWeek, icon: 'text_fields', color: 'tertiary' },
+    { label: 'Complexity Score', target: Math.min(10, Math.max(5, 6 + Math.min(3, Math.floor(completedSessions / 5)))), current: 0, icon: 'equalizer', color: 'primary' },
+  ]
+  const metrics = { totalVocab, totalEssays, overdueWords, completedSessions, essaysThisWeek, wordsThisWeek: totalWordsThisWeek, previousWeekStart: previousStart }
+  let rationale = `You have ${overdueWords} words due for review and wrote ${totalWordsThisWeek} words this week. This plan balances review, writing, and vocabulary growth.`
+  let source = 'deterministic'
+  try {
+    const completion = await completeAI({
+      route: 'goal_recommendation',
+      providerPreference: 'groq',
+      model: process.env.DEFAULT_AI_MODEL || 'llama-3.3-70b-versatile',
+      messages: [{ role: 'user', content: `Write one short Vietnamese or English rationale for these fixed student metrics. Do not change numbers. Metrics: ${JSON.stringify(metrics)}. Return JSON {"rationale":"..."}.` }],
+      responseFormat: { type: 'json_object' },
+      maxTokens: 300,
+      temperature: 0.2,
+      maxAttempts: 2,
+    })
+    const parsed = JSON.parse(completion.text)
+    if (typeof parsed.rationale === 'string' && parsed.rationale.trim().length <= 1000) {
+      rationale = parsed.rationale.trim()
+      source = 'ai'
+    }
+  } catch (error) {
+    console.warn('AI goal rationale unavailable:', error.message)
+    source = 'offline_fallback'
+  }
+  return { goals: targets, rationale, metrics, source, generatedAt: new Date() }
+}
+
+/**
  * @desc    Get AI recommendations for goals
  * @route   GET /api/goals/recommendations
  * @access  Private (student)
  */
 export const getRecommendations = asyncHandler(async (req, res) => {
-  const totalVocab = await Vocabulary.countDocuments({ student: req.user._id })
-  const totalEssays = await Essay.countDocuments({ student: req.user._id, status: { $ne: 'draft' } })
-
-  // Simple recommendation logic based on history
-  const recommendations = []
-
-  if (totalVocab > 100) {
-    recommendations.push({
+  const recommendation = await buildGoalRecommendation(req.user._id)
+  res.status(200).json({
+    success: true,
+    data: [{
       icon: 'trending_up',
       color: 'primary',
-      text: `You've learned ${totalVocab} words total. Consider increasing your weekly target to ${Math.min(50, Math.ceil(totalVocab / 10))} words.`,
-    })
-  }
-
-  if (totalEssays >= 5) {
-    recommendations.push({
-      icon: 'schedule',
-      color: 'secondary',
-      text: 'Try writing essays on different topics each week to diversify your vocabulary.',
-    })
-  }
-
-  recommendations.push({
-    icon: 'category',
-    color: 'tertiary',
-    text: 'Focus on academic vocabulary this week to improve your complexity score.',
+      text: recommendation.rationale,
+      goals: recommendation.goals,
+      metrics: recommendation.metrics,
+      source: recommendation.source,
+      isFallback: recommendation.source === 'offline_fallback',
+      recommendation,
+    }],
+    _meta: { source: recommendation.source, isFallback: recommendation.source === 'offline_fallback' },
   })
-
-  res.status(200).json({ success: true, data: recommendations })
 })

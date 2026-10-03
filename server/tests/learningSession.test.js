@@ -558,4 +558,19 @@ describe('Learning API with real Mongo transactions and JWT', () => {
     )
     await auth(request(app).get('/api/sessions/current')).expect(403)
   })
+  it('creates an adaptive session from deterministic competency buckets without a learning set', async () => {
+    await Vocabulary.create([
+      { student: student.id, word: 'routine', masteryLevel: 'learning', nextReviewDate: new Date(Date.now() - 1000) },
+      { student: student.id, word: 'commute', masteryLevel: 'new', nextReviewDate: new Date(Date.now() + 86400000) },
+    ])
+    const response = await auth(request(app).post('/api/sessions/start'))
+      .send({ adaptive: true, count: 2, recommendationId: 'adaptive-test-1', rationale: 'Review due vocabulary first.' })
+      .expect(201)
+    expect(response.body.data.learningSet).toBeNull()
+    expect(response.body.data.sessionType).toBe('adaptive_recommendation')
+    expect(response.body.data.targetWords).toHaveLength(2)
+    expect(response.body.data.snapshot.recommendationId).toBe('adaptive-test-1')
+    expect(response.body._meta.source).toBe('deterministic_competency')
+    expect(JSON.stringify(response.body)).not.toContain('correctAnswer')
+  })
 })

@@ -14,6 +14,7 @@ import {
   validateAnalysis,
 } from '../services/vocabularyAnalysis.service.js'
 import { recordEvidence } from '../services/wordEvidence.service.js'
+import { invalidateCompetencySnapshot } from '../services/competency.service.js'
 
 const writingContent = (body) => {
   const content = text(body.content, 'content', 10000)
@@ -210,6 +211,7 @@ async function processRevision(id, user) {
         tx,
       )
       current.analysis = analysis
+      current.analysisMeta = analysis._meta || { source: 'ai', isFallback: false }
       current.targetWordResults = analysis.targetWordResults
       current.feedbackSummary = analysis.summary
       current.comparison = comparison
@@ -240,6 +242,7 @@ export const submitRevision = asyncHandler(async (req, res) => {
   const prepared = await prepareRevision(req)
   try {
     const revision = await processRevision(prepared.result.revisionId, req.user)
+    await invalidateCompetencySnapshot(req.user._id)
     res
       .status(prepared.replayed ? 200 : 201)
       .json({ success: true, data: revision })

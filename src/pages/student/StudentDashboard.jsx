@@ -19,17 +19,19 @@ export default function StudentDashboard() {
   const [recentEssays, setRecentEssays] = useState([])
   const [currentSession, setCurrentSession] = useState(null)
   const [dueSrsCount, setDueSrsCount] = useState(0)
+  const [recommendation, setRecommendation] = useState(null)
 
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true)
-        const [overviewRes, goalRes, essaysRes, sessionRes, dueRes] = await Promise.allSettled([
+        const [overviewRes, goalRes, essaysRes, sessionRes, dueRes, recommendationRes] = await Promise.allSettled([
           api.get('/progress/overview'),
           api.get('/goals'),
           api.get('/essays'),
           api.get('/sessions/current'),
-          api.get('/vocabulary/due-today')
+          api.get('/vocabulary/due-today'),
+          api.get('/sessions/recommendation')
         ])
 
         if (overviewRes.status === 'fulfilled') setOverview(overviewRes.value.data)
@@ -37,6 +39,7 @@ export default function StudentDashboard() {
         if (essaysRes.status === 'fulfilled') setRecentEssays(essaysRes.value.data?.slice(0, 5) || [])
         if (sessionRes.status === 'fulfilled') setCurrentSession(sessionRes.value.data)
         if (dueRes.status === 'fulfilled') setDueSrsCount(dueRes.value.count || dueRes.value.data?.length || 0)
+        if (recommendationRes.status === 'fulfilled') setRecommendation(recommendationRes.value.data)
       } catch (err) {
         console.error('Error fetching dashboard data:', err)
       } finally {
@@ -74,16 +77,16 @@ export default function StudentDashboard() {
             {t('dashboard.continueLesson', "Today's Micro-Session · 10 Mins")}
           </div>
           <h2 className="student-dash__hero-title">
-            {t('dashboard.recommendedSets', 'Learn & Apply 3 Target Words')}: <span className="student-dash__hero-words">routine · commute · grocery</span>
+            {t('dashboard.recommendedSets', 'Learn & Apply Target Words')}: <span className="student-dash__hero-words">{recommendation?.targetWords?.map((word) => word.word).join(' · ') || 'Your next adaptive set'}</span>
           </h2>
           <p className="student-dash__hero-desc">
-            Topic: <strong>Daily Life (A2)</strong> — Explore in context, take quick quizzes, and write a 60–100 word paragraph for instant AI feedback.
+            {recommendation?.rationale || 'Explore in context, take quick quizzes, and write a 60–100 word paragraph for instant feedback.'}
           </p>
 
           <div className="student-dash__hero-actions">
             <button
               className="btn-primary student-dash__hero-btn"
-              onClick={() => navigate('/student/writing?set=daily-life')}
+              onClick={() => navigate(recommendation?.targetWords?.length ? '/student/writing?adaptive=true' : '/student/writing?set=daily-life')}
             >
               <span className="material-symbols-outlined">play_circle</span>
               {currentSession ? t('dashboard.continueLesson', 'Resume Active Session') : t('common.start', 'Start Session Now (10 mins)')}

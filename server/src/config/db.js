@@ -27,6 +27,8 @@ const connectDB = async () => {
       
       const defaultConfigs = [
         { key: 'GROQ_API_KEY', value: process.env.GROQ_API_KEY || '', description: 'Groq API Key' },
+        { key: 'GEMINI_API_KEY', value: process.env.GEMINI_API_KEY || '', description: 'Google Gemini API Key' },
+        { key: 'GEMINI_MODEL', value: process.env.GEMINI_MODEL || '', description: 'Google Gemini Model' },
         { key: 'OPENAI_API_KEY', value: process.env.OPENAI_API_KEY || '', description: 'OpenAI API Key' },
         { key: 'LLAMA_API_KEY', value: process.env.LLAMA_API_KEY || '', description: 'Llama API Key' },
         { key: 'HF_API_TOKEN', value: process.env.HF_API_TOKEN || '', description: 'Hugging Face API Token' },

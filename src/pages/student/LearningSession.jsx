@@ -164,11 +164,11 @@ const defaultLearningSets = {
 export default function LearningSession() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
+  const adaptive = searchParams.get('adaptive') === 'true'
   const setSlug = searchParams.get('set') || 'daily-life'
 
   const [session, setSession] = useState(null)
   const [currentStep, setCurrentStep] = useState('lesson') // 'lesson' | 'practice' | 'writing' | 'feedback' | 'revision' | 'completed'
-  const [loading, setLoading] = useState(false)
   const [learningSet, setLearningSet] = useState(defaultLearningSets[setSlug] || defaultLearningSets['daily-life'])
 
   // Writing state
@@ -182,14 +182,21 @@ export default function LearningSession() {
   useEffect(() => {
     async function initSession() {
       try {
-        setLoading(true)
         // Try calling backend API
-        const res = await api.post('/sessions/start', { learningSetSlug: setSlug })
-        if (res.data) {
-          setSession(res.data)
-          if (res.data.currentStep) setCurrentStep(res.data.currentStep)
-          if (res.data.learningSet?.words) {
-            setLearningSet(res.data.learningSet)
+        const res = await api.post('/sessions/start', adaptive ? { adaptive: true } : { learningSetSlug: setSlug })
+        const payload = res?.data || res
+        if (payload) {
+          setSession(payload)
+          if (payload.currentStep) setCurrentStep(payload.currentStep)
+          if (payload.learningSet?.words) {
+            setLearningSet(payload.learningSet)
+          } else if (payload.targetWords?.length) {
+            setLearningSet({
+              title: 'Adaptive Learning Session',
+              level: payload.level || 'B1',
+              promptTopic: payload.snapshot?.rationale || 'Write about your learning topic.',
+              words: payload.targetWords,
+            })
           }
         }
       } catch {
@@ -201,12 +208,10 @@ export default function LearningSession() {
           slug: setSlug,
           currentStep: 'lesson'
         })
-      } finally {
-        setLoading(false)
       }
     }
     initSession()
-  }, [setSlug])
+  }, [adaptive, setSlug])
 
   const words = learningSet.words || []
 
