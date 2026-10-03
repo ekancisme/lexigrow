@@ -20,6 +20,8 @@ const schema = new mongoose.Schema(
   {
     student: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     day: { type: String, required: true },
+    source: { type: String, enum: ['ai', 'offline_fallback', 'curated_template'], default: 'curated_template' },
+    isFallback: { type: Boolean, default: false },
     version: { type: Number, default: 1 },
     rows: Number,
     cols: Number,

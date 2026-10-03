@@ -7,7 +7,7 @@ import Config from '../models/Config.js'
 import AILog from '../models/AILog.js'
 import { checkCrossStudentPlagiarism } from './plagiarism.service.js'
 import { detectAIWriting } from './huggingface.service.js'
-import { completeAI, aiMeta } from './aiGateway.service.js'
+import { completeAI, aiMeta, normalizeUsage, estimateCost } from './aiGateway.service.js'
 import { validateEnrichedWords, validateTopics } from './aiGuardrails.service.js'
 
 /**
@@ -28,31 +28,22 @@ export const getConfigValue = async (key, defaultValue) => {
  */
 const logAICall = async ({ model, action, duration, status, usage, errorMessage, route, meta, source = 'ai', isFallback = false }) => {
   try {
-    const promptTokens = usage?.prompt_tokens || usage?.promptTokens || 0
-    const completionTokens = usage?.completion_tokens || usage?.completionTokens || 0
-    const totalTokens = usage?.total_tokens || usage?.totalTokens || 0
-    
-    let costEstimate = 0
-    if (status === 'success') {
-      if (model && model.includes('70b')) {
-        costEstimate = (promptTokens * 0.59 / 1000000) + (completionTokens * 0.79 / 1000000)
-      } else {
-        costEstimate = (totalTokens * 0.20 / 1000000)
-      }
-    }
+    const normalized = normalizeUsage(usage)
+    const pricing = estimateCost({ provider: meta?.provider, model: meta?.model || model, usage: normalized })
 
     await AILog.create({
       model: model || 'unknown',
       action,
       tokensUsed: {
-        promptTokens,
-        completionTokens,
-        totalTokens,
+        promptTokens: normalized.promptTokens,
+        completionTokens: normalized.completionTokens,
+        totalTokens: normalized.totalTokens,
       },
       processingTimeMs: duration,
       status,
       errorMessage,
-      costEstimate,
+      costEstimate: pricing.cost,
+      pricingSource: pricing.pricingSource,
       route: route || action,
       provider: meta?.provider || '',
       providerAccount: meta?.account || '',

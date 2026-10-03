@@ -6,6 +6,31 @@ import { decryptSecret } from '../utils/secretCrypto.js'
 const DEFAULT_MAX_ATTEMPTS = 3
 const DEFAULT_GROQ_MODEL = 'llama-3.3-70b-versatile'
 
+const PRICING_USD_PER_MILLION = {
+  'groq:llama-3.3-70b-versatile': { input: 0.59, output: 0.79 },
+  'groq:llama-3.1-8b-instant': { input: 0.05, output: 0.08 },
+  'gemini:gemini-2.5-flash': { input: 0.30, output: 2.50 },
+  'openai-compatible:gpt-4o-mini': { input: 0.15, output: 0.60 },
+}
+
+export function normalizeUsage(usage) {
+  if (!usage) return { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
+  const promptTokens = Number(usage.promptTokens ?? usage.prompt_tokens ?? usage.promptTokenCount ?? 0)
+  const completionTokens = Number(usage.completionTokens ?? usage.completion_tokens ?? usage.candidatesTokenCount ?? 0)
+  const totalTokens = Number(usage.totalTokens ?? usage.total_tokens ?? usage.totalTokenCount ?? (promptTokens + completionTokens))
+  return { promptTokens, completionTokens, totalTokens }
+}
+
+export function estimateCost({ provider, model, usage }) {
+  const normalized = normalizeUsage(usage)
+  const pricing = PRICING_USD_PER_MILLION[`${provider}:${model}`]
+  if (!pricing || normalized.totalTokens <= 0) return { cost: null, pricingSource: pricing ? 'registry' : 'unknown' }
+  return {
+    cost: (normalized.promptTokens * pricing.input + normalized.completionTokens * pricing.output) / 1e6,
+    pricingSource: 'registry',
+  }
+}
+
 export class AIProviderError extends Error {
   constructor(message, { status = 502, code = 'AI_PROVIDER_ERROR', retryable = false, retryAfterMs = 0 } = {}) {
     super(message)
@@ -67,7 +92,11 @@ async function legacyAccount(providerPreference, requestedModel) {
     _legacy: true,
     name: `legacy-${provider}`,
     provider,
-    model: requestedModel || (provider === 'gemini' ? (process.env.GEMINI_MODEL || 'gemini-2.5-flash') : DEFAULT_GROQ_MODEL),
+    model: provider === 'groq'
+      ? (requestedModel || process.env.DEFAULT_AI_MODEL || DEFAULT_GROQ_MODEL)
+      : provider === 'gemini'
+        ? (process.env.GEMINI_MODEL || 'gemini-2.5-flash')
+        : (process.env.OPENAI_MODEL || 'gpt-4o-mini'),
     baseUrl: provider === 'openai-compatible' ? (process.env.OPENAI_BASE_URL || '') : '',
     apiKey,
     routes: [],
@@ -253,7 +282,8 @@ export async function completeAI({
       attempts.push({ account: accountSafe(account), status: 'success', durationMs: Date.now() - attemptStarted })
       return {
         text: result.text,
-        usage: result.usage,
+        usage: normalizeUsage(result.usage),
+        cost: estimateCost({ provider: account.provider, model: modelForAccount(account, model), usage: result.usage }),
         requestId,
         provider: account.provider,
         account: accountSafe(account),

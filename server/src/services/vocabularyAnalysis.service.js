@@ -1,5 +1,6 @@
 import { SchemaType } from '@google/generative-ai'
 import AILog from '../models/AILog.js'
+import { normalizeUsage, estimateCost } from './aiGateway.service.js'
 import { completeAI } from './aiGateway.service.js'
 import { fail } from '../utils/learning.js'
 
@@ -200,11 +201,8 @@ export async function analyzeVocabulary(
     if (err.statusCode === 503) throw err
     fail('Vocabulary analysis failed; retry this revision', 502)
   } finally {
-    const tokens = {
-      promptTokens: usage?.promptTokenCount ?? 0,
-      completionTokens: usage?.candidatesTokenCount ?? 0,
-      totalTokens: usage?.totalTokenCount ?? 0,
-    }
+    const tokens = normalizeUsage(usage)
+    const cost = estimateCost({ provider: providerMeta?.provider || (generate ? 'gemini' : 'gemini'), model: providerMeta?.model || model, usage: tokens })
     const inputRate = Number(process.env.GEMINI_INPUT_USD_PER_MILLION),
       outputRate = Number(process.env.GEMINI_OUTPUT_USD_PER_MILLION)
     const known =
@@ -223,12 +221,11 @@ export async function analyzeVocabulary(
         processingTimeMs: Date.now() - started,
         status,
         errorMessage: errorCode,
-        costEstimate: known
-          ? (tokens.promptTokens * inputRate +
-              tokens.completionTokens * outputRate) /
-            1e6
-          : null,
-        provider: providerMeta?.provider || 'gemini',
+        costEstimate: cost.cost ?? (known && !providerMeta
+          ? (tokens.promptTokens * inputRate + tokens.completionTokens * outputRate) / 1e6
+          : null),
+        pricingSource: cost.cost !== null ? cost.pricingSource : (known && !providerMeta ? 'legacy-env' : 'unknown'),
+        provider: providerMeta?.provider || (generate ? 'custom' : 'gemini'),
         providerAccount: providerMeta?.account || '',
         requestId: providerMeta?.requestId || '',
         attempts: providerMeta?.attempts || [],

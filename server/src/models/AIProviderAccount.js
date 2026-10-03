@@ -4,7 +4,7 @@ const aiProviderAccountSchema = new mongoose.Schema({
   name: { type: String, required: true, trim: true, maxlength: 100 },
   provider: {
     type: String,
-    enum: ['groq', 'gemini', 'openai-compatible', 'huggingface'],
+    enum: ['groq', 'gemini', 'openai-compatible'],
     required: true,
   },
   model: { type: String, required: true, trim: true, maxlength: 160 },

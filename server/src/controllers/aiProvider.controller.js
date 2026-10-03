@@ -4,7 +4,7 @@ import ErrorResponse from '../utils/ErrorResponse.js'
 import { encryptSecret, maskSecret } from '../utils/secretCrypto.js'
 import { testAIProviderAccount } from '../services/aiGateway.service.js'
 
-const PROVIDERS = new Set(['groq', 'gemini', 'openai-compatible', 'huggingface'])
+const PROVIDERS = new Set(['groq', 'gemini', 'openai-compatible'])
 const clean = (value, max = 300) => typeof value === 'string' ? value.trim().slice(0, max) : ''
 const publicAccount = (account) => ({
   _id: account._id,

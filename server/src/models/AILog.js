@@ -29,8 +29,9 @@ const aiLogSchema = new mongoose.Schema({
   },
   costEstimate: {
     type: Number,
-    default: 0,
+    default: null,
   },
+  pricingSource: { type: String, default: 'unknown' },
   route: { type: String, default: '' },
   provider: { type: String, default: '' },
   providerAccount: { type: String, default: '' },

@@ -42,7 +42,7 @@ router.post(
     const day = questDay(),
       filter = { student: req.user._id, day }
     let quest = await DailyQuest.findOne(filter).lean()
-    let questSource = 'curated_template'
+    let questSource = quest?.source || (quest?.words?.some((word) => word.source === 'ai') ? 'ai' : 'curated_template')
     if (!quest) {
       const now = new Date()
       // Try AI-generated words first, fallback to rule-based
@@ -112,16 +112,22 @@ router.post(
     if (puzzle.words.length < 5)
       puzzle = generateCrossword(STARTER_WORDS, `${req.user._id}:${day}`)
       try {
-        quest = (await DailyQuest.create({ ...filter, ...puzzle })).toObject({ flattenMaps: true })
+        quest = (await DailyQuest.create({
+          ...filter,
+          ...puzzle,
+          source: questSource,
+          isFallback: questSource !== 'ai',
+        })).toObject({ flattenMaps: true })
       } catch (error) {
         if (error.code !== 11000) throw error
         quest = await DailyQuest.findOne(filter).lean()
+        questSource = quest?.source || (quest?.words?.some((word) => word.source === 'ai') ? 'ai' : 'curated_template')
       }
     }
     res.json({
       success: true,
       data: publicQuest(quest),
-      _meta: { source: questSource, isFallback: questSource !== 'ai' },
+      _meta: { source: quest?.source || questSource, isFallback: quest?.isFallback ?? (questSource !== 'ai') },
     })
   }),
 )

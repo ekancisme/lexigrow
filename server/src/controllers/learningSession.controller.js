@@ -274,7 +274,8 @@ export const getLearningPathRecommendation = asyncHandler(async (req, res) => {
     const { getPersonalizedLearningPath } = await import('../services/aiRecommendation.service.js')
     const recentWords = (snapshot?.words || []).filter((word) => word.state !== 'unseen').slice(0, 20)
     const weakWords = (snapshot?.words || []).filter((word) => word.state === 'struggling' || word.state === 'due').slice(0, 10)
-    const recommendation = await getPersonalizedLearningPath(req.user, { recentWords, weakWords, completedSessions })
+    const recommendationResult = await getPersonalizedLearningPath(req.user, { recentWords, weakWords, completedSessions })
+    const recommendation = recommendationResult.data
     res.json({
       success: true,
       data: {
@@ -284,7 +285,7 @@ export const getLearningPathRecommendation = asyncHandler(async (req, res) => {
         interests: req.user.learningProfile?.interests || [],
         completedSessions,
       },
-      _meta: { source: 'ai', isFallback: false, competencyVersion: snapshot?.version || null },
+      _meta: { ...recommendationResult.meta, competencyVersion: snapshot?.version || null },
     })
   } catch (error) {
     console.error('Learning path recommendation error:', error.message)

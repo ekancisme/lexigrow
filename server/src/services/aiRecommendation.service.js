@@ -114,16 +114,19 @@ Return exactly keys: recommendedLevel, focusAreas (array), suggestedTopics (arra
       maxTokens: 1200,
       temperature: 0.2,
     })
-    return parseJson(completion.text)
+    return { data: parseJson(completion.text), meta: { source: 'ai', isFallback: false, result: completion } }
   } catch (error) {
     console.error('AI Learning Path Recommendation Error:', error.message)
     return {
-      recommendedLevel: level,
-      focusAreas: ['vocabulary'],
-      suggestedTopics: interests,
-      dailyGoalMinutes: 15,
-      nextMilestone: 'Continue your learning journey!',
-      learningPlan: 'Continue building vocabulary through daily quests and learning sessions.',
+      data: {
+        recommendedLevel: level,
+        focusAreas: ['vocabulary'],
+        suggestedTopics: interests,
+        dailyGoalMinutes: 15,
+        nextMilestone: 'Continue your learning journey!',
+        learningPlan: 'Continue building vocabulary through daily quests and learning sessions.',
+      },
+      meta: { source: 'offline_fallback', isFallback: true, errorCode: error.code || 'AI_RECOMMENDATION_FAILED' },
     }
   }
 }

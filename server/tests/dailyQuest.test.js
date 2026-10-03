@@ -57,6 +57,13 @@ describe('Daily Quest API with MongoDB', () => {
       .set('Authorization', `Bearer ${teacherToken}`)
       .expect(403)
   })
+  it('persists the generated source in metadata across repeated reads', async () => {
+    const first = await createQuest()
+    const stored = await DailyQuest.findById(first.id)
+    const second = await createQuest()
+    expect(stored.source).toBe('offline_fallback')
+    expect(second.id).toBe(first.id)
+  })
   it('creates exactly one daily puzzle under concurrent requests, without exposing answers', async () => {
     const quests = await Promise.all([createQuest(), createQuest(), createQuest()])
     expect(new Set(quests.map((q) => q.id)).size).toBe(1)
