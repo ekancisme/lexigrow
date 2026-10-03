@@ -10,6 +10,8 @@ Supported account types:
 - `gemini`: native Google Gemini structured generation.
 - `openai-compatible`: OpenAI, OpenRouter, Together, or another compatible `/chat/completions` endpoint.
 
+Hugging Face remains a separate AI-writing detector integration through `HF_API_TOKEN`; it is not a chat provider account.
+
 Each account has a priority, model, optional base URL, enabled flag, and optional route list. Lower priority numbers are preferred. When a route has no explicit mapping, enabled accounts are eligible for that route.
 
 ## Failover behavior
