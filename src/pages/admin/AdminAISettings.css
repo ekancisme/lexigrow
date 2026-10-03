@@ -1,0 +1,603 @@
+/* Provider and model routing controls, aligned with the admin design system. */
+.admin-ai-page__tabs {
+  display: flex;
+  gap: clamp(0.75rem, 2vw, 1.5rem);
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-outline-variant);
+  min-width: 0;
+}
+
+.admin-ai-page__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 0 0 auto;
+  padding: 0.75rem 0.375rem;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  background: transparent;
+  color: var(--color-outline);
+  font: inherit;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.admin-ai-page__tab:hover,
+.admin-ai-page__tab.is-active {
+  color: var(--color-primary);
+}
+
+.admin-ai-page__tab.is-active {
+  border-bottom-color: var(--color-primary);
+}
+
+.admin-ai-page__tab:focus-visible,
+.admin-ai-settings button:focus-visible,
+.admin-ai-settings input:focus-visible,
+.admin-ai-settings select:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-primary) 28%, transparent);
+  outline-offset: 2px;
+}
+
+.admin-ai-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+.admin-ai-settings__subtabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.admin-ai-settings__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 0;
+  padding: clamp(0.875rem, 2vw, 1.25rem);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-container-lowest);
+}
+
+.admin-ai-settings__section-heading h4,
+.admin-ai-settings__combo-heading h4 {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.admin-ai-settings__section-heading p,
+.admin-ai-settings__combo-heading p {
+  margin: 0.375rem 0 0;
+  color: var(--color-outline);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.admin-ai-settings__account {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) minmax(10rem, 1.2fr) minmax(9rem, 1fr) minmax(12rem, 1.5fr) auto minmax(14rem, auto);
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.875rem 0;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.admin-ai-settings__account-name,
+.admin-ai-settings__account-model,
+.admin-ai-settings__account-status,
+.admin-ai-settings__account-pricing,
+.admin-ai-settings__account-key {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--color-on-surface);
+  font-size: 0.8125rem;
+}
+
+.admin-ai-settings__account-model,
+.admin-ai-settings__account-pricing,
+.admin-ai-settings__account-key {
+  color: var(--color-outline);
+}
+
+.admin-ai-settings__account-status.is-enabled,
+.admin-ai-settings__combo-status.is-active {
+  color: var(--color-success, #18864b);
+}
+
+.admin-ai-settings__account-status.is-error {
+  color: var(--color-error);
+}
+
+.admin-ai-settings__account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.admin-ai-settings__add-button {
+  align-self: flex-start;
+}
+
+.admin-ai-settings__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.56);
+  backdrop-filter: blur(2px);
+}
+
+.admin-ai-settings__modal {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: min(42.5rem, 100%);
+  max-height: min(88vh, 56rem);
+  overflow: auto;
+  padding: clamp(1rem, 3vw, 1.5rem);
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-xl, 1rem);
+  background: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  box-shadow: var(--shadow-lg, 0 24px 80px rgba(0, 0, 0, 0.28));
+  overscroll-behavior: contain;
+}
+
+.admin-ai-settings__modal--combo {
+  width: min(43.75rem, 100%);
+}
+
+.admin-ai-settings__modal-header,
+.admin-ai-settings__picker-header,
+.admin-ai-settings__combo-heading,
+.admin-ai-settings__combo-title-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  min-width: 0;
+}
+
+.admin-ai-settings__modal-header h3,
+.admin-ai-settings__modal-heading h3 {
+  margin: 0;
+  color: var(--color-on-surface);
+  font-size: 1.2rem;
+  line-height: 1.3;
+}
+
+.admin-ai-settings__modal-header p,
+.admin-ai-settings__modal-heading p {
+  margin: 0.375rem 0 0;
+  color: var(--color-outline);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.admin-ai-settings__form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.875rem;
+}
+
+.admin-ai-settings__form-grid--limits {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.admin-ai-settings__field {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 0;
+  color: var(--color-on-surface);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.admin-ai-settings__field input,
+.admin-ai-settings__field select,
+.admin-ai-settings__modal > input,
+.admin-ai-settings__model-picker > input,
+.admin-ai-settings__candidate-picker select,
+.admin-ai-settings__default-select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 2.625rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-container-lowest);
+  color: var(--color-on-surface);
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.admin-ai-settings__field input:focus,
+.admin-ai-settings__field select:focus,
+.admin-ai-settings__modal > input:focus,
+.admin-ai-settings__model-picker > input:focus,
+.admin-ai-settings__candidate-picker select:focus,
+.admin-ai-settings__default-select:focus {
+  border-color: var(--color-primary);
+}
+
+.admin-ai-settings__hint,
+.admin-ai-settings__muted {
+  margin: 0;
+  color: var(--color-outline);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.admin-ai-settings__inline-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.admin-ai-settings__form-error {
+  margin: 0;
+  color: var(--color-error);
+  font-size: 0.8125rem;
+}
+
+.admin-ai-settings__empty {
+  margin: 0;
+  color: var(--color-outline);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.admin-ai-settings__notice {
+  padding: 0.75rem 1rem;
+  border: 1px solid;
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.admin-ai-settings__notice.is-error {
+  border-color: var(--color-error);
+  background: rgba(211, 47, 47, 0.08);
+  color: var(--color-error);
+}
+
+.admin-ai-settings__notice.is-success {
+  border-color: var(--color-success, #28a745);
+  background: rgba(40, 167, 69, 0.08);
+  color: var(--color-success, #18864b);
+}
+
+.admin-ai-settings__model-picker,
+.admin-ai-settings__candidate-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  min-width: 0;
+}
+
+.admin-ai-settings__picker-header strong,
+.admin-ai-settings__candidate-list > strong {
+  color: var(--color-on-surface);
+  font-size: 0.8125rem;
+}
+
+.admin-ai-settings__picker-header .admin-ai-settings__muted {
+  text-align: right;
+}
+
+.admin-ai-settings__model-list {
+  max-height: 15rem;
+  overflow: auto;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-md);
+  overscroll-behavior: contain;
+}
+
+.admin-ai-settings__model-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--color-outline-variant);
+  cursor: pointer;
+}
+
+.admin-ai-settings__model-row:last-child {
+  border-bottom: 0;
+}
+
+.admin-ai-settings__model-row:hover,
+.admin-ai-settings__route-option:hover {
+  background: var(--color-surface-container-low, rgba(0, 0, 0, 0.025));
+}
+
+.admin-ai-settings__model-row input,
+.admin-ai-settings__route-option input {
+  flex: 0 0 auto;
+  accent-color: var(--color-primary);
+}
+
+.admin-ai-settings__model-copy {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.admin-ai-settings__model-copy strong,
+.admin-ai-settings__model-copy span {
+  overflow-wrap: anywhere;
+  font-size: 0.8125rem;
+}
+
+.admin-ai-settings__model-copy strong {
+  color: var(--color-on-surface);
+}
+
+.admin-ai-settings__model-copy span {
+  color: var(--color-outline);
+  font-size: 0.75rem;
+}
+
+.admin-ai-settings__modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.admin-ai-settings__combo-heading {
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.admin-ai-settings__combo-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  min-width: 0;
+  margin-top: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-container-lowest);
+}
+
+.admin-ai-settings__combo-title-row {
+  align-items: center;
+  color: var(--color-on-surface);
+}
+
+.admin-ai-settings__combo-status,
+.admin-ai-settings__combo-routes,
+.admin-ai-settings__combo-meta {
+  color: var(--color-outline);
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+
+.admin-ai-settings__combo-models {
+  color: var(--color-on-surface);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.admin-ai-settings__activate-button {
+  align-self: flex-start;
+}
+
+.admin-ai-settings__routes {
+  min-width: 0;
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-md);
+}
+
+.admin-ai-settings__routes legend {
+  padding: 0 0.375rem;
+  color: var(--color-on-surface);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.admin-ai-settings__route-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.25rem 0.75rem;
+  max-height: 11rem;
+  overflow: auto;
+}
+
+.admin-ai-settings__route-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.375rem;
+  border-radius: var(--radius-sm, 0.375rem);
+  color: var(--color-on-surface);
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.admin-ai-settings__candidate-picker {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.admin-ai-settings__candidate-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.5rem;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--radius-md);
+}
+
+.admin-ai-settings__candidate-index {
+  color: var(--color-outline);
+  font-size: 0.8125rem;
+}
+
+.admin-ai-settings__candidate-name {
+  min-width: 0;
+  color: var(--color-on-surface);
+  font-size: 0.8125rem;
+  overflow-wrap: anywhere;
+}
+
+.admin-ai-settings__default-model {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.admin-ai-settings__default-model > label {
+  color: var(--color-on-surface);
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.admin-ai-settings__default-model > p {
+  margin: 0;
+  color: var(--color-outline);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.admin-ai-settings__default-select {
+  max-width: 28rem;
+  cursor: pointer;
+}
+
+@media (max-width: 1100px) {
+  .admin-ai-settings__account {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .admin-ai-settings__account-actions {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  .admin-ai-page__tabs {
+    gap: 1rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .admin-ai-page__tab {
+    font-size: 0.875rem;
+  }
+
+  .admin-ai-settings__account {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.625rem;
+  }
+
+  .admin-ai-settings__account-name,
+  .admin-ai-settings__account-actions {
+    grid-column: 1 / -1;
+  }
+
+  .admin-ai-settings__form-grid,
+  .admin-ai-settings__form-grid--limits {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .admin-ai-settings__route-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .admin-ai-settings__modal {
+    max-height: 92vh;
+  }
+}
+
+@media (max-width: 520px) {
+  .admin-ai-settings__panel {
+    padding: 0.75rem;
+  }
+
+  .admin-ai-settings__account {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .admin-ai-settings__account-name,
+  .admin-ai-settings__account-actions {
+    grid-column: auto;
+  }
+
+  .admin-ai-settings__account-actions > button {
+    flex: 1 1 auto;
+  }
+
+  .admin-ai-settings__backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .admin-ai-settings__modal,
+  .admin-ai-settings__modal--combo {
+    width: 100%;
+    max-height: 94dvh;
+    padding: 1rem;
+    border-radius: var(--radius-xl, 1rem) var(--radius-xl, 1rem) 0 0;
+  }
+
+  .admin-ai-settings__combo-heading,
+  .admin-ai-settings__modal-header,
+  .admin-ai-settings__picker-header {
+    align-items: flex-start;
+  }
+
+  .admin-ai-settings__candidate-picker {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .admin-ai-settings__candidate-picker > button {
+    width: 100%;
+  }
+
+  .admin-ai-settings__candidate-row {
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+  }
+
+  .admin-ai-settings__candidate-row > button:last-child {
+    grid-column: 2 / -1;
+    justify-self: end;
+  }
+
+  .admin-ai-settings__modal-actions > button {
+    flex: 1 1 8rem;
+  }
+}

@@ -3,6 +3,7 @@ import { protect, authorize } from '../middleware/auth.middleware.js'
 import {
   listAIProviders,
   createAIProvider,
+  discoverAIProviderModels,
   updateAIProvider,
   deleteAIProvider,
   testAIProvider,
@@ -21,6 +22,7 @@ const router = Router()
 router.use(protect, authorize('admin'))
 router.get('/', listAIProviders)
 router.post('/', createAIProvider)
+router.post('/models/discover', discoverAIProviderModels)
 router.get('/models', listAIModels)
 router.post('/models', createAIModel)
 router.patch('/models/:id', updateAIModel)

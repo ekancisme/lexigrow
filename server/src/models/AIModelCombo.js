@@ -15,6 +15,7 @@ const aiModelComboSchema = new mongoose.Schema({
   maxAttempts: { type: Number, min: 1, max: 10, default: 3 },
   timeoutMs: { type: Number, min: 1000, max: 120000, default: 30000 },
   maxCostUsd: { type: Number, min: 0, default: null },
+  roundRobinCounters: { type: Map, of: Number, default: () => new Map() },
   version: { type: Number, min: 1, default: 1 },
 }, { timestamps: true })
 

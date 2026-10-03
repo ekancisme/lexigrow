@@ -14,7 +14,9 @@ Supported account types:
 
 Hugging Face remains a separate AI-writing detector integration through `HF_API_TOKEN`; it is not a chat provider account.
 
-Each account has a priority, model, optional base URL, enabled flag, and optional route list. Lower priority numbers are preferred. When a route has no explicit mapping, enabled accounts are eligible for that route. You can also set both input and output prices in USD per million tokens. Account prices override the built-in pricing registry; if neither has a price for the selected model, cost is recorded as unknown rather than guessed.
+Each account has a priority, model, optional base URL, enabled flag, and optional route list. A route combo is required before non-Groq accounts receive traffic. For each new request, the active combo advances an atomic MongoDB round-robin cursor across its non-Groq candidates. Transient failures advance through the remaining candidates once; Groq accounts are attempted last. Cooldown and accounts marked as needing attention are skipped.
+
+Route combos enforce their maximum attempts, timeout, and optional maximum cost. When a cost ceiling is configured, the gateway requires known provider pricing and reserves a conservative upper bound based on UTF-8 input size and the configured output-token limit before each attempt. Timed-out requests are recorded as possibly processed/charged and reserve that attempt's estimated maximum cost.
 
 ## Failover behavior
 
@@ -22,7 +24,7 @@ The gateway retries only quota/rate-limit, timeout/network, HTTP 408, and HTTP 5
 
 For retryable failures, the account receives a cooldown. `Retry-After` is respected; otherwise cooldown grows from 30 seconds up to 15 minutes. A request has a bounded attempt count (normally three). The response metadata reports provider, safe account name, model, latency, request ID, attempts, and whether a fallback was used.
 
-Legacy environment/database keys remain supported during migration:
+Legacy environment/database keys remain available as a Groq-only compatibility fallback when a route has no active combo:
 
 ```text
 GROQ_API_KEY
@@ -38,7 +40,7 @@ Use provider accounts for multiple keys. Do not create numbered variables such a
 
 ## Security
 
-Set `AI_PROVIDER_ENCRYPTION_KEY` to a long random secret in production. The service derives an AES-256-GCM key from it. `JWT_SECRET` is only a compatibility fallback for existing deployments; rotate both if a credential was exposed.
+Set `AI_PROVIDER_ENCRYPTION_KEY` to a long random secret in every deployment before startup. Provider and legacy database keys are migrated to AES-256-GCM ciphertext using this dedicated key. Existing v1 ciphertext remains decryptable during migration; new ciphertext is never derived from `JWT_SECRET` or a built-in development key. Back up the encryption key securely because losing it makes stored provider keys unrecoverable.
 
 Never put provider keys in scratch files, logs, prompts, client bundles, or error messages. The old AIML scratch scripts now read `AIML_API_KEY` from the environment. Any key previously committed to Git must be revoked at the provider.
 

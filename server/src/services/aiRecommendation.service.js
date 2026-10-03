@@ -1,8 +1,20 @@
 import { completeThroughRelay } from './aiRelayClient.service.js'
+import { logAICompletion } from './aiGateway.service.js'
 import { validateRecommendedWords } from './aiGuardrails.service.js'
 import cacheService from './cache.service.js'
 
 const model = () => process.env.DEFAULT_AI_MODEL || 'llama-3.3-70b-versatile'
+async function completeLogged(options) {
+  const started = Date.now()
+  try {
+    const result = await completeThroughRelay(options)
+    await logAICompletion({ route: options.route, result, durationMs: Date.now() - started })
+    return result
+  } catch (error) {
+    await logAICompletion({ route: options.route, error, durationMs: Date.now() - started })
+    throw error
+  }
+}
 const parseJson = (text) => {
   let value = String(text || '').trim()
   const match = value.match(/```(?:json)?\s*([\s\S]*?)```/)
@@ -11,7 +23,7 @@ const parseJson = (text) => {
 }
 
 async function generateWords({ route, prompt, count, crossword = false }) {
-  const completion = await completeThroughRelay({
+  const completion = await completeLogged({
     route,
     providerPreference: 'groq',
     model: model(),
@@ -96,7 +108,7 @@ export async function getPersonalizedLearningPath(student, options = {}) {
   const level = student.learningProfile?.targetLevel || 'B1'
   const interests = student.learningProfile?.interests || ['general']
   try {
-    const completion = await completeThroughRelay({
+    const completion = await completeLogged({
       route: 'learning_path',
       providerPreference: 'groq',
       model: model(),

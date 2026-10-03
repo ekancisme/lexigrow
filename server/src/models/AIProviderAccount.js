@@ -16,6 +16,7 @@ const aiProviderAccountSchema = new mongoose.Schema({
   priority: { type: Number, min: 0, max: 1000, default: 100 },
   routes: { type: [String], default: [] },
   cooldownUntil: { type: Date, default: null },
+  needsAttention: { type: Boolean, default: false },
   consecutiveFailures: { type: Number, min: 0, default: 0 },
   lastUsedAt: { type: Date, default: null },
   lastErrorCode: { type: String, default: '' },

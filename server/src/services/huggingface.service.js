@@ -3,6 +3,7 @@
  * with local heuristic fallback.
  */
 import Config from '../models/Config.js'
+import { decryptSecret, isEncryptedSecret } from '../utils/secretCrypto.js'
 
 
 // Heuristic word list commonly overused by ChatGPT / LLMs
@@ -115,7 +116,9 @@ export const detectAIWriting = async (text) => {
   let token
   try {
     const config = await Config.findOne({ key: 'HF_API_TOKEN' })
-    token = config ? config.value : (globalThis.process.env.HF_API_TOKEN || '')
+    token = config
+      ? (isEncryptedSecret(config.value) ? decryptSecret(config.value) : config.value)
+      : (globalThis.process.env.HF_API_TOKEN || '')
   } catch (error) {
     console.error('[AI Detection] Error reading HF_API_TOKEN config:', error.message)
     token = globalThis.process.env.HF_API_TOKEN || ''
