@@ -7,7 +7,8 @@ import Config from '../models/Config.js'
 import AILog from '../models/AILog.js'
 import { checkCrossStudentPlagiarism } from './plagiarism.service.js'
 import { detectAIWriting } from './huggingface.service.js'
-import { completeAI, aiMeta, normalizeUsage, estimateCost } from './aiGateway.service.js'
+import { aiMeta, normalizeUsage, estimateCost } from './aiGateway.service.js'
+import { completeThroughRelay } from './aiRelayClient.service.js'
 import { validateEnrichedWords, validateTopics } from './aiGuardrails.service.js'
 
 /**
@@ -29,10 +30,11 @@ export const getConfigValue = async (key, defaultValue) => {
 const logAICall = async ({ model, action, duration, status, usage, errorMessage, route, meta, source = 'ai', isFallback = false }) => {
   try {
     const normalized = normalizeUsage(usage)
-    const pricing = estimateCost({ provider: meta?.provider, model: meta?.model || model, usage: normalized })
+    const actualModel = meta?.model || model || 'unknown'
+    const pricing = meta?.cost || estimateCost({ provider: meta?.provider, model: actualModel, usage: normalized })
 
     await AILog.create({
-      model: model || 'unknown',
+      model: actualModel,
       action,
       tokensUsed: {
         promptTokens: normalized.promptTokens,
@@ -51,7 +53,7 @@ const logAICall = async ({ model, action, duration, status, usage, errorMessage,
       providerRequestId: meta?.providerRequestId || '',
       attempts: meta?.attempts || [],
       statusCode: meta?.status || null,
-      usageAvailable: normalized.totalTokens > 0,
+      usageAvailable: meta?.usageAvailable ?? (usage !== undefined && usage !== null && normalized.totalTokens > 0),
       failoverReason: meta?.attempts?.filter((attempt) => attempt.status === 'failure').map((attempt) => attempt.code).join(',') || '',
       source,
       isFallback,
@@ -65,7 +67,7 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
 const completeGroq = async ({ route, model, messages, responseFormat, temperature, maxTokens = 4096 }) =>
-  completeAI({
+  completeThroughRelay({
     route,
     providerPreference: 'groq',
     model,
@@ -326,7 +328,9 @@ export const analyzeEssay = async (essayContent, customPrompt, pastScoresSummary
       action: 'essay_analysis',
       duration: Date.now() - startTime,
       status: 'failure',
-      errorMessage: error.message
+      errorMessage: error.message,
+      route: 'essay_analysis',
+      meta: error,
     })
 
     // Return fallback analysis if AI fails
@@ -455,7 +459,9 @@ Return ONLY valid JSON, no markdown formatting.`
       action: 'synonym_generation',
       duration: Date.now() - startTime,
       status: 'failure',
-      errorMessage: error.message
+      errorMessage: error.message,
+      route: 'synonym_generation',
+      meta: error,
     })
     // Fallback static list of common overused words and synonyms
     const fallbacks = {
@@ -833,7 +839,9 @@ Return a JSON object with a key "topics" containing the list of 4 topics, for ex
       action: 'topic_generation',
       duration: Date.now() - startTime,
       status: 'failure',
-      errorMessage: error.message
+      errorMessage: error.message,
+      route: 'topic_generation',
+      meta: error,
     })
     // Fallback topics if AI fails
     const defaultTopics = [
@@ -918,7 +926,9 @@ ${contextText ? `\nContext (from essay):\n"${contextText}"` : ''}`
       action: 'vocabulary_enrichment',
       duration: Date.now() - startTime,
       status: 'failure',
-      errorMessage: error.message
+      errorMessage: error.message,
+      route: 'vocabulary_enrichment',
+      meta: error,
     })
     // Fallback dictionary values if AI fails
     return words.map(w => ({
@@ -991,7 +1001,9 @@ Text to translate:
       action: 'translation',
       duration: Date.now() - startTime,
       status: 'failure',
-      errorMessage: error.message
+      errorMessage: error.message,
+      route: 'translation',
+      meta: error,
     })
     return `[Lỗi dịch: ${error.message}]`
   }
@@ -1063,7 +1075,9 @@ Essay context:
       action: 'synonym_recommendation',
       duration: Date.now() - startTime,
       status: 'failure',
-      errorMessage: error.message
+      errorMessage: error.message,
+      route: 'synonym_recommendation',
+      meta: error,
     })
     // Fallback synonyms
     const fallbacks = {
@@ -1244,7 +1258,9 @@ Return ONLY valid JSON. No markdown formatting, no code blocks.`
       action: `ai_helper_${action}`,
       duration: Date.now() - startTime,
       status: 'failure',
-      errorMessage: err.message
+      errorMessage: err.message,
+      route: `ai_helper_${action}`,
+      meta: err,
     })
     
     // Fallback response
@@ -1255,4 +1271,3 @@ Return ONLY valid JSON. No markdown formatting, no code blocks.`
     }
   }
 }
-

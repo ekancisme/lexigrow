@@ -17,7 +17,7 @@ vi.mock('groq-sdk', () => ({
   },
 }))
 
-import { completeAI } from '../src/services/aiGateway.service.js'
+import { completeAI, estimateCost } from '../src/services/aiGateway.service.js'
 
 describe('AI gateway failover', () => {
   beforeEach(() => {
@@ -57,5 +57,18 @@ describe('AI gateway failover', () => {
       maxAttempts: 3,
     })).rejects.toMatchObject({ code: 'AI_REQUEST_ERROR', retryable: false })
     expect(mockCreate).toHaveBeenCalledTimes(1)
+  })
+
+  it('uses model registry prices and leaves unknown models explicitly unpriced', () => {
+    expect(estimateCost({
+      provider: 'groq',
+      model: 'llama-3.3-70b-versatile',
+      usage: { prompt_tokens: 1_000_000, completion_tokens: 1_000_000 },
+    })).toEqual({ cost: 1.38, pricingSource: 'registry' })
+    expect(estimateCost({
+      provider: 'openai-compatible',
+      model: 'custom-model',
+      usage: { prompt_tokens: 100, completion_tokens: 50 },
+    })).toEqual({ cost: null, pricingSource: 'unknown' })
   })
 })

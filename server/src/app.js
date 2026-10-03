@@ -62,6 +62,7 @@ import paymentRoutes from './routes/payment.routes.js'
 import adminPricingRoutes from './routes/admin.pricing.routes.js'
 import chatRoutes from './routes/chat.routes.js'
 import aiProviderRoutes from './routes/aiProvider.routes.js'
+import internalAiRelayRoutes from './routes/internalAiRelay.routes.js'
 
 app.use('/api/auth', authRoutes)
 app.use('/api/essays', essayRoutes)
@@ -94,6 +95,7 @@ app.use('/api/payments', paymentRoutes)
 app.use('/api/subscriptions', paymentRoutes)
 app.use('/api/chat', chatRoutes)
 app.use('/api/admin/ai/providers', aiProviderRoutes)
+app.use('/internal/ai/v1', internalAiRelayRoutes)
 
 // Serve built frontend assets in production (Docker container or dist build)
 const distPath = path.resolve(__dirname, '../../dist')

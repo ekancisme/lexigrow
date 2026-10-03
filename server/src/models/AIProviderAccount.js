@@ -8,6 +8,8 @@ const aiProviderAccountSchema = new mongoose.Schema({
     required: true,
   },
   model: { type: String, required: true, trim: true, maxlength: 160 },
+  inputCostPerMillionUsd: { type: Number, min: 0, default: null },
+  outputCostPerMillionUsd: { type: Number, min: 0, default: null },
   baseUrl: { type: String, trim: true, maxlength: 300, default: '' },
   encryptedApiKey: { type: String, required: true, select: false },
   enabled: { type: Boolean, default: true },

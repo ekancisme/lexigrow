@@ -4,7 +4,7 @@ import Vocabulary from '../models/Vocabulary.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import LearningSession from '../models/LearningSession.js'
-import { completeAI } from '../services/aiGateway.service.js'
+import { completeThroughRelay } from '../services/aiRelayClient.service.js'
 
 /**
  * Get the start of current week (Monday)
@@ -164,7 +164,7 @@ export async function buildGoalRecommendation(studentId) {
   let rationale = `You have ${overdueWords} words due for review and wrote ${totalWordsThisWeek} words this week. This plan balances review, writing, and vocabulary growth.`
   let source = 'deterministic'
   try {
-    const completion = await completeAI({
+    const completion = await completeThroughRelay({
       route: 'goal_recommendation',
       providerPreference: 'groq',
       model: process.env.DEFAULT_AI_MODEL || 'llama-3.3-70b-versatile',

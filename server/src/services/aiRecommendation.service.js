@@ -1,4 +1,4 @@
-import { completeAI } from './aiGateway.service.js'
+import { completeThroughRelay } from './aiRelayClient.service.js'
 import { validateRecommendedWords } from './aiGuardrails.service.js'
 import cacheService from './cache.service.js'
 
@@ -11,7 +11,7 @@ const parseJson = (text) => {
 }
 
 async function generateWords({ route, prompt, count, crossword = false }) {
-  const completion = await completeAI({
+  const completion = await completeThroughRelay({
     route,
     providerPreference: 'groq',
     model: model(),
@@ -96,7 +96,7 @@ export async function getPersonalizedLearningPath(student, options = {}) {
   const level = student.learningProfile?.targetLevel || 'B1'
   const interests = student.learningProfile?.interests || ['general']
   try {
-    const completion = await completeAI({
+    const completion = await completeThroughRelay({
       route: 'learning_path',
       providerPreference: 'groq',
       model: model(),
