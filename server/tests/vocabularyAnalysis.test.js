@@ -99,6 +99,12 @@ describe('Vocabulary AI boundary', () => {
       'My daily routine',
     )
   })
+  it('marks usage unavailable when the provider omits usage metadata', async () => {
+    AILog.create.mockClear()
+    const generate = vi.fn().mockResolvedValue({ response: { text: () => JSON.stringify(result()) } })
+    await analyzeVocabulary('My daily routine.', ['routine'], { generate, model: 'test-gemini' })
+    expect(AILog.create).toHaveBeenCalledWith(expect.objectContaining({ usageAvailable: false }))
+  })
   it('logs failed calls and surfaces malformed provider JSON', async () => {
     const generate = vi
       .fn()
@@ -109,6 +115,13 @@ describe('Vocabulary AI boundary', () => {
         model: 'test',
       }),
     ).rejects.toMatchObject({ statusCode: 502 })
+  })
+  it('preserves 503 when Gemini is not configured', async () => {
+    const previousKey = process.env.GEMINI_API_KEY
+    delete process.env.GEMINI_API_KEY
+    await expect(analyzeVocabulary('My daily routine.', ['routine'], { model: 'test-gemini' })).rejects.toMatchObject({ statusCode: 503 })
+    if (previousKey === undefined) delete process.env.GEMINI_API_KEY
+    else process.env.GEMINI_API_KEY = previousKey
   })
   it('compares improvement by target, not array position', () => {
     expect(

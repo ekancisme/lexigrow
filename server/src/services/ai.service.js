@@ -51,6 +51,7 @@ const logAICall = async ({ model, action, duration, status, usage, errorMessage,
       providerRequestId: meta?.providerRequestId || '',
       attempts: meta?.attempts || [],
       statusCode: meta?.status || null,
+      usageAvailable: normalized.totalTokens > 0,
       failoverReason: meta?.attempts?.filter((attempt) => attempt.status === 'failure').map((attempt) => attempt.code).join(',') || '',
       source,
       isFallback,
@@ -440,7 +441,9 @@ Return ONLY valid JSON, no markdown formatting.`
       action: 'synonym_generation',
       duration: Date.now() - startTime,
       status: 'success',
-      usage
+      usage,
+      route: 'synonym_generation',
+      meta: completion,
     })
 
     return result
@@ -816,7 +819,9 @@ Return a JSON object with a key "topics" containing the list of 4 topics, for ex
       action: 'topic_generation',
       duration: Date.now() - startTime,
       status: 'success',
-      usage
+      usage,
+      route: 'topic_generation',
+      meta: completion,
     })
 
     return topics
@@ -899,7 +904,9 @@ ${contextText ? `\nContext (from essay):\n"${contextText}"` : ''}`
       action: 'vocabulary_enrichment',
       duration: Date.now() - startTime,
       status: 'success',
-      usage
+      usage,
+      route: 'vocabulary_enrichment',
+      meta: completion,
     })
 
     return enrichedWords
@@ -970,7 +977,9 @@ Text to translate:
       action: 'translation',
       duration: Date.now() - startTime,
       status: 'success',
-      usage
+      usage,
+      route: 'translation',
+      meta: completion,
     })
 
     return responseObj.translation || ''
@@ -1040,7 +1049,9 @@ Essay context:
       action: 'synonym_recommendation',
       duration: Date.now() - startTime,
       status: 'success',
-      usage
+      usage,
+      route: 'synonym_recommendation',
+      meta: completion,
     })
 
     return result.synonymsMap || {}
@@ -1220,7 +1231,9 @@ Return ONLY valid JSON. No markdown formatting, no code blocks.`
       action: `ai_helper_${action}`,
       duration: Date.now() - startTime,
       status: 'success',
-      usage: completion.usage
+      usage: completion.usage,
+      route: `ai_helper_${action}`,
+      meta: completion,
     })
 
     return result

@@ -10,6 +10,9 @@ import GlobalVocabulary from '../models/GlobalVocabulary.js'
 import { generateCrossword, STARTER_WORDS, questDay } from '../services/crossword.service.js'
 import { applyPlay, publicQuest } from '../services/dailyQuest.service.js'
 
+export const resolveQuestSource = ({ candidateSource, puzzleWordCount }) =>
+  puzzleWordCount < 5 ? 'offline_fallback' : candidateSource
+
 const router = Router()
 router.use(protect, authorize('student'))
 router.use(gamePlayRateLimiter)
@@ -109,7 +112,8 @@ router.post(
       ]
     }
     let puzzle = generateCrossword(candidates, `${req.user._id}:${day}`)
-    if (puzzle.words.length < 5)
+    questSource = resolveQuestSource({ candidateSource: questSource, puzzleWordCount: puzzle.words.length })
+    if (questSource === 'offline_fallback' && puzzle.words.length < 5)
       puzzle = generateCrossword(STARTER_WORDS, `${req.user._id}:${day}`)
       try {
         quest = (await DailyQuest.create({

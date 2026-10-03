@@ -5,7 +5,7 @@ import mongoose from 'mongoose'
 import express from 'express'
 import jwt from 'jsonwebtoken'
 import request from 'supertest'
-import router from '../src/routes/dailyQuest.routes.js'
+import router, { resolveQuestSource } from '../src/routes/dailyQuest.routes.js'
 import DailyQuest from '../src/models/DailyQuest.js'
 import User from '../src/models/User.js'
 import Vocabulary from '../src/models/Vocabulary.js'
@@ -47,6 +47,13 @@ afterAll(async () => {
 beforeEach(async () => {
   await DailyQuest.deleteMany({})
   await Vocabulary.deleteMany({})
+})
+
+describe('Daily Quest source resolution', () => {
+  it('switches AI source to offline fallback when starter puzzle is needed', () => {
+    expect(resolveQuestSource({ candidateSource: 'ai', puzzleWordCount: 3 })).toBe('offline_fallback')
+    expect(resolveQuestSource({ candidateSource: 'ai', puzzleWordCount: 6 })).toBe('ai')
+  })
 })
 
 describe('Daily Quest API with MongoDB', () => {
