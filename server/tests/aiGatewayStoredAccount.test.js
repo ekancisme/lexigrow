@@ -16,6 +16,7 @@ const accounts = [
   {
     _id: 'account-b', name: 'Groq B', provider: 'groq', model: 'model-b', priority: 2,
     encryptedApiKey: encryptSecret('secret-b'), enabled: true, routes: [], consecutiveFailures: 0,
+    inputCostPerMillionUsd: 3, outputCostPerMillionUsd: 9,
   },
 ]
 
@@ -62,7 +63,37 @@ describe('stored provider account failover', () => {
     expect(mockCreate.mock.calls[0][0].model).toBe('model-a')
     expect(mockCreate.mock.calls[1][0].model).toBe('model-b')
     expect(result.model).toBe('model-b')
+    expect(result.usageAvailable).toBe(true)
+    expect(result.cost).toEqual({ cost: 0.000015, pricingSource: 'account' })
     expect(JSON.stringify(result)).not.toContain('secret-a')
     expect(mockUpdate).toHaveBeenCalledWith(expect.objectContaining({ _id: 'account-a' }), expect.objectContaining({ $inc: { consecutiveFailures: 1 } }))
+  })
+
+  it('preserves provider/model/attempt metadata when all eligible accounts fail', async () => {
+    mockCreate.mockRejectedValue(Object.assign(new Error('quota'), { status: 429 }))
+    await expect(completeAI({
+      route: 'essay_analysis',
+      providerPreference: 'groq',
+      messages: [{ role: 'user', content: 'hello' }],
+      maxAttempts: 1,
+    })).rejects.toMatchObject({
+      provider: 'groq',
+      account: 'Groq A',
+      model: 'model-a',
+      statusCode: 429,
+      attempts: [expect.objectContaining({ status: 'failure', code: 'RATE_LIMITED' })],
+    })
+  })
+
+  it('marks usage unavailable when the provider omits token counts', async () => {
+    mockCreate.mockResolvedValueOnce({ choices: [{ message: { content: 'done' } }] })
+    const result = await completeAI({
+      route: 'essay_analysis',
+      providerPreference: 'groq',
+      messages: [{ role: 'user', content: 'hello' }],
+      maxAttempts: 1,
+    })
+    expect(result.usageAvailable).toBe(false)
+    expect(result.usage).toEqual({ promptTokens: 0, completionTokens: 0, totalTokens: 0 })
   })
 })

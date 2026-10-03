@@ -4,6 +4,8 @@
 
 Administrators can add accounts from **Admin → System Configuration → AI Provider Pool**. Keys are write-only in the UI and are encrypted before being stored in MongoDB.
 
+The Admin settings screen separates **Providers** from **Model Combos**. A provider stores the URL/key connection; a combo stores the ordered model candidates and route assignment. Selecting a combo does not expose provider keys to the application callers.
+
 Supported account types:
 
 - `groq`: native Groq chat completions.
@@ -12,7 +14,7 @@ Supported account types:
 
 Hugging Face remains a separate AI-writing detector integration through `HF_API_TOKEN`; it is not a chat provider account.
 
-Each account has a priority, model, optional base URL, enabled flag, and optional route list. Lower priority numbers are preferred. When a route has no explicit mapping, enabled accounts are eligible for that route.
+Each account has a priority, model, optional base URL, enabled flag, and optional route list. Lower priority numbers are preferred. When a route has no explicit mapping, enabled accounts are eligible for that route. You can also set both input and output prices in USD per million tokens. Account prices override the built-in pricing registry; if neither has a price for the selected model, cost is recorded as unknown rather than guessed.
 
 ## Failover behavior
 

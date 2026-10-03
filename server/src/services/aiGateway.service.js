@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import Config from '../models/Config.js'
 import AIProviderAccount from '../models/AIProviderAccount.js'
+import AIProviderModel from '../models/AIProviderModel.js'
+import AIModelCombo from '../models/AIModelCombo.js'
 import { decryptSecret } from '../utils/secretCrypto.js'
 
 const DEFAULT_MAX_ATTEMPTS = 3
@@ -21,13 +23,18 @@ export function normalizeUsage(usage) {
   return { promptTokens, completionTokens, totalTokens }
 }
 
-export function estimateCost({ provider, model, usage }) {
+export function estimateCost({ provider, model, usage, inputCostPerMillionUsd, outputCostPerMillionUsd }) {
   const normalized = normalizeUsage(usage)
-  const pricing = PRICING_USD_PER_MILLION[`${provider}:${model}`]
-  if (!pricing || normalized.totalTokens <= 0) return { cost: null, pricingSource: pricing ? 'registry' : 'unknown' }
+  const hasAccountPricing = Number.isFinite(inputCostPerMillionUsd) && inputCostPerMillionUsd >= 0
+    && Number.isFinite(outputCostPerMillionUsd) && outputCostPerMillionUsd >= 0
+  const pricing = hasAccountPricing
+    ? { input: inputCostPerMillionUsd, output: outputCostPerMillionUsd }
+    : PRICING_USD_PER_MILLION[`${provider}:${model}`]
+  const pricingSource = hasAccountPricing ? 'account' : (pricing ? 'registry' : 'unknown')
+  if (!pricing || normalized.totalTokens <= 0) return { cost: null, pricingSource }
   return {
     cost: (normalized.promptTokens * pricing.input + normalized.completionTokens * pricing.output) / 1e6,
-    pricingSource: 'registry',
+    pricingSource,
   }
 }
 
@@ -115,11 +122,41 @@ async function legacyAccounts(providerPreference, requestedModel) {
   return accounts
 }
 
-async function candidates({ route, providerPreference, model }) {
+async function comboCandidates({ route, model, schema }) {
+  if (AIModelCombo.db.readyState !== 1 || AIProviderModel.db.readyState !== 1) return []
+  const combo = await AIModelCombo.findOne({ routes: route, active: true, enabled: true })
+    .sort({ version: -1, updatedAt: -1 })
+    .lean()
+  if (!combo) return []
+  const ordered = [...combo.candidates].filter((candidate) => candidate.enabled !== false).sort((a, b) => a.order - b.order)
+  const resolved = []
+  for (const candidate of ordered) {
+    const providerModel = await AIProviderModel.findOne({ _id: candidate.model, enabled: true }).lean()
+    if (!providerModel || (schema && !providerModel.capabilities?.structuredSchema)) continue
+    const account = await AIProviderAccount.findOne({ _id: providerModel.account, enabled: true }).select('+encryptedApiKey').lean()
+    if (!account || (account.cooldownUntil && new Date(account.cooldownUntil) > new Date())) continue
+    try {
+      resolved.push({
+        ...account,
+        provider: account.provider,
+        model: providerModel.modelId,
+        apiKey: decryptSecret(account.encryptedApiKey),
+        inputCostPerMillionUsd: providerModel.inputCostPerMillionUsd ?? account.inputCostPerMillionUsd,
+        outputCostPerMillionUsd: providerModel.outputCostPerMillionUsd ?? account.outputCostPerMillionUsd,
+        comboId: combo._id,
+      })
+    } catch {
+      // Ignore invalid encrypted accounts and continue with the next combo entry.
+    }
+  }
+  return resolved
+}
+
+async function candidates({ route, providerPreference, model, schema }) {
+  if (AIProviderAccount.db.readyState !== 1) return legacyAccounts(providerPreference, model)
+  const combo = await comboCandidates({ route, model, schema })
+  if (combo.length) return combo
   const legacy = await legacyAccounts(providerPreference, model)
-  // Unit tests and offline utilities may mock the legacy Config model without a
-  // Mongo connection. Do not wait for Mongoose's buffered query in that mode.
-  if (AIProviderAccount.db.readyState !== 1) return legacy
   const query = { enabled: true }
   if (route) query.$or = [{ routes: route }, { routes: { $size: 0 } }]
   const stored = await AIProviderAccount.find(query).select('+encryptedApiKey').sort({ priority: 1, lastUsedAt: 1, _id: 1 }).lean()
@@ -257,7 +294,7 @@ export async function completeAI({
 }) {
   const requestId = randomUUID()
   const started = Date.now()
-  const pool = await candidates({ route, providerPreference, model })
+  const pool = await candidates({ route, providerPreference, model, schema })
   if (!pool.length) throw new AIProviderError('No AI provider is configured', { status: 503, code: 'AI_NOT_CONFIGURED' })
   const attempts = []
   let lastError
@@ -283,7 +320,14 @@ export async function completeAI({
       return {
         text: result.text,
         usage: normalizeUsage(result.usage),
-        cost: estimateCost({ provider: account.provider, model: modelForAccount(account, model), usage: result.usage }),
+        usageAvailable: result.usage !== null && result.usage !== undefined,
+        cost: estimateCost({
+          provider: account.provider,
+          model: modelForAccount(account, model),
+          usage: result.usage,
+          inputCostPerMillionUsd: account.inputCostPerMillionUsd,
+          outputCostPerMillionUsd: account.outputCostPerMillionUsd,
+        }),
         requestId,
         provider: account.provider,
         account: accountSafe(account),
@@ -308,6 +352,13 @@ export async function completeAI({
   }
   lastError.attempts = attempts
   lastError.requestId = requestId
+  const failedAccount = pool[Math.min(attempts.length, pool.length) - 1]
+  if (failedAccount) {
+    lastError.provider = failedAccount.provider
+    lastError.account = accountSafe(failedAccount)
+    lastError.model = modelForAccount(failedAccount, model)
+  }
+  lastError.statusCode = lastError.status
   throw lastError
 }
 

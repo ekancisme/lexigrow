@@ -22,7 +22,11 @@ export default function AdminSettings() {
   const [systemPrompt, setSystemPrompt] = useState('')
   const [allowPasteEssay, setAllowPasteEssay] = useState(true)
   const [providerAccounts, setProviderAccounts] = useState([])
-  const [newProvider, setNewProvider] = useState({ name: '', provider: 'groq', model: 'llama-3.3-70b-versatile', apiKey: '', baseUrl: '', priority: 100 })
+  const [providerModels, setProviderModels] = useState([])
+  const [modelCombos, setModelCombos] = useState([])
+  const [comboDraft, setComboDraft] = useState({ name: '', routes: 'essay_analysis', model: '' })
+  const [activeAiTab, setActiveAiTab] = useState('providers')
+  const [newProvider, setNewProvider] = useState({ name: '', provider: 'groq', model: 'llama-3.3-70b-versatile', apiKey: '', baseUrl: '', priority: 100, inputCostPerMillionUsd: '', outputCostPerMillionUsd: '' })
 
   useEffect(() => {
     async function fetchSettings() {
@@ -30,9 +34,15 @@ export default function AdminSettings() {
         const res = await api.get('/admin/config')
         const data = res.data || []
         try {
-          const providerRes = await api.get('/admin/ai/providers')
+          const [providerRes, modelRes, comboRes] = await Promise.all([
+            api.get('/admin/ai/providers'),
+            api.get('/admin/ai/providers/models'),
+            api.get('/admin/ai/providers/combos'),
+          ])
           setProviderAccounts(providerRes.data || [])
-        } catch (providerErr) {
+          setProviderModels(modelRes.data || [])
+          setModelCombos(comboRes.data || [])
+            } catch (providerErr) {
           console.warn('Provider pool unavailable:', providerErr.message)
         }
 
@@ -67,10 +77,36 @@ export default function AdminSettings() {
     try {
       const res = await api.post('/admin/ai/providers', newProvider)
       setProviderAccounts((current) => [...current, res.data])
-      setNewProvider({ name: '', provider: 'groq', model: 'llama-3.3-70b-versatile', apiKey: '', baseUrl: '', priority: 100 })
+      setNewProvider({ name: '', provider: 'groq', model: 'llama-3.3-70b-versatile', apiKey: '', baseUrl: '', priority: 100, inputCostPerMillionUsd: '', outputCostPerMillionUsd: '' })
       setSuccessMsg('AI provider added successfully')
     } catch (err) {
       setError(err.message || 'Could not add AI provider')
+    }
+  }
+
+  const addCombo = async () => {
+    if (!comboDraft.name || !comboDraft.model) return setError('Choose a combo name and model')
+    try {
+      const res = await api.post('/admin/ai/providers/combos', {
+        name: comboDraft.name,
+        routes: comboDraft.routes.split(',').map((route) => route.trim()).filter(Boolean),
+        candidates: [{ model: comboDraft.model }],
+        active: true,
+      })
+      setModelCombos((current) => [...current, res.data])
+      setComboDraft({ name: '', routes: 'essay_analysis', model: '' })
+      setSuccessMsg('Model combo saved')
+    } catch (err) {
+      setError(err.message || 'Could not save model combo')
+    }
+  }
+
+  const activateCombo = async (combo) => {
+    try {
+      const res = await api.post(`/admin/ai/providers/combos/${combo._id}/activate`)
+      setModelCombos((current) => current.map((item) => ({ ...item, active: item._id === combo._id ? res.data.active : false })))
+    } catch (err) {
+      setError(err.message || 'Could not activate model combo')
     }
   }
 
@@ -200,6 +236,13 @@ Rules:
         <p className="admin-card__desc">Manage API Keys, default AI model, and the AI System Prompt template used for grading student essays across the system.</p>
       </div>
 
+      <div style={{ display: 'flex', gap: 8, borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: 8 }}>
+        {['providers', 'combos'].map((tab) => (
+          <button key={tab} type="button" className={activeAiTab === tab ? 'btn-primary' : 'btn-secondary'} onClick={() => setActiveAiTab(tab)}>
+            {tab === 'providers' ? 'Providers' : 'Model Combos'}
+          </button>
+        ))}
+      </div>
       <section style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', border: '1px solid var(--color-outline-variant)', borderRadius: 'var(--radius-md)' }}>
         <div>
           <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-on-surface)' }}>AI Provider Pool</h4>
@@ -209,6 +252,11 @@ Rules:
           <div key={account._id} style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', padding: '8px 0', borderBottom: '1px solid var(--color-outline-variant)' }}>
             <strong>{account.name}</strong>
             <span>{account.provider} · {account.model}</span>
+            <span style={{ color: 'var(--color-outline)' }}>
+              {account.inputCostPerMillionUsd != null && account.outputCostPerMillionUsd != null
+                ? `Input $${account.inputCostPerMillionUsd} / Output $${account.outputCostPerMillionUsd} per 1M tokens`
+                : 'Pricing: registry or unknown'}
+            </span>
             <span style={{ color: 'var(--color-outline)' }}>{account.maskedKey}</span>
             <button type="button" className="btn-secondary" onClick={() => testProvider(account)}>Test</button>
             <button type="button" className="btn-secondary" onClick={() => toggleProvider(account)}>{account.enabled ? 'Disable' : 'Enable'}</button>
@@ -225,7 +273,28 @@ Rules:
           <input required placeholder="Model" value={newProvider.model} onChange={(e) => setNewProvider({ ...newProvider, model: e.target.value })} />
           <input required type="password" placeholder="API key (write-only)" value={newProvider.apiKey} onChange={(e) => setNewProvider({ ...newProvider, apiKey: e.target.value })} />
           <input placeholder="Base URL (optional)" value={newProvider.baseUrl} onChange={(e) => setNewProvider({ ...newProvider, baseUrl: e.target.value })} />
+          <input type="number" min="0" step="any" placeholder="Input USD / 1M tokens (optional)" value={newProvider.inputCostPerMillionUsd} onChange={(e) => setNewProvider({ ...newProvider, inputCostPerMillionUsd: e.target.value })} />
+          <input type="number" min="0" step="any" placeholder="Output USD / 1M tokens (optional)" value={newProvider.outputCostPerMillionUsd} onChange={(e) => setNewProvider({ ...newProvider, outputCostPerMillionUsd: e.target.value })} />
           <button type="button" className="btn-primary" onClick={addProvider}>Add provider</button>
+        </div>
+        <div style={{ marginTop: 16, borderTop: '1px solid var(--color-outline-variant)', paddingTop: 16 }}>
+          <h4 style={{ fontSize: 15, fontWeight: 700 }}>Model Combos</h4>
+          <p style={{ fontSize: 12, color: 'var(--color-outline)' }}>Choose the ordered provider/model candidates. The next candidate is used only after a temporary failure or quota error.</p>
+          {modelCombos.map((combo) => (
+            <div key={combo._id} style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', padding: '8px 0' }}>
+              <strong>{combo.name}</strong><span>{(combo.routes || []).join(', ')}</span><span>{combo.active ? 'Active' : 'Inactive'}</span>
+              {!combo.active && <button type="button" className="btn-secondary" onClick={() => activateCombo(combo)}>Activate</button>}
+            </div>
+          ))}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 8, marginTop: 8 }}>
+            <input placeholder="Combo name" value={comboDraft.name} onChange={(e) => setComboDraft({ ...comboDraft, name: e.target.value })} />
+            <input placeholder="Routes, comma separated" value={comboDraft.routes} onChange={(e) => setComboDraft({ ...comboDraft, routes: e.target.value })} />
+            <select value={comboDraft.model} onChange={(e) => setComboDraft({ ...comboDraft, model: e.target.value })}>
+              <option value="">Select model candidate</option>
+              {providerModels.map((model) => <option key={model._id} value={model._id}>{model.displayName || model.modelId}</option>)}
+            </select>
+            <button type="button" className="btn-primary" onClick={addCombo}>Save combo</button>
+          </div>
         </div>
       </section>
 
