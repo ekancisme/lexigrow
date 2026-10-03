@@ -1,6 +1,7 @@
 import { SchemaType } from '@google/generative-ai'
 import AILog from '../models/AILog.js'
 import { normalizeUsage, estimateCost } from './aiGateway.service.js'
+import AIProviderAccount from '../models/AIProviderAccount.js'
 import { completeAI } from './aiGateway.service.js'
 import { fail } from '../utils/learning.js'
 
@@ -159,6 +160,9 @@ export async function analyzeVocabulary(
       essay: content,
     })
     let generated
+    if (!generate && !process.env.GEMINI_API_KEY && AIProviderAccount.db.readyState !== 1) {
+      fail('Gemini is not configured', 503)
+    }
     if (generate) {
       generated = await generate(prompt)
       usage = generated.response.usageMetadata
@@ -196,9 +200,13 @@ export async function analyzeVocabulary(
     status = 'success'
     return data
   } catch (err) {
+    const statusCode = err.status ?? err.statusCode
     errorCode =
-      err.statusCode === 503 ? 'AI_NOT_CONFIGURED' : 'AI_ANALYSIS_FAILED'
-    if (err.statusCode === 503) throw err
+      statusCode === 503 || err.code === 'AI_NOT_CONFIGURED' ? 'AI_NOT_CONFIGURED' : 'AI_ANALYSIS_FAILED'
+    if (statusCode === 503 || err.code === 'AI_NOT_CONFIGURED') {
+      err.statusCode = 503
+      throw err
+    }
     fail('Vocabulary analysis failed; retry this revision', 502)
   } finally {
     const tokens = normalizeUsage(usage)
