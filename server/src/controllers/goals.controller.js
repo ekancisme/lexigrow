@@ -5,6 +5,7 @@ import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import LearningSession from '../models/LearningSession.js'
 import { completeThroughRelay } from '../services/aiRelayClient.service.js'
+import { logAICompletion } from '../services/aiGateway.service.js'
 
 /**
  * Get the start of current week (Monday)
@@ -163,6 +164,7 @@ export async function buildGoalRecommendation(studentId) {
   const metrics = { totalVocab, totalEssays, overdueWords, completedSessions, essaysThisWeek, wordsThisWeek: totalWordsThisWeek, previousWeekStart: previousStart }
   let rationale = `You have ${overdueWords} words due for review and wrote ${totalWordsThisWeek} words this week. This plan balances review, writing, and vocabulary growth.`
   let source = 'deterministic'
+  const aiStarted = Date.now()
   try {
     const completion = await completeThroughRelay({
       route: 'goal_recommendation',
@@ -174,12 +176,14 @@ export async function buildGoalRecommendation(studentId) {
       temperature: 0.2,
       maxAttempts: 2,
     })
+    await logAICompletion({ route: 'goal_recommendation', result: completion, durationMs: Date.now() - aiStarted })
     const parsed = JSON.parse(completion.text)
     if (typeof parsed.rationale === 'string' && parsed.rationale.trim().length <= 1000) {
       rationale = parsed.rationale.trim()
       source = 'ai'
     }
   } catch (error) {
+    await logAICompletion({ route: 'goal_recommendation', error, durationMs: Date.now() - aiStarted })
     console.warn('AI goal rationale unavailable:', error.message)
     source = 'offline_fallback'
   }

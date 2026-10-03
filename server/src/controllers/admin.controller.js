@@ -4,6 +4,8 @@ import Essay from '../models/Essay.js'
 import Class from '../models/Class.js'
 import AIAnalysis from '../models/AIAnalysis.js'
 import Config from '../models/Config.js'
+import AIModelCombo from '../models/AIModelCombo.js'
+import { encryptSecret, isEncryptedSecret } from '../utils/secretCrypto.js'
 import AILog from '../models/AILog.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
@@ -445,6 +447,7 @@ const TOKEN_FORMATS = {
   GROQ_API_KEY: /^gsk_[A-Za-z0-9_-]+$/,
   HF_API_TOKEN: /^hf_[A-Za-z0-9]+$/,
 }
+const AI_CONFIG_SECRET_KEYS = new Set(['GROQ_API_KEY', 'GEMINI_API_KEY', 'OPENAI_API_KEY', 'LLAMA_API_KEY', 'HF_API_TOKEN'])
 
 export const updateConfigs = asyncHandler(async (req, res) => {
   const { settings } = req.body
@@ -461,12 +464,36 @@ export const updateConfigs = asyncHandler(async (req, res) => {
     // Normalize whitespace around secrets before validating/storing.
     const value = typeof item.value === 'string' ? item.value.trim() : item.value
 
+    if (key === 'DEFAULT_AI_COMBO' && value) {
+      if (typeof value !== 'string' || !/^[a-f\d]{24}$/i.test(value)) {
+        throw new ErrorResponse('Default AI combo is invalid', 400)
+      }
+      const comboExists = await AIModelCombo.exists({ _id: value, enabled: true })
+      if (!comboExists) throw new ErrorResponse('Selected AI combo is unavailable', 400)
+    }
+
     const config = await Config.findOne({ key })
+    if (!config && key === 'DEFAULT_AI_COMBO') {
+      const comboId = value || ''
+      await Config.create({ key, value: comboId, description: 'Default AI Model Combo' })
+      updatedSettings.push({ key, value: comboId })
+      logDetails[key] = { from: 'empty', to: comboId ? 'updated' : 'empty' }
+      continue
+    }
     if (config) {
       const isSensitive = isSensitiveConfigKey(key)
+      if (isSensitive && item.clearSecret === true) {
+        const hadValue = Boolean(config.value)
+        config.value = ''
+        await config.save()
+        updatedSettings.push({ key, value: '', isSecret: true, isConfigured: false })
+        logDetails[key] = { from: hadValue ? 'configured' : 'empty', to: 'empty' }
+        continue
+      }
       if (isSensitive && isMaskedSecret(value)) {
         continue
       }
+      if (isSensitive && (value === '' || value === null || value === undefined)) continue
 
       // Validate provider-specific format; empty values clear the key.
       const expected = TOKEN_FORMATS[key]
@@ -475,7 +502,9 @@ export const updateConfigs = asyncHandler(async (req, res) => {
       }
 
       const oldValue = config.value
-      config.value = value
+      config.value = AI_CONFIG_SECRET_KEYS.has(key)
+        ? (isEncryptedSecret(value) ? value : encryptSecret(String(value)))
+        : value
       await config.save()
 
       updatedSettings.push({
@@ -483,7 +512,7 @@ export const updateConfigs = asyncHandler(async (req, res) => {
         value: isSensitive && value ? maskSecretValue(value) : value,
         isSecret: isSensitive,
       })
-      logDetails[key] = { from: oldValue ? 'masked' : 'empty', to: value ? 'updated' : 'empty' }
+      logDetails[key] = { from: oldValue ? 'configured' : 'empty', to: value ? 'updated' : 'empty' }
     }
   }
 

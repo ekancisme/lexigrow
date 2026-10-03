@@ -149,44 +149,26 @@ export default function AdminAIMonitoring() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', borderBottom: '1px solid var(--color-outline-variant)', gap: '24px', marginBottom: '8px' }}>
+      <div className="admin-ai-page__tabs">
         <button
+          className={`admin-ai-page__tab ${activeTab === 'monitoring' ? 'is-active' : ''}`}
           onClick={() => setActiveTab('monitoring')}
-          style={{
-            background: 'none',
-            border: 'none',
-            borderBottom: activeTab === 'monitoring' ? '3px solid var(--color-primary)' : '3px solid transparent',
-            color: activeTab === 'monitoring' ? 'var(--color-primary)' : 'var(--color-outline)',
-            fontWeight: 700,
-            fontSize: '15px',
-            padding: '12px 6px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            transition: 'all 0.2s'
-          }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>monitoring</span>
           AI Monitoring
         </button>
 
         <button
+          className={`admin-ai-page__tab ${activeTab === 'providers' ? 'is-active' : ''}`}
+          onClick={() => setActiveTab('providers')}
+        >
+          <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>hub</span>
+          Providers
+        </button>
+
+        <button
+          className={`admin-ai-page__tab ${activeTab === 'config' ? 'is-active' : ''}`}
           onClick={() => setActiveTab('config')}
-          style={{
-            background: 'none',
-            border: 'none',
-            borderBottom: activeTab === 'config' ? '3px solid var(--color-primary)' : '3px solid transparent',
-            color: activeTab === 'config' ? 'var(--color-primary)' : 'var(--color-outline)',
-            fontWeight: 700,
-            fontSize: '15px',
-            padding: '12px 6px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            transition: 'all 0.2s'
-          }}
         >
           <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>settings_accessibility</span>
           System Configuration
@@ -194,8 +176,10 @@ export default function AdminAIMonitoring() {
       </div>
 
       {/* Tab Contents */}
-      {activeTab === 'config' ? (
-        <AdminSettings />
+      {activeTab === 'providers' ? (
+        <AdminSettings section="providers" />
+      ) : activeTab === 'config' ? (
+        <AdminSettings section="settings" />
       ) : (
         <>
           {loadingAnalytics ? (

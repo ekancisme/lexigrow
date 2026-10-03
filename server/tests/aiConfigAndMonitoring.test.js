@@ -58,6 +58,7 @@ import request from 'supertest'
 import app from '../src/index.js'
 import Config from '../src/models/Config.js'
 import AILog from '../src/models/AILog.js'
+import { decryptSecret } from '../src/utils/secretCrypto.js'
 
 describe('AI Config & Monitoring API', () => {
   beforeEach(() => {
@@ -129,8 +130,10 @@ describe('AI Config & Monitoring API', () => {
         .send({ settings: [{ key: 'HF_API_TOKEN', value: 'hf_AbC123XyZ' }] })
         .expect(200)
 
-      expect(mockHfConfig.value).toBe('hf_AbC123XyZ')
+      expect(mockHfConfig.value).toMatch(/^v2\./)
+      expect(decryptSecret(mockHfConfig.value)).toBe('hf_AbC123XyZ')
       expect(res.body.data[0].key).toBe('HF_API_TOKEN')
+      expect(JSON.stringify(res.body)).not.toContain('hf_AbC123XyZ')
     })
 
     it('rejects a Groq key saved as HF token (C-04) and an HF token saved as Groq key (C-05)', async () => {
@@ -158,7 +161,7 @@ describe('AI Config & Monitoring API', () => {
 
       await request(app)
         .put('/api/admin/config')
-        .send({ settings: [{ key: 'HF_API_TOKEN', value: '' }] })
+        .send({ settings: [{ key: 'HF_API_TOKEN', value: '', clearSecret: true }] })
         .expect(200)
 
       expect(mockHfConfig.value).toBe('')
@@ -174,7 +177,8 @@ describe('AI Config & Monitoring API', () => {
         .send({ settings: [{ key: 'HF_API_TOKEN', value: '  hf_AbC123XyZ\n' }] })
         .expect(200)
 
-      expect(mockHfConfig.value).toBe('hf_AbC123XyZ')
+      expect(mockHfConfig.value).toMatch(/^v2\./)
+      expect(decryptSecret(mockHfConfig.value)).toBe('hf_AbC123XyZ')
     })
   })
 

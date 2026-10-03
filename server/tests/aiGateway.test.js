@@ -27,25 +27,17 @@ describe('AI gateway failover', () => {
     ))
   })
 
-  it('fails over to the next configured legacy account on rate limit', async () => {
+  it('uses Groq only without an active route combo', async () => {
     mockCreate.mockRejectedValueOnce(Object.assign(new Error('quota exceeded'), { status: 429 }))
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ id: 'provider-request-2', choices: [{ message: { content: '{"ok":true}' } }], usage: { total_tokens: 3 } }),
-    }))
-    const result = await completeAI({
+    await expect(completeAI({
       route: 'test',
       providerPreference: 'groq',
       model: 'test-model',
       messages: [{ role: 'user', content: 'hello' }],
       responseFormat: { type: 'json_object' },
       maxAttempts: 3,
-    })
-    expect(result.text).toBe('{"ok":true}')
-    expect(result.attempts).toHaveLength(2)
-    expect(result.attempts[0]).toMatchObject({ status: 'failure', code: 'RATE_LIMITED' })
-    expect(result.attempts[1]).toMatchObject({ status: 'success' })
-    vi.unstubAllGlobals()
+    })).rejects.toMatchObject({ code: 'RATE_LIMITED', retryable: true })
+    expect(mockCreate).toHaveBeenCalledTimes(1)
   })
 
   it('does not retry a non-retryable bad request', async () => {
