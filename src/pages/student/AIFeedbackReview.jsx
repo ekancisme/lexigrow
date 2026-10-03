@@ -355,6 +355,18 @@ export default function AIFeedbackReview() {
           <span className="ai-feedback__prompt-chip">Custom Prompt</span>
         </div>
       )}
+      {(analysis?._meta?.isFallback || analysis?.analysisMeta?.isFallback) && (
+        <div className="ai-feedback__prompt-banner ai-feedback__prompt-banner--default">
+          <div className="ai-feedback__prompt-banner-left">
+            <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--color-tertiary)' }}>info</span>
+            <div>
+              <p className="text-label-md" style={{ fontWeight: 700, margin: 0 }}>Basic offline feedback</p>
+              <p className="text-label-sm" style={{ color: 'var(--color-outline)', margin: 0 }}>The AI provider was unavailable, so this result uses a local fallback.</p>
+            </div>
+          </div>
+          <span className="ai-feedback__prompt-chip ai-feedback__prompt-chip--default">Fallback</span>
+        </div>
+      )}
       {analysis && !analysis?.promptUsed?.isCustom && (
         <div className="ai-feedback__prompt-banner ai-feedback__prompt-banner--default">
           <div className="ai-feedback__prompt-banner-left">
@@ -515,7 +527,10 @@ export default function AIFeedbackReview() {
                   <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
                     {s.type === 'strength' ? 'thumb_up' : 'lightbulb'}
                   </span>
-                  <p className="text-body-md">{s.text}</p>
+                  <div>
+                    <p className="text-body-md">{s.text}</p>
+                    {s.quote && <blockquote style={{ margin: '6px 0 0', paddingLeft: 10, borderLeft: '3px solid var(--color-primary)', color: 'var(--color-outline)', fontStyle: 'italic' }}>“{s.quote}”</blockquote>}
+                  </div>
                 </div>
               )) || <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>No suggestions generated.</p>}
             </div>

@@ -42,10 +42,12 @@ router.post(
     const day = questDay(),
       filter = { student: req.user._id, day }
     let quest = await DailyQuest.findOne(filter).lean()
+    let questSource = 'curated_template'
     if (!quest) {
       const now = new Date()
       // Try AI-generated words first, fallback to rule-based
     let aiWords = []
+    questSource = 'offline_fallback'
     try {
       const { generateAIDailyQuestWords } = await import('../services/aiRecommendation.service.js')
       const dueWords = await Vocabulary.find({
@@ -72,6 +74,7 @@ router.post(
 
     let candidates
     if (aiWords && aiWords.length >= 4) {
+      questSource = 'ai'
       // Convert AI words to the format expected by generateCrossword
       candidates = aiWords.map(w => ({
         word: w.word,
@@ -115,7 +118,11 @@ router.post(
         quest = await DailyQuest.findOne(filter).lean()
       }
     }
-    res.json({ success: true, data: publicQuest(quest) })
+    res.json({
+      success: true,
+      data: publicQuest(quest),
+      _meta: { source: questSource, isFallback: questSource !== 'ai' },
+    })
   }),
 )
 

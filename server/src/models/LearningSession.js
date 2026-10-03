@@ -9,9 +9,22 @@ const schema = new mongoose.Schema(
     learningSet: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'LearningSet',
-      required: true,
+      required: false,
+      default: null,
     },
     learningSetSlug: String,
+    sessionType: {
+      type: String,
+      enum: ['curated_set', 'adaptive_recommendation', 'assignment'],
+      default: 'curated_set',
+    },
+    snapshot: {
+      targetWords: { type: [mongoose.Schema.Types.Mixed], default: [] },
+      rationale: { type: String, default: '' },
+      recommendationId: { type: String, default: '' },
+      competencyVersion: { type: Number, default: null },
+      createdAt: { type: Date, default: Date.now },
+    },
     theme: String,
     level: String,
     setVersion: Date,

@@ -35,6 +35,24 @@ export default function SetWeeklyGoals() {
     setGoals(goals.map(g => g.label === label ? { ...g, target: Number(value) } : g))
   }
 
+  async function acceptRecommendation(rec) {
+    if (!weeklyGoalDoc || !rec?.recommendation?.goals) return
+    setSaving(true)
+    try {
+      const recommendation = { ...rec.recommendation, isAccepted: true }
+      const result = await api.put(`/goals/${weeklyGoalDoc._id}`, {
+        goals: recommendation.goals,
+        recommendation,
+      })
+      setWeeklyGoalDoc(result.data)
+      setGoals(result.data?.goals || recommendation.goals)
+    } catch (err) {
+      alert('Error accepting recommendation: ' + err.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   async function handleSave() {
     if (!weeklyGoalDoc) return
     setSaving(true)
@@ -139,7 +157,15 @@ export default function SetWeeklyGoals() {
             recommendations.map((rec, i) => (
               <div key={i} className="weekly-goals__tip">
                 <span className="material-symbols-outlined" style={{ color: `var(--color-${rec.color || 'primary'})`, fontSize: 20 }}>{rec.icon || 'star'}</span>
-                <p className="text-label-md">{rec.text}</p>
+                <div>
+                  <p className="text-label-md">{rec.text}</p>
+                  {rec.source && <small style={{ color: 'var(--color-outline)' }}>{rec.isFallback ? 'Offline recommendation' : `Source: ${rec.source}`}</small>}
+                  {rec.recommendation?.goals && (
+                    <button className="btn-secondary" type="button" onClick={() => acceptRecommendation(rec)} disabled={saving} style={{ marginTop: 8 }}>
+                      {t('goals.acceptRecommendation', 'Accept this plan')}
+                    </button>
+                  )}
+                </div>
               </div>
             ))
           ) : (

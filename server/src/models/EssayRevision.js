@@ -32,6 +32,7 @@ const schema = new mongoose.Schema(
     targetWordResults: { type: [mongoose.Schema.Types.Mixed], default: [] },
     feedbackSummary: { type: String, default: '' },
     analysis: mongoose.Schema.Types.Mixed,
+    analysisMeta: mongoose.Schema.Types.Mixed,
     comparison: mongoose.Schema.Types.Mixed,
     analysisStatus: {
       type: String,

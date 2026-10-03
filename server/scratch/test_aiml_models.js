@@ -1,22 +1,23 @@
-const apiKey = 'ba9433bf870aa2d9506d629b1cb8b353'
+const apiKey = process.env.AIML_API_KEY
+
+if (!apiKey) {
+  console.error('Set AIML_API_KEY before running this scratch test.')
+  process.exit(1)
+}
 
 const testModels = async () => {
   try {
     const response = await fetch('https://api.aimlapi.com/v1/models', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`
-      }
+      headers: { Authorization: `Bearer ${apiKey}` },
     })
-
+    if (!response.ok) throw new Error(`HTTP ${response.status}: ${(await response.text()).slice(0, 300)}`)
     const data = await response.json()
-    const geminiModels = data.data.filter(m => m.id.toLowerCase().includes('gemini'))
-    console.log("Available Gemini Models:")
-    geminiModels.forEach(m => {
-      console.log(`- ID: ${m.id} (Aliases: ${JSON.stringify(m.aliases || [])})`)
-    })
+    const geminiModels = data.data.filter((model) => model.id.toLowerCase().includes('gemini'))
+    console.log('Available Gemini Models:')
+    geminiModels.forEach((model) => console.log(`- ${model.id} (Aliases: ${JSON.stringify(model.aliases || [])})`))
   } catch (err) {
-    console.error("Error fetching models:", err.message)
+    console.error('Error fetching models:', err.message)
+    process.exit(1)
   }
 }
 

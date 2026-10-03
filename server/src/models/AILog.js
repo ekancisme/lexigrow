@@ -30,7 +30,17 @@ const aiLogSchema = new mongoose.Schema({
   costEstimate: {
     type: Number,
     default: 0,
-  }
+  },
+  route: { type: String, default: '' },
+  provider: { type: String, default: '' },
+  providerAccount: { type: String, default: '' },
+  requestId: { type: String, default: '' },
+  providerRequestId: { type: String, default: '' },
+  attempts: { type: Array, default: [] },
+  statusCode: { type: Number, default: null },
+  failoverReason: { type: String, default: '' },
+  source: { type: String, enum: ['ai', 'offline_fallback', 'curated_template', ''], default: 'ai' },
+  isFallback: { type: Boolean, default: false },
 }, {
   timestamps: true,
 })

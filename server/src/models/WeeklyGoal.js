@@ -40,6 +40,13 @@ const weeklyGoalSchema = new mongoose.Schema({
     required: true,
   },
   goals: [goalItemSchema],
+  recommendation: {
+    source: { type: String, enum: ['deterministic', 'ai', 'offline_fallback', ''], default: '' },
+    isAccepted: { type: Boolean, default: false },
+    rationale: { type: String, default: '' },
+    metrics: { type: mongoose.Schema.Types.Mixed, default: {} },
+    generatedAt: { type: Date, default: null },
+  },
 }, {
   timestamps: true,
 })

@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import api from '../../services/api'
 
 export default function AdminSettings() {
-  const [settings, setSettings] = useState([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
@@ -22,13 +21,20 @@ export default function AdminSettings() {
   const [defaultModel, setDefaultModel] = useState('llama-3.3-70b-versatile')
   const [systemPrompt, setSystemPrompt] = useState('')
   const [allowPasteEssay, setAllowPasteEssay] = useState(true)
+  const [providerAccounts, setProviderAccounts] = useState([])
+  const [newProvider, setNewProvider] = useState({ name: '', provider: 'groq', model: 'llama-3.3-70b-versatile', apiKey: '', baseUrl: '', priority: 100 })
 
   useEffect(() => {
     async function fetchSettings() {
       try {
         const res = await api.get('/admin/config')
         const data = res.data || []
-        setSettings(data)
+        try {
+          const providerRes = await api.get('/admin/ai/providers')
+          setProviderAccounts(providerRes.data || [])
+        } catch (providerErr) {
+          console.warn('Provider pool unavailable:', providerErr.message)
+        }
 
         // Map inputs
         const groq = data.find(c => c.key === 'GROQ_API_KEY')
@@ -55,6 +61,46 @@ export default function AdminSettings() {
     }
     fetchSettings()
   }, [])
+
+  const addProvider = async (e) => {
+    e.preventDefault()
+    try {
+      const res = await api.post('/admin/ai/providers', newProvider)
+      setProviderAccounts((current) => [...current, res.data])
+      setNewProvider({ name: '', provider: 'groq', model: 'llama-3.3-70b-versatile', apiKey: '', baseUrl: '', priority: 100 })
+      setSuccessMsg('AI provider added successfully')
+    } catch (err) {
+      setError(err.message || 'Could not add AI provider')
+    }
+  }
+
+  const toggleProvider = async (account) => {
+    try {
+      const res = await api.patch(`/admin/ai/providers/${account._id}`, { enabled: !account.enabled })
+      setProviderAccounts((current) => current.map((item) => item._id === account._id ? res.data : item))
+    } catch (err) {
+      setError(err.message || 'Could not update AI provider')
+    }
+  }
+
+  const removeProvider = async (account) => {
+    if (!window.confirm(`Remove ${account.name}?`)) return
+    try {
+      await api.delete(`/admin/ai/providers/${account._id}`)
+      setProviderAccounts((current) => current.filter((item) => item._id !== account._id))
+    } catch (err) {
+      setError(err.message || 'Could not remove AI provider')
+    }
+  }
+
+  const testProvider = async (account) => {
+    try {
+      await api.post(`/admin/ai/providers/${account._id}/test`)
+      setSuccessMsg(`${account.name} connection is healthy`)
+    } catch (err) {
+      setError(err.message || `${account.name} connection failed`)
+    }
+  }
 
   const handleSave = async (e) => {
     e.preventDefault()
@@ -153,6 +199,35 @@ Rules:
         <h3 className="admin-card__title">System Configuration</h3>
         <p className="admin-card__desc">Manage API Keys, default AI model, and the AI System Prompt template used for grading student essays across the system.</p>
       </div>
+
+      <section style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', border: '1px solid var(--color-outline-variant)', borderRadius: 'var(--radius-md)' }}>
+        <div>
+          <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-on-surface)' }}>AI Provider Pool</h4>
+          <p style={{ fontSize: '12px', color: 'var(--color-outline)' }}>Add multiple provider accounts. The server rotates priority accounts and fails over on quota/rate-limit errors.</p>
+        </div>
+        {providerAccounts.map((account) => (
+          <div key={account._id} style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', padding: '8px 0', borderBottom: '1px solid var(--color-outline-variant)' }}>
+            <strong>{account.name}</strong>
+            <span>{account.provider} · {account.model}</span>
+            <span style={{ color: 'var(--color-outline)' }}>{account.maskedKey}</span>
+            <button type="button" className="btn-secondary" onClick={() => testProvider(account)}>Test</button>
+            <button type="button" className="btn-secondary" onClick={() => toggleProvider(account)}>{account.enabled ? 'Disable' : 'Enable'}</button>
+            <button type="button" className="btn-secondary" onClick={() => removeProvider(account)}>Remove</button>
+          </div>
+        ))}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 8 }}>
+          <input required placeholder="Account name" value={newProvider.name} onChange={(e) => setNewProvider({ ...newProvider, name: e.target.value })} />
+          <select value={newProvider.provider} onChange={(e) => setNewProvider({ ...newProvider, provider: e.target.value })}>
+            <option value="groq">Groq</option>
+            <option value="gemini">Gemini</option>
+            <option value="openai-compatible">OpenAI-compatible</option>
+          </select>
+          <input required placeholder="Model" value={newProvider.model} onChange={(e) => setNewProvider({ ...newProvider, model: e.target.value })} />
+          <input required type="password" placeholder="API key (write-only)" value={newProvider.apiKey} onChange={(e) => setNewProvider({ ...newProvider, apiKey: e.target.value })} />
+          <input placeholder="Base URL (optional)" value={newProvider.baseUrl} onChange={(e) => setNewProvider({ ...newProvider, baseUrl: e.target.value })} />
+          <button type="button" className="btn-primary" onClick={addProvider}>Add provider</button>
+        </div>
+      </section>
 
       <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         

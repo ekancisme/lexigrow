@@ -10,6 +10,9 @@ const suggestionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  quote: { type: String, default: '' },
+  quoteStart: { type: Number, default: -1 },
+  quoteEnd: { type: Number, default: -1 },
 }, { _id: false })
 
 const aiAnalysisSchema = new mongoose.Schema({
@@ -37,6 +40,10 @@ const aiAnalysisSchema = new mongoose.Schema({
     type: String,
     trim: true,
     lowercase: true,
+  }],
+  wordUsageClassification: [{
+    word: { type: String, trim: true, lowercase: true },
+    classification: { type: String, enum: ['target_applied', 'learned_used', 'new'] },
   }],
   suggestions: [suggestionSchema],
   writingStats: {
@@ -78,6 +85,7 @@ const aiAnalysisSchema = new mongoose.Schema({
       default: 'none' 
     }
   },
+  analysisMeta: { type: mongoose.Schema.Types.Mixed, default: null },
   // Track which system prompt was used for this analysis
   promptUsed: {
     name: { type: String, default: 'Default System Prompt' },

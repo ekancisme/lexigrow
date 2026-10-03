@@ -2,6 +2,7 @@ import Vocabulary from '../models/Vocabulary.js'
 import ReviewEvent from '../models/ReviewEvent.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import { calculateSM2 } from '../services/srs.service.js'
+import { invalidateCompetencySnapshot } from '../services/competency.service.js'
 import { transactIntent } from '../services/learningTransaction.service.js'
 import {
   fail,
@@ -60,6 +61,7 @@ export const submitSrsReview = asyncHandler(async (req, res) => {
       return word.toObject()
     },
   )
+  await invalidateCompetencySnapshot(req.user._id)
   res.json({ success: true, data: out.result })
 })
 export const getSrsDue = asyncHandler(async (req, res) => {

@@ -7,6 +7,8 @@ import Config from '../models/Config.js'
 import AILog from '../models/AILog.js'
 import { checkCrossStudentPlagiarism } from './plagiarism.service.js'
 import { detectAIWriting } from './huggingface.service.js'
+import { completeAI, aiMeta } from './aiGateway.service.js'
+import { validateEnrichedWords, validateTopics } from './aiGuardrails.service.js'
 
 /**
  * Retrieve configuration value from database
@@ -24,7 +26,7 @@ export const getConfigValue = async (key, defaultValue) => {
 /**
  * Log AI service calls
  */
-const logAICall = async ({ model, action, duration, status, usage, errorMessage }) => {
+const logAICall = async ({ model, action, duration, status, usage, errorMessage, route, meta, source = 'ai', isFallback = false }) => {
   try {
     const promptTokens = usage?.prompt_tokens || usage?.promptTokens || 0
     const completionTokens = usage?.completion_tokens || usage?.completionTokens || 0
@@ -51,6 +53,16 @@ const logAICall = async ({ model, action, duration, status, usage, errorMessage 
       status,
       errorMessage,
       costEstimate,
+      route: route || action,
+      provider: meta?.provider || '',
+      providerAccount: meta?.account || '',
+      requestId: meta?.requestId || '',
+      providerRequestId: meta?.providerRequestId || '',
+      attempts: meta?.attempts || [],
+      statusCode: meta?.status || null,
+      failoverReason: meta?.attempts?.filter((attempt) => attempt.status === 'failure').map((attempt) => attempt.code).join(',') || '',
+      source,
+      isFallback,
     })
   } catch (err) {
     console.error('Failed to save AI log:', err.message)
@@ -59,6 +71,17 @@ const logAICall = async ({ model, action, duration, status, usage, errorMessage 
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
+
+const completeGroq = async ({ route, model, messages, responseFormat, temperature, maxTokens = 4096 }) =>
+  completeAI({
+    route,
+    providerPreference: 'groq',
+    model,
+    messages,
+    responseFormat,
+    temperature,
+    maxTokens,
+  })
 
 /**
  * Run spaCy Python NLP script on text
@@ -145,8 +168,8 @@ Analyze the student's essay and return a JSON response with EXACTLY this structu
   },
   "newWordsDetected": [<list of advanced/uncommon English words used>],
   "suggestions": [
-    {"type": "strength", "text": "<what the student did well>"},
-    {"type": "improvement", "text": "<what could be improved>"}
+    {"type": "strength", "text": "<what the student did well>", "quote": "<exact supporting quote or empty>"},
+    {"type": "improvement", "text": "<what could be improved>", "quote": "<exact supporting quote or empty>"}
   ],
   "writingStats": {
     "avgSentenceLength": <number>,
@@ -217,7 +240,6 @@ export const sanitizeCustomPrompt = (raw) => {
 export const analyzeEssay = async (essayContent, customPrompt, pastScoresSummary = '') => {
   const defaultPrompt = await getConfigValue('SYSTEM_ANALYSIS_PROMPT', DEFAULT_ANALYSIS_PROMPT)
   const activeModel = await getConfigValue('DEFAULT_AI_MODEL', 'llama-3.3-70b-versatile')
-  const apiKey = await getConfigValue('GROQ_API_KEY', process.env.GROQ_API_KEY)
 
   /**
    * Hybrid Prompt Strategy:
@@ -254,26 +276,20 @@ export const analyzeEssay = async (essayContent, customPrompt, pastScoresSummary
   let usage = null
 
   try {
-    const Groq = (await import('groq-sdk')).default
-    if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
-      throw new Error('Groq API key is not configured or is the default placeholder')
-    }
-
-    const groq = new Groq({ apiKey })
-
     const userMessageContent = `ESSAY TO ANALYZE:\n\n${essayContent}${pastScoresSummary ? `\n\nSTUDENT'S HISTORICAL PERFORMANCE SCORES:\n${pastScoresSummary}` : ''}`
-
-    const chatCompletion = await groq.chat.completions.create({
+    const completion = await completeGroq({
+      route: 'essay_analysis',
+      model: activeModel,
       messages: [
         { role: 'system', content: prompt },
-        { role: 'user', content: userMessageContent }
+        { role: 'user', content: userMessageContent },
       ],
-      model: activeModel,
-      response_format: { type: 'json_object' }
+      responseFormat: { type: 'json_object' },
+      maxTokens: 4096,
     })
 
-    usage = chatCompletion.usage
-    const responseText = chatCompletion.choices[0].message.content
+    usage = completion.usage
+    const responseText = completion.text
 
     // Extract JSON from response (handle markdown code blocks if any)
     let jsonStr = responseText.trim()
@@ -283,15 +299,32 @@ export const analyzeEssay = async (essayContent, customPrompt, pastScoresSummary
     }
 
     const analysis = JSON.parse(jsonStr)
+    if (Array.isArray(analysis.suggestions)) {
+      analysis.suggestions = analysis.suggestions.map((suggestion) => {
+        const quote = typeof suggestion.quote === 'string' && suggestion.quote.length <= 500
+          ? suggestion.quote
+          : ''
+        const quoteStart = quote ? essayContent.indexOf(quote) : -1
+        return {
+          ...suggestion,
+          quote: quoteStart >= 0 ? quote : '',
+          quoteStart,
+          quoteEnd: quoteStart >= 0 ? quoteStart + quote.length : -1,
+        }
+      })
+    }
 
     await logAICall({
       model: activeModel,
       action: 'essay_analysis',
       duration: Date.now() - startTime,
       status: 'success',
-      usage
+      usage,
+      route: 'essay_analysis',
+      meta: completion,
     })
 
+    analysis._meta = aiMeta({ result: completion })
     return analysis
   } catch (error) {
     console.error('AI Analysis Error (Groq):', error.message)
@@ -305,7 +338,9 @@ export const analyzeEssay = async (essayContent, customPrompt, pastScoresSummary
     })
 
     // Return fallback analysis if AI fails
-    return generateFallbackAnalysis(essayContent)
+    const fallback = generateFallbackAnalysis(essayContent)
+    fallback._meta = { source: 'offline_fallback', isFallback: true, provider: null, model: activeModel, latencyMs: Date.now() - startTime }
+    return fallback
   }
 }
 
@@ -348,7 +383,7 @@ function generateFallbackAnalysis(content) {
     newWordsDetected: newWords,
     suggestions: [
       { type: 'strength', text: 'Essay was submitted and analyzed.' },
-      { type: 'improvement', text: 'AI analysis was unavailable. Please configure GEMINI_API_KEY for full analysis.' },
+      { type: 'improvement', text: 'AI analysis was unavailable. Please configure an AI provider in the administrator settings for full analysis.' },
     ],
     writingStats: {
       avgSentenceLength: sentences.length > 0 ? Math.round(totalWords / sentences.length) : 0,
@@ -375,18 +410,10 @@ export const generateSynonymsForRepeatedWords = async (repeatedWordsList, essayC
   if (!repeatedWordsList || repeatedWordsList.length === 0) return {}
 
   const activeModel = await getConfigValue('DEFAULT_AI_MODEL', 'llama-3.3-70b-versatile')
-  const apiKey = await getConfigValue('GROQ_API_KEY', process.env.GROQ_API_KEY)
   const startTime = Date.now()
   let usage = null
 
   try {
-    const Groq = (await import('groq-sdk')).default
-    if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
-      throw new Error('Groq API key is not configured or is the default placeholder')
-    }
-
-    const groq = new Groq({ apiKey })
-
     const prompt = `You are an expert English writing tutor. The student's essay contains the following overused/repeated words: ${repeatedWordsList.join(', ')}.
 Analyze the essay context:
 "${essayContent}"
@@ -401,16 +428,14 @@ Example format:
 
 Return ONLY valid JSON, no markdown formatting.`
 
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        { role: 'user', content: prompt }
-      ],
+    const completion = await completeGroq({
+      route: 'synonym_generation',
       model: activeModel,
-      response_format: { type: 'json_object' }
+      messages: [{ role: 'user', content: prompt }],
+      responseFormat: { type: 'json_object' },
     })
-
-    usage = chatCompletion.usage
-    const responseText = chatCompletion.choices[0].message.content
+    usage = completion.usage
+    const responseText = completion.text
     let jsonStr = responseText.trim()
     const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
     if (jsonMatch) {
@@ -469,6 +494,22 @@ Return ONLY valid JSON, no markdown formatting.`
   }
 }
 
+export const classifyDetectedWords = (detectedWords = [], knownWords = [], targetWords = []) => {
+  const known = new Set(knownWords.map((word) => String(word).toLowerCase()))
+  const targets = new Set(targetWords.map((word) => String(word).toLowerCase()))
+  return detectedWords.map((word) => {
+    const normalized = String(word).trim().toLowerCase()
+    return {
+      word: normalized,
+      classification: targets.has(normalized)
+        ? 'target_applied'
+        : known.has(normalized)
+          ? 'learned_used'
+          : 'new',
+    }
+  })
+}
+
 export const processEssayAnalysis = async (essayId, studentId, essayContent, customPrompt, promptMeta = null) => {
   const cleanContent = (essayContent || '')
     .replace(/<br\s*\/?>/gi, '\n')
@@ -505,6 +546,16 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
     checkCrossStudentPlagiarism(essayId, cleanContent),
     detectAIWriting(cleanContent)
   ])
+
+  const detectedWords = Array.isArray(analysisData.newWordsDetected) ? analysisData.newWordsDetected : []
+  const knownVocabulary = detectedWords.length > 0
+    ? await Vocabulary.find({ student: studentId, word: { $in: detectedWords.map((word) => String(word).toLowerCase()) } }).select('word').lean()
+    : []
+  analysisData.wordUsageClassification = classifyDetectedWords(
+    detectedWords,
+    knownVocabulary.map((item) => item.word),
+    promptMeta?.targetWords || [],
+  )
 
   let nlpStats;
   if (nlpData) {
@@ -629,6 +680,7 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
         lexicalDiversityMtld: lexicalDiversity.mtld
       },
       newWordsDetected: analysisData.newWordsDetected || [],
+      wordUsageClassification: analysisData.wordUsageClassification || [],
       suggestions: analysisData.suggestions || [],
       writingStats: {
         ...analysisData.writingStats,
@@ -642,6 +694,7 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
         sentenceStructures: ['Relative clauses', 'Conditional sentence (Type 2)', 'Passive voice variation'],
         generalTips: 'Practice connecting your ideas with diverse transition words and experimenting with complex sentence structures.'
       },
+      analysisMeta: analysisData._meta || { source: 'offline_fallback', isFallback: true },
       // Track which prompt was used for this analysis
       promptUsed: promptMeta
         ? { name: promptMeta.name, promptId: promptMeta.promptId, isCustom: true }
@@ -735,18 +788,10 @@ function categorizeWord(word) {
  */
 export const generateTopicsByTheme = async (theme, excludeTopics = []) => {
   const activeModel = await getConfigValue('DEFAULT_AI_MODEL', 'llama-3.3-70b-versatile')
-  const apiKey = await getConfigValue('GROQ_API_KEY', process.env.GROQ_API_KEY)
   const startTime = Date.now()
   let usage = null
 
   try {
-    const Groq = (await import('groq-sdk')).default
-    if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
-      throw new Error('Groq API key is not configured or is the default placeholder')
-    }
-
-    const groq = new Groq({ apiKey })
-
     const exclusionInstruction = excludeTopics && excludeTopics.length > 0
       ? `\nCRITICAL: Do NOT suggest any topics that are identical or highly similar to these existing topics already written by the student: ${JSON.stringify(excludeTopics)}.`
       : ''
@@ -757,16 +802,14 @@ Return a JSON object with a key "topics" containing the list of 4 topics, for ex
   "topics": ["Topic 1", "Topic 2", "Topic 3", "Topic 4"]
 }`
 
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        { role: 'user', content: prompt }
-      ],
+    const completion = await completeGroq({
+      route: 'topic_generation',
       model: activeModel,
-      response_format: { type: 'json_object' }
+      messages: [{ role: 'user', content: prompt }],
+      responseFormat: { type: 'json_object' },
     })
-
-    usage = chatCompletion.usage
-    const responseText = chatCompletion.choices[0].message.content
+    usage = completion.usage
+    const responseText = completion.text
     let jsonStr = responseText.trim()
     const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
     if (jsonMatch) {
@@ -774,6 +817,8 @@ Return a JSON object with a key "topics" containing the list of 4 topics, for ex
     }
     
     const responseObj = JSON.parse(jsonStr)
+    const topics = validateTopics(responseObj, 4)
+    if (!topics) throw new Error('AI returned invalid topic content')
 
     await logAICall({
       model: activeModel,
@@ -783,13 +828,7 @@ Return a JSON object with a key "topics" containing the list of 4 topics, for ex
       usage
     })
 
-    if (responseObj && Array.isArray(responseObj.topics)) {
-      return responseObj.topics
-    }
-    if (Array.isArray(responseObj)) {
-      return responseObj
-    }
-    return Object.values(responseObj)[0] || []
+    return topics
   } catch (error) {
     console.error('AI Topic Generation Error (Groq):', error.message)
 
@@ -820,19 +859,11 @@ export const enrichWordsList = async (words, contextText = '') => {
   if (!words || words.length === 0) return []
 
   const activeModel = await getConfigValue('DEFAULT_AI_MODEL', 'llama-3.3-70b-versatile')
-  const apiKey = await getConfigValue('GROQ_API_KEY', process.env.GROQ_API_KEY)
   const startTime = Date.now()
   let usage = null
 
   try {
-    const Groq = (await import('groq-sdk')).default
-    if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
-      throw new Error('Groq API key is not configured or is the default placeholder')
-    }
-
-    const groq = new Groq({ apiKey })
-
-    const prompt = `You are a professional lexicographer and English dictionary AI. 
+    const prompt = `You are a professional lexicographer and English dictionary AI.
 For each word in the list below, generate its phonetic pronunciation in IPA format, grammatical part of speech, a clear definition in English, an example sentence, a list of up to 4 synonyms, and a list of up to 4 antonyms.
 
 If the user provides context, try to adapt the example sentence so that it fits or refers to the provided context.
@@ -854,16 +885,14 @@ Word List:
 ${words.join(', ')}
 ${contextText ? `\nContext (from essay):\n"${contextText}"` : ''}`
 
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        { role: 'user', content: prompt }
-      ],
+    const completion = await completeGroq({
+      route: 'vocabulary_enrichment',
       model: activeModel,
-      response_format: { type: 'json_object' }
+      messages: [{ role: 'user', content: prompt }],
+      responseFormat: { type: 'json_object' },
     })
-
-    usage = chatCompletion.usage
-    const responseText = chatCompletion.choices[0].message.content
+    usage = completion.usage
+    const responseText = completion.text
     let jsonStr = responseText.trim()
     const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
     if (jsonMatch) {
@@ -871,6 +900,8 @@ ${contextText ? `\nContext (from essay):\n"${contextText}"` : ''}`
     }
 
     const result = JSON.parse(jsonStr)
+    const enrichedWords = validateEnrichedWords(result, words)
+    if (!enrichedWords) throw new Error('AI returned invalid vocabulary enrichment')
 
     await logAICall({
       model: activeModel,
@@ -880,7 +911,7 @@ ${contextText ? `\nContext (from essay):\n"${contextText}"` : ''}`
       usage
     })
 
-    return result.enrichedWords || []
+    return enrichedWords
   } catch (error) {
     console.error('AI Vocab Enrichment Error (Groq):', error.message)
 
@@ -911,19 +942,11 @@ export const translateTextToVietnamese = async (text) => {
   if (!text || !text.trim()) return ''
 
   const activeModel = await getConfigValue('DEFAULT_AI_MODEL', 'llama-3.3-70b-versatile')
-  const apiKey = await getConfigValue('GROQ_API_KEY', process.env.GROQ_API_KEY)
   const startTime = Date.now()
   let usage = null
 
   try {
-    const Groq = (await import('groq-sdk')).default
-    if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
-      throw new Error('Groq API key is not configured or is the default placeholder')
-    }
-
-    const groq = new Groq({ apiKey })
-
-    const prompt = `You are a professional English to Vietnamese translator. 
+    const prompt = `You are a professional English to Vietnamese translator.
 Translate the following English text to natural, accurate Vietnamese. 
 Return a JSON object containing a single key "translation", for example:
 {
@@ -935,16 +958,14 @@ Return ONLY valid JSON, no markdown formatting.
 Text to translate:
 "${text}"`
 
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        { role: 'user', content: prompt }
-      ],
+    const completion = await completeGroq({
+      route: 'translation',
       model: activeModel,
-      response_format: { type: 'json_object' }
+      messages: [{ role: 'user', content: prompt }],
+      responseFormat: { type: 'json_object' },
     })
-
-    usage = chatCompletion.usage
-    const responseText = chatCompletion.choices[0].message.content
+    usage = completion.usage
+    const responseText = completion.text
     let jsonStr = responseText.trim()
     const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
     if (jsonMatch) {
@@ -983,18 +1004,10 @@ export const getSynonymsForRepeatedWords = async (words, essayContent) => {
   if (!words || words.length === 0) return {}
 
   const activeModel = await getConfigValue('DEFAULT_AI_MODEL', 'llama-3.3-70b-versatile')
-  const apiKey = await getConfigValue('GROQ_API_KEY', process.env.GROQ_API_KEY)
   const startTime = Date.now()
   let usage = null
 
   try {
-    const Groq = (await import('groq-sdk')).default
-    if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
-      throw new Error('Groq API key is not configured or is the default placeholder')
-    }
-
-    const groq = new Groq({ apiKey })
-
     const prompt = `You are an English writing tutor. The student's essay contains some overused/repeated words.
 For each repeated word in the list, provide 3 to 4 advanced/alternative synonyms that fit the context of the essay.
 Return a JSON object containing a key "synonymsMap" where keys are the repeated words (lowercase) and values are arrays of strings (the suggested synonyms).
@@ -1015,16 +1028,14 @@ ${words.join(', ')}
 Essay context:
 "${essayContent}"`
 
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        { role: 'user', content: prompt }
-      ],
+    const completion = await completeGroq({
+      route: 'synonym_recommendation',
       model: activeModel,
-      response_format: { type: 'json_object' }
+      messages: [{ role: 'user', content: prompt }],
+      responseFormat: { type: 'json_object' },
     })
-
-    usage = chatCompletion.usage
-    const responseText = chatCompletion.choices[0].message.content
+    usage = completion.usage
+    const responseText = completion.text
     let jsonStr = responseText.trim()
     const jsonMatch = responseText.match(/```(?:json)?\s*([\s\S]*?)```/)
     if (jsonMatch) {
@@ -1165,17 +1176,9 @@ export const calculateLexicalDiversity = (text) => {
  */
 export const runAIHelperService = async (text, action) => {
   const activeModel = await getConfigValue('DEFAULT_AI_MODEL', 'llama-3.3-70b-versatile')
-  const apiKey = await getConfigValue('GROQ_API_KEY', process.env.GROQ_API_KEY)
   const startTime = Date.now()
 
   try {
-    const Groq = (await import('groq-sdk')).default
-    if (!apiKey || apiKey.startsWith('gsk_dummy_prefix_000000000000')) {
-      throw new Error('Groq API key is not configured')
-    }
-
-    const groq = new Groq({ apiKey })
-
     let systemPrompt = ''
     let userPrompt = text
 
@@ -1195,16 +1198,17 @@ If there are no errors, return a JSON object with empty errors array: {"errors":
 Return ONLY valid JSON. No markdown formatting, no code blocks.`
     }
 
-    const chatCompletion = await groq.chat.completions.create({
+    const completion = await completeGroq({
+      route: `ai_helper_${action}`,
+      model: activeModel,
       messages: [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
+        { role: 'user', content: userPrompt },
       ],
-      model: activeModel,
-      response_format: action === 'spellcheck' ? { type: 'json_object' } : undefined
+      responseFormat: action === 'spellcheck' ? { type: 'json_object' } : undefined,
     })
 
-    const responseText = chatCompletion.choices[0].message.content.trim()
+    const responseText = completion.text.trim()
 
     let result
     if (action === 'spellcheck') {
@@ -1225,7 +1229,7 @@ Return ONLY valid JSON. No markdown formatting, no code blocks.`
       action: `ai_helper_${action}`,
       duration: Date.now() - startTime,
       status: 'success',
-      usage: chatCompletion.usage
+      usage: completion.usage
     })
 
     return result
