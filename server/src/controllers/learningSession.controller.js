@@ -27,6 +27,15 @@ export const startLearningSession = asyncHandler(async (req, res) => {
       message: 'Continue your current learning session',
     })
   const adaptiveRequested = req.body.adaptive === true || req.body.mode === 'adaptive' || req.body.recommendationId
+  const isStandaloneMongoError = (err) =>
+    Boolean(
+      err?.message && (
+        err.message.includes('Transaction numbers are only allowed on a replica set') ||
+        err.message.includes('does not support retryable writes') ||
+        err.message.includes('Transaction is not supported')
+      )
+    )
+
   if (adaptiveRequested && !req.body.assignmentId) {
     const count = integer(req.body.count, 5, 1, 10)
     const theme = typeof req.body.theme === 'string' && req.body.theme.trim()
@@ -40,48 +49,63 @@ export const startLearningSession = asyncHandler(async (req, res) => {
     })
     if (targets.length < 1) fail('No vocabulary available for an adaptive session', 404)
     let created
-    try {
-      created = await mongoose.connection.transaction(async (tx) => {
-        const [session] = await LearningSession.create([{
-          student: req.user._id,
-          learningSet: null,
-          learningSetSlug: null,
-          theme,
-          level: snapshot?.level || req.user.learningProfile?.targetLevel || 'B1',
-          sessionType: 'adaptive_recommendation',
+    const executeCreateAdaptive = async (tx) => {
+      const sessionOpts = tx ? { session: tx } : {}
+      const [session] = await LearningSession.create([{
+        student: req.user._id,
+        learningSet: null,
+        learningSetSlug: null,
+        theme,
+        level: snapshot?.level || req.user.learningProfile?.targetLevel || 'B1',
+        sessionType: 'adaptive_recommendation',
+        targetWords: targets,
+        snapshot: {
           targetWords: targets,
-          snapshot: {
-            targetWords: targets,
-            rationale,
-            recommendationId: String(req.body.recommendationId || ''),
-            competencyVersion: snapshot?.version || null,
-          },
-        }], { session: tx })
-        for (const word of targets) {
-          if (word.wordId?.startsWith('adaptive:')) {
-            await Vocabulary.updateOne(
-              { student: req.user._id, word: word.word },
-              { $setOnInsert: {
-                student: req.user._id,
-                word: word.word,
-                theme,
-                definition: word.definition,
-                partOfSpeech: word.partOfSpeech,
-                ipa: word.phonetic,
-                exampleSentence: word.exampleSentences?.[0] || '',
-                masteryLevel: 'new',
-              } },
-              { upsert: true, session: tx },
-            )
-          }
+          rationale,
+          recommendationId: String(req.body.recommendationId || ''),
+          competencyVersion: snapshot?.version || null,
+        },
+      }], sessionOpts)
+      for (const word of targets) {
+        if (word.wordId?.startsWith('adaptive:')) {
+          await Vocabulary.updateOne(
+            { student: req.user._id, word: word.word },
+            { $setOnInsert: {
+              student: req.user._id,
+              word: word.word,
+              theme,
+              definition: word.definition,
+              partOfSpeech: word.partOfSpeech,
+              ipa: word.phonetic,
+              exampleSentence: word.exampleSentences?.[0] || '',
+              masteryLevel: 'new',
+            } },
+            { upsert: true, ...(tx ? { session: tx } : {}) },
+          )
         }
-        return session
-      })
+      }
+      return session
+    }
+
+    try {
+      created = await mongoose.connection.transaction(executeCreateAdaptive)
     } catch (err) {
-      if (err.code !== 11000) throw err
-      const existing = await LearningSession.findOne({ student: req.user._id, status: 'in_progress' })
-      if (!existing) throw err
-      return res.json({ success: true, data: publicLearning(existing), message: 'Continue your current learning session' })
+      if (isStandaloneMongoError(err)) {
+        try {
+          created = await executeCreateAdaptive(null)
+        } catch (innerErr) {
+          if (innerErr.code !== 11000) throw innerErr
+          const existing = await LearningSession.findOne({ student: req.user._id, status: 'in_progress' })
+          if (!existing) throw innerErr
+          return res.json({ success: true, data: publicLearning(existing), message: 'Continue your current learning session' })
+        }
+      } else if (err.code === 11000) {
+        const existing = await LearningSession.findOne({ student: req.user._id, status: 'in_progress' })
+        if (!existing) throw err
+        return res.json({ success: true, data: publicLearning(existing), message: 'Continue your current learning session' })
+      } else {
+        throw err
+      }
     }
     return res.status(201).json({
       success: true,
@@ -133,56 +157,78 @@ export const startLearningSession = asyncHandler(async (req, res) => {
       wordId: set._id + ':' + i,
     }))
   let created
-  try {
-    created = await mongoose.connection.transaction(async (tx) => {
-      const [session] = await LearningSession.create(
-        [
-          {
+  const executeCreateCurated = async (tx) => {
+    const sessionOpts = tx ? { session: tx } : {}
+    const [session] = await LearningSession.create(
+      [
+        {
+          student: req.user._id,
+          learningSet: set._id,
+          learningSetSlug: set.slug,
+          theme: set.category,
+          level: set.level,
+          setVersion: set.updatedAt,
+          targetWords: targets,
+          assignment: assignment?._id || null,
+          sessionType: assignment ? 'assignment' : 'curated_set',
+          snapshot: { targetWords: targets, rationale: 'Published learning set', recommendationId: '', competencyVersion: null },
+        },
+      ],
+      sessionOpts,
+    )
+    for (const w of targets)
+      await Vocabulary.updateOne(
+        { student: req.user._id, word: w.word },
+        {
+          $setOnInsert: {
             student: req.user._id,
-            learningSet: set._id,
-            learningSetSlug: set.slug,
+            word: w.word,
             theme: set.category,
-            level: set.level,
-            setVersion: set.updatedAt,
-            targetWords: targets,
-            assignment: assignment?._id || null,
-            sessionType: assignment ? 'assignment' : 'curated_set',
-            snapshot: { targetWords: targets, rationale: 'Published learning set', recommendationId: '', competencyVersion: null },
+            definition: w.definitionVi,
+            partOfSpeech: w.partOfSpeech,
+            ipa: w.phonetic,
+            exampleSentence: w.exampleSentences?.[0] || '',
+            masteryLevel: 'new',
           },
-        ],
-        { session: tx },
+        },
+        { upsert: true, ...(tx ? { session: tx } : {}) },
       )
-      for (const w of targets)
-        await Vocabulary.updateOne(
-          { student: req.user._id, word: w.word },
-          {
-            $setOnInsert: {
-              student: req.user._id,
-              word: w.word,
-              theme: set.category,
-              definition: w.definitionVi,
-              partOfSpeech: w.partOfSpeech,
-              ipa: w.phonetic,
-              exampleSentence: w.exampleSentences?.[0] || '',
-              masteryLevel: 'new',
-            },
-          },
-          { upsert: true, session: tx },
-        )
-      return session
-    })
+    return session
+  }
+
+  try {
+    created = await mongoose.connection.transaction(executeCreateCurated)
   } catch (err) {
-    if (err.code !== 11000) throw err
-    const existing = await LearningSession.findOne({
-      student: req.user._id,
-      status: 'in_progress',
-    })
-    if (!existing) throw err
-    return res.json({
-      success: true,
-      data: publicLearning(existing),
-      message: 'Continue your current learning session',
-    })
+    if (isStandaloneMongoError(err)) {
+      try {
+        created = await executeCreateCurated(null)
+      } catch (innerErr) {
+        if (innerErr.code !== 11000) throw innerErr
+        const existing = await LearningSession.findOne({
+          student: req.user._id,
+          status: 'in_progress',
+        })
+        if (!existing) throw innerErr
+        return res.json({
+          success: true,
+          data: publicLearning(existing),
+          message: 'Continue your current learning session',
+        })
+      }
+    } else if (err.code === 11000) {
+      const existing = await LearningSession.findOne({
+        student: req.user._id,
+        status: 'in_progress',
+      })
+      if (!existing) throw err
+      return res.json({
+        success: true,
+        data: publicLearning(existing),
+        message: 'Continue your current learning session',
+      })
+    } else {
+      throw err
+    }
   }
   res.status(201).json({ success: true, data: publicLearning(created) })
 })

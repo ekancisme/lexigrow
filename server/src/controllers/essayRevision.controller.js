@@ -116,7 +116,7 @@ async function prepareRevision(req) {
             submittedAt: new Date(),
           },
         ],
-        { session: tx },
+        tx ? { session: tx } : {},
       )
       essay = created
       session.originalEssay = essay._id
@@ -124,7 +124,11 @@ async function prepareRevision(req) {
     essay.revisionCounter = (essay.revisionCounter || 0) + 1
     essay.content = content
     essay.status = 'submitted'
-    await essay.save({ session: tx })
+    if (tx) {
+      await essay.save({ session: tx })
+    } else {
+      await essay.save()
+    }
     const [revision] = await EssayRevision.create(
       [
         {
@@ -139,9 +143,13 @@ async function prepareRevision(req) {
           assisted: essay.revisionCounter > 1,
         },
       ],
-      { session: tx },
+      tx ? { session: tx } : {},
     )
-    await session.save({ session: tx })
+    if (tx) {
+      await session.save({ session: tx })
+    } else {
+      await session.save()
+    }
     return { revisionId: revision._id }
   })
 }
@@ -196,12 +204,18 @@ async function processRevision(id, user) {
       analysisStatus: 'succeeded',
     }).sort({ revisionNumber: -1 })
     const comparison = compareRevisions(previous?.analysis, analysis)
-    await mongoose.connection.transaction(async (tx) => {
-      const current = await EssayRevision.findOne({
-        _id: id,
-        processingToken: claimToken,
-        analysisStatus: 'processing',
-      }).session(tx)
+    const executeProcessCommit = async (tx) => {
+      const current = tx
+        ? await EssayRevision.findOne({
+            _id: id,
+            processingToken: claimToken,
+            analysisStatus: 'processing',
+          }).session(tx)
+        : await EssayRevision.findOne({
+            _id: id,
+            processingToken: claimToken,
+            analysisStatus: 'processing',
+          })
       if (!current) fail('Analysis claim expired', 409)
       await recordEvidence(
         current,
@@ -217,18 +231,44 @@ async function processRevision(id, user) {
       current.comparison = comparison
       current.analysisStatus = 'succeeded'
       current.errorCode = undefined
-      await current.save({ session: tx })
-      await LearningSession.updateOne(
-        { _id: session._id, status: 'in_progress' },
-        { $set: { currentStep: 'feedback' } },
-        { session: tx },
-      )
-      await Essay.updateOne(
-        { _id: current.originalEssay },
-        { $set: { status: 'reviewed' } },
-        { session: tx },
-      )
-    })
+      if (tx) {
+        await current.save({ session: tx })
+        await LearningSession.updateOne(
+          { _id: session._id, status: 'in_progress' },
+          { $set: { currentStep: 'feedback' } },
+          { session: tx },
+        )
+        await Essay.updateOne(
+          { _id: current.originalEssay },
+          { $set: { status: 'reviewed' } },
+          { session: tx },
+        )
+      } else {
+        await current.save()
+        await LearningSession.updateOne(
+          { _id: session._id, status: 'in_progress' },
+          { $set: { currentStep: 'feedback' } },
+        )
+        await Essay.updateOne(
+          { _id: current.originalEssay },
+          { $set: { status: 'reviewed' } },
+        )
+      }
+    }
+
+    try {
+      await mongoose.connection.transaction(executeProcessCommit)
+    } catch (err) {
+      if (err.message && (
+        err.message.includes('Transaction numbers are only allowed on a replica set') ||
+        err.message.includes('does not support retryable writes') ||
+        err.message.includes('Transaction is not supported')
+      )) {
+        await executeProcessCommit(null)
+      } else {
+        throw err
+      }
+    }
     return await EssayRevision.findById(id)
   } catch (err) {
     await EssayRevision.updateOne(

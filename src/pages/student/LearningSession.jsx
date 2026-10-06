@@ -601,7 +601,7 @@ export default function LearningSession() {
             </div>
 
             {/* Actions */}
-            <div className="feedback-insights__actions">
+            <div className="feedback-insights__actions" style={{ flexWrap: 'wrap', gap: 10 }}>
               <button
                 className="btn-secondary"
                 onClick={() => setCurrentStep('writing')}
@@ -617,6 +617,30 @@ export default function LearningSession() {
                 Revise Now (Draft 2)
               </button>
 
+              <a
+                href="#full-essay-review-section"
+                className="btn-outline"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
+                onClick={(e) => {
+                  e.preventDefault()
+                  document.getElementById('full-essay-review-section')?.scrollIntoView({ behavior: 'smooth' })
+                }}
+              >
+                <span className="material-symbols-outlined">visibility</span>
+                View Detailed Review Below
+              </a>
+
+              {reviewEssayId && (
+                <button
+                  className="btn-outline"
+                  onClick={() => navigate(`/student/feedback?id=${reviewEssayId}`)}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                >
+                  <span className="material-symbols-outlined">open_in_new</span>
+                  Open Full Feedback Page
+                </button>
+              )}
+
               <button
                 className="btn-outline"
                 onClick={() => handleStepChange('completed')}
@@ -626,17 +650,21 @@ export default function LearningSession() {
             </div>
           </div>
 
-          <section className="card-base" style={{ marginTop: 20 }} aria-labelledby="full-essay-review-title">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+          <section id="full-essay-review-section" className="card-base" style={{ marginTop: 24, border: '2px solid var(--color-primary-container)' }} aria-labelledby="full-essay-review-title">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: 16 }}>
               <div>
-                <h3 id="full-essay-review-title" className="text-title-lg" style={{ margin: 0 }}>Detailed essay review</h3>
-                <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)' }}>
-                  Full essay scores, writing feedback, sentence structure, and repeated-word suggestions.
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', fontSize: 24 }}>psychology</span>
+                  <h3 id="full-essay-review-title" className="text-title-lg" style={{ margin: 0 }}>Detailed Essay Review & AI Scoring</h3>
+                </div>
+                <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)', margin: '4px 0 0' }}>
+                  Full essay scores, grammatical feedback with quoted citations, sentence structure, and repeated-word suggestions.
                 </p>
               </div>
               {reviewEssayId && (
-                <button className="btn-outline" onClick={() => navigate(`/student/feedback?id=${reviewEssayId}`)}>
-                  Open full feedback page
+                <button className="btn-primary" onClick={() => navigate(`/student/feedback?id=${reviewEssayId}`)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <span className="material-symbols-outlined">open_in_new</span>
+                  Open Full Feedback Page
                 </button>
               )}
             </div>

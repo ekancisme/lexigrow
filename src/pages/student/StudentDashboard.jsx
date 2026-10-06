@@ -227,7 +227,7 @@ export default function StudentDashboard() {
                 <div
                   key={essay._id}
                   className="student-dash__essay-item"
-                  onClick={() => navigate(`/student/feedback?id=${essay._id}`)}
+                  onClick={() => navigate(essay.status === 'draft' ? `/student/write-essay?id=${essay._id}` : `/student/feedback?id=${essay._id}`)}
                 >
                   <div className="student-dash__essay-item-left">
                     <span className="material-symbols-outlined student-dash__essay-icon">article</span>

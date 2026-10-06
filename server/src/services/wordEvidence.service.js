@@ -23,7 +23,9 @@ export async function recordEvidence(revision, session, analysis, zone, tx) {
       contextSentence: sentence,
     }
     // Same sentence is not independent evidence. Preserve earliest independent use.
-    const existing = await WordUsageEvidence.findOne(filter).session(tx)
+    const existing = tx
+      ? await WordUsageEvidence.findOne(filter).session(tx)
+      : await WordUsageEvidence.findOne(filter)
     if (existing) continue
     await WordUsageEvidence.create(
       [
@@ -43,7 +45,7 @@ export async function recordEvidence(revision, session, analysis, zone, tx) {
           localDay: dayKey(revision.createdAt, zone),
         },
       ],
-      { session: tx },
+      tx ? { session: tx } : {},
     )
   }
 }

@@ -333,6 +333,10 @@ export default function WriteEssay() {
           </p>
         </div>
         <div className="write-essay__actions">
+          <button type="button" className="write-essay__btn-secondary" onClick={() => navigate('/student/essays')}>
+            <span className="material-symbols-outlined">history_edu</span>
+            {t('nav.essayHistory', 'History & Drafts')}
+          </button>
           <button className="write-essay__btn-secondary" onClick={handleSaveDraft} disabled={saving || isAssignmentClosed}>
             <span className="material-symbols-outlined">save</span>
             {saving ? t('common.loading', 'Saving...') : t('writing.saveDraft', 'Save Draft')}

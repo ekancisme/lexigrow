@@ -13,6 +13,7 @@ export default function Sidebar({ role = 'student', mobileOpen = false, onClose 
     { icon: 'home', label: t('nav.today', 'Today'), path: '/student/dashboard' },
     { icon: 'explore', label: t('nav.explore', 'Explore'), path: '/student/explore' },
     { icon: 'edit_note', label: t('nav.smartWriting', 'Smart Writing'), path: '/student/writing' },
+    { icon: 'history_edu', label: t('nav.essayHistory', 'Essay History & Drafts'), path: '/student/essays' },
     { icon: 'menu_book', label: t('nav.myWords', 'My Words'), path: '/student/my-words' },
     { icon: 'school', label: t('nav.myClasses', 'My Classes'), path: '/student/class' },
     { icon: 'forest', label: t('nav.growthGarden', 'Growth Garden'), path: '/student/progress' },
