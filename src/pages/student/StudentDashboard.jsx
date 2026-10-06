@@ -25,13 +25,16 @@ export default function StudentDashboard() {
     async function fetchData() {
       try {
         setLoading(true)
-        const [overviewRes, goalRes, essaysRes, sessionRes, dueRes, recommendationRes] = await Promise.allSettled([
+        api.get('/sessions/recommendation')
+          .then((response) => setRecommendation(response.data))
+          .catch((err) => console.error('Error fetching dashboard recommendation:', err))
+
+        const [overviewRes, goalRes, essaysRes, sessionRes, dueRes] = await Promise.allSettled([
           api.get('/progress/overview'),
           api.get('/goals'),
           api.get('/essays'),
           api.get('/sessions/current'),
-          api.get('/vocabulary/due-today'),
-          api.get('/sessions/recommendation')
+          api.get('/vocabulary/due-today')
         ])
 
         if (overviewRes.status === 'fulfilled') setOverview(overviewRes.value.data)
@@ -39,7 +42,6 @@ export default function StudentDashboard() {
         if (essaysRes.status === 'fulfilled') setRecentEssays(essaysRes.value.data?.slice(0, 5) || [])
         if (sessionRes.status === 'fulfilled') setCurrentSession(sessionRes.value.data)
         if (dueRes.status === 'fulfilled') setDueSrsCount(dueRes.value.count || dueRes.value.data?.length || 0)
-        if (recommendationRes.status === 'fulfilled') setRecommendation(recommendationRes.value.data)
       } catch (err) {
         console.error('Error fetching dashboard data:', err)
       } finally {

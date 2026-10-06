@@ -274,7 +274,12 @@ export const getLearningPathRecommendation = asyncHandler(async (req, res) => {
     const { getPersonalizedLearningPath } = await import('../services/aiRecommendation.service.js')
     const recentWords = (snapshot?.words || []).filter((word) => word.state !== 'unseen').slice(0, 20)
     const weakWords = (snapshot?.words || []).filter((word) => word.state === 'struggling' || word.state === 'due').slice(0, 10)
-    const recommendationResult = await getPersonalizedLearningPath(req.user, { recentWords, weakWords, completedSessions })
+    const recommendationResult = await getPersonalizedLearningPath(req.user, {
+      recentWords,
+      weakWords,
+      completedSessions,
+      competencyVersion: snapshot?.version || 1,
+    })
     const recommendation = recommendationResult.data
     res.json({
       success: true,
