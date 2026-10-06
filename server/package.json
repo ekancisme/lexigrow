@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "nodemon src/index.js",
     "start": "node src/index.js",
+    "seed:role-pro": "node scripts/seedRoleProAccounts.js",
     "test": "vitest run",
     "smoke:daily-quest": "node scripts/smokeDailyQuest.mjs"
   },

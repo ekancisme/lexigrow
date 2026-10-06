@@ -197,11 +197,18 @@ export default function LearningSession() {
           if (payload.learningSet?.words) {
             setLearningSet(payload.learningSet)
           } else if (payload.targetWords?.length) {
+            const mappedWords = payload.targetWords.map((w, idx) => ({
+              ...w,
+              _id: w.wordId || w._id || `w_${w.word}_${idx}`,
+              meaningVi: w.definitionVi || w.definition || w.meaningVi || '',
+              exampleSentence: w.exampleSentence || w.exampleSentences?.[0] || '',
+              exampleTranslation: w.exampleTranslation || '',
+            }))
             setLearningSet({
               title: 'Adaptive Learning Session',
               level: payload.level || 'B1',
               promptTopic: payload.snapshot?.rationale || 'Write about your learning topic.',
-              words: payload.targetWords,
+              words: mappedWords,
             })
           }
         }
@@ -236,7 +243,7 @@ export default function LearningSession() {
     const escapedTargets = targetWords.map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
     const matcher = new RegExp(`\\b(${escapedTargets.join('|')})\\b`, 'gi')
     return essayContent.split(matcher).map((part, index) => (
-      targetWords.some(word => word.toLowerCase() === part.toLowerCase())
+      targetWords.some(word => String(word || '').toLowerCase() === String(part || '').toLowerCase())
         ? <mark key={index} style={{ background: 'var(--color-primary-container)', color: 'var(--color-on-primary-container)', borderRadius: 4, padding: '0 2px' }}>{part}</mark>
         : part
     ))

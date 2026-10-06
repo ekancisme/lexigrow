@@ -113,7 +113,9 @@ export default function WordLesson({ words = [], onComplete, onBack }) {
             <span className="material-symbols-outlined">translate</span>
             Meaning & Definition
           </h4>
-          <p className="word-lesson__meaning">{currentWord.meaningVi || currentWord.vietnameseMeaning || currentWord.meaning}</p>
+          <p className="word-lesson__meaning">
+            {currentWord.meaningVi || currentWord.vietnameseMeaning || currentWord.definitionVi || currentWord.definition || currentWord.meaning || 'No definition available.'}
+          </p>
         </div>
 
         {/* Collocations */}

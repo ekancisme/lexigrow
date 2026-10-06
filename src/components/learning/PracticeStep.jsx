@@ -1,6 +1,17 @@
 import { useState, useMemo } from 'react'
 import './PracticeStep.css'
 
+const safeLower = (val) => String(val ?? '').trim().toLowerCase()
+
+const getWordMeaning = (w) =>
+  w?.meaningVi ||
+  w?.vietnameseMeaning ||
+  w?.definitionVi ||
+  w?.definition ||
+  w?.meaning ||
+  w?.word ||
+  ''
+
 export default function PracticeStep({ words = [], onComplete, onBack }) {
   // Generate interactive practice questions for all words
   const questions = useMemo(() => {
@@ -8,18 +19,21 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
 
     const list = []
     words.forEach((w, idx) => {
+      if (!w || !w.word) return
+      const correctMeaning = getWordMeaning(w)
       // 1. Multiple choice question
       const wrongOptions = words
         .filter((_, i) => i !== idx)
-        .map(other => other.meaningVi || other.vietnameseMeaning || other.meaning)
+        .map(other => getWordMeaning(other))
+        .filter(Boolean)
 
       const fallbackWrongs = ['Freedom and autonomy', 'Leadership capability', 'Novel experience', 'Growth and expansion']
       const options = [
-        w.meaningVi || w.vietnameseMeaning || w.meaning,
+        correctMeaning,
         wrongOptions[0] || fallbackWrongs[0],
         wrongOptions[1] || fallbackWrongs[1],
-        fallbackWrongs[2]
-      ].sort(() => Math.random() - 0.5)
+        wrongOptions[2] || fallbackWrongs[2]
+      ].filter(Boolean).sort(() => Math.random() - 0.5)
 
       list.push({
         id: `mc_${w.word}_${idx}`,
@@ -28,15 +42,15 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
         title: `What is the accurate meaning of "${w.word}"?`,
         sentence: w.exampleSentence ? `Example: "${w.exampleSentence}"` : '',
         options: options,
-        correctAnswer: w.meaningVi || w.vietnameseMeaning || w.meaning,
-        explanation: `${w.word} (${w.partOfSpeech || 'word'}): ${w.meaningVi || w.meaning}`
+        correctAnswer: correctMeaning,
+        explanation: `${w.word} (${w.partOfSpeech || 'word'}): ${correctMeaning}`
       })
 
       // 2. Fill in the blank question
       if (w.exampleSentence) {
         const regex = new RegExp(`\\b${w.word}\\b`, 'gi')
         const maskedSentence = w.exampleSentence.replace(regex, '_______')
-        const distractors = words.filter((_, i) => i !== idx).map(item => item.word)
+        const distractors = words.filter((_, i) => i !== idx).map(item => item.word).filter(Boolean)
         const wordOptions = [w.word, ...distractors, 'improve', 'challenge'].slice(0, 4).sort(() => Math.random() - 0.5)
 
         list.push({
@@ -72,14 +86,14 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
   }
 
   const currentQ = questions[currentIndex]
-  const isCorrect = isAnswered && selectedAnswer?.toLowerCase() === currentQ.correctAnswer.toLowerCase()
+  const isCorrect = isAnswered && safeLower(selectedAnswer) === safeLower(currentQ?.correctAnswer)
 
   const handleSelectOption = (option) => {
     if (isAnswered) return
     setSelectedAnswer(option)
     setIsAnswered(true)
 
-    const correct = option.toLowerCase() === currentQ.correctAnswer.toLowerCase()
+    const correct = safeLower(option) === safeLower(currentQ?.correctAnswer)
     if (correct) {
       setCorrectCount(prev => prev + 1)
       setStreak(prev => prev + 1)
@@ -150,8 +164,9 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
         <div className="practice-step__options">
           {currentQ.options.map((opt, idx) => {
             let optionClass = 'practice-step__option-btn'
+            const isMatchCorrect = safeLower(opt) === safeLower(currentQ?.correctAnswer)
             if (isAnswered) {
-              if (opt.toLowerCase() === currentQ.correctAnswer.toLowerCase()) {
+              if (isMatchCorrect) {
                 optionClass += ' practice-step__option-btn--correct'
               } else if (opt === selectedAnswer) {
                 optionClass += ' practice-step__option-btn--wrong'
@@ -171,10 +186,10 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
                   {String.fromCharCode(65 + idx)}
                 </span>
                 <span className="practice-step__option-text">{opt}</span>
-                {isAnswered && opt.toLowerCase() === currentQ.correctAnswer.toLowerCase() && (
+                {isAnswered && isMatchCorrect && (
                   <span className="material-symbols-outlined practice-step__option-icon">check_circle</span>
                 )}
-                {isAnswered && opt === selectedAnswer && opt.toLowerCase() !== currentQ.correctAnswer.toLowerCase() && (
+                {isAnswered && opt === selectedAnswer && !isMatchCorrect && (
                   <span className="material-symbols-outlined practice-step__option-icon">cancel</span>
                 )}
               </button>

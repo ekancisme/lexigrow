@@ -47,10 +47,12 @@ export default function EssayHistory() {
   }
 
   // Local search filtering
-  const filteredEssays = essays.filter(essay =>
-    essay.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (essay.theme && essay.theme.toLowerCase().includes(searchTerm.toLowerCase()))
-  )
+  const filteredEssays = essays.filter(essay => {
+    const title = String(essay?.title || '').toLowerCase()
+    const theme = String(essay?.theme || '').toLowerCase()
+    const search = String(searchTerm || '').toLowerCase()
+    return title.includes(search) || theme.includes(search)
+  })
 
   const getStatusClass = (status) => {
     switch (status) {
