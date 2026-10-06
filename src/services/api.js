@@ -81,7 +81,6 @@ class ApiClient {
       },
       ...options,
     }
-
     const body = config.body
     if (body && typeof body === 'object' && !(body instanceof FormData)) {
       config.body = JSON.stringify(body)
@@ -96,81 +95,101 @@ class ApiClient {
       }
     }
 
-    let response
+    const timeoutMs = Number(config.timeoutMs)
+    delete config.timeoutMs
+    const callerSignal = config.signal
+    const controller = new AbortController()
+    config.signal = controller.signal
+    let timedOut = false
+    const onAbort = () => controller.abort(callerSignal.reason)
+    if (callerSignal?.aborted) onAbort()
+    else callerSignal?.addEventListener('abort', onAbort, { once: true })
+    const timeoutId = Number.isFinite(timeoutMs) && timeoutMs > 0
+      ? setTimeout(() => {
+        if (!controller.signal.aborted) {
+          timedOut = true
+          controller.abort()
+        }
+      }, timeoutMs)
+      : undefined
+
     try {
-      response = await fetch(url, config)
-    } catch (err) {
-      throw new ApiError({
-        status: 0,
-        code: err?.name === 'AbortError' ? 'ABORTED' : 'NETWORK_ERROR',
-        message: err?.name === 'AbortError' ? 'Request was cancelled' : 'Unable to reach the server',
-      })
-    }
+      const response = await fetch(url, config)
+      const contentType = response.headers.get('content-type') || ''
+      let data = null
 
-    const contentType = response.headers.get('content-type') || ''
-    let data = null
+      if (response.status !== 204) {
+        if (contentType.includes('application/json')) {
+          const raw = await response.text()
+          if (raw) {
+            try {
+              data = JSON.parse(raw)
+            } catch {
+              throw new ApiError({
+                status: response.status,
+                code: 'INVALID_JSON',
+                message: 'Received a malformed response from the server',
+              })
+            }
+          }
+        } else {
+          data = await response.text()
+        }
+      }
 
-    if (response.status !== 204) {
-      if (contentType.includes('application/json')) {
-        const raw = await response.text()
-        if (raw) {
-          try {
-            data = JSON.parse(raw)
-          } catch {
-            throw new ApiError({
-              status: response.status,
-              code: 'INVALID_JSON',
-              message: 'Received a malformed response from the server',
-            })
+      if (!response.ok) {
+        let message
+        let code
+        let payload
+
+        if (data && typeof data === 'object') {
+          message = data.error || data.message
+          code = data.code
+          payload = data
+        } else if (typeof data === 'string' && data.trim()) {
+          // Plain-text or HTML error bodies (e.g. proxy error pages).
+          // Never dump a whole HTML page to the user — cap plain text and
+          // fall back to a per-status message for markup.
+          const trimmed = data.trim()
+          if (trimmed.startsWith('<')) {
+            message = STATUS_FALLBACK[response.status] || 'Server error'
+            code = 'HTML_ERROR'
+          } else {
+            message = trimmed.length > 200 ? trimmed.slice(0, 200) + '…' : trimmed
           }
         }
-      } else {
-        data = await response.text()
-      }
-    }
 
-    if (!response.ok) {
-      let message
-      let code
-      let payload
+        if (!message) message = STATUS_FALLBACK[response.status] || `Request failed with status ${response.status}`
 
-      if (data && typeof data === 'object') {
-        message = data.error || data.message
-        code = data.code
-        payload = data
-      } else if (typeof data === 'string' && data.trim()) {
-        // Plain-text or HTML error bodies (e.g. proxy error pages).
-        // Never dump a whole HTML page to the user — cap plain text and
-        // fall back to a per-status message for markup.
-        const trimmed = data.trim()
-        if (trimmed.startsWith('<')) {
-          message = STATUS_FALLBACK[response.status] || 'Server error'
-          code = 'HTML_ERROR'
-        } else {
-          message = trimmed.length > 200 ? trimmed.slice(0, 200) + '…' : trimmed
+        if (
+          response.status === 401 &&
+          !endpoint.includes('/auth/') &&
+          typeof window !== 'undefined' &&
+          window.location.pathname !== '/login'
+        ) {
+          this.removeToken()
+          window.location.href = '/login'
         }
+
+        throw new ApiError({ status: response.status, code, message, data: payload })
       }
 
-      if (!message) message = STATUS_FALLBACK[response.status] || `Request failed with status ${response.status}`
-
-      if (
-        response.status === 401 &&
-        !endpoint.includes('/auth/') &&
-        typeof window !== 'undefined' &&
-        window.location.pathname !== '/login'
-      ) {
-        this.removeToken()
-        window.location.href = '/login'
-      }
-
-      throw new ApiError({ status: response.status, code, message, data: payload })
+      return data
+    } catch (err) {
+      if (err instanceof ApiError) throw err
+      throw new ApiError({
+        status: timedOut ? 408 : 0,
+        code: timedOut ? 'TIMEOUT' : (controller.signal.aborted ? 'ABORTED' : 'NETWORK_ERROR'),
+        message: timedOut ? 'Request timed out' : (controller.signal.aborted ? 'Request was cancelled' : 'Unable to reach the server'),
+      })
+    } finally {
+      clearTimeout(timeoutId)
+      callerSignal?.removeEventListener('abort', onAbort)
     }
-
-    return data
   }
 
-  get(endpoint) {
-    return this.request(endpoint)
+  get(endpoint, options) {
+    return this.request(endpoint, options)
   }
 
   post(endpoint, body) {

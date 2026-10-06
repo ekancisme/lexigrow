@@ -166,6 +166,39 @@ class CacheService {
     return result
   }
 
+  // A renewable Redis lease coordinates AI work across server processes.
+  // Without Redis the caller's in-flight map still deduplicates locally.
+  async acquireLease(key, ttlMs = 30000) {
+    if (!this.isRedisReady || !this.redisClient) return async () => {}
+    const client = this.redisClient
+    const token = crypto.randomUUID()
+    const lockKey = `lock:${key}`
+    try {
+      if (!await client.set(lockKey, token, { NX: true, PX: ttlMs })) return null
+    } catch (error) {
+      console.warn('[CacheService] Lease unavailable, using local deduplication:', error.message)
+      return async () => {}
+    }
+    const renew = setInterval(() => {
+      client.eval(
+        'if redis.call("get", KEYS[1]) == ARGV[1] then return redis.call("pexpire", KEYS[1], ARGV[2]) else return 0 end',
+        { keys: [lockKey], arguments: [token, String(ttlMs)] },
+      ).catch((error) => console.warn('[CacheService] Lease renewal failed:', error.message))
+    }, Math.floor(ttlMs / 3))
+    renew.unref?.()
+    return async () => {
+      clearInterval(renew)
+      try {
+        await client.eval(
+          'if redis.call("get", KEYS[1]) == ARGV[1] then return redis.call("del", KEYS[1]) else return 0 end',
+          { keys: [lockKey], arguments: [token] },
+        )
+      } catch (error) {
+        console.warn('[CacheService] Lease release failed:', error.message)
+      }
+    }
+  }
+
   clear() {
     this.memoryCache.clear()
   }

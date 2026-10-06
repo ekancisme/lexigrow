@@ -1,4 +1,5 @@
 import User from '../models/User.js'
+import { invalidateCompetencySnapshot } from '../services/competency.service.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import { fail, timezone } from '../utils/learning.js'
 export const getLearningProfile = asyncHandler(async (req, res) => {
@@ -67,5 +68,6 @@ export const updateLearningProfile = asyncHandler(async (req, res) => {
     { $set: updates },
     { returnDocument: 'after', runValidators: true },
   )
+  if (Object.keys(updates).length) await invalidateCompetencySnapshot(req.user._id)
   res.json({ success: true, data: user.learningProfile })
 })

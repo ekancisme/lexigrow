@@ -1,65 +1,49 @@
-import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
-import api from '../../services/api.js'
+import useDashboardResource from '../../hooks/useDashboardResource.js'
 import StatCard from '../../components/common/StatCard'
 import AnimatedCounter from '../../components/common/AnimatedCounter'
 import CircularProgress from '../../components/common/CircularProgress'
 import VocabGrowthChart from '../../components/charts/VocabGrowthChart'
 import './StudentDashboard.css'
 
+function ResourceNotice({ resource, label }) {
+  const { language } = useLanguage()
+  const isVi = language === 'vi'
+  if (!resource.loading && !resource.error) return null
+  return (
+    <div className="card-base" style={{ padding: 16 }} role="status" aria-live="polite">
+      <p>{resource.loading
+        ? (isVi ? `Đang tải ${label}…` : `Loading ${label}…`)
+        : resource.error?.code === 'TIMEOUT'
+          ? (isVi ? `Tải ${label} quá lâu. Vui lòng thử lại.` : `Loading ${label} timed out. Please retry.`)
+          : (isVi ? `Chưa tải được ${label}.` : `Could not load ${label}.`)}</p>
+      {resource.error && <button type="button" className="btn-secondary" onClick={resource.retry}>
+        {isVi ? 'Thử lại' : 'Retry'}
+      </button>}
+    </div>
+  )
+}
+
 export default function StudentDashboard() {
   const { user } = useAuth()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
+  const isVi = language === 'vi'
   const navigate = useNavigate()
-  const [loading, setLoading] = useState(true)
-  const [overview, setOverview] = useState(null)
-  const [weeklyGoal, setWeeklyGoal] = useState(null)
-  const [recentEssays, setRecentEssays] = useState([])
-  const [currentSession, setCurrentSession] = useState(null)
-  const [dueSrsCount, setDueSrsCount] = useState(0)
-  const [recommendation, setRecommendation] = useState(null)
-
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        setLoading(true)
-        api.get('/sessions/recommendation')
-          .then((response) => setRecommendation(response.data))
-          .catch((err) => console.error('Error fetching dashboard recommendation:', err))
-
-        const [overviewRes, goalRes, essaysRes, sessionRes, dueRes] = await Promise.allSettled([
-          api.get('/progress/overview'),
-          api.get('/goals'),
-          api.get('/essays'),
-          api.get('/sessions/current'),
-          api.get('/vocabulary/due-today')
-        ])
-
-        if (overviewRes.status === 'fulfilled') setOverview(overviewRes.value.data)
-        if (goalRes.status === 'fulfilled') setWeeklyGoal(goalRes.value.data)
-        if (essaysRes.status === 'fulfilled') setRecentEssays(essaysRes.value.data?.slice(0, 5) || [])
-        if (sessionRes.status === 'fulfilled') setCurrentSession(sessionRes.value.data)
-        if (dueRes.status === 'fulfilled') setDueSrsCount(dueRes.value.count || dueRes.value.data?.length || 0)
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchData()
-  }, [])
-
-  if (loading) {
-    return (
-      <div className="student-dash student-dash--loading">
-        <span className="material-symbols-outlined animate-spin" style={{ fontSize: 48, color: 'var(--color-primary)' }}>
-          progress_activity
-        </span>
-      </div>
-    )
-  }
+  const overviewResource = useDashboardResource('/progress/overview')
+  const goalsResource = useDashboardResource('/goals')
+  const essaysResource = useDashboardResource('/essays')
+  const sessionResource = useDashboardResource('/sessions/current')
+  const vocabularyResource = useDashboardResource('/vocabulary/due-today')
+  const recommendationResource = useDashboardResource('/sessions/recommendation', 8000)
+  const overview = overviewResource.response?.data
+  const weeklyGoal = goalsResource.response?.data
+  const recentEssays = essaysResource.response?.data?.slice(0, 5) || []
+  const currentSession = sessionResource.response?.data
+  const dueSrsCount = vocabularyResource.response?.count ?? vocabularyResource.response?.data?.length ?? 0
+  const recommendation = recommendationResource.response?.data
+  const recommendationFallback = recommendationResource.response?._meta?.isFallback
 
   const wordsGoal = weeklyGoal?.goals?.find(g => g.label === 'New Words')
   const lengthGoal = weeklyGoal?.goals?.find(g => g.label?.includes('Length'))
@@ -85,13 +69,21 @@ export default function StudentDashboard() {
             {recommendation?.rationale || 'Explore in context, take quick quizzes, and write a 60–100 word paragraph for instant feedback.'}
           </p>
 
+          <ResourceNotice resource={recommendationResource} label={isVi ? 'gợi ý học tập' : 'learning recommendations'} />
+          {recommendationFallback && (
+            <div role="status" aria-live="polite">
+              <p>{isVi ? 'Gợi ý AI tạm thời chưa sẵn sàng. Bạn vẫn có thể học với bộ từ được chọn từ tiến độ hiện tại.' : 'AI advice is temporarily unavailable. You can still study words selected from your current progress.'}</p>
+              <button type="button" className="btn-secondary" onClick={recommendationResource.retry}>{isVi ? 'Tải lại gợi ý' : 'Retry recommendations'}</button>
+            </div>
+          )}
+          <ResourceNotice resource={sessionResource} label={isVi ? 'phiên học hiện tại' : 'your current session'} />
           <div className="student-dash__hero-actions">
             <button
               className="btn-primary student-dash__hero-btn"
               onClick={() => navigate(recommendation?.targetWords?.length ? '/student/writing?adaptive=true' : '/student/writing?set=daily-life')}
             >
               <span className="material-symbols-outlined">play_circle</span>
-              {currentSession ? t('dashboard.continueLesson', 'Resume Active Session') : t('common.start', 'Start Session Now (10 mins)')}
+              {sessionResource.loading || sessionResource.error ? (isVi ? 'Mở phiên học' : 'Open learning session') : currentSession ? t('dashboard.continueLesson', 'Resume Active Session') : t('common.start', 'Start Session Now (10 mins)')}
             </button>
 
             <Link to="/student/explore" className="btn-secondary">
@@ -110,6 +102,7 @@ export default function StudentDashboard() {
             </div>
           </div>
 
+          <ResourceNotice resource={vocabularyResource} label={isVi ? 'từ cần ôn tập' : 'words due for review'} />
           {dueSrsCount > 0 && (
             <div className="student-dash__srs-pill" onClick={() => navigate('/student/vocabulary/review')}>
               <span className="material-symbols-outlined">style</span>
@@ -123,7 +116,8 @@ export default function StudentDashboard() {
       </section>
 
       {/* ── 2. Stat Cards Overview ── */}
-      <section className="student-dash__stats">
+      <ResourceNotice resource={overviewResource} label={isVi ? 'thống kê học tập' : 'learning statistics'} />
+      {!overviewResource.loading && !overviewResource.error && <section className="student-dash__stats">
         <StatCard
           label={t('progress.essaysCount', 'Essays Submitted')}
           value={<AnimatedCounter value={overview?.totalEssays || 0} />}
@@ -143,11 +137,11 @@ export default function StudentDashboard() {
         />
         <StatCard
           label={t('writing.cefrLevel', 'Estimated CEFR')}
-          value={<>{overview?.rank || 'A1'}</>}
+          value={<>{overview?.rank || '—'}</>}
           subtitle={t('dashboard.basedOnWriting', 'Based on active writing')}
           icon="equalizer"
         />
-      </section>
+      </section>}
 
       {/* ── 3. Charts & Weekly Goals ── */}
       <section className="student-dash__charts">
@@ -163,26 +157,29 @@ export default function StudentDashboard() {
                 {t('common.settings', 'Settings')}
               </Link>
             </div>
-            <div className="student-dash__goals-list">
+            <ResourceNotice resource={goalsResource} label={isVi ? 'mục tiêu tuần' : 'weekly goals'} />
+            {!goalsResource.loading && !goalsResource.error && (!weeklyGoal?.goals?.length ? (
+              <p>{isVi ? 'Bạn chưa đặt mục tiêu tuần.' : 'No weekly goals set yet.'}</p>
+            ) : <div className="student-dash__goals-list">
               <CircularProgress
                 percentage={wordsPercentage}
                 color="primary"
                 label={t('dashboard.newWordsAcquired', 'New Words Acquired')}
-                sublabel={`${wordsGoal?.current || 12} / ${wordsGoal?.target || 20} ${t('dashboard.wordsCount', 'words')}`}
+                sublabel={`${wordsGoal?.current ?? 0} / ${wordsGoal?.target ?? '—'} ${t('dashboard.wordsCount', 'words')}`}
               />
               <CircularProgress
                 percentage={lengthPercentage}
                 color="secondary"
                 label={t('dashboard.writingVolume', 'Writing Volume')}
-                sublabel={`${lengthGoal?.current || 650} / ${lengthGoal?.target || 1000} ${t('dashboard.wordsCount', 'words')}`}
+                sublabel={`${lengthGoal?.current ?? 0} / ${lengthGoal?.target ?? '—'} ${t('dashboard.wordsCount', 'words')}`}
               />
               <CircularProgress
                 percentage={complexityPercentage}
                 color="tertiary"
                 label={t('dashboard.targetLevel', 'Target Level')}
-                sublabel={`Level: ${overview?.rank || 'B1'}`}
+                sublabel={`Level: ${overview?.rank || '—'}`}
               />
-            </div>
+            </div>)}
           </div>
         </div>
       </section>
@@ -215,7 +212,8 @@ export default function StudentDashboard() {
             </Link>
           </div>
 
-          {recentEssays.length === 0 ? (
+          <ResourceNotice resource={essaysResource} label={isVi ? 'bài viết gần đây' : 'recent writing'} />
+          {!essaysResource.loading && !essaysResource.error && (recentEssays.length === 0 ? (
             <div className="student-dash__essays-empty">
               <span className="material-symbols-outlined">edit_note</span>
               <p>{t('dashboard.noEssays', 'No essays yet. Start your first writing exercise!')}</p>
@@ -246,7 +244,7 @@ export default function StudentDashboard() {
                 </div>
               ))}
             </div>
-          )}
+          ))}
         </div>
       </section>
     </div>

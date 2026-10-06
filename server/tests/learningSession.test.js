@@ -27,6 +27,7 @@ import WordUsageEvidence from '../src/models/WordUsageEvidence.js'
 import Class from '../src/models/Class.js'
 import Essay from '../src/models/Essay.js'
 import Assignment from '../src/models/Assignment.js'
+import StudentCompetency from '../src/models/StudentCompetency.js'
 import { learningSetCache } from '../src/services/learningCache.service.js'
 import { analyzeVocabulary } from '../src/services/vocabularyAnalysis.service.js'
 let mongo, student, stranger, teacher, token, otherToken, teacherToken, set
@@ -144,6 +145,7 @@ describe('Learning API with real Mongo transactions and JWT', () => {
     }
   })
   it('validates and persists profile without privilege escalation', async () => {
+    await StudentCompetency.create({ student: student._id, computedAt: new Date(), version: 3 })
     await auth(request(app).put('/api/profile/learning'))
       .send({
         targetLevel: 'C1',
@@ -155,6 +157,8 @@ describe('Learning API with real Mongo transactions and JWT', () => {
       .expect(200)
     const r = await auth(request(app).get('/api/profile/learning')).expect(200)
     expect(r.body.data.targetLevel).toBe('C1')
+    const snapshot = await StudentCompetency.findOne({ student: student._id }).lean()
+    expect(snapshot.computedAt.getTime()).toBe(0)
     await auth(request(app).put('/api/profile/learning'))
       .send({ role: 'admin' })
       .expect(400)

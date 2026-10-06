@@ -2,10 +2,9 @@ import { completeThroughRelay } from './aiRelayClient.service.js'
 import { logAICompletion } from './aiGateway.service.js'
 import { validateRecommendedWords } from './aiGuardrails.service.js'
 import cacheService from './cache.service.js'
-import { createLearningCache } from './learningCache.service.js'
 
 const model = () => process.env.DEFAULT_AI_MODEL || 'llama-3.3-70b-versatile'
-const learningPathCache = createLearningCache({ ttlMs: 30000, maxEntries: 100 })
+const learningPathRequests = new Map()
 async function completeLogged(options) {
   const started = Date.now()
   try {
@@ -110,20 +109,44 @@ export async function getPersonalizedLearningPath(student, options = {}) {
   const competencyVersion = options.competencyVersion || 1
   const level = student.learningProfile?.targetLevel || 'B1'
   const interests = student.learningProfile?.interests || ['general']
-  const cacheKey = cacheService.hashKey('ai_rec:learning_path:v1', {
+  const cacheKey = cacheService.hashKey('ai_rec:learning_path:v2', {
     studentId: String(student._id),
     competencyVersion,
     level,
     interests,
+    dailyGoalMinutes: student.learningProfile?.dailyGoalMinutes || 15,
+    pace: student.learningProfile?.pace || 'standard',
     completedSessions,
     recentWords: recentWords.slice(0, 10).map((word) => word.word),
     weakWords: weakWords.slice(0, 10).map((word) => word.word),
     model: model(),
   })
+  const fallback = (errorCode, source = 'offline_fallback') => ({
+    data: {
+      recommendedLevel: level,
+      focusAreas: ['vocabulary'],
+      suggestedTopics: interests,
+      dailyGoalMinutes: student.learningProfile?.dailyGoalMinutes || 15,
+      nextMilestone: 'Continue your learning journey!',
+      learningPlan: 'Continue building vocabulary through daily quests and learning sessions.',
+    },
+    meta: { source, isFallback: true, errorCode },
+  })
+  const asCached = (result) => ({
+    data: result.data,
+    meta: { ...result.meta, source: result.meta.isFallback ? 'offline_fallback_cache' : 'cache' },
+  })
   const cached = await cacheService.get(cacheKey)
-  if (cached) return { data: cached, meta: { source: 'cache', isFallback: false } }
-  try {
-    const data = await learningPathCache.get(cacheKey, () => cacheService.wrap(cacheKey, async () => {
+  if (cached) return asCached(cached)
+  if (learningPathRequests.has(cacheKey)) return structuredClone(await learningPathRequests.get(cacheKey))
+
+  const request = (async () => {
+    const release = await cacheService.acquireLease(cacheKey)
+    if (!release) return fallback('RECOMMENDATION_PENDING', 'pending')
+    try {
+      // Another process may have filled the cache before we acquired its lease.
+      const shared = await cacheService.get(cacheKey)
+      if (shared) return asCached(shared)
       const completion = await completeLogged({
         route: 'learning_path',
         providerPreference: 'groq',
@@ -133,6 +156,8 @@ export async function getPersonalizedLearningPath(student, options = {}) {
           { role: 'user', content: `Analyze this deterministic student data and write a concise actionable learning path as JSON.
 Target level: ${level}
 Interests: ${interests.join(', ')}
+Daily goal minutes: ${student.learningProfile?.dailyGoalMinutes || 15}
+Learning pace: ${student.learningProfile?.pace || 'standard'}
 Completed sessions: ${completedSessions}
 Recent words: ${recentWords.slice(0, 10).map((w) => w.word).join(', ') || 'None'}
 Due or weak words: ${weakWords.slice(0, 10).map((w) => w.word).join(', ') || 'None'}
@@ -142,27 +167,34 @@ Return exactly keys: recommendedLevel, focusAreas (array), suggestedTopics (arra
         maxTokens: 1200,
         temperature: 0.2,
       })
-      return parseJson(completion.text)
-    }, 300))
-    return { data, meta: { source: 'ai', isFallback: false } }
-  } catch (error) {
-    console.error('AI Learning Path Recommendation Error:', error.message)
-    return {
-      data: {
-        recommendedLevel: level,
-        focusAreas: ['vocabulary'],
-        suggestedTopics: interests,
-        dailyGoalMinutes: 15,
-        nextMilestone: 'Continue your learning journey!',
-        learningPlan: 'Continue building vocabulary through daily quests and learning sessions.',
-      },
-      meta: { source: 'offline_fallback', isFallback: true, errorCode: error.code || 'AI_RECOMMENDATION_FAILED' },
+      const data = parseJson(completion.text)
+      if (!data || typeof data.learningPlan !== 'string' || !data.learningPlan.trim()
+        || typeof data.recommendedLevel !== 'string' || !Array.isArray(data.focusAreas)
+        || !Array.isArray(data.suggestedTopics) || !Number.isFinite(data.dailyGoalMinutes)
+        || typeof data.nextMilestone !== 'string') {
+        throw new Error('Invalid learning path response')
+      }
+      const result = { data, meta: { source: 'ai', isFallback: false } }
+      await cacheService.set(cacheKey, result, 300)
+      return result
+    } catch (error) {
+      console.error('AI Learning Path Recommendation Error:', error.message)
+      const result = fallback(error.code || 'AI_RECOMMENDATION_FAILED')
+      const transient = error.name === 'AbortError' || error.status === 408 || error.status === 429
+        || error.status >= 500 || ['TIMEOUT', 'NETWORK_ERROR', 'RATE_LIMITED', 'UPSTREAM_ERROR',
+          'ETIMEDOUT', 'ECONNRESET', 'ECONNREFUSED', 'ENOTFOUND'].includes(error.code)
+      // A short negative cache protects the provider during outages. Invalid
+      // content/configuration is not cached, so fixing it takes effect at once.
+      if (transient) await cacheService.set(cacheKey, result, 20)
+      return result
+    } finally {
+      await release()
     }
+  })()
+  learningPathRequests.set(cacheKey, request)
+  try {
+    return structuredClone(await request)
+  } finally {
+    learningPathRequests.delete(cacheKey)
   }
-}
-
-export default {
-  generateAILearningSetRecommendation,
-  generateAIDailyQuestWords,
-  getPersonalizedLearningPath,
 }
