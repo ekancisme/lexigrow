@@ -352,19 +352,14 @@ export default function LearningSession() {
       const endpoint = existingEssayId
         ? `/essays/${existingEssayId}/revisions`
         : '/essays/submit-revision'
-      const targetWords = Array.isArray(session?.targetWords)
-        ? session.targetWords.map((target) => target.word).filter(Boolean)
-        : words.map((word) => word.word).filter(Boolean)
       const payload = existingEssayId
         ? {
             content: essayContent,
-            targetWords,
             requestId,
           }
         : {
             sessionId: session?._id,
             content: essayContent,
-            targetWords,
             requestId,
           }
 

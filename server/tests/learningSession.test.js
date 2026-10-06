@@ -522,7 +522,7 @@ describe('Learning API with real Mongo transactions and JWT', () => {
       400,
     )
   })
-  it('validates missing keys and immutable target words', async () => {
+  it('requires an idempotency key and uses session target words as the source of truth', async () => {
     const session = await toWriting()
     const content =
       'My routine involves a commute and grocery shopping. ' +
@@ -530,11 +530,24 @@ describe('Learning API with real Mongo transactions and JWT', () => {
     await auth(request(app).post('/api/essays/submit-revision'))
       .send({ sessionId: session._id, content })
       .expect(400)
-    await auth(request(app).post('/api/essays/submit-revision'))
-      .set('Idempotency-Key', 'bad-targets')
-      .send({ sessionId: session._id, content, targetWords: ['fake'] })
-      .expect(400)
-    expect(analyzeVocabulary).not.toHaveBeenCalled()
+    analyzeVocabulary.mockResolvedValue(
+      goodAnalysis(content, session.targetWords.map((w) => w.word)),
+    )
+    const draft = await auth(
+      request(app).put('/api/sessions/' + session._id + '/draft'),
+    )
+      .send({ content })
+      .expect(200)
+    const response = await auth(
+      request(app).post('/api/essays/' + draft.body.data.essayId + '/revisions'),
+    )
+      .set('Idempotency-Key', 'stale-client-targets')
+      .send({ content, targetWords: ['outdated-word'] })
+      .expect(201)
+    expect(response.body.data.targetWords).toEqual(
+      session.targetWords.map((w) => w.word),
+    )
+    expect(analyzeVocabulary).toHaveBeenCalledTimes(1)
   })
   it('teacher assignments link published sets and validate enrollment', async () => {
     const cls = await Class.create({

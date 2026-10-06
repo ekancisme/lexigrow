@@ -44,15 +44,7 @@ async function prepareRevision(req) {
     content,
     sessionId: sessionId ? String(sessionId) : null,
     essayId: originalId ? String(originalId) : null,
-    targetWords: req.body.targetWords ?? null,
   }
-  if (
-    payload.targetWords !== null &&
-    (!Array.isArray(payload.targetWords) ||
-      payload.targetWords.length > 5 ||
-      payload.targetWords.some((w) => typeof w !== 'string'))
-  )
-    fail('Invalid targetWords')
   return transactIntent(req.user._id, 'revision', key, payload, async (tx) => {
     const session = await LearningSession.findOne(
       originalId
@@ -63,12 +55,6 @@ async function prepareRevision(req) {
     if (session.status !== 'in_progress')
       fail('Session is not active', 409)
     const targets = session.targetWords.map((w) => w.word)
-    if (
-      payload.targetWords &&
-      (new Set(payload.targetWords).size !== targets.length ||
-        payload.targetWords.some((w) => !targets.includes(w)))
-    )
-      fail('Target words must match the learning session')
     const pending = await EssayRevision.exists({
       session: session._id,
       analysisStatus: { $in: ['pending', 'processing'] },
