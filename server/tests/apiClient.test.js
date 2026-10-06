@@ -57,6 +57,15 @@ describe('dashboard API deadlines', () => {
     expect(vi.getTimerCount()).toBe(0)
   })
 
+  it('supports deadlines for POST requests without changing existing body handling', async () => {
+    fetch.mockResolvedValue(new Response('{"success":true}', { headers: { 'content-type': 'application/json' } }))
+    await expect(api.post('/submit', { content: 'essay' }, { timeoutMs: 45000 })).resolves.toEqual({ success: true })
+    expect(fetch.mock.calls[0][1].method).toBe('POST')
+    expect(fetch.mock.calls[0][1].body).toBe('{"content":"essay"}')
+    expect(fetch.mock.calls[0][1]).not.toHaveProperty('timeoutMs')
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
   it('preserves malformed JSON errors instead of reporting a network failure', async () => {
     fetch.mockResolvedValue(new Response('{', { headers: { 'content-type': 'application/json' } }))
     await expect(api.get('/bad-json', { timeoutMs: 5000 })).rejects.toMatchObject({ code: 'INVALID_JSON' })

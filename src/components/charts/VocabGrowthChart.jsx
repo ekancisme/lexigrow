@@ -1,31 +1,14 @@
-import { useState, useEffect } from 'react'
-import api from '../../services/api.js'
+import { useState } from 'react'
+import useDashboardResource from '../../hooks/useDashboardResource.js'
 import './VocabGrowthChart.css'
 
 export default function VocabGrowthChart({ title = 'Vocabulary Growth', activeTab = 'Weekly' }) {
   const [tab, setTab] = useState(activeTab)
-  const [chartData, setChartData] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true)
-        const periodParam = tab === 'Monthly' ? 'monthly' : 'weekly'
-        const res = await api.get(`/vocabulary/growth?period=${periodParam}`)
-        if (res.success && res.data) {
-          setChartData(res.data)
-        } else {
-          setChartData([])
-        }
-      } catch (err) {
-        console.error('Error loading growth chart:', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadData()
-  }, [tab])
+  const periodParam = tab === 'Monthly' ? 'monthly' : 'weekly'
+  const chartResource = useDashboardResource(`/vocabulary/growth?period=${periodParam}`)
+  const chartData = chartResource.response?.success && Array.isArray(chartResource.response.data)
+    ? chartResource.response.data
+    : []
 
   // Calculate SVG paths based on chartData
   const maxVal = Math.max(...chartData.map(d => d.count), 1)
@@ -74,10 +57,15 @@ export default function VocabGrowthChart({ title = 'Vocabulary Growth', activeTa
         </div>
       </div>
       <div className="vocab-chart__body">
-        {loading ? (
+        {chartResource.loading ? (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '160px', color: 'var(--color-outline)' }}>
             <span className="material-symbols-outlined animate-spin" style={{ marginRight: 8 }}>progress_activity</span>
             <span>Loading...</span>
+          </div>
+        ) : chartResource.error ? (
+          <div role="alert" style={{ minHeight: 160, display: 'grid', placeContent: 'center', gap: 12, textAlign: 'center' }}>
+            <span>{chartResource.error.code === 'TIMEOUT' ? 'The chart took too long to load.' : 'Could not load vocabulary growth.'}</span>
+            <button type="button" className="btn-secondary" onClick={chartResource.retry}>Retry chart</button>
           </div>
         ) : (
           <>

@@ -192,8 +192,8 @@ class ApiClient {
     return this.request(endpoint, options)
   }
 
-  post(endpoint, body) {
-    return this.request(endpoint, { method: 'POST', body })
+  post(endpoint, body, options = {}) {
+    return this.request(endpoint, { ...options, method: 'POST', body })
   }
 
   put(endpoint, body) {

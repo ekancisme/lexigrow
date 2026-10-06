@@ -60,6 +60,10 @@ vi.mock('../src/models/PaymentTransaction.js', () => ({
   },
 }))
 
+vi.mock('../src/services/competency.service.js', () => ({
+  invalidateCompetencySnapshot: vi.fn().mockResolvedValue(undefined),
+}))
+
 // 7. Mock audit logger
 vi.mock('../src/utils/auditLogger.js', () => ({
   logAction: vi.fn().mockResolvedValue(undefined),
@@ -108,6 +112,7 @@ import PendingUser from '../src/models/PendingUser.js'
 import SubscriptionPlan from '../src/models/SubscriptionPlan.js'
 import Subscription from '../src/models/Subscription.js'
 import PaymentTransaction from '../src/models/PaymentTransaction.js'
+import { invalidateCompetencySnapshot } from '../src/services/competency.service.js'
 import sendEmail from '../src/utils/sendEmail.js'
 
 // Helper for mongoose chained queries: .sort().limit()
@@ -454,6 +459,7 @@ describe('Person 1: Authentication, Profile, Onboarding & Subscription (All 16 T
     expect(res.body.success).toBe(true)
     expect(res.body.data.onboardingCompleted).toBe(true)
     expect(User.findByIdAndUpdate).toHaveBeenCalled()
+    expect(invalidateCompetencySnapshot).toHaveBeenCalledWith(mockUserId)
   })
 
   // -------------------------------------------------------------
@@ -495,6 +501,7 @@ describe('Person 1: Authentication, Profile, Onboarding & Subscription (All 16 T
     expect(putRes.body.data.targetLevel).toBe('C1')
     expect(putRes.body.data.dailyGoalMinutes).toBe(20)
     expect(putRes.body.data.pace).toBe('intensive')
+    expect(invalidateCompetencySnapshot).toHaveBeenCalledWith(mockUserId)
   })
 
   // -------------------------------------------------------------

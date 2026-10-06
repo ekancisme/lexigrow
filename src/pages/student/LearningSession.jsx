@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
+import { isValidLearningEssayWordCount } from '../../utils/learningEssay.js'
 import WordLesson from '../../components/learning/WordLesson'
 import PracticeStep from '../../components/learning/PracticeStep'
 import RevisionComparison from '../../components/learning/RevisionComparison'
@@ -257,7 +258,7 @@ export default function LearningSession() {
     setFullAnalysisLoading(true)
     setFullAnalysisError('')
     try {
-      const res = await api.post(`/essays/${essayId}/reanalyze`)
+      const res = await api.post(`/essays/${essayId}/reanalyze`, undefined, { timeoutMs: 45000 })
       if (!res?.data) throw new Error('The full essay review returned no analysis.')
       setFullEssayAnalysis(res.data)
     } catch (err) {
@@ -268,8 +269,8 @@ export default function LearningSession() {
   }
 
   const handleSubmitWriting = async () => {
-    if (wordCount < 10) {
-      alert('Please write at least 10 words before submitting for AI analysis.')
+    if (!isValidLearningEssayWordCount(wordCount)) {
+      alert('Please write 60–100 words before submitting for AI analysis.')
       return
     }
 
@@ -294,9 +295,9 @@ export default function LearningSession() {
           : revision.originalEssay
         if (essayId) {
           setReviewEssayId(String(essayId))
-          // Reuse the existing full essay analysis pipeline and persist its
-          // result so the standalone feedback page can load the same report.
-          await loadFullEssayAnalysis(String(essayId))
+          // Continue to feedback immediately while the comprehensive review
+          // runs; the detailed report is persisted for the standalone page.
+          void loadFullEssayAnalysis(String(essayId))
         } else {
           setFullAnalysisError('The session response did not include its linked essay ID.')
         }
@@ -467,10 +468,15 @@ export default function LearningSession() {
 
               <div className="writing-card__footer">
                 <div className="writing-card__counter">
-                  <span className={`writing-card__count ${wordCount >= 60 && wordCount <= 120 ? 'writing-card__count--ideal' : ''}`}>
+                  <span className={`writing-card__count ${wordCount >= 60 && wordCount <= 100 ? 'writing-card__count--ideal' : ''}`}>
                     {wordCount}
                   </span>
                   <span className="writing-card__limit"> / Target 60–100 words</span>
+                  {!isValidLearningEssayWordCount(wordCount) && (
+                    <span role="status" aria-live="polite" style={{ marginLeft: 8 }}>
+                      Write between 60 and 100 words to submit.
+                    </span>
+                  )}
                 </div>
 
                 <div className="writing-card__actions">
@@ -483,7 +489,7 @@ export default function LearningSession() {
                   <button
                     className="btn-primary writing-card__btn-submit"
                     onClick={handleSubmitWriting}
-                    disabled={analyzing || wordCount < 5}
+                    disabled={analyzing || !isValidLearningEssayWordCount(wordCount)}
                   >
                     {analyzing ? (
                       <>
