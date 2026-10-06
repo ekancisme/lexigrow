@@ -58,7 +58,7 @@ export const dayBoundary = (now, days = 0, zone = 'UTC') => {
 export const hash = (value) =>
   createHash('sha256').update(JSON.stringify(value)).digest('hex')
 export const requestKey = (req) =>
-  text(req.get('Idempotency-Key') || req.body.requestId, 'Idempotency-Key', 128)
+  text(req.get?.('Idempotency-Key') || req.body?.requestId, 'Idempotency-Key', 128)
 export const publicLearning = (value) => {
   const data = JSON.parse(
     JSON.stringify(value?.toObject ? value.toObject() : value),

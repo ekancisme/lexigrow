@@ -83,8 +83,8 @@ async function prepareRevision(req) {
         student: req.user._id,
       }).session(tx)
       if (!essay) fail('Essay not found', 404)
-      if (!originalId)
-        fail('Use the essay revisions endpoint for corrections', 409)
+      if (originalId && String(session.originalEssay) !== String(originalId))
+        fail('Essay does not match this learning session', 409)
     } else {
       if (originalId) fail('Essay is not linked to a learning session', 409)
       let classId = null

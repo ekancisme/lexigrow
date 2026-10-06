@@ -287,11 +287,29 @@ export default function LearningSession() {
     setFullAnalysisError('')
     setUsedHeuristicFallback(false)
     try {
+      const requestId = `rev_${session?._id || 'sess'}_${Date.now()}`
+      const existingEssayId = reviewEssayId || session?.originalEssay?._id || (typeof session?.originalEssay === 'string' ? session?.originalEssay : null)
+      const endpoint = existingEssayId
+        ? `/essays/${existingEssayId}/revisions`
+        : '/essays/submit-revision'
+      const payload = existingEssayId
+        ? {
+            content: essayContent,
+            targetWords: words.map(w => w.word),
+            requestId,
+          }
+        : {
+            sessionId: session?._id,
+            content: essayContent,
+            targetWords: words.map(w => w.word),
+            requestId,
+          }
+
       // First score the session's target vocabulary.
-      const res = await api.post('/essays/submit-revision', {
-        sessionId: session?._id,
-        content: essayContent,
-        targetWords: words.map(w => w.word)
+      const res = await api.post(endpoint, payload, {
+        headers: {
+          'Idempotency-Key': requestId,
+        },
       })
 
       const revision = res?.data
@@ -681,7 +699,12 @@ export default function LearningSession() {
               <p style={{ marginBottom: 0 }}>{renderEssayWithTargetHighlights()}</p>
             </div>
 
-            {fullAnalysisLoading && <p role="status">Analyzing the full essay…</p>}
+            {fullAnalysisLoading && (
+              <div role="status" style={{ padding: 14, borderRadius: 10, background: 'var(--color-surface-variant)', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                <span className="material-symbols-outlined" style={{ animation: 'spin 1.5s linear infinite', color: 'var(--color-primary)' }}>progress_activity</span>
+                <span>AI is analyzing your complete essay (grammar, vocabulary diversity, coherence, and sentence suggestions)…</span>
+              </div>
+            )}
             {fullAnalysisError && (
               <div role="alert" style={{ padding: 12, borderRadius: 8, background: 'var(--color-surface-variant)', marginBottom: 16 }}>
                 <p style={{ marginTop: 0 }}>{fullAnalysisError}</p>
