@@ -3,6 +3,8 @@ import { protect, authorize } from '../middleware/auth.middleware.js'
 import {
   startLearningSession,
   getCurrentSession,
+  getSessionDraft,
+  saveSessionDraft,
   updateSessionStep,
   getLearningPathRecommendation,
 } from '../controllers/learningSession.controller.js'
@@ -12,6 +14,8 @@ const router = Router()
 router.use(protect, authorize('student'))
 router.post('/start', startLearningSession)
 router.get('/current', getCurrentSession)
+router.get('/:id/draft', getSessionDraft)
+router.put('/:id/draft', saveSessionDraft)
 router.put('/:id/step', updateSessionStep)
 router.get('/recommendation', getLearningPathRecommendation)
 router.get('/history', getLearningHistory)

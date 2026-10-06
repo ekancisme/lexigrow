@@ -85,10 +85,18 @@ export default function AIFeedbackReview({
 
     // Switching essays must not keep the previous essay's teacher feedback
     setTeacherFeedback(null)
+    setError('')
 
     let intervalId = null
+    let pollAttempts = 0
+    let requestInFlight = false
+    let stopped = false
+    const maxPollAttempts = 24
 
     async function fetchAnalysis() {
+      if (stopped || requestInFlight) return
+      requestInFlight = true
+      pollAttempts += 1
       try {
         const essayRes = await api.get(`/essays/${essayId}`)
         setEssay(essayRes.data)
@@ -111,15 +119,25 @@ export default function AIFeedbackReview({
             setLoading(false)
             if (intervalId) clearInterval(intervalId)
           }
-        } catch {
-          // AI analysis is still generating in background
-          setLoading(true)
+        } catch (analysisErr) {
+          if (analysisErr.status !== 404) throw analysisErr
+          if (pollAttempts >= maxPollAttempts) {
+            stopped = true
+            setError('The detailed AI report is taking longer than expected. Retry the analysis or return to your essay history.')
+            setLoading(false)
+            if (intervalId) clearInterval(intervalId)
+          } else {
+            setLoading(true)
+          }
         }
       } catch (err) {
         console.error('Error loading feedback:', err)
         setError(err.message || 'Failed to load AI analysis')
         setLoading(false)
+        stopped = true
         if (intervalId) clearInterval(intervalId)
+      } finally {
+        requestInFlight = false
       }
     }
 
@@ -128,7 +146,10 @@ export default function AIFeedbackReview({
     // Poll every 5 seconds if still analyzing
     intervalId = setInterval(fetchAnalysis, 5000)
 
-    return () => clearInterval(intervalId)
+    return () => {
+      stopped = true
+      clearInterval(intervalId)
+    }
   }, [essayId])
 
   async function handleReanalyze() {
@@ -274,6 +295,11 @@ export default function AIFeedbackReview({
       <div className="ai-feedback" style={{ padding: 24, textAlign: 'center' }}>
         <h3 className="text-title-lg" style={{ color: 'var(--color-error)' }}>Error Loading Review</h3>
         <p className="text-body-md" style={{ margin: '16px 0' }}>{error}</p>
+        {essayId && (
+          <button onClick={handleReanalyze} className="ai-feedback__btn-outline" style={{ marginRight: 8 }}>
+            Retry AI analysis
+          </button>
+        )}
         <button onClick={() => navigate('/student/dashboard')} className="ai-feedback__btn-primary">Back to Dashboard</button>
       </div>
     )

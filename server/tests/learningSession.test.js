@@ -175,6 +175,67 @@ describe('Learning API with real Mongo transactions and JWT', () => {
     )
     expect(JSON.stringify(results[0].body)).not.toContain('correctAnswer')
   })
+  it('autosaves and restores a session draft and exposes it in essay history', async () => {
+    const session = (await start()).body.data
+    const content = 'A short draft that is saved before it meets the final essay word limit.'
+    const saved = await auth(
+      request(app).put(`/api/sessions/${session._id}/draft`),
+    )
+      .send({ content })
+      .expect(200)
+    expect(saved.body.data.status).toBe('draft')
+    expect(saved.body.data.content).toBe(content)
+    expect(saved.body.data.essayId).toBeTruthy()
+
+    const restored = await auth(
+      request(app).get(`/api/sessions/${session._id}/draft`),
+    ).expect(200)
+    expect(restored.body.data.content).toBe(content)
+    expect(String(restored.body.data.essayId)).toBe(saved.body.data.essayId)
+    expect((await Essay.findById(saved.body.data.essayId)).status).toBe('draft')
+
+    const history = await auth(request(app).get('/api/essays?status=draft')).expect(200)
+    expect(history.body.data.map((essay) => String(essay._id))).toContain(saved.body.data.essayId)
+  })
+  it('keeps session drafts private and rejects HTML or oversized content', async () => {
+    const session = (await start()).body.data
+    await auth(
+      request(app).put(`/api/sessions/${session._id}/draft`),
+      otherToken,
+    )
+      .send({ content: 'private' })
+      .expect(404)
+    await auth(request(app).put(`/api/sessions/${session._id}/draft`))
+      .send({ content: '<p>markup</p>' })
+      .expect(400)
+    await auth(request(app).put(`/api/sessions/${session._id}/draft`))
+      .send({ content: 'x'.repeat(10001) })
+      .expect(400)
+    expect(await Essay.countDocuments()).toBe(0)
+  })
+  it('submits a server-saved session draft through its linked essay revision', async () => {
+    const session = await toWriting()
+    const content =
+      'My daily routine includes a commute and grocery shopping. ' +
+      Array(53).fill('word').join(' ')
+    const draft = await auth(
+      request(app).put(`/api/sessions/${session._id}/draft`),
+    )
+      .send({ content })
+      .expect(200)
+    analyzeVocabulary.mockResolvedValue(
+      goodAnalysis(content, session.targetWords.map((word) => word.word)),
+    )
+    const submitted = await auth(
+      request(app).post(`/api/essays/${draft.body.data.essayId}/revisions`),
+    )
+      .set('Idempotency-Key', 'saved-session-draft')
+      .send({ content, targetWords: session.targetWords.map((word) => word.word) })
+      .expect(201)
+    expect(String(submitted.body.data.originalEssay)).toBe(draft.body.data.essayId)
+    expect((await Essay.findById(draft.body.data.essayId)).status).toBe('reviewed')
+    expect((await LearningSession.findById(session._id)).currentStep).toBe('feedback')
+  })
   it('rejects other students and skipped steps', async () => {
     const r = await start()
     const id = r.body.data._id
@@ -401,6 +462,10 @@ describe('Learning API with real Mongo transactions and JWT', () => {
       .expect(502)
     expect(await EssayRevision.countDocuments()).toBe(1)
     expect(await WordUsageEvidence.countDocuments()).toBe(0)
+    await auth(request(app).put('/api/sessions/' + session._id + '/step'))
+      .send({ currentStep: 'feedback' })
+      .expect(409)
+    expect((await LearningSession.findById(session._id)).currentStep).toBe('writing')
     analyzeVocabulary.mockResolvedValue(
       goodAnalysis(
         content,

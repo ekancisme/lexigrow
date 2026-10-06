@@ -12,6 +12,8 @@ export default function EssayHistory() {
   // States
   const [essays, setEssays] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadError, setLoadError] = useState('')
+  const [reloadToken, setReloadToken] = useState(0)
   const [filterStatus, setFilterStatus] = useState('all') // 'all' | 'draft' | 'submitted' | 'reviewed'
   const [searchTerm, setSearchTerm] = useState('')
   const [page, setPage] = useState(1)
@@ -21,24 +23,32 @@ export default function EssayHistory() {
   const limit = 10
 
   useEffect(() => {
+    let active = true
     async function fetchEssays() {
       try {
         setLoading(true)
+        setLoadError('')
         const statusParam = filterStatus === 'all' ? '' : `&status=${filterStatus}`
         const res = await api.get(`/essays?page=${page}&limit=${limit}${statusParam}`)
         if (res.success) {
-          setEssays(res.data || [])
-          setTotalPages(res.pages || 1)
-          setTotalCount(res.total || 0)
+          if (active) {
+            setEssays(res.data || [])
+            setTotalPages(res.pages || 1)
+            setTotalCount(res.total || 0)
+          }
+        } else {
+          throw new Error('The essay history response was incomplete.')
         }
       } catch (err) {
         console.error('Error fetching essays:', err)
+        if (active) setLoadError(err.message || 'Could not load essay history.')
       } finally {
-        setLoading(false)
+        if (active) setLoading(false)
       }
     }
     fetchEssays()
-  }, [filterStatus, page])
+    return () => { active = false }
+  }, [filterStatus, page, reloadToken])
 
   // Reset page when filter changes
   const handleFilterChange = (status) => {
@@ -119,6 +129,13 @@ export default function EssayHistory() {
           <div className="essay-history__loading">
             <span className="material-symbols-outlined animate-spin">progress_activity</span>
             <p>{t('common.loading', 'Loading essays...')}</p>
+          </div>
+        ) : loadError ? (
+          <div className="essay-history__empty" role="alert">
+            <p>{loadError}</p>
+            <button className="btn-primary" onClick={() => setReloadToken((value) => value + 1)}>
+              {t('common.retry', 'Retry')}
+            </button>
           </div>
         ) : filteredEssays.length === 0 ? (
           <div className="essay-history__empty">

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
 import { isValidLearningEssayWordCount } from '../../utils/learningEssay.js'
@@ -8,6 +8,15 @@ import RevisionComparison from '../../components/learning/RevisionComparison'
 import SessionCompletionModal from '../../components/learning/SessionCompletionModal'
 import AIFeedbackReview from './AIFeedbackReview'
 import './LearningSession.css'
+
+const readStoredDraft = (key) => {
+  try {
+    const draft = JSON.parse(localStorage.getItem(key) || 'null')
+    return typeof draft?.content === 'string' ? draft : null
+  } catch {
+    return null
+  }
+}
 
 // Built-in starter learning sets matching tasks/learning-spec.md
 const defaultLearningSets = {
@@ -178,9 +187,15 @@ export default function LearningSession() {
   const [analyzing, setAnalyzing] = useState(false)
   const [analysisResult, setAnalysisResult] = useState(null)
   const [reviewEssayId, setReviewEssayId] = useState('')
-  const [usedHeuristicFallback, setUsedHeuristicFallback] = useState(false)
+  const [submitError, setSubmitError] = useState('')
+  const [draftSaveState, setDraftSaveState] = useState('')
+  const [stepSaveError, setStepSaveError] = useState('')
   const [originalDraft, setOriginalDraft] = useState('')
   const [activeFeedbackWord, setActiveFeedbackWord] = useState(null)
+  const draftSaveQueue = useRef(Promise.resolve())
+
+  const draftStorageKey = `lexigrow-learning-draft:${adaptive ? 'adaptive' : setSlug}`
+  const hasServerSession = /^[a-f\d]{24}$/i.test(String(session?._id || ''))
 
   // Initialize Session
   useEffect(() => {
@@ -196,6 +211,22 @@ export default function LearningSession() {
               ? payload.originalEssay._id
               : payload.originalEssay
             if (origId) setReviewEssayId(String(origId))
+            if (origId) {
+              try {
+                const draftRes = await api.get(`/sessions/${payload._id}/draft`)
+                const serverDraft = draftRes?.data
+                const localDraft = readStoredDraft(draftStorageKey)
+                const localIsNewer = localDraft?.content !== undefined
+                  && (!serverDraft?.updatedAt || Number(localDraft.savedAt) > new Date(serverDraft.updatedAt).getTime())
+                setEssayContent(localIsNewer ? localDraft.content : (serverDraft?.content || ''))
+              } catch {
+                const localDraft = readStoredDraft(draftStorageKey)
+                if (typeof localDraft?.content === 'string') setEssayContent(localDraft.content)
+              }
+            }
+          } else {
+            const localDraft = readStoredDraft(draftStorageKey)
+            if (typeof localDraft?.content === 'string') setEssayContent(localDraft.content)
           }
           if (payload.currentStep) setCurrentStep(payload.currentStep)
           if (payload.learningSet?.words) {
@@ -220,6 +251,12 @@ export default function LearningSession() {
         // Fallback to offline/mock set
         const selected = defaultLearningSets[setSlug] || defaultLearningSets['daily-life']
         setLearningSet(selected)
+        try {
+          const localDraft = readStoredDraft(draftStorageKey)
+          if (typeof localDraft?.content === 'string') setEssayContent(localDraft.content)
+        } catch {
+          // Ignore corrupted local draft data.
+        }
         setSession({
           _id: `session_${Date.now()}`,
           slug: setSlug,
@@ -228,7 +265,7 @@ export default function LearningSession() {
       }
     }
     initSession()
-  }, [adaptive, setSlug])
+  }, [adaptive, draftStorageKey, setSlug])
 
   const words = learningSet.words || []
 
@@ -241,14 +278,57 @@ export default function LearningSession() {
 
   const wordCount = essayContent.trim() ? essayContent.trim().split(/\s+/).filter(Boolean).length : 0
 
-  const handleStepChange = async (nextStep) => {
-    setCurrentStep(nextStep)
+  const persistDraft = useCallback((content) => {
     try {
-      if (session?._id) {
+      localStorage.setItem(draftStorageKey, JSON.stringify({ content, savedAt: Date.now() }))
+    } catch {
+      // The server draft remains the durable copy if browser storage is unavailable.
+    }
+    if (!hasServerSession) {
+      setDraftSaveState('local')
+      return Promise.resolve(null)
+    }
+
+    const save = async () => {
+      setDraftSaveState('saving')
+      const response = await api.put(`/sessions/${session._id}/draft`, { content })
+      const saved = response?.data
+      if (saved?.essayId) {
+        setSession((previous) => String(previous?.originalEssay?._id || previous?.originalEssay || '') === String(saved.essayId)
+          ? previous
+          : { ...previous, originalEssay: saved.essayId })
+        setReviewEssayId(String(saved.essayId))
+      }
+      setDraftSaveState('saved')
+      return saved?.essayId ? String(saved.essayId) : null
+    }
+    const operation = draftSaveQueue.current.then(save, save)
+    draftSaveQueue.current = operation.catch(() => {})
+    return operation
+  }, [draftStorageKey, hasServerSession, session])
+
+  useEffect(() => {
+    if (!session || currentStep !== 'writing' || (!essayContent && !session.originalEssay)) return
+    const timeout = setTimeout(() => {
+      persistDraft(essayContent).catch((err) => {
+        setDraftSaveState('error')
+        console.error('Learning-session draft autosave failed:', err)
+      })
+    }, 700)
+    return () => clearTimeout(timeout)
+  }, [session, currentStep, essayContent, persistDraft])
+
+  const handleStepChange = async (nextStep) => {
+    setStepSaveError('')
+    try {
+      if (hasServerSession) {
         await api.put(`/sessions/${session._id}/step`, { currentStep: nextStep })
       }
+      setCurrentStep(nextStep)
+      return true
     } catch (e) {
-      console.warn('Session step save offline fallback:', e)
+      setStepSaveError(e.message || 'Could not save your learning-session progress.')
+      return false
     }
   }
 
@@ -257,26 +337,34 @@ export default function LearningSession() {
       alert('Please write 60–100 words before submitting for AI analysis.')
       return
     }
+    if (!hasServerSession) {
+      setSubmitError('The learning session is offline. Your draft is saved in this browser; reconnect and start the session again before submitting for AI feedback.')
+      return
+    }
 
     setAnalyzing(true)
-    setReviewEssayId('')
-    setUsedHeuristicFallback(false)
+    setSubmitError('')
     try {
+      const draftEssayId = await persistDraft(essayContent)
       const requestId = `rev_${session?._id || 'sess'}_${Date.now()}`
-      const existingEssayId = reviewEssayId || session?.originalEssay?._id || (typeof session?.originalEssay === 'string' ? session?.originalEssay : null)
+      const originalEssay = session?.originalEssay
+      const existingEssayId = draftEssayId || reviewEssayId || (typeof originalEssay === 'object' ? originalEssay?._id : originalEssay)
       const endpoint = existingEssayId
         ? `/essays/${existingEssayId}/revisions`
         : '/essays/submit-revision'
+      const targetWords = Array.isArray(session?.targetWords)
+        ? session.targetWords.map((target) => target.word).filter(Boolean)
+        : words.map((word) => word.word).filter(Boolean)
       const payload = existingEssayId
         ? {
             content: essayContent,
-            targetWords: words.map(w => w.word),
+            targetWords,
             requestId,
           }
         : {
             sessionId: session?._id,
             content: essayContent,
-            targetWords: words.map(w => w.word),
+            targetWords,
             requestId,
           }
 
@@ -288,56 +376,20 @@ export default function LearningSession() {
       })
 
       const revision = res?.data
-      if (revision?.analysis) {
-        setAnalysisResult(revision.analysis)
-        const essayId = typeof revision.originalEssay === 'object'
-          ? revision.originalEssay?._id
-          : revision.originalEssay
-        if (essayId) {
-          setReviewEssayId(String(essayId))
-          // Continue to feedback immediately while the comprehensive review
-          // runs; the detailed report is persisted for the standalone page.
-          void loadFullEssayAnalysis(String(essayId))
-        } else {
-          setFullAnalysisError('The session response did not include its linked essay ID.')
-        }
-      } else {
-        throw new Error('No structured analysis')
-      }
+      const essayId = typeof revision?.originalEssay === 'object'
+        ? revision.originalEssay?._id
+        : revision?.originalEssay
+      if (!revision?.analysis || !essayId) throw new Error('The server response did not include the essay analysis and linked essay ID.')
+      setAnalysisResult(revision.analysis)
+      setReviewEssayId(String(essayId))
+      setSession((previous) => ({ ...previous, originalEssay: String(essayId) }))
+      setDraftSaveState('saved')
+      localStorage.removeItem(draftStorageKey)
+      setCurrentStep('feedback')
     } catch (err) {
-      // Structured heuristic analysis fallback
-      setUsedHeuristicFallback(true)
-      setFullAnalysisError(err.message || 'The vocabulary analysis request failed.')
-      const targetResults = words.map(w => {
-        const found = wordStatusMap[w.word]
-        return {
-          word: w.word,
-          found: !!found,
-          matchedText: found ? w.word : null,
-          status: found ? 'correct' : 'not_used',
-          issueType: null,
-          explanationVi: found
-            ? `Accurately applied "${w.word}" in context.`
-            : `Word "${w.word}" was not found. Try including a sentence with this word.`
-        }
-      })
-
-      setAnalysisResult({
-        summary: `Cohesive writing (${wordCount} words), you successfully applied ${Object.values(wordStatusMap).filter(Boolean).length}/${words.length} target words.`,
-        strengths: [
-          'Clear sentence structure with good coherence to the topic.',
-          'Accurate and natural baseline grammatical flow.'
-        ],
-        priorities: [
-          Object.values(wordStatusMap).some(v => !v)
-            ? 'Incorporate remaining target words to complete the learning loop.'
-            : 'Try combining higher-level collocations to enrich expression.'
-        ],
-        targetWordResults: targetResults
-      })
+      setSubmitError(err.message || 'The AI review could not be submitted. Your draft is still saved; please retry.')
     } finally {
       setAnalyzing(false)
-      handleStepChange('feedback')
     }
   }
 
@@ -458,11 +510,35 @@ export default function LearningSession() {
 
             {/* Textarea Workspace */}
             <div className="writing-card__editor-wrap">
+              {submitError && (
+                <div role="alert" className="card-base" style={{ marginBottom: 12, border: '1px solid var(--color-error)', color: 'var(--color-error)' }}>
+                  {submitError}
+                </div>
+              )}
+              {stepSaveError && (
+                <div role="alert" className="card-base" style={{ marginBottom: 12, border: '1px solid var(--color-error)', color: 'var(--color-error)' }}>
+                  {stepSaveError}
+                </div>
+              )}
+              {draftSaveState && (
+                <p role="status" aria-live="polite" style={{ margin: '0 0 8px', color: draftSaveState === 'error' ? 'var(--color-error)' : 'var(--color-on-surface-variant)' }}>
+                  {draftSaveState === 'saving' ? 'Saving draft…' : draftSaveState === 'saved' ? 'Draft saved to your account' : draftSaveState === 'local' ? 'Draft saved in this browser; reconnect to sync it to your account.' : draftSaveState === 'unsaved' ? 'Draft changes are being saved…' : 'Could not sync the draft yet. A local copy is kept in this browser.'}
+                </p>
+              )}
               <textarea
                 className="writing-card__textarea"
                 placeholder="Start writing your paragraph in English here... (e.g. Every morning, my daily routine starts at 6:30 AM...)"
                 value={essayContent}
-                onChange={e => setEssayContent(e.target.value)}
+                onChange={e => {
+                  setEssayContent(e.target.value)
+                  setSubmitError('')
+                  setDraftSaveState('unsaved')
+                  try {
+                    localStorage.setItem(draftStorageKey, JSON.stringify({ content: e.target.value, savedAt: Date.now() }))
+                  } catch {
+                    // Autosave will still attempt the server copy.
+                  }
+                }}
                 rows={8}
               />
 
@@ -513,9 +589,10 @@ export default function LearningSession() {
       {/* STEP 4: AI FEEDBACK REVIEW */}
       {currentStep === 'feedback' && (
         <div className="feedback-flow animate-fade-in">
-          {usedHeuristicFallback && (
-            <div className="card-base" role="status" style={{ marginBottom: 16, border: '1px solid var(--color-error)' }}>
-              The AI vocabulary review could not be loaded. The target word statuses below are a local fallback, not an AI assessment.
+          {stepSaveError && (
+            <div className="card-base" role="alert" style={{ marginBottom: 16, border: '1px solid var(--color-error)' }}>
+              {stepSaveError}
+              <button className="btn-secondary" style={{ marginLeft: 12 }} onClick={() => handleStepChange('feedback')}>Retry</button>
             </div>
           )}
 
@@ -575,11 +652,11 @@ export default function LearningSession() {
               onComplete={() => handleStepChange('completed')}
             />
           ) : (
-            <div className="card-base" style={{ padding: 32, textAlign: 'center' }}>
-              <span className="material-symbols-outlined animate-spin" style={{ fontSize: 40, color: 'var(--color-primary)' }}>progress_activity</span>
-              <p style={{ marginTop: 12, color: 'var(--color-on-surface-variant)' }}>
-                Đang lưu bài viết và chuẩn bị bảng đánh giá chi tiết từ AI...
+            <div className="card-base" role="alert" style={{ padding: 32, textAlign: 'center' }}>
+              <p style={{ marginTop: 12, color: 'var(--color-error)' }}>
+                Không tìm thấy bài viết đã lưu để tải bảng đánh giá.
               </p>
+              <button className="btn-secondary" onClick={() => handleStepChange('writing')}>Quay lại bài viết</button>
             </div>
           )}
         </div>

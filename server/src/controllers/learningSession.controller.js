@@ -3,6 +3,7 @@ import LearningSession from '../models/LearningSession.js'
 import LearningSet from '../models/LearningSet.js'
 import PracticeAttempt from '../models/PracticeAttempt.js'
 import EssayRevision from '../models/EssayRevision.js'
+import Essay from '../models/Essay.js'
 import Vocabulary from '../models/Vocabulary.js'
 import Assignment from '../models/Assignment.js'
 import Class from '../models/Class.js'
@@ -238,6 +239,81 @@ export const getCurrentSession = asyncHandler(async (req, res) => {
     status: 'in_progress',
   })
   res.json({ success: true, data: session ? publicLearning(session) : null })
+})
+export const getSessionDraft = asyncHandler(async (req, res) => {
+  const session = await LearningSession.findOne({
+    _id: objectId(req.params.id),
+    student: req.user._id,
+  }).lean()
+  if (!session) fail('Session not found', 404)
+  const essay = session.originalEssay
+    ? await Essay.findOne({ _id: session.originalEssay, student: req.user._id })
+        .select('_id content status updatedAt')
+        .lean()
+    : null
+  res.json({
+    success: true,
+    data: {
+      essayId: essay?._id || null,
+      content: essay?.content || '',
+      status: essay?.status || null,
+      updatedAt: essay?.updatedAt || null,
+    },
+  })
+})
+export const saveSessionDraft = asyncHandler(async (req, res) => {
+  const session = await LearningSession.findOne({
+    _id: objectId(req.params.id),
+    student: req.user._id,
+  })
+  if (!session) fail('Session not found', 404)
+  if (session.status !== 'in_progress') fail('Session is no longer active', 409)
+  if (typeof req.body.content !== 'string' || req.body.content.length > 10000)
+    fail('Invalid draft content')
+  const content = req.body.content.replace(/\r\n?/g, '\n').normalize('NFC')
+  if (/<[^>]*>/.test(content)) fail('Draft must be plain text')
+  const pending = await EssayRevision.exists({
+    session: session._id,
+    analysisStatus: { $in: ['pending', 'processing'] },
+  })
+  if (pending) fail('Wait for the current analysis before editing the draft', 409)
+
+  let essay = session.originalEssay
+    ? await Essay.findOne({ _id: session.originalEssay, student: req.user._id })
+    : null
+  if (session.originalEssay && !essay) fail('Linked essay not found', 404)
+  if (!essay && !content.trim()) {
+    return res.json({ success: true, data: { essayId: null, content: '', status: null } })
+  }
+  if (!essay) {
+    essay = await Essay.create({
+      student: req.user._id,
+      title: session.learningSetSlug
+        ? `${session.learningSetSlug} practice`
+        : `${session.theme || 'Learning'} Practice Essay`,
+      theme: session.theme || 'General',
+      assignment: session.assignment || null,
+      content,
+      status: 'draft',
+    })
+    session.originalEssay = essay._id
+    await session.save()
+  } else if (essay.content !== content || essay.status !== 'draft') {
+    essay.content = content
+    essay.status = 'draft'
+    essay.submittedAt = undefined
+    await essay.save()
+  }
+
+  res.json({
+    success: true,
+    data: {
+      essayId: essay._id,
+      content: essay.content,
+      status: essay.status,
+      updatedAt: essay.updatedAt,
+    },
+  })
 })
 export const updateSessionStep = asyncHandler(async (req, res) => {
   const session = await LearningSession.findOne({
