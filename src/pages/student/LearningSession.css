@@ -216,31 +216,49 @@
   box-shadow: 0 8px 30px rgba(0, 0, 0, 0.03);
 }
 
-.writing-card__prompt {
-  background: linear-gradient(135deg, rgba(0, 91, 191, 0.04) 0%, rgba(26, 115, 232, 0.08) 100%);
+.writing-prompt-card {
+  padding: 20px 24px;
+  border-radius: 16px;
+  border: 1px solid var(--color-outline-variant, #e2e8f0);
+  background: var(--color-surface-container-lowest, #ffffff);
   border-left: 4px solid var(--color-primary, #005bbf);
-  border-radius: 0 14px 14px 0;
-  padding: 18px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
 }
 
-.writing-card__prompt-badge {
+.writing-prompt-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.writing-prompt-card__badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12px;
+  gap: 8px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--color-primary, #005bbf);
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.writing-card__prompt-text {
+.writing-prompt-card__tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant);
+  background: var(--color-surface-container-high, rgba(0, 0, 0, 0.05));
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.writing-prompt-card__text {
   font-size: 15px;
   font-weight: 500;
   color: var(--color-on-surface, #0f172a);
-  line-height: 1.5;
+  line-height: 1.6;
   margin: 0;
 }
 

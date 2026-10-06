@@ -169,6 +169,20 @@ const defaultLearningSets = {
         exampleTranslation: 'Improving my cooking skills helped me eat healthier meals at home.'
       }
     ]
+  },
+  'technology': {
+    slug: 'technology',
+    title: 'Technology & Digital Era',
+    level: 'B1',
+    promptTopic: 'Write a short paragraph (60–100 words) discussing modern technology, collaboration, and digital innovation.',
+    words: []
+  },
+  'environment': {
+    slug: 'environment',
+    title: 'Environment & Sustainability',
+    level: 'B2',
+    promptTopic: 'Write a short paragraph (60–100 words) about environmental protection, ecosystems, and sustainable development.',
+    words: []
   }
 }
 
@@ -231,20 +245,43 @@ export default function LearningSession() {
           if (payload.currentStep) setCurrentStep(payload.currentStep)
           if (payload.learningSet?.words) {
             setLearningSet(payload.learningSet)
-          } else if (payload.targetWords?.length) {
-            const mappedWords = payload.targetWords.map((w, idx) => ({
-              ...w,
-              _id: w.wordId || w._id || `w_${w.word}_${idx}`,
-              meaningVi: w.definitionVi || w.definition || w.meaningVi || '',
-              exampleSentence: w.exampleSentence || w.exampleSentences?.[0] || '',
-              exampleTranslation: w.exampleTranslation || '',
-            }))
-            setLearningSet({
-              title: 'Adaptive Learning Session',
-              level: payload.level || 'B1',
-              promptTopic: payload.snapshot?.rationale || 'Write about your learning topic.',
-              words: mappedWords,
-            })
+          } else {
+            const slug = payload.learningSetSlug || setSlug
+            const preset = defaultLearningSets[slug]
+
+            const isAdaptiveSession = payload.sessionType === 'adaptive_recommendation' || (!slug && adaptive)
+
+            let title = isAdaptiveSession
+              ? 'Adaptive Learning Session'
+              : (preset?.title || (payload.theme ? `${payload.theme} Session` : 'Smart Writing Session'))
+
+            let promptTopic = preset?.promptTopic
+            if (!promptTopic) {
+              const rationale = payload.snapshot?.rationale
+              if (rationale && rationale !== 'Published learning set') {
+                promptTopic = rationale
+              } else {
+                promptTopic = 'Write a short paragraph (60–100 words) incorporating the target words into your writing.'
+              }
+            }
+
+            if (payload.targetWords?.length) {
+              const mappedWords = payload.targetWords.map((w, idx) => ({
+                ...w,
+                _id: w.wordId || w._id || `w_${w.word}_${idx}`,
+                meaningVi: w.definitionVi || w.definition || w.meaningVi || '',
+                exampleSentence: w.exampleSentence || w.exampleSentences?.[0] || '',
+                exampleTranslation: w.exampleTranslation || '',
+              }))
+              setLearningSet({
+                title,
+                level: payload.level || preset?.level || 'B1',
+                promptTopic,
+                words: mappedWords,
+              })
+            } else if (preset) {
+              setLearningSet(preset)
+            }
           }
         }
       } catch {
@@ -493,17 +530,20 @@ export default function LearningSession() {
             </div>
           </div>
 
-          {/* Prompt & Editor Card */}
-          <div className="writing-card card-base">
-            <div className="writing-card__prompt">
-              <div className="writing-card__prompt-badge">
+          {/* Writing Prompt Card (Đề bài tách riêng biệt) */}
+          <div className="writing-prompt-card card-base">
+            <div className="writing-prompt-card__header">
+              <div className="writing-prompt-card__badge">
                 <span className="material-symbols-outlined">lightbulb</span>
-                Writing Prompt
+                <span>Writing Prompt / Đề bài</span>
               </div>
-              <p className="writing-card__prompt-text">{learningSet.promptTopic}</p>
+              <span className="writing-prompt-card__tag">Mục tiêu: 60–100 từ</span>
             </div>
+            <p className="writing-prompt-card__text">{learningSet.promptTopic}</p>
+          </div>
 
-            {/* Textarea Workspace */}
+          {/* Editor Workspace Card (Khu vực viết bài riêng biệt) */}
+          <div className="writing-card card-base">
             <div className="writing-card__editor-wrap">
               {submitError && (
                 <div role="alert" className="card-base" style={{ marginBottom: 12, border: '1px solid var(--color-error)', color: 'var(--color-error)' }}>

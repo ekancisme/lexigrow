@@ -172,7 +172,7 @@ export const startLearningSession = asyncHandler(async (req, res) => {
           targetWords: targets,
           assignment: assignment?._id || null,
           sessionType: assignment ? 'assignment' : 'curated_set',
-          snapshot: { targetWords: targets, rationale: 'Published learning set', recommendationId: '', competencyVersion: null },
+          snapshot: { targetWords: targets, rationale: set.description || `Practice vocabulary for ${set.title}`, recommendationId: '', competencyVersion: null },
         },
       ],
       sessionOpts,
