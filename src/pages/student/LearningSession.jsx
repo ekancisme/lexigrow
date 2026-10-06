@@ -6,6 +6,7 @@ import WordLesson from '../../components/learning/WordLesson'
 import PracticeStep from '../../components/learning/PracticeStep'
 import RevisionComparison from '../../components/learning/RevisionComparison'
 import SessionCompletionModal from '../../components/learning/SessionCompletionModal'
+import AIFeedbackReview from './AIFeedbackReview'
 import './LearningSession.css'
 
 // Built-in starter learning sets matching tasks/learning-spec.md
@@ -176,10 +177,7 @@ export default function LearningSession() {
   const [essayContent, setEssayContent] = useState('')
   const [analyzing, setAnalyzing] = useState(false)
   const [analysisResult, setAnalysisResult] = useState(null)
-  const [fullEssayAnalysis, setFullEssayAnalysis] = useState(null)
   const [reviewEssayId, setReviewEssayId] = useState('')
-  const [fullAnalysisLoading, setFullAnalysisLoading] = useState(false)
-  const [fullAnalysisError, setFullAnalysisError] = useState('')
   const [usedHeuristicFallback, setUsedHeuristicFallback] = useState(false)
   const [originalDraft, setOriginalDraft] = useState('')
   const [activeFeedbackWord, setActiveFeedbackWord] = useState(null)
@@ -193,6 +191,12 @@ export default function LearningSession() {
         const payload = res?.data || res
         if (payload) {
           setSession(payload)
+          if (payload.originalEssay) {
+            const origId = typeof payload.originalEssay === 'object'
+              ? payload.originalEssay._id
+              : payload.originalEssay
+            if (origId) setReviewEssayId(String(origId))
+          }
           if (payload.currentStep) setCurrentStep(payload.currentStep)
           if (payload.learningSet?.words) {
             setLearningSet(payload.learningSet)
@@ -237,18 +241,6 @@ export default function LearningSession() {
 
   const wordCount = essayContent.trim() ? essayContent.trim().split(/\s+/).filter(Boolean).length : 0
 
-  const renderEssayWithTargetHighlights = () => {
-    const targetWords = words.map(item => item.word).filter(Boolean)
-    if (!targetWords.length) return essayContent
-    const escapedTargets = targetWords.map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
-    const matcher = new RegExp(`\\b(${escapedTargets.join('|')})\\b`, 'gi')
-    return essayContent.split(matcher).map((part, index) => (
-      targetWords.some(word => String(word || '').toLowerCase() === String(part || '').toLowerCase())
-        ? <mark key={index} style={{ background: 'var(--color-primary-container)', color: 'var(--color-on-primary-container)', borderRadius: 4, padding: '0 2px' }}>{part}</mark>
-        : part
-    ))
-  }
-
   const handleStepChange = async (nextStep) => {
     setCurrentStep(nextStep)
     try {
@@ -260,21 +252,6 @@ export default function LearningSession() {
     }
   }
 
-  // Handle AI analysis submission
-  const loadFullEssayAnalysis = async (essayId) => {
-    setFullAnalysisLoading(true)
-    setFullAnalysisError('')
-    try {
-      const res = await api.post(`/essays/${essayId}/reanalyze`, undefined, { timeoutMs: 45000 })
-      if (!res?.data) throw new Error('The full essay review returned no analysis.')
-      setFullEssayAnalysis(res.data)
-    } catch (err) {
-      setFullAnalysisError(err.message || 'Unable to load the full essay review.')
-    } finally {
-      setFullAnalysisLoading(false)
-    }
-  }
-
   const handleSubmitWriting = async () => {
     if (!isValidLearningEssayWordCount(wordCount)) {
       alert('Please write 60–100 words before submitting for AI analysis.')
@@ -282,9 +259,7 @@ export default function LearningSession() {
     }
 
     setAnalyzing(true)
-    setFullEssayAnalysis(null)
     setReviewEssayId('')
-    setFullAnalysisError('')
     setUsedHeuristicFallback(false)
     try {
       const requestId = `rev_${session?._id || 'sess'}_${Date.now()}`
@@ -536,7 +511,7 @@ export default function LearningSession() {
       )}
 
       {/* STEP 4: AI FEEDBACK REVIEW */}
-      {currentStep === 'feedback' && analysisResult && (
+      {currentStep === 'feedback' && (
         <div className="feedback-flow animate-fade-in">
           {usedHeuristicFallback && (
             <div className="card-base" role="status" style={{ marginBottom: 16, border: '1px solid var(--color-error)' }}>
@@ -545,240 +520,68 @@ export default function LearningSession() {
           )}
 
           {/* Target Words Heatmap / Summary */}
-          <div className="feedback-heatmap card-base">
-            <h3 className="feedback-heatmap__title">
-              <span className="material-symbols-outlined">analytics</span>
-              Target Vocabulary Application (Rubric Check)
-            </h3>
-            <div className="feedback-heatmap__grid">
-              {analysisResult.targetWordResults?.map(res => {
-                const statusColors = {
-                  correct: 'feedback-badge--correct',
-                  needs_improvement: 'feedback-badge--warning',
-                  incorrect: 'feedback-badge--error',
-                  not_used: 'feedback-badge--neutral'
-                }
-                const statusLabels = {
-                  correct: 'Accurate in context',
-                  needs_improvement: 'Needs form/collocation refinement',
-                  incorrect: 'Inaccurate context usage',
-                  not_used: 'Not used'
-                }
+          {analysisResult?.targetWordResults && (
+            <div className="feedback-heatmap card-base" style={{ marginBottom: 24 }}>
+              <h3 className="feedback-heatmap__title">
+                <span className="material-symbols-outlined">analytics</span>
+                Target Vocabulary Application (Rubric Check)
+              </h3>
+              <div className="feedback-heatmap__grid">
+                {analysisResult.targetWordResults.map(res => {
+                  const statusColors = {
+                    correct: 'feedback-badge--correct',
+                    needs_improvement: 'feedback-badge--warning',
+                    incorrect: 'feedback-badge--error',
+                    not_used: 'feedback-badge--neutral'
+                  }
+                  const statusLabels = {
+                    correct: 'Accurate in context',
+                    needs_improvement: 'Needs form/collocation refinement',
+                    incorrect: 'Inaccurate context usage',
+                    not_used: 'Not used'
+                  }
 
-                return (
-                  <div
-                    key={res.word}
-                    className={`feedback-heatmap__item card-base ${activeFeedbackWord === res.word ? 'feedback-heatmap__item--active' : ''}`}
-                    onClick={() => setActiveFeedbackWord(res.word)}
-                  >
-                    <div className="feedback-heatmap__item-top">
-                      <span className="feedback-heatmap__item-word">{res.word}</span>
-                      <span className={`feedback-badge ${statusColors[res.status] || 'feedback-badge--neutral'}`}>
-                        {statusLabels[res.status] || res.status}
-                      </span>
+                  return (
+                    <div
+                      key={res.word}
+                      className={`feedback-heatmap__item card-base ${activeFeedbackWord === res.word ? 'feedback-heatmap__item--active' : ''}`}
+                      onClick={() => setActiveFeedbackWord(res.word)}
+                    >
+                      <div className="feedback-heatmap__item-top">
+                        <span className="feedback-heatmap__item-word">{res.word}</span>
+                        <span className={`feedback-badge ${statusColors[res.status] || 'feedback-badge--neutral'}`}>
+                          {statusLabels[res.status] || res.status}
+                        </span>
+                      </div>
+                      <p className="feedback-heatmap__item-exp">{res.explanationVi}</p>
+                      {res.suggestedUpgrade && (
+                        <p className="feedback-heatmap__item-upgrade">
+                          💡 Suggestion: {res.suggestedUpgrade}
+                        </p>
+                      )}
                     </div>
-                    <p className="feedback-heatmap__item-exp">{res.explanationVi}</p>
-                    {res.suggestedUpgrade && (
-                      <p className="feedback-heatmap__item-upgrade">
-                        💡 Suggestion: {res.suggestedUpgrade}
-                      </p>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* AI Comprehensive Insight */}
-          <div className="feedback-insights card-base">
-            <div className="feedback-insights__summary">
-              <div className="feedback-insights__header">
-                <span className="material-symbols-outlined">psychology</span>
-                <h4>Comprehensive AI Evaluation</h4>
-              </div>
-              <p className="feedback-insights__summary-text">{analysisResult.summary}</p>
-            </div>
-
-            <div className="feedback-insights__cols">
-              {/* Strengths */}
-              <div className="feedback-insights__col feedback-insights__col--strengths">
-                <h5>
-                  <span className="material-symbols-outlined">thumb_up</span> Strengths
-                </h5>
-                <ul>
-                  {analysisResult.strengths?.map((st, i) => (
-                    <li key={i}>{st}</li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Priorities */}
-              <div className="feedback-insights__col feedback-insights__col--priorities">
-                <h5>
-                  <span className="material-symbols-outlined">priority_high</span> Key Priorities for Improvement
-                </h5>
-                <ul>
-                  {analysisResult.priorities?.map((pr, i) => (
-                    <li key={i}>{pr}</li>
-                  ))}
-                </ul>
+                  )
+                })}
               </div>
             </div>
+          )}
 
-            {/* Actions */}
-            <div className="feedback-insights__actions" style={{ flexWrap: 'wrap', gap: 10 }}>
-              <button
-                className="btn-secondary"
-                onClick={() => setCurrentStep('writing')}
-              >
-                Edit Writing
-              </button>
-
-              <button
-                className="btn-primary feedback-insights__btn-revise"
-                onClick={handleStartRevision}
-              >
-                <span className="material-symbols-outlined">auto_fix_high</span>
-                Revise Now (Draft 2)
-              </button>
-
-              <a
-                href="#full-essay-review-section"
-                className="btn-outline"
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, textDecoration: 'none' }}
-                onClick={(e) => {
-                  e.preventDefault()
-                  document.getElementById('full-essay-review-section')?.scrollIntoView({ behavior: 'smooth' })
-                }}
-              >
-                <span className="material-symbols-outlined">visibility</span>
-                View Detailed Review Below
-              </a>
-
-              {reviewEssayId && (
-                <button
-                  className="btn-outline"
-                  onClick={() => navigate(`/student/feedback?id=${reviewEssayId}`)}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
-                >
-                  <span className="material-symbols-outlined">open_in_new</span>
-                  Open Full Feedback Page
-                </button>
-              )}
-
-              <button
-                className="btn-outline"
-                onClick={() => handleStepChange('completed')}
-              >
-                Complete Session
-              </button>
+          {/* Full AI Review: The exact same production component as Essay History */}
+          {reviewEssayId ? (
+            <AIFeedbackReview
+              essayId={reviewEssayId}
+              embedded={true}
+              onRevise={handleStartRevision}
+              onComplete={() => handleStepChange('completed')}
+            />
+          ) : (
+            <div className="card-base" style={{ padding: 32, textAlign: 'center' }}>
+              <span className="material-symbols-outlined animate-spin" style={{ fontSize: 40, color: 'var(--color-primary)' }}>progress_activity</span>
+              <p style={{ marginTop: 12, color: 'var(--color-on-surface-variant)' }}>
+                Đang lưu bài viết và chuẩn bị bảng đánh giá chi tiết từ AI...
+              </p>
             </div>
-          </div>
-
-          <section id="full-essay-review-section" className="card-base" style={{ marginTop: 24, border: '2px solid var(--color-primary-container)' }} aria-labelledby="full-essay-review-title">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap', borderBottom: '1px solid var(--color-outline-variant)', paddingBottom: 16 }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', fontSize: 24 }}>psychology</span>
-                  <h3 id="full-essay-review-title" className="text-title-lg" style={{ margin: 0 }}>Detailed Essay Review & AI Scoring</h3>
-                </div>
-                <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)', margin: '4px 0 0' }}>
-                  Full essay scores, grammatical feedback with quoted citations, sentence structure, and repeated-word suggestions.
-                </p>
-              </div>
-              {reviewEssayId && (
-                <button className="btn-primary" onClick={() => navigate(`/student/feedback?id=${reviewEssayId}`)} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-                  <span className="material-symbols-outlined">open_in_new</span>
-                  Open Full Feedback Page
-                </button>
-              )}
-            </div>
-
-            <div style={{ margin: '12px 0 20px', padding: 16, borderRadius: 12, background: 'var(--color-surface-variant)', whiteSpace: 'pre-wrap' }}>
-              <strong>Your submitted writing</strong>
-              <p style={{ marginBottom: 0 }}>{renderEssayWithTargetHighlights()}</p>
-            </div>
-
-            {fullAnalysisLoading && (
-              <div role="status" style={{ padding: 14, borderRadius: 10, background: 'var(--color-surface-variant)', display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                <span className="material-symbols-outlined" style={{ animation: 'spin 1.5s linear infinite', color: 'var(--color-primary)' }}>progress_activity</span>
-                <span>AI is analyzing your complete essay (grammar, vocabulary diversity, coherence, and sentence suggestions)…</span>
-              </div>
-            )}
-            {fullAnalysisError && (
-              <div role="alert" style={{ padding: 12, borderRadius: 8, background: 'var(--color-surface-variant)', marginBottom: 16 }}>
-                <p style={{ marginTop: 0 }}>{fullAnalysisError}</p>
-                {reviewEssayId && (
-                  <button className="btn-secondary" onClick={() => loadFullEssayAnalysis(reviewEssayId)} disabled={fullAnalysisLoading}>
-                    Retry full essay analysis
-                  </button>
-                )}
-              </div>
-            )}
-
-            {fullEssayAnalysis && (
-              <>
-                {fullEssayAnalysis.analysisMeta?.isFallback && (
-                  <p role="status">The full review used a fallback analysis because the configured AI provider was unavailable.</p>
-                )}
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(145px, 1fr))', gap: 12, marginBottom: 20 }}>
-                  {[
-                    { label: 'Overall score', value: fullEssayAnalysis.overallScore, max: 10 },
-                    { label: 'Grammar accuracy', value: fullEssayAnalysis.scores?.grammarAccuracy, max: 10 },
-                    { label: 'Vocabulary diversity', value: fullEssayAnalysis.scores?.vocabularyDiversity, max: 1 },
-                    { label: 'Coherence', value: fullEssayAnalysis.scores?.coherence, max: 10 },
-                    { label: 'Complexity', value: fullEssayAnalysis.scores?.complexityIndex, max: 10 },
-                  ].map(score => (
-                    <div key={score.label} className="card-base" style={{ padding: 14 }}>
-                      <span className="text-label-md">{score.label}</span>
-                      <p className="text-headline-md" style={{ margin: '8px 0 0' }}>
-                        {Number.isFinite(Number(score.value)) ? Number(score.value).toFixed(score.max === 1 ? 2 : 1) : '—'} / {score.max}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
-                  <div>
-                    <h4>Feedback on your writing</h4>
-                    {fullEssayAnalysis.suggestions?.length ? fullEssayAnalysis.suggestions.map((suggestion, index) => (
-                      <article key={`${suggestion.type}-${index}`} style={{ marginBottom: 12, padding: 12, borderRadius: 10, background: 'var(--color-surface-variant)' }}>
-                        <strong>{suggestion.type === 'strength' ? 'Strength' : 'Improvement'}</strong>
-                        <p>{suggestion.text}</p>
-                        {suggestion.quote && <blockquote style={{ margin: '8px 0', paddingLeft: 10, borderLeft: '3px solid var(--color-primary)' }}>“{suggestion.quote}”</blockquote>}
-                        {suggestion.suggestedRevision && <p><strong>Suggested sentence:</strong> {suggestion.suggestedRevision}</p>}
-                      </article>
-                    )) : <p>No sentence-level feedback was returned for this essay.</p>}
-                  </div>
-
-                  <div>
-                    <h4>Sentence structure</h4>
-                    <p>Passive voice: {fullEssayAnalysis.nlpStats?.passiveVoiceCount ?? '—'}</p>
-                    <p>Subordinate clauses: {fullEssayAnalysis.nlpStats?.subordinateClausesCount ?? '—'}</p>
-                    <h4>Try these in your next essay</h4>
-                    <p><strong>Transitions:</strong> {fullEssayAnalysis.nextEssaySuggestions?.transitionWords?.join(', ') || '—'}</p>
-                    <p><strong>Sentence structures:</strong> {fullEssayAnalysis.nextEssaySuggestions?.sentenceStructures?.join(', ') || '—'}</p>
-                    {fullEssayAnalysis.nextEssaySuggestions?.generalTips && <p>{fullEssayAnalysis.nextEssaySuggestions.generalTips}</p>}
-                  </div>
-                </div>
-
-                {fullEssayAnalysis.nlpStats?.repeatedWords?.length > 0 && (
-                  <div style={{ marginTop: 20 }}>
-                    <h4>Repeated words and alternatives</h4>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10 }}>
-                      {fullEssayAnalysis.nlpStats.repeatedWords.map(item => (
-                        <div key={item.word} className="card-base" style={{ padding: 12 }}>
-                          <strong>{item.word}</strong> <span>({item.count} uses)</span>
-                          <p style={{ marginBottom: 0 }}>{(item.suggestions || item.synonyms || []).join(', ') || 'No alternatives returned.'}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </section>
+          )}
         </div>
       )}
 

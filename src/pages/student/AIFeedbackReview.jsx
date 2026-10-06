@@ -5,9 +5,14 @@ import './AIFeedbackReview.css'
 import EssayDiscussion from '../../components/common/EssayDiscussion.jsx'
 import ShimmerSkeleton from '../../components/common/ShimmerSkeleton.jsx'
 
-export default function AIFeedbackReview() {
+export default function AIFeedbackReview({
+  essayId: propEssayId,
+  onRevise,
+  onComplete,
+  embedded = false,
+} = {}) {
   const [searchParams] = useSearchParams()
-  const essayId = searchParams.get('id')
+  const essayId = propEssayId || searchParams.get('id')
   const navigate = useNavigate()
 
   const [essay, setEssay] = useState(null)
@@ -146,7 +151,7 @@ export default function AIFeedbackReview() {
 
   if (loading && !essay && essayId) {
     return (
-      <div className="ai-feedback" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', gap: 16 }}>
+      <div className="ai-feedback" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: embedded ? '240px' : '80vh', gap: 16 }}>
         <span className="material-symbols-outlined animate-spin" style={{ fontSize: 48, color: 'var(--color-primary)' }}>
           progress_activity
         </span>
@@ -157,18 +162,18 @@ export default function AIFeedbackReview() {
 
   if (loading && essay?.status === 'submitted') {
     return (
-      <div className="ai-feedback" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '80vh', gap: 16, padding: '24px' }}>
+      <div className="ai-feedback" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: embedded ? '280px' : '80vh', gap: 16, padding: '24px' }}>
         <div style={{ maxWidth: '480px', width: '100%' }}>
           <ShimmerSkeleton variant="card" style={{ marginBottom: 16 }} />
           <ShimmerSkeleton variant="text" lines={4} />
         </div>
         <div className="ai-thinking" style={{ marginTop: 16 }}>
-          <span>AI đang kiểm tra từ vựng</span>
+          <span>AI đang phân tích và chấm bài chi tiết</span>
           <span className="dot" />
           <span className="dot" />
           <span className="dot" />
         </div>
-        <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>This usually takes 10-15 seconds. Please wait.</p>
+        <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>Đang tạo bảng điểm, phân tích ngữ pháp, từ vựng và gợi ý cải thiện...</p>
       </div>
     )
   }
@@ -304,7 +309,7 @@ export default function AIFeedbackReview() {
   ]
 
   return (
-    <div className="ai-feedback">
+    <div className={`ai-feedback ${embedded ? 'ai-feedback--embedded' : ''}`} style={embedded ? { padding: 0 } : undefined}>
       <section className="ai-feedback__header">
         <div>
           <h2 className="text-headline-lg">AI Feedback Review</h2>
@@ -312,15 +317,28 @@ export default function AIFeedbackReview() {
             {essay?.title} — {new Date(essay?.submittedAt || essay?.createdAt).toLocaleDateString()}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
           <button className="ai-feedback__btn-outline" onClick={handleReanalyze}>
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>refresh</span>
             Re-analyze
           </button>
-          <button className="ai-feedback__btn-primary" onClick={() => navigate(`/student/write-essay?id=${essayId}`)}>
+          <button
+            className="ai-feedback__btn-primary"
+            onClick={() => onRevise ? onRevise() : navigate(`/student/write-essay?id=${essayId}`)}
+          >
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>edit</span>
             Revise Essay
           </button>
+          {onComplete && (
+            <button
+              className="ai-feedback__btn-outline"
+              onClick={onComplete}
+              style={{ borderColor: 'var(--color-primary)', color: 'var(--color-primary)', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: 18 }}>check_circle</span>
+              Complete Session
+            </button>
+          )}
         </div>
       </section>
 

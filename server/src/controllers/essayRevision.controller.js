@@ -15,6 +15,7 @@ import {
 } from '../services/vocabularyAnalysis.service.js'
 import { recordEvidence } from '../services/wordEvidence.service.js'
 import { invalidateCompetencySnapshot } from '../services/competency.service.js'
+import { processEssayAnalysis } from '../services/ai.service.js'
 
 const writingContent = (body) => {
   const content = text(body.content, 'content', 10000)
@@ -59,11 +60,8 @@ async function prepareRevision(req) {
         : { _id: sessionId, student: req.user._id },
     ).session(tx)
     if (!session) fail('Session not found', 404)
-    if (
-      session.status !== 'in_progress' ||
-      !['writing', 'feedback'].includes(session.currentStep)
-    )
-      fail('Session is not ready for writing', 409)
+    if (session.status !== 'in_progress')
+      fail('Session is not active', 409)
     const targets = session.targetWords.map((w) => w.word)
     if (
       payload.targetWords &&
@@ -103,15 +101,22 @@ async function prepareRevision(req) {
         if (!cls) fail('Assignment unavailable', 404)
         classId = cls._id
       }
+      const title = session.learningSetSlug
+        ? `${session.learningSetSlug} practice`
+        : (session.theme ? `${session.theme} Practice Essay` : 'Daily Vocabulary Practice')
       const [created] = await Essay.create(
         [
           {
             student: req.user._id,
-            title: session.learningSetSlug + ' practice',
-            theme: session.theme,
+            title,
+            theme: session.theme || 'General',
             assignment: session.assignment,
             class: classId,
             content,
+            wordCount,
+            readingTime: Math.max(1, Math.ceil(wordCount / 150)),
+            paragraphCount: content.split(/\n+/).filter(Boolean).length || 1,
+            sentenceCount: content.split(/[.!?]+/).filter(Boolean).length || 1,
             status: 'submitted',
             submittedAt: new Date(),
           },
@@ -123,6 +128,10 @@ async function prepareRevision(req) {
     }
     essay.revisionCounter = (essay.revisionCounter || 0) + 1
     essay.content = content
+    essay.wordCount = wordCount
+    essay.readingTime = Math.max(1, Math.ceil(wordCount / 150))
+    essay.paragraphCount = content.split(/\n+/).filter(Boolean).length || 1
+    essay.sentenceCount = content.split(/[.!?]+/).filter(Boolean).length || 1
     essay.status = 'submitted'
     if (tx) {
       await essay.save({ session: tx })
@@ -283,6 +292,11 @@ export const submitRevision = asyncHandler(async (req, res) => {
   try {
     const revision = await processRevision(prepared.result.revisionId, req.user)
     await invalidateCompetencySnapshot(req.user._id)
+    if (revision?.originalEssay) {
+      processEssayAnalysis(revision.originalEssay, req.user._id, revision.content).catch((err) => {
+        console.error('[SubmitRevision] Background full essay analysis error:', err.message)
+      })
+    }
     res
       .status(prepared.replayed ? 200 : 201)
       .json({ success: true, data: revision })

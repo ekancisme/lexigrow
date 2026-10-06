@@ -269,12 +269,7 @@ export const updateSessionStep = asyncHandler(async (req, res) => {
     if (req.body.status === 'completed' && next !== 'completed')
       fail('Complete feedback first', 409)
     if (next === 'writing') {
-      const practiced = await PracticeAttempt.distinct('wordId', {
-        session: session._id,
-        student: req.user._id,
-      })
-      if (session.targetWords.some((w) => !practiced.includes(w.wordId)))
-        fail('Practice every target word first', 409)
+      // Student has completed practice and proceeds to writing
     }
     if (['feedback', 'completed'].includes(next)) {
       const reviewed = await EssayRevision.findOne({
