@@ -175,6 +175,11 @@ export default function LearningSession() {
   const [essayContent, setEssayContent] = useState('')
   const [analyzing, setAnalyzing] = useState(false)
   const [analysisResult, setAnalysisResult] = useState(null)
+  const [fullEssayAnalysis, setFullEssayAnalysis] = useState(null)
+  const [reviewEssayId, setReviewEssayId] = useState('')
+  const [fullAnalysisLoading, setFullAnalysisLoading] = useState(false)
+  const [fullAnalysisError, setFullAnalysisError] = useState('')
+  const [usedHeuristicFallback, setUsedHeuristicFallback] = useState(false)
   const [originalDraft, setOriginalDraft] = useState('')
   const [activeFeedbackWord, setActiveFeedbackWord] = useState(null)
 
@@ -224,6 +229,18 @@ export default function LearningSession() {
 
   const wordCount = essayContent.trim() ? essayContent.trim().split(/\s+/).filter(Boolean).length : 0
 
+  const renderEssayWithTargetHighlights = () => {
+    const targetWords = words.map(item => item.word).filter(Boolean)
+    if (!targetWords.length) return essayContent
+    const escapedTargets = targetWords.map(word => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    const matcher = new RegExp(`\\b(${escapedTargets.join('|')})\\b`, 'gi')
+    return essayContent.split(matcher).map((part, index) => (
+      targetWords.some(word => word.toLowerCase() === part.toLowerCase())
+        ? <mark key={index} style={{ background: 'var(--color-primary-container)', color: 'var(--color-on-primary-container)', borderRadius: 4, padding: '0 2px' }}>{part}</mark>
+        : part
+    ))
+  }
+
   const handleStepChange = async (nextStep) => {
     setCurrentStep(nextStep)
     try {
@@ -236,6 +253,20 @@ export default function LearningSession() {
   }
 
   // Handle AI analysis submission
+  const loadFullEssayAnalysis = async (essayId) => {
+    setFullAnalysisLoading(true)
+    setFullAnalysisError('')
+    try {
+      const res = await api.post(`/essays/${essayId}/reanalyze`)
+      if (!res?.data) throw new Error('The full essay review returned no analysis.')
+      setFullEssayAnalysis(res.data)
+    } catch (err) {
+      setFullAnalysisError(err.message || 'Unable to load the full essay review.')
+    } finally {
+      setFullAnalysisLoading(false)
+    }
+  }
+
   const handleSubmitWriting = async () => {
     if (wordCount < 10) {
       alert('Please write at least 10 words before submitting for AI analysis.')
@@ -243,21 +274,39 @@ export default function LearningSession() {
     }
 
     setAnalyzing(true)
+    setFullEssayAnalysis(null)
+    setReviewEssayId('')
+    setFullAnalysisError('')
+    setUsedHeuristicFallback(false)
     try {
-      // Call backend API with Gemini AI
+      // First score the session's target vocabulary.
       const res = await api.post('/essays/submit-revision', {
         sessionId: session?._id,
         content: essayContent,
         targetWords: words.map(w => w.word)
       })
 
-      if (res.data && res.data.analysis) {
-        setAnalysisResult(res.data.analysis)
+      const revision = res?.data
+      if (revision?.analysis) {
+        setAnalysisResult(revision.analysis)
+        const essayId = typeof revision.originalEssay === 'object'
+          ? revision.originalEssay?._id
+          : revision.originalEssay
+        if (essayId) {
+          setReviewEssayId(String(essayId))
+          // Reuse the existing full essay analysis pipeline and persist its
+          // result so the standalone feedback page can load the same report.
+          await loadFullEssayAnalysis(String(essayId))
+        } else {
+          setFullAnalysisError('The session response did not include its linked essay ID.')
+        }
       } else {
         throw new Error('No structured analysis')
       }
-    } catch {
+    } catch (err) {
       // Structured heuristic analysis fallback
+      setUsedHeuristicFallback(true)
+      setFullAnalysisError(err.message || 'The vocabulary analysis request failed.')
       const targetResults = words.map(w => {
         const found = wordStatusMap[w.word]
         return {
@@ -458,6 +507,12 @@ export default function LearningSession() {
       {/* STEP 4: AI FEEDBACK REVIEW */}
       {currentStep === 'feedback' && analysisResult && (
         <div className="feedback-flow animate-fade-in">
+          {usedHeuristicFallback && (
+            <div className="card-base" role="status" style={{ marginBottom: 16, border: '1px solid var(--color-error)' }}>
+              The AI vocabulary review could not be loaded. The target word statuses below are a local fallback, not an AI assessment.
+            </div>
+          )}
+
           {/* Target Words Heatmap / Summary */}
           <div className="feedback-heatmap card-base">
             <h3 className="feedback-heatmap__title">
@@ -564,6 +619,102 @@ export default function LearningSession() {
               </button>
             </div>
           </div>
+
+          <section className="card-base" style={{ marginTop: 20 }} aria-labelledby="full-essay-review-title">
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+              <div>
+                <h3 id="full-essay-review-title" className="text-title-lg" style={{ margin: 0 }}>Detailed essay review</h3>
+                <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)' }}>
+                  Full essay scores, writing feedback, sentence structure, and repeated-word suggestions.
+                </p>
+              </div>
+              {reviewEssayId && (
+                <button className="btn-outline" onClick={() => navigate(`/student/feedback?id=${reviewEssayId}`)}>
+                  Open full feedback page
+                </button>
+              )}
+            </div>
+
+            <div style={{ margin: '12px 0 20px', padding: 16, borderRadius: 12, background: 'var(--color-surface-variant)', whiteSpace: 'pre-wrap' }}>
+              <strong>Your submitted writing</strong>
+              <p style={{ marginBottom: 0 }}>{renderEssayWithTargetHighlights()}</p>
+            </div>
+
+            {fullAnalysisLoading && <p role="status">Analyzing the full essay…</p>}
+            {fullAnalysisError && (
+              <div role="alert" style={{ padding: 12, borderRadius: 8, background: 'var(--color-surface-variant)', marginBottom: 16 }}>
+                <p style={{ marginTop: 0 }}>{fullAnalysisError}</p>
+                {reviewEssayId && (
+                  <button className="btn-secondary" onClick={() => loadFullEssayAnalysis(reviewEssayId)} disabled={fullAnalysisLoading}>
+                    Retry full essay analysis
+                  </button>
+                )}
+              </div>
+            )}
+
+            {fullEssayAnalysis && (
+              <>
+                {fullEssayAnalysis.analysisMeta?.isFallback && (
+                  <p role="status">The full review used a fallback analysis because the configured AI provider was unavailable.</p>
+                )}
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(145px, 1fr))', gap: 12, marginBottom: 20 }}>
+                  {[
+                    { label: 'Overall score', value: fullEssayAnalysis.overallScore, max: 10 },
+                    { label: 'Grammar accuracy', value: fullEssayAnalysis.scores?.grammarAccuracy, max: 10 },
+                    { label: 'Vocabulary diversity', value: fullEssayAnalysis.scores?.vocabularyDiversity, max: 1 },
+                    { label: 'Coherence', value: fullEssayAnalysis.scores?.coherence, max: 10 },
+                    { label: 'Complexity', value: fullEssayAnalysis.scores?.complexityIndex, max: 10 },
+                  ].map(score => (
+                    <div key={score.label} className="card-base" style={{ padding: 14 }}>
+                      <span className="text-label-md">{score.label}</span>
+                      <p className="text-headline-md" style={{ margin: '8px 0 0' }}>
+                        {Number.isFinite(Number(score.value)) ? Number(score.value).toFixed(score.max === 1 ? 2 : 1) : '—'} / {score.max}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+                  <div>
+                    <h4>Feedback on your writing</h4>
+                    {fullEssayAnalysis.suggestions?.length ? fullEssayAnalysis.suggestions.map((suggestion, index) => (
+                      <article key={`${suggestion.type}-${index}`} style={{ marginBottom: 12, padding: 12, borderRadius: 10, background: 'var(--color-surface-variant)' }}>
+                        <strong>{suggestion.type === 'strength' ? 'Strength' : 'Improvement'}</strong>
+                        <p>{suggestion.text}</p>
+                        {suggestion.quote && <blockquote style={{ margin: '8px 0', paddingLeft: 10, borderLeft: '3px solid var(--color-primary)' }}>“{suggestion.quote}”</blockquote>}
+                        {suggestion.suggestedRevision && <p><strong>Suggested sentence:</strong> {suggestion.suggestedRevision}</p>}
+                      </article>
+                    )) : <p>No sentence-level feedback was returned for this essay.</p>}
+                  </div>
+
+                  <div>
+                    <h4>Sentence structure</h4>
+                    <p>Passive voice: {fullEssayAnalysis.nlpStats?.passiveVoiceCount ?? '—'}</p>
+                    <p>Subordinate clauses: {fullEssayAnalysis.nlpStats?.subordinateClausesCount ?? '—'}</p>
+                    <h4>Try these in your next essay</h4>
+                    <p><strong>Transitions:</strong> {fullEssayAnalysis.nextEssaySuggestions?.transitionWords?.join(', ') || '—'}</p>
+                    <p><strong>Sentence structures:</strong> {fullEssayAnalysis.nextEssaySuggestions?.sentenceStructures?.join(', ') || '—'}</p>
+                    {fullEssayAnalysis.nextEssaySuggestions?.generalTips && <p>{fullEssayAnalysis.nextEssaySuggestions.generalTips}</p>}
+                  </div>
+                </div>
+
+                {fullEssayAnalysis.nlpStats?.repeatedWords?.length > 0 && (
+                  <div style={{ marginTop: 20 }}>
+                    <h4>Repeated words and alternatives</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 10 }}>
+                      {fullEssayAnalysis.nlpStats.repeatedWords.map(item => (
+                        <div key={item.word} className="card-base" style={{ padding: 12 }}>
+                          <strong>{item.word}</strong> <span>({item.count} uses)</span>
+                          <p style={{ marginBottom: 0 }}>{(item.suggestions || item.synonyms || []).join(', ') || 'No alternatives returned.'}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </section>
         </div>
       )}
 

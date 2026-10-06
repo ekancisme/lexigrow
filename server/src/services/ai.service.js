@@ -162,8 +162,8 @@ Analyze the student's essay and return a JSON response with EXACTLY this structu
   },
   "newWordsDetected": [<list of advanced/uncommon English words used>],
   "suggestions": [
-    {"type": "strength", "text": "<what the student did well>", "quote": "<exact supporting quote or empty>"},
-    {"type": "improvement", "text": "<what could be improved>", "quote": "<exact supporting quote or empty>"}
+    {"type": "strength", "text": "<what the student did well>", "quote": "<exact supporting quote or empty>", "suggestedRevision": ""},
+    {"type": "improvement", "text": "<what could be improved>", "quote": "<exact supporting quote or empty>", "suggestedRevision": "<a corrected or clearer replacement for the quoted sentence, or empty if no sentence-level rewrite is appropriate>"}
   ],
   "writingStats": {
     "avgSentenceLength": <number>,
@@ -186,6 +186,7 @@ Rules:
 - vocabularyDiversity (TTR) = unique words / total words, rounded to 2 decimal places
 - newWordsDetected should include academic, technical, or B2+ level words
 - Provide at least 2 strengths and 2 improvements in suggestions
+- For each improvement tied to a sentence, quote the exact sentence and provide a natural corrected or clearer replacement in suggestedRevision. Keep the student's meaning and level. Leave suggestedRevision empty when a rewrite is not appropriate.
 - For learningPatterns:
   * paddedSentences: set to true if the student repeats synonyms or writes long, repetitive, meaningless sentences to inflate word count.
   * plagiarismDetected: set to true if there is a high likelihood of plagiarism or copy-pasting (unnatural flow transitions, vocabulary far exceeding typical student level, or rigid structures).
@@ -265,6 +266,10 @@ export const analyzeEssay = async (essayContent, customPrompt, pastScoresSummary
     prompt = defaultPrompt
   }
 
+  // Keep sentence-level corrections available even when a teacher's saved
+  // prompt predates the suggestedRevision field.
+  prompt += '\n\nFor each sentence-level improvement, include the exact original sentence in quote and a corrected or clearer full-sentence alternative in suggestedRevision. Preserve the student\'s intended meaning and level. Use an empty string when a rewrite is not appropriate.'
+
 
   const startTime = Date.now()
   let usage = null
@@ -302,6 +307,9 @@ export const analyzeEssay = async (essayContent, customPrompt, pastScoresSummary
         return {
           ...suggestion,
           quote: quoteStart >= 0 ? quote : '',
+          suggestedRevision: typeof suggestion.suggestedRevision === 'string' && suggestion.suggestedRevision.length <= 500
+            ? suggestion.suggestedRevision
+            : '',
           quoteStart,
           quoteEnd: quoteStart >= 0 ? quoteStart + quote.length : -1,
         }

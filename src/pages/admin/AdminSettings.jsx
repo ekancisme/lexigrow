@@ -330,8 +330,8 @@ Analyze the student's essay and return a JSON response with EXACTLY this structu
   },
   "newWordsDetected": [<list of advanced/uncommon English words used>],
   "suggestions": [
-    {"type": "strength", "text": "<what the student did well>"},
-    {"type": "improvement", "text": "<what could be improved>"}
+    {"type": "strength", "text": "<what the student did well>", "quote": "<exact supporting quote or empty>", "suggestedRevision": ""},
+    {"type": "improvement", "text": "<what could be improved>", "quote": "<exact original sentence or empty>", "suggestedRevision": "<corrected or clearer replacement sentence, or empty>"}
   ],
   "writingStats": {
     "avgSentenceLength": <number>,
@@ -354,6 +354,7 @@ Rules:
 - vocabularyDiversity (TTR) = unique words / total words, rounded to 2 decimal places
 - newWordsDetected should include academic, technical, or B2+ level words
 - Provide at least 2 strengths and 2 improvements in suggestions
+- For sentence-level improvements, quote the exact original sentence and provide a natural corrected or clearer replacement in suggestedRevision. Preserve the student's intended meaning and level.
 - For learningPatterns:
   * paddedSentences: set to true if the student repeats synonyms or writes long, repetitive, meaningless sentences to inflate word count.
   * plagiarismDetected: set to true if there is a high likelihood of plagiarism or copy-pasting (unnatural flow transitions, vocabulary far exceeding typical student level, or rigid structures).

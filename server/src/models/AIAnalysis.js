@@ -11,6 +11,7 @@ const suggestionSchema = new mongoose.Schema({
     required: true,
   },
   quote: { type: String, default: '' },
+  suggestedRevision: { type: String, default: '' },
   quoteStart: { type: Number, default: -1 },
   quoteEnd: { type: Number, default: -1 },
 }, { _id: false })

@@ -530,6 +530,11 @@ export default function AIFeedbackReview() {
                   <div>
                     <p className="text-body-md">{s.text}</p>
                     {s.quote && <blockquote style={{ margin: '6px 0 0', paddingLeft: 10, borderLeft: '3px solid var(--color-primary)', color: 'var(--color-outline)', fontStyle: 'italic' }}>“{s.quote}”</blockquote>}
+                    {s.suggestedRevision && (
+                      <div className="ai-feedback__suggested-revision" style={{ marginTop: 8, padding: 10, borderRadius: 8, background: 'var(--color-surface-variant)' }}>
+                        <strong>Suggested revision:</strong> {s.suggestedRevision}
+                      </div>
+                    )}
                   </div>
                 </div>
               )) || <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>No suggestions generated.</p>}
