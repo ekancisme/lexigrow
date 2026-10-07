@@ -161,7 +161,7 @@ async function comboCandidates({ route, model, schema }) {
   const resolved = []
   for (const candidate of ordered) {
     const providerModel = await AIProviderModel.findOne({ _id: candidate.model, enabled: true }).lean()
-    if (!providerModel || (schema && !providerModel.capabilities?.structuredSchema)) continue
+    if (!providerModel || (schema && !providerModel.capabilities?.structuredSchema && !providerModel.capabilities?.jsonMode)) continue
     const account = await AIProviderAccount.findOne({ _id: providerModel.account, enabled: true }).select('+encryptedApiKey').lean()
     if (!account || account.needsAttention || (account.cooldownUntil && new Date(account.cooldownUntil) > new Date())) continue
     try {
@@ -223,12 +223,14 @@ async function storedGroqFallbacks(route, model, excludedIds = new Set()) {
 
 async function candidates({ route, providerPreference, model, schema }) {
   const combo = await comboCandidates({ route, model, schema })
-  if (combo && Array.isArray(combo.pool)) return combo
+  if (combo && Array.isArray(combo.pool) && combo.pool.length) return combo
   const groqAccounts = await storedGroqFallbacks(route, model)
   const legacyGroq = await legacyAccount('groq', model)
   if (legacyGroq) groqAccounts.push(legacyGroq)
-  // Without a route combo, use Groq only. Other accounts receive traffic only
-  // after they have been explicitly assigned a route policy.
+  if (providerPreference === 'gemini' || !groqAccounts.length) {
+    const legacyGemini = await legacyAccount('gemini', model)
+    if (legacyGemini) groqAccounts.unshift(legacyGemini)
+  }
   return { pool: groqAccounts, policy: { maxAttempts: DEFAULT_MAX_ATTEMPTS, timeoutMs: 30000, maxCostUsd: null } }
 }
 
@@ -391,6 +393,12 @@ export async function completeAI({
   let lastAccount
   let reservedCost = 0
   const deadline = started + effectiveTimeoutMs
+  const effectiveMessages = Array.isArray(messages) && messages.length
+    ? messages
+    : (prompt ? [{ role: 'user', content: prompt }] : [])
+  const effectivePrompt = prompt || (messages || []).map((m) => `${m.role}: ${m.content}`).join('\n\n')
+  const effectiveResponseFormat = responseFormat || (schema ? { type: 'json_object' } : undefined)
+
   for (const account of attemptPool) {
     lastAccount = account
     let projectedAttemptCost = null
@@ -400,7 +408,7 @@ export async function completeAI({
       break
     }
     if (costLimit !== null) {
-      const projected = maximumAttemptCost(account, { messages, prompt, maxTokens })
+      const projected = maximumAttemptCost(account, { messages: effectiveMessages, prompt: effectivePrompt, maxTokens })
       projectedAttemptCost = projected
       if (projected === null || reservedCost + projected > costLimit) {
         lastError = new AIProviderError(projected === null
@@ -416,11 +424,11 @@ export async function completeAI({
     const attemptStarted = Date.now()
     try {
       const result = await callAccount(account, {
-        messages,
-        prompt,
+        messages: effectiveMessages,
+        prompt: effectivePrompt,
         schema,
         model,
-        responseFormat,
+        responseFormat: effectiveResponseFormat,
         temperature,
         maxTokens,
         timeoutMs: Math.max(1, deadline - Date.now()),

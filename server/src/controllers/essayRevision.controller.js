@@ -22,14 +22,12 @@ const writingContent = (body) => {
     .replace(/\r\n?/g, '\n')
     .normalize('NFC')
   if (/<[^>]*>/.test(content)) fail('Submit plain text, not HTML')
-  const wordCount = content.split(/\s+/).length
+  const wordCount = content.split(/\s+/).filter(Boolean).length
   if (wordCount < 60 || wordCount > 100)
     fail('Writing must contain 60–100 words')
   return { content, wordCount }
 }
 async function prepareRevision(req) {
-  const { content, wordCount } = writingContent(req.body),
-    key = requestKey(req)
   const originalId = req.params.id ? objectId(req.params.id) : null
   // Authorize the parent before validating fields that disclose its structure.
   let parent
@@ -37,6 +35,11 @@ async function prepareRevision(req) {
     parent = await Essay.findOne({ _id: originalId, student: req.user._id })
     if (!parent) fail('Essay not found', 404)
   }
+  const rawContent = (typeof req.body?.content === 'string' && req.body.content.trim())
+    ? req.body.content
+    : (parent?.content || '')
+  const { content, wordCount } = writingContent({ ...req.body, content: rawContent })
+  const key = requestKey(req)
   const sessionId = originalId
     ? null
     : objectId(req.body.sessionId, 'sessionId')

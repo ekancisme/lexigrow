@@ -219,7 +219,7 @@ export default function AIFeedbackReview({
             <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 24, maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
               Submit your first essay to let our AI analyze your writing patterns and provide custom vocabulary recommendations.
             </p>
-            <button onClick={() => navigate('/student/write-essay')} className="ai-feedback__btn-primary">
+            <button onClick={() => navigate('/student/writing')} className="ai-feedback__btn-primary">
               Write New Essay
             </button>
           </div>
@@ -350,7 +350,7 @@ export default function AIFeedbackReview({
           </button>
           <button
             className="ai-feedback__btn-primary"
-            onClick={() => onRevise ? onRevise() : navigate(`/student/write-essay?id=${essayId}`)}
+            onClick={() => onRevise ? onRevise() : navigate(`/student/writing?id=${essayId}`)}
           >
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>edit</span>
             Revise Essay
@@ -375,7 +375,7 @@ export default function AIFeedbackReview({
             <h4>Revision Requested by Teacher</h4>
             <p>Your teacher reviewed this essay and requested some changes. Please read the comments below and revise your essay.</p>
           </div>
-          <button className="ai-feedback__btn-primary" onClick={() => navigate(`/student/write-essay?id=${essayId}`)}>
+          <button className="ai-feedback__btn-primary" onClick={() => navigate(`/student/writing?id=${essayId}`)}>
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>edit</span>
             Revise Now
           </button>

@@ -52,7 +52,7 @@ const errorHandler = (err, req, res, next) => {
       console.error('❌ Server Error:', err.message || err)
     }
   } else if (process.env.NODE_ENV === 'development') {
-    console.warn(`⚠️ Client Error (${statusCode}): ${error.message}`)
+    console.warn(`⚠️ Client Error (${statusCode}) on ${req?.method || ''} ${req?.originalUrl || ''}: ${error.message}`)
   }
 
   // Standardize all 5xx responses: never leak internal error message, database errors, or stack traces
