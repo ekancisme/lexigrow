@@ -655,4 +655,75 @@ describe('Learning API with real Mongo transactions and JWT', () => {
     expect(response.body._meta.source).toBe('deterministic_competency')
     expect(JSON.stringify(response.body)).not.toContain('correctAnswer')
   })
+  it('automatically advances to the next uncompleted set when student already completed requested set', async () => {
+    // Create a second learning set: 'travel'
+    await LearningSet.create({
+      slug: 'travel',
+      title: 'Travel Vocabulary',
+      description: 'Travel topic',
+      level: 'B1',
+      category: 'Travel',
+      status: 'published',
+      items: [item('itinerary'), item('accommodation'), item('landmark')],
+    })
+
+    // Mark 'daily-life' as completed for this student
+    await LearningSession.create({
+      student: student.id,
+      learningSet: set._id,
+      learningSetSlug: 'daily-life',
+      targetWords: [{ word: 'routine' }, { word: 'commute' }, { word: 'grocery' }],
+      status: 'completed',
+      completedAt: new Date(),
+    })
+
+    // Requesting 'daily-life' without forceSet should automatically advance to 'travel'
+    const res = await auth(request(app).post('/api/sessions/start'))
+      .send({ learningSetSlug: 'daily-life' })
+      .expect(201)
+
+    expect(res.body.data.learningSetSlug).toBe('travel')
+    expect(res.body.data.targetWords.map((w) => w.word)).toContain('itinerary')
+  })
+  it('abandons stale active session of a completed set when advancing', async () => {
+    // Create a second learning set: 'travel'
+    await LearningSet.create({
+      slug: 'travel',
+      title: 'Travel Vocabulary',
+      description: 'Travel topic',
+      level: 'B1',
+      category: 'Travel',
+      status: 'published',
+      items: [item('itinerary'), item('accommodation'), item('landmark')],
+    })
+
+    // Mark 'daily-life' as completed
+    await LearningSession.create({
+      student: student.id,
+      learningSet: set._id,
+      learningSetSlug: 'daily-life',
+      targetWords: [{ word: 'routine' }, { word: 'commute' }, { word: 'grocery' }],
+      status: 'completed',
+      completedAt: new Date(Date.now() - 60000),
+    })
+
+    // An empty in-progress session exists for 'daily-life' (stale)
+    const staleSession = await LearningSession.create({
+      student: student.id,
+      learningSet: set._id,
+      learningSetSlug: 'daily-life',
+      targetWords: [{ word: 'routine' }, { word: 'commute' }, { word: 'grocery' }],
+      status: 'in_progress',
+      currentStep: 'lesson',
+    })
+
+    // Calling start with advance: true should abandon staleSession and create a travel session
+    const res = await auth(request(app).post('/api/sessions/start'))
+      .send({ advance: true })
+      .expect(201)
+
+    expect(res.body.data.learningSetSlug).toBe('travel')
+    const updatedStale = await LearningSession.findById(staleSession._id)
+    expect(updatedStale.status).toBe('abandoned')
+  })
 })

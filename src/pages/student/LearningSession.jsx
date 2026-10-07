@@ -390,7 +390,7 @@ export default function LearningSession() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const adaptive = searchParams.get('adaptive') === 'true'
-  const setSlug = searchParams.get('set') || 'daily-life'
+  const setSlug = searchParams.get('set') || ''
 
   const [session, setSession] = useState(null)
   const [currentStep, setCurrentStep] = useState('lesson') // 'lesson' | 'practice' | 'writing' | 'feedback' | 'revision' | 'completed'
@@ -490,6 +490,15 @@ export default function LearningSession() {
             } else if (preset) {
               setLearningSet(preset)
             }
+          }
+
+          // Keep browser URL aligned with active session so refreshing retains the correct session
+          if (payload.sessionType === 'adaptive_recommendation') {
+            if (!searchParams.get('adaptive')) {
+              navigate('/student/writing?adaptive=true', { replace: true })
+            }
+          } else if (payload.learningSetSlug && searchParams.get('set') !== payload.learningSetSlug) {
+            navigate(`/student/writing?set=${payload.learningSetSlug}`, { replace: true })
           }
         }
       } catch {
@@ -692,7 +701,7 @@ export default function LearningSession() {
       setSubmitError('')
       localStorage.removeItem(draftStorageKey)
 
-      const res = await api.post('/sessions/start', { advance: true })
+      const res = await api.post('/sessions/start', { advance: true, abandonActive: true })
       const payload = res?.data || res
       if (payload) {
         setSession(payload)
@@ -722,6 +731,12 @@ export default function LearningSession() {
           })
         } else if (preset) {
           setLearningSet(preset)
+        }
+
+        if (payload.sessionType === 'adaptive_recommendation') {
+          navigate('/student/writing?adaptive=true', { replace: true })
+        } else if (slug) {
+          navigate(`/student/writing?set=${slug}`, { replace: true })
         }
       }
     } catch (err) {

@@ -80,7 +80,7 @@ export default function StudentDashboard() {
           <div className="student-dash__hero-actions">
             <button
               className="btn-primary student-dash__hero-btn"
-              onClick={() => navigate(recommendation?.targetWords?.length ? '/student/writing?adaptive=true' : '/student/writing?set=daily-life')}
+              onClick={() => navigate(recommendation?.targetWords?.length ? '/student/writing?adaptive=true' : '/student/writing')}
             >
               <span className="material-symbols-outlined">play_circle</span>
               {sessionResource.loading || sessionResource.error ? (isVi ? 'Mở phiên học' : 'Open learning session') : currentSession ? t('dashboard.continueLesson', 'Resume Active Session') : t('common.start', 'Start Session Now (10 mins)')}
@@ -217,7 +217,7 @@ export default function StudentDashboard() {
             <div className="student-dash__essays-empty">
               <span className="material-symbols-outlined">edit_note</span>
               <p>{t('dashboard.noEssays', 'No essays yet. Start your first writing exercise!')}</p>
-              <button className="btn-primary" onClick={() => navigate('/student/writing?set=daily-life')}>
+              <button className="btn-primary" onClick={() => navigate('/student/writing')}>
                 {t('dashboard.writeEssay', 'Write Paragraph Now')}
               </button>
             </div>

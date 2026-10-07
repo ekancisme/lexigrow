@@ -21,13 +21,38 @@ export const startLearningSession = asyncHandler(async (req, res) => {
     student: req.user._id,
     status: 'in_progress',
   })
-  if (active)
-    return res.json({
-      success: true,
-      data: publicLearning(active),
-      message: 'Continue your current learning session',
-    })
+
+  // Look at completed sessions to advance sets and avoid word repetition
+  const completedSessions = await LearningSession.find({
+    student: req.user._id,
+    status: 'completed',
+  }).select('learningSet learningSetSlug targetWords completedAt').sort({ completedAt: -1 }).lean()
+
+  const completedSlugs = new Set(completedSessions.map(s => s.learningSetSlug).filter(Boolean))
+
   const adaptiveRequested = req.body.adaptive === true || req.body.mode === 'adaptive' || req.body.recommendationId
+  const requestedSlug = req.body.learningSetSlug ? text(req.body.learningSetSlug, 'learningSetSlug', 100) : null
+  const wantsAdvance = req.body.advance === true || req.body.reset === true || req.body.abandonActive === true
+
+  if (active) {
+    const hasDraftOrEssay = Boolean(active.originalEssay)
+    const isCompletedSlug = active.learningSetSlug && completedSlugs.has(active.learningSetSlug)
+    const isTopicSwitch = requestedSlug && active.learningSetSlug && active.learningSetSlug !== requestedSlug
+    const isModeSwitch = adaptiveRequested && active.sessionType !== 'adaptive_recommendation'
+
+    // If student explicitly wants to advance/reset, or if active session is for an already-completed set without essay,
+    // or if student wants to switch topics without a saved essay: abandon stale active session and proceed fresh.
+    if (wantsAdvance || (!hasDraftOrEssay && (isCompletedSlug || isTopicSwitch || isModeSwitch))) {
+      active.status = 'abandoned'
+      await active.save()
+    } else {
+      return res.json({
+        success: true,
+        data: publicLearning(active),
+        message: 'Continue your current learning session',
+      })
+    }
+  }
   const isStandaloneMongoError = (err) =>
     Boolean(
       err?.message && (
@@ -132,13 +157,6 @@ export const startLearningSession = asyncHandler(async (req, res) => {
     })
     if (!cls) fail('Assignment unavailable', 404)
   }
-  // Look at completed sessions to advance sets and avoid word repetition
-  const completedSessions = await LearningSession.find({
-    student: req.user._id,
-    status: 'completed',
-  }).select('learningSet learningSetSlug targetWords completedAt').sort({ completedAt: -1 }).lean()
-
-  const completedSlugs = new Set(completedSessions.map(s => s.learningSetSlug).filter(Boolean))
   const recentlyPracticedWords = new Set()
   for (const s of completedSessions.slice(0, 5)) {
     for (const w of s.targetWords || []) {
@@ -150,8 +168,9 @@ export const startLearningSession = asyncHandler(async (req, res) => {
   if (assignment) {
     if (!assignment.learningSetId) fail('Assignment has no learning set')
     set = await LearningSet.findOne({ _id: assignment.learningSetId, status: 'published' }).lean()
-  } else if (req.body.advance === true || req.body.learningSetSlug === undefined) {
-    // Student wants to advance or no slug specified: choose next uncompleted published set!
+  } else if (wantsAdvance || !requestedSlug || (completedSlugs.has(requestedSlug) && !req.body.forceSet)) {
+    // Student wants to advance, no slug specified, OR requested set was already completed (and not forceSet):
+    // Choose next uncompleted published set matching their level or next in sequence!
     set = await LearningSet.findOne({
       status: 'published',
       slug: { $nin: [...completedSlugs] },
@@ -176,20 +195,34 @@ export const startLearningSession = asyncHandler(async (req, res) => {
       }
     }
   } else {
-    const requestedSlug = text(req.body.learningSetSlug, 'learningSetSlug', 100)
     set = await LearningSet.findOne({ slug: requestedSlug, status: 'published' }).lean()
   }
 
-  if (!set && req.body.learningSetSlug === undefined) {
+  if (!set && !requestedSlug) {
     set = await LearningSet.findOne({ status: 'published' }).sort({ slug: 1 }).lean()
   }
   if (!set || set.items.length < 1)
     fail('No published learning set available', 404)
 
-  // Filter out recently practiced words if the set contains enough alternative items
-  let availableItems = (set.items || []).filter(
-    (item) => !recentlyPracticedWords.has(item.word.toLowerCase())
+  // Query student's vocabulary to know which words they already learned or practiced
+  const studentVocab = await Vocabulary.find({ student: req.user._id })
+    .select('word masteryLevel reviewCount')
+    .lean()
+  const masteredOrPracticedWords = new Set(
+    studentVocab
+      .filter((v) => v.masteryLevel === 'mastered' || (v.reviewCount > 0 && v.masteryLevel !== 'new'))
+      .map((v) => v.word.toLowerCase())
   )
+
+  // Filter out recently practiced words AND already mastered words
+  let availableItems = (set.items || []).filter(
+    (item) => !recentlyPracticedWords.has(item.word.toLowerCase()) && !masteredOrPracticedWords.has(item.word.toLowerCase())
+  )
+  if (availableItems.length < 3) {
+    availableItems = (set.items || []).filter(
+      (item) => !recentlyPracticedWords.has(item.word.toLowerCase())
+    )
+  }
   if (availableItems.length < 3) {
     availableItems = set.items || []
   }
