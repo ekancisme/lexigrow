@@ -529,39 +529,51 @@ export default function LearningSession() {
     } catch {
       // The server draft remains the durable copy if browser storage is unavailable.
     }
-    if (!hasServerSession) {
-      setDraftSaveState('local')
+    if (!hasServerSession || analyzing || session?.status === 'completed') {
+      setDraftSaveState('saved')
       return Promise.resolve(null)
     }
 
     const save = async () => {
       setDraftSaveState('saving')
-      const response = await api.put(`/sessions/${session._id}/draft`, { content })
-      const saved = response?.data
-      if (saved?.essayId) {
-        setSession((previous) => String(previous?.originalEssay?._id || previous?.originalEssay || '') === String(saved.essayId)
-          ? previous
-          : { ...previous, originalEssay: saved.essayId })
-        setReviewEssayId(String(saved.essayId))
+      try {
+        const response = await api.put(`/sessions/${session._id}/draft`, { content })
+        const saved = response?.data
+        if (saved?.essayId) {
+          setSession((previous) => String(previous?.originalEssay?._id || previous?.originalEssay || '') === String(saved.essayId)
+            ? previous
+            : { ...previous, originalEssay: saved.essayId })
+          setReviewEssayId(String(saved.essayId))
+        }
+        setDraftSaveState('saved')
+        return saved?.essayId ? String(saved.essayId) : null
+      } catch (err) {
+        // If 409 (Wait for the current analysis before editing the draft or Session already completed),
+        // the essay content is already safely in-flight or submitted on the server.
+        if (err.status === 409 || err.statusCode === 409) {
+          setDraftSaveState('saved')
+          return null
+        }
+        throw err
       }
-      setDraftSaveState('saved')
-      return saved?.essayId ? String(saved.essayId) : null
     }
     const operation = draftSaveQueue.current.then(save, save)
     draftSaveQueue.current = operation.catch(() => {})
     return operation
-  }, [draftStorageKey, hasServerSession, session])
+  }, [draftStorageKey, hasServerSession, session, analyzing])
 
   useEffect(() => {
-    if (!session || currentStep !== 'writing' || (!essayContent && !session.originalEssay)) return
+    if (!session || currentStep !== 'writing' || analyzing || session?.status === 'completed' || (!essayContent && !session.originalEssay)) return
     const timeout = setTimeout(() => {
       persistDraft(essayContent).catch((err) => {
-        setDraftSaveState('error')
-        console.error('Learning-session draft autosave failed:', err)
+        if (err?.status !== 409 && err?.statusCode !== 409) {
+          setDraftSaveState('error')
+          console.error('Learning-session draft autosave failed:', err)
+        }
       })
     }, 700)
     return () => clearTimeout(timeout)
-  }, [session, currentStep, essayContent, persistDraft])
+  }, [session, currentStep, analyzing, essayContent, persistDraft])
 
   const handleStepChange = async (nextStep) => {
     setStepSaveError('')
@@ -853,7 +865,15 @@ export default function LearningSession() {
               )}
               {draftSaveState && (
                 <p role="status" aria-live="polite" style={{ margin: '0 0 8px', color: draftSaveState === 'error' ? 'var(--color-error)' : 'var(--color-on-surface-variant)' }}>
-                  {draftSaveState === 'saving' ? 'Saving draft…' : draftSaveState === 'saved' ? 'Draft saved to your account' : draftSaveState === 'local' ? 'Draft saved in this browser; reconnect to sync it to your account.' : draftSaveState === 'unsaved' ? 'Draft changes are being saved…' : 'Could not sync the draft yet. A local copy is kept in this browser.'}
+                  {draftSaveState === 'saving'
+                    ? 'Đang lưu bản nháp…'
+                    : draftSaveState === 'saved'
+                    ? 'Bản nháp đã được lưu vào tài khoản'
+                    : draftSaveState === 'local'
+                    ? 'Bản nháp được lưu trên trình duyệt này'
+                    : draftSaveState === 'unsaved'
+                    ? 'Đang chuẩn bị lưu bản nháp…'
+                    : 'Chưa thể đồng bộ nháp lên server. Bản nháp vẫn được lưu an toàn trên trình duyệt này.'}
                 </p>
               )}
               <textarea
