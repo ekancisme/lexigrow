@@ -170,31 +170,38 @@ export default function AIFeedbackReview({
     }
   }
 
-  if (loading && !essay && essayId) {
+  if (essayId && (loading || (!analysis && !error))) {
     return (
-      <div className="ai-feedback" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: embedded ? '240px' : '80vh', gap: 16 }}>
-        <span className="material-symbols-outlined animate-spin" style={{ fontSize: 48, color: 'var(--color-primary)' }}>
-          progress_activity
-        </span>
-        <p className="text-body-md">Connecting to server...</p>
-      </div>
-    )
-  }
+      <div className="ai-feedback" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: embedded ? '320px' : '75vh', gap: 20, padding: '32px 24px' }}>
+        <div style={{ maxWidth: '520px', width: '100%', textAlign: 'center' }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 68,
+            height: 68,
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, rgba(37,99,235,0.12), rgba(147,51,234,0.15))',
+            color: 'var(--color-primary, #2563eb)',
+            marginBottom: 16
+          }}>
+            <span className="material-symbols-outlined animate-spin" style={{ fontSize: 34 }}>
+              progress_activity
+            </span>
+          </div>
 
-  if (loading && essay?.status === 'submitted') {
-    return (
-      <div className="ai-feedback" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: embedded ? '280px' : '80vh', gap: 16, padding: '24px' }}>
-        <div style={{ maxWidth: '480px', width: '100%' }}>
-          <ShimmerSkeleton variant="card" style={{ marginBottom: 16 }} />
-          <ShimmerSkeleton variant="text" lines={4} />
+          <h3 className="text-title-lg" style={{ fontWeight: 700, marginBottom: 8, color: 'var(--color-on-surface)' }}>
+            AI đang phân tích & chấm bài chi tiết...
+          </h3>
+          <p className="text-body-md" style={{ color: 'var(--color-outline)', marginBottom: 24, lineHeight: 1.5 }}>
+            Hệ thống đang đối chiếu rubric từ vựng, đo lường sự phong phú ngôn từ (TTR, HD-D, MTLD), đánh giá ngữ pháp và chuẩn bị bảng nhận xét chi tiết.
+          </p>
+
+          <div style={{ background: 'var(--color-surface-container-lowest, #fff)', padding: '20px', borderRadius: '16px', border: '1px solid var(--color-outline-variant, #e2e8f0)', textAlign: 'left' }}>
+            <ShimmerSkeleton variant="card" style={{ marginBottom: 12, height: 48 }} />
+            <ShimmerSkeleton variant="text" lines={3} />
+          </div>
         </div>
-        <div className="ai-thinking" style={{ marginTop: 16 }}>
-          <span>AI đang phân tích và chấm bài chi tiết</span>
-          <span className="dot" />
-          <span className="dot" />
-          <span className="dot" />
-        </div>
-        <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>Đang tạo bảng điểm, phân tích ngữ pháp, từ vựng và gợi ý cải thiện...</p>
       </div>
     )
   }

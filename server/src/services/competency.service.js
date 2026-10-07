@@ -136,19 +136,77 @@ function toTarget(item, index, theme = 'Adaptive Learning') {
 }
 
 export async function selectAdaptiveTargets(student, { count = 5, theme = 'Adaptive Learning', requestedWords = [] } = {}) {
+  const studentId = student?._id || student
   const snapshot = await getCompetencySnapshot(student, { force: false })
   const requested = new Set(Array.isArray(requestedWords) ? requestedWords.map(normalize) : [])
+
+  const LearningSession = (await import('../models/LearningSession.js')).default
+  const recentSessions = await LearningSession.find({
+    student: studentId,
+    status: 'completed',
+  }).sort({ completedAt: -1 }).limit(5).select('targetWords').lean()
+
+  const recentlyPracticed = new Set()
+  for (const sess of recentSessions) {
+    for (const w of sess.targetWords || []) {
+      if (w.word) recentlyPracticed.add(normalize(w.word))
+    }
+  }
+
   const byPriority = ['due', 'struggling', 'unseen', 'learning', 'new']
   const selected = []
+
+  // First pass: select words avoiding recently practiced ones
   for (const state of byPriority) {
     for (const item of snapshot?.words || []) {
       if (selected.some((word) => word.word === item.word)) continue
       if (requested.size && !requested.has(item.word)) continue
       if (item.state !== state) continue
+      if (!requested.size && recentlyPracticed.has(normalize(item.word))) continue
       selected.push(toTarget(item, selected.length, theme))
       if (selected.length >= count) return { snapshot, targets: selected }
     }
   }
+
+  // Second pass: if count not satisfied, pull unpracticed words from published learning sets
+  if (selected.length < count && !requested.size) {
+    const LearningSet = (await import('../models/LearningSet.js')).default
+    const sets = await LearningSet.find({ status: 'published' }).lean()
+    for (const s of sets) {
+      for (const item of s.items || []) {
+        const norm = normalize(item.word)
+        if (selected.some((w) => w.word === norm)) continue
+        if (recentlyPracticed.has(norm)) continue
+        selected.push({
+          word: norm,
+          wordId: `adaptive:${norm}:${selected.length}`,
+          partOfSpeech: item.partOfSpeech || 'other',
+          definitionVi: item.definitionVi || `Practice using the word "${norm}" in context.`,
+          definition: item.definitionVi || '',
+          phonetic: item.phonetic || '',
+          exampleSentences: item.exampleSentences || [],
+          quizQuestions: item.quizQuestions || [],
+          theme: s.category || theme,
+          competencyState: 'new',
+        })
+        if (selected.length >= count) return { snapshot, targets: selected }
+      }
+    }
+  }
+
+  // Fallback pass: allow previously practiced words if student has exhausted the vocabulary pool
+  if (selected.length < count) {
+    for (const state of byPriority) {
+      for (const item of snapshot?.words || []) {
+        if (selected.some((word) => word.word === item.word)) continue
+        if (requested.size && !requested.has(item.word)) continue
+        if (item.state !== state) continue
+        selected.push(toTarget(item, selected.length, theme))
+        if (selected.length >= count) return { snapshot, targets: selected }
+      }
+    }
+  }
+
   return { snapshot, targets: selected }
 }
 

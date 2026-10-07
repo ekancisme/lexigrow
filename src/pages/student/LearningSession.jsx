@@ -175,15 +175,215 @@ const defaultLearningSets = {
     title: 'Technology & Digital Era',
     level: 'B1',
     promptTopic: 'Write a short paragraph (60–100 words) discussing modern technology, collaboration, and digital innovation.',
-    words: []
+    words: [
+      {
+        _id: 'w_innovation',
+        word: 'innovation',
+        ipa: '/ˌɪnəˈveɪʃn/',
+        partOfSpeech: 'noun',
+        level: 'B1',
+        meaningVi: 'Sự đổi mới, sáng kiến công nghệ mới',
+        collocations: [
+          { phrase: 'technological innovation', meaning: 'đổi mới công nghệ' },
+          { phrase: 'foster innovation', meaning: 'thúc đẩy đổi mới' },
+        ],
+        exampleSentence: 'Technological innovation has transformed the way people communicate.',
+        exampleTranslation: 'Đổi mới công nghệ đã biến đổi cách mọi người giao tiếp.',
+      },
+      {
+        _id: 'w_collaboration',
+        word: 'collaboration',
+        ipa: '/kəˌlæbəˈreɪʃn/',
+        partOfSpeech: 'noun',
+        level: 'B1',
+        meaningVi: 'Sự cộng tác, làm việc cùng nhau hiệu quả',
+        collocations: [
+          { phrase: 'online collaboration', meaning: 'hợp tác trực tuyến' },
+          { phrase: 'close collaboration', meaning: 'sự hợp tác chặt chẽ' },
+        ],
+        exampleSentence: 'Modern digital platforms encourage close collaboration among remote teams.',
+        exampleTranslation: 'Các nền tảng kỹ thuật số hiện đại thúc đẩy sự hợp tác chặt chẽ giữa các nhóm làm việc từ xa.',
+      },
+      {
+        _id: 'w_accessible',
+        word: 'accessible',
+        ipa: '/əkˈsesəbl/',
+        partOfSpeech: 'adjective',
+        level: 'B1',
+        meaningVi: 'Dễ tiếp cận, có thể sử dụng rộng rãi',
+        collocations: [
+          { phrase: 'easily accessible', meaning: 'dễ dàng tiếp cận' },
+          { phrase: 'make accessible', meaning: 'làm cho có thể tiếp cận được' },
+        ],
+        exampleSentence: 'Cloud computing makes learning materials accessible from any device.',
+        exampleTranslation: 'Điện toán đám mây giúp tài liệu học tập có thể tiếp cận từ bất kỳ thiết bị nào.',
+      },
+      {
+        _id: 'w_revolutionize',
+        word: 'revolutionize',
+        ipa: '/ˌrevəˈluːʃənaɪz/',
+        partOfSpeech: 'verb',
+        level: 'B2',
+        meaningVi: 'Cách mạng hoá, thay đổi triệt để',
+        collocations: [
+          { phrase: 'revolutionize the industry', meaning: 'cách mạng hóa ngành công nghiệp' },
+        ],
+        exampleSentence: 'Artificial intelligence will revolutionize how students acquire new skills.',
+        exampleTranslation: 'Trí tuệ nhân tạo sẽ cách mạng hóa cách học sinh tiếp thu kỹ năng mới.',
+      },
+    ],
   },
   'environment': {
     slug: 'environment',
     title: 'Environment & Sustainability',
     level: 'B2',
     promptTopic: 'Write a short paragraph (60–100 words) about environmental protection, ecosystems, and sustainable development.',
-    words: []
-  }
+    words: [
+      {
+        _id: 'w_sustainable',
+        word: 'sustainable',
+        ipa: '/səˈsteɪnəbl/',
+        partOfSpeech: 'adjective',
+        level: 'B2',
+        meaningVi: 'Bền vững, bảo vệ môi trường lâu dài',
+        collocations: [
+          { phrase: 'sustainable development', meaning: 'phát triển bền vững' },
+          { phrase: 'sustainable energy', meaning: 'năng lượng bền vững' },
+        ],
+        exampleSentence: 'Adopting sustainable lifestyle habits protects natural resources for the future.',
+        exampleTranslation: 'Áp dụng thói quen sống bền vững bảo vệ tài nguyên thiên nhiên cho tương lai.',
+      },
+      {
+        _id: 'w_biodiversity',
+        word: 'biodiversity',
+        ipa: '/ˌbaɪoʊdaɪˈvɜːrsəti/',
+        partOfSpeech: 'noun',
+        level: 'B2',
+        meaningVi: 'Đa dạng sinh học, sự phong phú giống loài',
+        collocations: [
+          { phrase: 'preserve biodiversity', meaning: 'bảo tồn đa dạng sinh học' },
+        ],
+        exampleSentence: 'Conserving forests is essential to preserve rich biodiversity.',
+        exampleTranslation: 'Bảo tồn rừng là điều cần thiết để duy trì sự đa dạng sinh học phong phú.',
+      },
+      {
+        _id: 'w_ecosystem',
+        word: 'ecosystem',
+        ipa: '/ˈiːkoʊsɪstəm/',
+        partOfSpeech: 'noun',
+        level: 'B2',
+        meaningVi: 'Hệ sinh thái tự nhiên',
+        collocations: [
+          { phrase: 'fragile ecosystem', meaning: 'hệ sinh thái dễ tổn thương' },
+          { phrase: 'healthy ecosystem', meaning: 'hệ sinh thái khỏe mạnh' },
+        ],
+        exampleSentence: 'Pollution disrupts the fragile marine ecosystem significantly.',
+        exampleTranslation: 'Ô nhiễm làm xáo trộn hệ sinh thái biển dễ tổn thương một cách đáng kể.',
+      },
+    ],
+  },
+}
+
+function AIGradingProgress({ stage = 1, progress = 15 }) {
+  const stages = [
+    {
+      id: 1,
+      title: '1. Đánh giá từ vựng mục tiêu (Target Vocabulary Check)',
+      desc: 'Kiểm tra độ chính xác, ngữ cảnh và cách kết hợp collocations của các từ vựng bắt buộc.',
+      icon: 'flag',
+    },
+    {
+      id: 2,
+      title: '2. Phân tích ngữ pháp & Độ phong phú từ vựng (Grammar & Lexical Diversity)',
+      desc: 'Đo lường các chỉ số học thuật TTR, HD-D, MTLD và kiểm tra độ chính xác ngữ pháp.',
+      icon: 'spellcheck',
+    },
+    {
+      id: 3,
+      title: '3. Đo lường mạch lạc & Đề xuất cải thiện (Coherence & Suggestions)',
+      desc: 'Phát hiện từ lặp, kiểm tra cấu trúc câu phức và tổng hợp gợi ý nâng cấp diễn đạt.',
+      icon: 'psychology',
+    },
+    {
+      id: 4,
+      title: '4. Hoàn thiện bảng điểm & Báo cáo chi tiết (Compiling Report)',
+      desc: 'Tổng hợp nhận xét toàn diện, sẵn sàng hiển thị kết quả chấm điểm cho bạn.',
+      icon: 'auto_awesome',
+    },
+  ]
+
+  return (
+    <div className="ai-grading-loader card-base animate-fade-in">
+      <div className="ai-grading-loader__header">
+        <div className="ai-grading-loader__icon-wrap">
+          <span className="material-symbols-outlined ai-grading-loader__icon animate-spin">
+            progress_activity
+          </span>
+          <span className="material-symbols-outlined ai-grading-loader__sparkle">
+            auto_awesome
+          </span>
+        </div>
+        <h2 className="ai-grading-loader__title">
+          AI Agent đang chấm bài & phân tích chi tiết...
+        </h2>
+        <p className="ai-grading-loader__subtitle">
+          Vui lòng đợi trong giây lát, chuyên gia AI đang đánh giá toàn diện bài viết theo rubric chuẩn CEFR. Kết quả sẽ tự động hiển thị ngay khi hoàn tất!
+        </p>
+
+        {/* Progress Bar */}
+        <div className="ai-grading-loader__bar-container">
+          <div className="ai-grading-loader__bar-header">
+            <span className="ai-grading-loader__bar-label">Tiến trình chấm điểm AI</span>
+            <span className="ai-grading-loader__bar-val">{progress}%</span>
+          </div>
+          <div className="ai-grading-loader__bar-track">
+            <div
+              className="ai-grading-loader__bar-fill"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Checklist of stages */}
+      <div className="ai-grading-loader__steps">
+        {stages.map((st) => {
+          const isDone = stage > st.id || progress >= 100
+          const isCurrent = stage === st.id && progress < 100
+          const isPending = stage < st.id && progress < 100
+
+          return (
+            <div
+              key={st.id}
+              className={`ai-grading-loader__step ${
+                isDone ? 'ai-grading-loader__step--done' : ''
+              } ${isCurrent ? 'ai-grading-loader__step--current' : ''} ${
+                isPending ? 'ai-grading-loader__step--pending' : ''
+              }`}
+            >
+              <div className="ai-grading-loader__step-circle">
+                {isDone ? (
+                  <span className="material-symbols-outlined">check_circle</span>
+                ) : isCurrent ? (
+                  <span className="material-symbols-outlined animate-spin">sync</span>
+                ) : (
+                  <span className="material-symbols-outlined">{st.icon}</span>
+                )}
+              </div>
+              <div className="ai-grading-loader__step-content">
+                <div className="ai-grading-loader__step-title">
+                  <span>{st.title}</span>
+                  {isCurrent && <span className="ai-grading-loader__badge ai-grading-loader__badge--current">Đang xử lý</span>}
+                  {isDone && <span className="ai-grading-loader__badge ai-grading-loader__badge--done">Đã hoàn tất</span>}
+                </div>
+                <div className="ai-grading-loader__step-desc">{st.desc}</div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
 }
 
 export default function LearningSession() {
@@ -199,6 +399,8 @@ export default function LearningSession() {
   // Writing state
   const [essayContent, setEssayContent] = useState('')
   const [analyzing, setAnalyzing] = useState(false)
+  const [analyzingStage, setAnalyzingStage] = useState(1)
+  const [analyzingProgress, setAnalyzingProgress] = useState(15)
   const [analysisResult, setAnalysisResult] = useState(null)
   const [reviewEssayId, setReviewEssayId] = useState('')
   const [submitError, setSubmitError] = useState('')
@@ -215,8 +417,14 @@ export default function LearningSession() {
   useEffect(() => {
     async function initSession() {
       try {
-        // Try calling backend API
-        const res = await api.post('/sessions/start', adaptive ? { adaptive: true } : { learningSetSlug: setSlug })
+        const requestedSet = searchParams.get('set')
+        const startPayload = adaptive
+          ? { adaptive: true }
+          : requestedSet
+            ? { learningSetSlug: requestedSet }
+            : { advance: true }
+
+        const res = await api.post('/sessions/start', startPayload)
         const payload = res?.data || res
         if (payload) {
           setSession(payload)
@@ -380,6 +588,8 @@ export default function LearningSession() {
     }
 
     setAnalyzing(true)
+    setAnalyzingStage(1)
+    setAnalyzingProgress(18)
     setSubmitError('')
     try {
       const draftEssayId = await persistDraft(essayContent)
@@ -400,7 +610,7 @@ export default function LearningSession() {
             requestId,
           }
 
-      // First score the session's target vocabulary.
+      // Step 1: Score target vocabulary
       const res = await api.post(endpoint, payload, {
         headers: {
           'Idempotency-Key': requestId,
@@ -417,11 +627,94 @@ export default function LearningSession() {
       setSession((previous) => ({ ...previous, originalEssay: String(essayId) }))
       setDraftSaveState('saved')
       localStorage.removeItem(draftStorageKey)
+
+      // Step 2 & 3: Waiting for background AI essay analysis before switching screens!
+      setAnalyzingStage(2)
+      setAnalyzingProgress(45)
+
+      let analysisReady = false
+      let attempts = 0
+      const maxAttempts = 25
+
+      while (!analysisReady && attempts < maxAttempts) {
+        attempts++
+        await new Promise((r) => setTimeout(r, 1200))
+
+        if (attempts === 3) {
+          setAnalyzingStage(3)
+          setAnalyzingProgress(72)
+        } else if (attempts === 6) {
+          setAnalyzingProgress(88)
+        }
+
+        try {
+          const aRes = await api.get(`/essays/${essayId}/analysis`)
+          if (aRes?.data?.scores || aRes?.data?.overallScore !== undefined) {
+            analysisReady = true
+          }
+        } catch {
+          // Still processing on server
+        }
+      }
+
+      setAnalyzingStage(4)
+      setAnalyzingProgress(100)
+      await new Promise((r) => setTimeout(r, 600))
+
       setCurrentStep('feedback')
     } catch (err) {
       setSubmitError(err.message || 'The AI review could not be submitted. Your draft is still saved; please retry.')
     } finally {
       setAnalyzing(false)
+    }
+  }
+
+  const handleStartNextSession = async () => {
+    try {
+      setSession(null)
+      setCurrentStep('lesson')
+      setEssayContent('')
+      setAnalysisResult(null)
+      setReviewEssayId('')
+      setOriginalDraft('')
+      setSubmitError('')
+      localStorage.removeItem(draftStorageKey)
+
+      const res = await api.post('/sessions/start', { advance: true })
+      const payload = res?.data || res
+      if (payload) {
+        setSession(payload)
+        if (payload.currentStep) setCurrentStep(payload.currentStep)
+        const slug = payload.learningSetSlug
+        const preset = defaultLearningSets[slug]
+
+        let title = payload.sessionType === 'adaptive_recommendation'
+          ? 'Adaptive Learning Session'
+          : (preset?.title || (payload.theme ? `${payload.theme} Session` : 'Smart Writing Session'))
+
+        let promptTopic = preset?.promptTopic || (payload.snapshot?.rationale || 'Write a short paragraph (60–100 words) incorporating the target words into your writing.')
+
+        if (payload.targetWords?.length) {
+          const mappedWords = payload.targetWords.map((w, idx) => ({
+            ...w,
+            _id: w.wordId || w._id || `w_${w.word}_${idx}`,
+            meaningVi: w.definitionVi || w.definition || w.meaningVi || '',
+            exampleSentence: w.exampleSentence || w.exampleSentences?.[0] || '',
+            exampleTranslation: w.exampleTranslation || '',
+          }))
+          setLearningSet({
+            title,
+            level: payload.level || preset?.level || 'B1',
+            promptTopic,
+            words: mappedWords,
+          })
+        } else if (preset) {
+          setLearningSet(preset)
+        }
+      }
+    } catch (err) {
+      console.error('Error starting next session:', err)
+      navigate('/student/dashboard')
     }
   }
 
@@ -504,7 +797,10 @@ export default function LearningSession() {
 
       {/* STEP 3: SMART WRITING WORKSPACE */}
       {currentStep === 'writing' && (
-        <div className="writing-flow animate-fade-in">
+        analyzing ? (
+          <AIGradingProgress stage={analyzingStage} progress={analyzingProgress} />
+        ) : (
+          <div className="writing-flow animate-fade-in">
           {/* Target Words Bar */}
           <div className="target-words-bar card-base">
             <div className="target-words-bar__header">
@@ -619,7 +915,7 @@ export default function LearningSession() {
             </div>
           </div>
         </div>
-      )}
+      ))}
 
       {/* STEP 4: AI FEEDBACK REVIEW */}
       {currentStep === 'feedback' && (
@@ -716,6 +1012,7 @@ export default function LearningSession() {
             words: words,
             targetWords: words
           }}
+          onStartNext={handleStartNextSession}
           onClose={() => navigate('/student/dashboard')}
         />
       )}

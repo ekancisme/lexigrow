@@ -15,7 +15,7 @@ import {
   publicLearning,
   integer,
 } from '../utils/learning.js'
-import { selectAdaptiveTargets, getCompetencySnapshot } from '../services/competency.service.js'
+import { selectAdaptiveTargets, getCompetencySnapshot, invalidateCompetencySnapshot } from '../services/competency.service.js'
 export const startLearningSession = asyncHandler(async (req, res) => {
   const active = await LearningSession.findOne({
     student: req.user._id,
@@ -132,25 +132,69 @@ export const startLearningSession = asyncHandler(async (req, res) => {
     })
     if (!cls) fail('Assignment unavailable', 404)
   }
-  let query = { status: 'published' }
+  // Look at completed sessions to advance sets and avoid word repetition
+  const completedSessions = await LearningSession.find({
+    student: req.user._id,
+    status: 'completed',
+  }).select('learningSet learningSetSlug targetWords completedAt').sort({ completedAt: -1 }).lean()
+
+  const completedSlugs = new Set(completedSessions.map(s => s.learningSetSlug).filter(Boolean))
+  const recentlyPracticedWords = new Set()
+  for (const s of completedSessions.slice(0, 5)) {
+    for (const w of s.targetWords || []) {
+      if (w.word) recentlyPracticedWords.add(w.word.toLowerCase())
+    }
+  }
+
+  let set = null
   if (assignment) {
     if (!assignment.learningSetId) fail('Assignment has no learning set')
-    query._id = assignment.learningSetId
-  } else if (req.body.learningSetSlug !== undefined)
-    query.slug = text(req.body.learningSetSlug, 'learningSetSlug', 100)
-  else {
-    query.level = req.user.learningProfile?.targetLevel || 'B1'
-    if (req.user.learningProfile?.interests?.length)
-      query.category = { $in: req.user.learningProfile.interests }
+    set = await LearningSet.findOne({ _id: assignment.learningSetId, status: 'published' }).lean()
+  } else if (req.body.advance === true || req.body.learningSetSlug === undefined) {
+    // Student wants to advance or no slug specified: choose next uncompleted published set!
+    set = await LearningSet.findOne({
+      status: 'published',
+      slug: { $nin: [...completedSlugs] },
+      ...(req.user.learningProfile?.targetLevel ? { level: req.user.learningProfile.targetLevel } : {})
+    }).sort({ level: 1, createdAt: 1 }).lean()
+
+    if (!set) {
+      set = await LearningSet.findOne({
+        status: 'published',
+        slug: { $nin: [...completedSlugs] }
+      }).sort({ level: 1, createdAt: 1 }).lean()
+    }
+
+    if (!set) {
+      // If student completed all sets, pick the oldest completed set to cycle through
+      const oldestSession = completedSessions[completedSessions.length - 1]
+      if (oldestSession?.learningSetSlug) {
+        set = await LearningSet.findOne({ slug: oldestSession.learningSetSlug, status: 'published' }).lean()
+      }
+      if (!set) {
+        set = await LearningSet.findOne({ status: 'published' }).sort({ slug: 1 }).lean()
+      }
+    }
+  } else {
+    const requestedSlug = text(req.body.learningSetSlug, 'learningSetSlug', 100)
+    set = await LearningSet.findOne({ slug: requestedSlug, status: 'published' }).lean()
   }
-  let set = await LearningSet.findOne(query).sort({ slug: 1 }).lean()
-  if (!set && !assignment && req.body.learningSetSlug === undefined)
-    set = await LearningSet.findOne({ status: 'published' })
-      .sort({ slug: 1 })
-      .lean()
+
+  if (!set && req.body.learningSetSlug === undefined) {
+    set = await LearningSet.findOne({ status: 'published' }).sort({ slug: 1 }).lean()
+  }
   if (!set || set.items.length < 1)
     fail('No published learning set available', 404)
-  const targets = set.items
+
+  // Filter out recently practiced words if the set contains enough alternative items
+  let availableItems = (set.items || []).filter(
+    (item) => !recentlyPracticedWords.has(item.word.toLowerCase())
+  )
+  if (availableItems.length < 3) {
+    availableItems = set.items || []
+  }
+
+  const targets = availableItems
     .slice(0, 5)
     .map((w, i) => ({
       ...w,
@@ -359,6 +403,61 @@ export const updateSessionStep = asyncHandler(async (req, res) => {
     if (next === 'completed') {
       session.status = 'completed'
       session.completedAt = new Date()
+
+      try {
+        const practicedWords = (session.targetWords || []).map((w) => w.word?.toLowerCase()).filter(Boolean)
+        if (practicedWords.length > 0) {
+          const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000)
+          await Vocabulary.updateMany(
+            { student: req.user._id, word: { $in: practicedWords } },
+            {
+              $set: {
+                lastPracticed: new Date(),
+                nextReviewDate: tomorrow,
+                masteryLevel: 'learning',
+              },
+              $inc: { reviewCount: 1 },
+            },
+          )
+        }
+
+        const latestRev = await EssayRevision.findOne({
+          session: session._id,
+          student: req.user._id,
+        })
+          .sort({ revisionNumber: -1 })
+          .lean()
+
+        if (latestRev?.targetWordResults) {
+          for (const res of latestRev.targetWordResults) {
+            if (res.suggestedUpgrade) {
+              const match = res.suggestedUpgrade.match(/"([^"]+)"|'([^']+)'/)
+              const upgradedWord = match ? (match[1] || match[2]).toLowerCase().trim() : null
+              if (upgradedWord && upgradedWord.length > 2 && upgradedWord.length < 30 && !upgradedWord.includes(' ')) {
+                await Vocabulary.updateOne(
+                  { student: req.user._id, word: upgradedWord },
+                  {
+                    $setOnInsert: {
+                      student: req.user._id,
+                      word: upgradedWord,
+                      theme: session.theme || 'Suggested Words',
+                      definition: `Gợi ý nâng cao từ bài viết: "${res.word}"`,
+                      definitionVi: `Gợi ý nâng cao từ bài viết: "${res.word}"`,
+                      partOfSpeech: 'other',
+                      masteryLevel: 'new',
+                    },
+                  },
+                  { upsert: true },
+                )
+              }
+            }
+          }
+        }
+
+        await invalidateCompetencySnapshot(req.user._id)
+      } catch (vocabErr) {
+        console.error('[SessionCompletion] Error updating vocabulary progress:', vocabErr.message)
+      }
     }
   }
   if (req.body.activeTimeSeconds !== undefined) {

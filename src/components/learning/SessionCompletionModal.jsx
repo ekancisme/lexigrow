@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './SessionCompletionModal.css'
 
-export default function SessionCompletionModal({ sessionData = {}, onClose }) {
+export default function SessionCompletionModal({ sessionData = {}, onClose, onStartNext }) {
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -77,13 +77,24 @@ export default function SessionCompletionModal({ sessionData = {}, onClose }) {
         )}
 
         {/* Action Buttons */}
-        <div className="completion-modal__actions">
+        <div className="completion-modal__actions" style={{ flexWrap: 'wrap', gap: 10 }}>
+          {onStartNext && (
+            <button
+              className="btn-primary completion-modal__btn-primary"
+              onClick={onStartNext}
+              style={{ background: 'linear-gradient(135deg, var(--color-primary), #4f46e5)' }}
+            >
+              <span className="material-symbols-outlined">auto_stories</span>
+              Luyện viết bài tiếp theo (Chủ đề mới)
+            </button>
+          )}
+
           <button
-            className="btn-primary completion-modal__btn-primary"
+            className={onStartNext ? "btn-secondary completion-modal__btn-secondary" : "btn-primary completion-modal__btn-primary"}
             onClick={() => navigate('/student/progress')}
           >
             <span className="material-symbols-outlined">yard</span>
-            View Growth Garden
+            Xem Vườn Từ Vựng
           </button>
 
           <button
@@ -93,7 +104,7 @@ export default function SessionCompletionModal({ sessionData = {}, onClose }) {
               else navigate('/student/dashboard')
             }}
           >
-            Back to Dashboard
+            Về Dashboard
           </button>
         </div>
       </div>
