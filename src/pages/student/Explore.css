@@ -286,3 +286,38 @@
   font-weight: 700;
   font-size: 14px;
 }
+
+.topic-card--completed {
+  border-color: #86efac;
+}
+
+.topic-card__badge--completed {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 8px;
+  letter-spacing: 0.02em;
+}
+
+.topic-card__badge--completed .material-symbols-outlined {
+  font-size: 14px;
+  color: #15803d;
+}
+
+.topic-card__start-btn--completed {
+  background: var(--color-surface, #ffffff);
+  color: #15803d;
+  border: 1.5px solid #86efac;
+}
+
+.topic-card__start-btn--completed:hover {
+  background: #dcfce7;
+  border-color: #4ade80;
+  color: #166534;
+}
+

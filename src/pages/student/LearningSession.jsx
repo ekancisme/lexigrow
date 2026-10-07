@@ -55,18 +55,32 @@ const defaultLearningSets = {
         exampleTranslation: 'It takes me 30 minutes to commute to work by bus.'
       },
       {
-        _id: 'w_grocery',
-        word: 'grocery',
-        ipa: '/ˈɡroʊsəri/',
-        partOfSpeech: 'noun',
+        _id: 'w_productive',
+        word: 'productive',
+        ipa: '/prəˈdʌktɪv/',
+        partOfSpeech: 'adjective',
         level: 'A2',
-        meaningVi: 'Food and other items bought in a food store',
+        meaningVi: 'Năng suất, có hiệu quả cao',
         collocations: [
-          { phrase: 'grocery shopping', meaning: 'buying everyday food and essentials' },
-          { phrase: 'grocery list', meaning: 'shopping list for groceries' }
+          { phrase: 'productive day', meaning: 'ngày làm việc năng suất' },
+          { phrase: 'stay productive', meaning: 'duy trì hiệu suất làm việc' }
         ],
-        exampleSentence: 'We do our grocery shopping every Sunday afternoon.',
-        exampleTranslation: 'We do our grocery shopping every Sunday afternoon.'
+        exampleSentence: 'Focusing on one task at a time helps me stay productive.',
+        exampleTranslation: 'Tập trung vào từng nhiệm vụ giúp tôi làm việc hiệu quả và năng suất hơn.'
+      },
+      {
+        _id: 'w_efficient',
+        word: 'efficient',
+        ipa: '/ɪˈfɪʃnt/',
+        partOfSpeech: 'adjective',
+        level: 'A2',
+        meaningVi: 'Hiệu quả, tiết kiệm thời gian và tài nguyên',
+        collocations: [
+          { phrase: 'efficient workflow', meaning: 'quy trình làm việc hiệu quả' },
+          { phrase: 'energy efficient', meaning: 'tiết kiệm năng lượng' }
+        ],
+        exampleSentence: 'We implemented a more efficient way to manage project tasks.',
+        exampleTranslation: 'Chúng tôi đã áp dụng một cách hiệu quả hơn để quản lý các đầu việc dự án.'
       }
     ]
   },
@@ -418,10 +432,11 @@ export default function LearningSession() {
     async function initSession() {
       try {
         const requestedSet = searchParams.get('set')
+        const isForce = searchParams.get('force') === 'true' || searchParams.get('forceSet') === 'true'
         const startPayload = adaptive
           ? { adaptive: true }
           : requestedSet
-            ? { learningSetSlug: requestedSet }
+            ? { learningSetSlug: requestedSet, forceSet: isForce }
             : { advance: true }
 
         const res = await api.post('/sessions/start', startPayload)

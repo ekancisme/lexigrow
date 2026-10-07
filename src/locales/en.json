@@ -318,8 +318,10 @@
     "filterLabel": "Filter by proficiency:",
     "allLevels": "All Levels",
     "level": "Level",
-    "targetWordsLabel": "3 Target Words:",
-    "startSession": "Start Session"
+    "targetWordsLabel": "Target Vocabulary Words:",
+    "startSession": "Start Session",
+    "reviewSession": "Practice Again",
+    "completed": "Completed"
   },
   "garden": {
     "title": "Growth Garden",
