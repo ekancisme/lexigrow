@@ -8,7 +8,9 @@ export async function completeThroughRelay(options) {
   // The route policy owns the provider deadline. This outer deadline only
   // bounds waiting on the relay process and allows its configured 120s limit.
   const timeout = setTimeout(() => controller.abort(), options.timeoutMs || 125000)
-  const requestId = randomUUID()
+  const requestId = typeof options.requestId === 'string' && options.requestId.trim() && options.requestId.length <= 128
+    ? options.requestId
+    : randomUUID()
   try {
     const response = await fetch(`${relayUrl.replace(/\/$/, '')}/internal/ai/v1/complete`, {
       method: 'POST',

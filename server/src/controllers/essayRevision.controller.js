@@ -16,6 +16,7 @@ import {
 import { recordEvidence } from '../services/wordEvidence.service.js'
 import { invalidateCompetencySnapshot } from '../services/competency.service.js'
 import { processEssayAnalysis } from '../services/ai.service.js'
+import { computeContentHash } from '../utils/contentHash.js'
 
 const writingContent = (body) => {
   const content = text(body.content, 'content', 10000)
@@ -136,7 +137,7 @@ async function prepareRevision(req) {
           revisionNumber: essay.revisionCounter,
           content,
           wordCount,
-          contentHash: hash(content),
+          contentHash: computeContentHash(content),
           targetWords: targets,
           assisted: essay.revisionCounter > 1,
         },
@@ -189,6 +190,7 @@ async function processRevision(id, user) {
           meaning: w.definitionVi,
           partOfSpeech: w.partOfSpeech,
         })),
+        requestId: `revision-vocabulary:${revision._id}`,
       },
     )
     const analysis = validateAnalysis(

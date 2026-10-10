@@ -1,8 +1,44 @@
 import { useState } from 'react'
 import './RevisionComparison.css'
 
-export default function RevisionComparison({ originalDraft = '', revisedDraft = '', resolvedItems = [], onProceed }) {
+export default function RevisionComparison({
+  originalDraft = '',
+  revisedDraft = '',
+  resolvedItems = [],
+  onSaveRevision,
+  onProceed
+}) {
   const [viewMode, setViewMode] = useState('side_by_side') // 'side_by_side' or 'diff'
+  const [currentRevised, setCurrentRevised] = useState(revisedDraft)
+  const [isSaved, setIsSaved] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+
+  const handleSave = async () => {
+    if (!currentRevised.trim()) {
+      setError('Please enter your revised draft text.')
+      return
+    }
+    const count = currentRevised.trim().split(/\s+/).filter(Boolean).length
+    if (count < 60 || count > 100) {
+      setError(`Your revised essay must contain between 60 and 100 words (currently ${count} words).`)
+      return
+    }
+    setSaving(true)
+    setError('')
+    try {
+      if (onSaveRevision) {
+        await onSaveRevision(currentRevised)
+      }
+      setIsSaved(true)
+    } catch (err) {
+      setError(err?.message || 'Failed to submit revision for analysis. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const wordCount = currentRevised.trim() ? currentRevised.trim().split(/\s+/).filter(Boolean).length : 0
 
   return (
     <div className="rev-comp card-base animate-fade-in">
@@ -12,8 +48,8 @@ export default function RevisionComparison({ originalDraft = '', revisedDraft = 
             <span className="material-symbols-outlined">difference</span>
           </div>
           <div>
-            <h3 className="rev-comp__title">Revision Comparison</h3>
-            <p className="rev-comp__sub">Review enhancements and vocabulary fixes between your first draft and revised version.</p>
+            <h3 className="rev-comp__title">Revision & Enhancement Workspace</h3>
+            <p className="rev-comp__sub">Edit and refine your draft based on AI feedback, then submit to re-evaluate target vocabulary.</p>
           </div>
         </div>
 
@@ -39,7 +75,7 @@ export default function RevisionComparison({ originalDraft = '', revisedDraft = 
       {resolvedItems && resolvedItems.length > 0 && (
         <div className="rev-comp__resolved-bar">
           <span className="rev-comp__resolved-label">
-            <span className="material-symbols-outlined">task_alt</span> Resolved {resolvedItems.length} suggestions/issues:
+            <span className="material-symbols-outlined">task_alt</span> Applied target words ({resolvedItems.length}):
           </span>
           <div className="rev-comp__resolved-chips">
             {resolvedItems.map((item, idx) => (
@@ -48,6 +84,12 @@ export default function RevisionComparison({ originalDraft = '', revisedDraft = 
               </span>
             ))}
           </div>
+        </div>
+      )}
+
+      {error && (
+        <div role="alert" style={{ padding: '12px 16px', borderRadius: 10, background: 'var(--color-error-container)', color: 'var(--color-error)', fontSize: 14 }}>
+          {error}
         </div>
       )}
 
@@ -66,24 +108,70 @@ export default function RevisionComparison({ originalDraft = '', revisedDraft = 
         )}
 
         <div className="rev-comp__panel rev-comp__panel--revised">
-          <div className="rev-comp__panel-title rev-comp__panel-title--success">
-            <span className="material-symbols-outlined">auto_fix_high</span>
-            Revised Version
+          <div className="rev-comp__panel-title rev-comp__panel-title--success" style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <span className="material-symbols-outlined">auto_fix_high</span>
+              Revised Draft (Editable)
+            </span>
+            <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--color-outline)' }}>
+              {wordCount} words
+            </span>
           </div>
-          <div className="rev-comp__text-box rev-comp__text-box--highlight">
-            {revisedDraft || 'Updating revised draft...'}
-          </div>
+          <textarea
+            className="rev-comp__editor-textarea"
+            value={currentRevised}
+            onChange={(e) => {
+              setCurrentRevised(e.target.value)
+              setIsSaved(false)
+              setError('')
+            }}
+            placeholder="Edit your revision here using the AI vocabulary advice..."
+            rows={8}
+          />
         </div>
       </div>
 
-      {onProceed && (
-        <div className="rev-comp__actions">
-          <button className="btn-primary rev-comp__proceed-btn" onClick={onProceed}>
+      <div className="rev-comp__actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+        <div>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={handleSave}
+            disabled={saving || !currentRevised.trim()}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+          >
+            {saving ? (
+              <>
+                <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                Saving & Analyzing Revision...
+              </>
+            ) : isSaved ? (
+              <>
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-success)' }}>check_circle</span>
+                Revision Saved & Analyzed
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined">upload_file</span>
+                Submit Revision for AI Analysis
+              </>
+            )}
+          </button>
+        </div>
+
+        {onProceed && (
+          <button
+            className="btn-primary rev-comp__proceed-btn"
+            onClick={onProceed}
+            disabled={!isSaved}
+            style={{ opacity: isSaved ? 1 : 0.5, cursor: isSaved ? 'pointer' : 'not-allowed' }}
+            title={!isSaved ? 'Submit and analyze revision first before completing' : ''}
+          >
             Complete Learning Session
             <span className="material-symbols-outlined">check_circle</span>
           </button>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

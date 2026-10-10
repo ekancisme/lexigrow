@@ -7,6 +7,10 @@ import { getIO } from '../services/socket.service.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import { canAccessEssay, essayVisibilityFilter } from '../utils/essayAccess.js'
+import { sanitizeHtml } from '../utils/sanitizeHtml.js'
+
+const MAX_ESSAY_CHARS = 30000
+const MAX_ESSAY_WORDS = 5000
 
 /**
  * @desc    Create a new essay (draft)
@@ -18,6 +22,10 @@ export const createEssay = asyncHandler(async (req, res) => {
   const assignmentId = req.body.assignmentId || req.body.assignment
   const classId = req.body.classId || req.body.class
 
+  if (content && typeof content === 'string' && content.length > MAX_ESSAY_CHARS) {
+    throw new ErrorResponse(`Essay content cannot exceed ${MAX_ESSAY_CHARS.toLocaleString()} characters`, 400)
+  }
+
   if (assignmentId) {
     const Assignment = (await import('../models/Assignment.js')).default
     const assign = await Assignment.findById(assignmentId)
@@ -26,9 +34,11 @@ export const createEssay = asyncHandler(async (req, res) => {
     }
   }
 
+  const sanitizedContent = sanitizeHtml(content || '')
+
   const essay = await Essay.create({
     title,
-    content: content || '',
+    content: sanitizedContent,
     student: req.user._id,
     class: classId || undefined,
     theme: theme || 'General',
@@ -126,8 +136,11 @@ export const updateEssay = asyncHandler(async (req, res) => {
   }
 
   const { title, content, theme } = req.body
+  if (content && typeof content === 'string' && content.length > MAX_ESSAY_CHARS) {
+    throw new ErrorResponse(`Essay content cannot exceed ${MAX_ESSAY_CHARS.toLocaleString()} characters`, 400)
+  }
   if (title !== undefined) essay.title = title
-  if (content !== undefined) essay.content = content
+  if (content !== undefined) essay.content = sanitizeHtml(content)
   if (theme !== undefined) essay.theme = theme
 
   await essay.save()
@@ -165,6 +178,10 @@ export const submitEssay = asyncHandler(async (req, res) => {
 
   if (!essay.content || essay.wordCount < 50) {
     throw new ErrorResponse('Essay must have at least 50 words to submit', 400)
+  }
+
+  if (essay.content.length > MAX_ESSAY_CHARS || essay.wordCount > MAX_ESSAY_WORDS) {
+    throw new ErrorResponse(`Essay exceeds maximum allowed size (${MAX_ESSAY_CHARS.toLocaleString()} characters or ${MAX_ESSAY_WORDS.toLocaleString()} words)`, 400)
   }
 
   essay.status = 'submitted'

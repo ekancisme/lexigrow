@@ -165,7 +165,8 @@ function App() {
         >
           <Route index element={<Navigate to="dashboard" replace />} />
           <Route path="dashboard" element={<StudentDashboard />} />
-          <Route path="write-essay" element={<Navigate to="/student/writing" replace />} />
+          <Route path="write-essay" element={<WriteEssay />} />
+          <Route path="write" element={<WriteEssay />} />
           <Route path="explore" element={<Explore />} />
           <Route path="writing" element={<LearningSession />} />
           <Route path="garden" element={<GrowthGarden />} />

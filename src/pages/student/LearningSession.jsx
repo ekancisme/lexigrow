@@ -18,6 +18,26 @@ const readStoredDraft = (key) => {
   }
 }
 
+const escapeRegExp = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+const matchWordInText = (targetWord, text) => {
+  if (!targetWord || !text) return false
+  const targetNorm = targetWord.trim().normalize('NFC')
+  const textNorm = text.normalize('NFC')
+  const escaped = escapeRegExp(targetNorm)
+  const startsWord = /^\w/u.test(targetNorm)
+  const endsWord = /\w$/u.test(targetNorm)
+  const prefix = startsWord ? '\\b' : ''
+  const suffix = endsWord ? '\\b' : ''
+  const baseRegex = new RegExp(`${prefix}${escaped}${suffix}`, 'iu')
+  if (baseRegex.test(textNorm)) return true
+  if (endsWord) {
+    const inflectedRegex = new RegExp(`${prefix}${escaped}(?:s|ed|ing)\\b`, 'iu')
+    if (inflectedRegex.test(textNorm)) return true
+  }
+  return false
+}
+
 // Built-in starter learning sets matching tasks/learning-spec.md
 const defaultLearningSets = {
   'daily-life': {
@@ -423,6 +443,8 @@ export default function LearningSession() {
   const [originalDraft, setOriginalDraft] = useState('')
   const [activeFeedbackWord, setActiveFeedbackWord] = useState(null)
   const draftSaveQueue = useRef(Promise.resolve())
+  const activeRequestIdRef = useRef(null)
+  const lastSubmittedContentRef = useRef(null)
 
   const draftStorageKey = `lexigrow-learning-draft:${adaptive ? 'adaptive' : setSlug}`
   const hasServerSession = /^[a-f\d]{24}$/i.test(String(session?._id || ''))
@@ -540,8 +562,8 @@ export default function LearningSession() {
 
   // Check word usage dynamically during typing
   const wordStatusMap = words.reduce((acc, w) => {
-    const regex = new RegExp(`\\b${w.word}\\b|\\b${w.word}s?\\b|\\b${w.word}ed\\b|\\b${w.word}ing\\b`, 'i')
-    acc[w.word] = regex.test(essayContent)
+    if (!w?.word) return acc
+    acc[w.word] = matchWordInText(w.word, essayContent)
     return acc
   }, {})
 
@@ -629,7 +651,23 @@ export default function LearningSession() {
     setSubmitError('')
     try {
       const draftEssayId = await persistDraft(essayContent)
-      const requestId = `rev_${session?._id || 'sess'}_${Date.now()}`
+      const subIdStorageKey = `lexigrow-sub-id:${adaptive ? 'adaptive' : setSlug}:${session?._id || 'sess'}`
+      let requestId = null
+      try {
+        const stored = JSON.parse(localStorage.getItem(subIdStorageKey) || 'null')
+        if (stored?.content === essayContent && stored?.requestId) {
+          requestId = stored.requestId
+        }
+      } catch {}
+      if (!requestId) {
+        requestId = `rev_${session?._id || 'sess'}_${Date.now()}`
+        try {
+          localStorage.setItem(subIdStorageKey, JSON.stringify({ content: essayContent, requestId }))
+        } catch {}
+      }
+      activeRequestIdRef.current = requestId
+      lastSubmittedContentRef.current = essayContent
+
       const originalEssay = session?.originalEssay
       const existingEssayId = draftEssayId || reviewEssayId || (typeof originalEssay === 'object' ? originalEssay?._id : originalEssay)
       const endpoint = existingEssayId
@@ -671,6 +709,7 @@ export default function LearningSession() {
       let analysisReady = false
       let attempts = 0
       const maxAttempts = 25
+      const expectedContentHash = revision?.contentHash
 
       while (!analysisReady && attempts < maxAttempts) {
         attempts++
@@ -684,8 +723,9 @@ export default function LearningSession() {
         }
 
         try {
-          const aRes = await api.get(`/essays/${essayId}/analysis`)
-          if (aRes?.data?.scores || aRes?.data?.overallScore !== undefined) {
+          const queryParam = expectedContentHash ? `?contentHash=${encodeURIComponent(expectedContentHash)}` : ''
+          const aRes = await api.get(`/essays/${essayId}/analysis${queryParam}`)
+          if (!aRes?.pending && (aRes?.data?.scores || aRes?.data?.overallScore !== undefined)) {
             analysisReady = true
           }
         } catch {
@@ -693,10 +733,18 @@ export default function LearningSession() {
         }
       }
 
+      if (!analysisReady) {
+        setSubmitError('AI analysis is still being processed by the server. Your draft was safely submitted. Please click "Submit for AI Analysis" again to check status or retry.')
+        return
+      }
+
       setAnalyzingStage(4)
       setAnalyzingProgress(100)
       await new Promise((r) => setTimeout(r, 600))
 
+      activeRequestIdRef.current = null
+      lastSubmittedContentRef.current = null
+      try { localStorage.removeItem(subIdStorageKey) } catch {}
       setCurrentStep('feedback')
     } catch (err) {
       setSubmitError(err.message || 'The AI review could not be submitted. Your draft is still saved; please retry.')
@@ -763,6 +811,43 @@ export default function LearningSession() {
   const handleStartRevision = () => {
     setOriginalDraft(essayContent)
     setCurrentStep('revision')
+  }
+
+  const handleSaveRevision = async (revisedContent) => {
+    const originalEssay = session?.originalEssay
+    const essayId = reviewEssayId || (typeof originalEssay === 'object' ? originalEssay?._id : originalEssay)
+    if (!essayId) {
+      throw new Error('Original essay not found to attach revision.')
+    }
+    const revisionStorageKey = `lexigrow-rev-id:${session?._id || 'sess'}:${essayId}`
+    let revisionReqId = null
+    try {
+      const storedRev = JSON.parse(localStorage.getItem(revisionStorageKey) || 'null')
+      if (storedRev?.content === revisedContent && storedRev?.requestId) {
+        revisionReqId = storedRev.requestId
+      }
+    } catch {}
+    if (!revisionReqId) {
+      revisionReqId = `rev_step_${session?._id || 'sess'}_${Date.now()}`
+      try {
+        localStorage.setItem(revisionStorageKey, JSON.stringify({ content: revisedContent, requestId: revisionReqId }))
+      } catch {}
+    }
+
+    const res = await api.post(`/essays/${essayId}/revisions`, {
+      content: revisedContent,
+      requestId: revisionReqId,
+    }, {
+      headers: {
+        'Idempotency-Key': revisionReqId,
+      },
+    })
+    try { localStorage.removeItem(revisionStorageKey) } catch {}
+    setEssayContent(revisedContent)
+    if (res?.data?.analysis) {
+      setAnalysisResult(res.data.analysis)
+    }
+    return res?.data
   }
 
   const handleFinishRevision = () => {
@@ -1050,6 +1135,7 @@ export default function LearningSession() {
             originalDraft={originalDraft}
             revisedDraft={essayContent}
             resolvedItems={words.filter(w => wordStatusMap[w.word])}
+            onSaveRevision={handleSaveRevision}
             onProceed={handleFinishRevision}
           />
         </div>

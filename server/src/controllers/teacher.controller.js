@@ -88,10 +88,10 @@ export const getStudentAnalytics = asyncHandler(async (req, res) => {
   const student = await User.findById(req.params.id).select('-password')
   if (!student) throw new ErrorResponse('Student not found', 404)
 
-  // Verify teacher has this student in one of their classes
-  const teacherClasses = await Class.find({ teacher: req.user._id, students: student._id })
+  // Verify teacher has this student in one of their active classes
+  const teacherClasses = await Class.find({ teacher: req.user._id, students: student._id, status: 'active' })
   if (teacherClasses.length === 0) {
-    throw new ErrorResponse('Student not in any of your classes', 403)
+    throw new ErrorResponse('Student not in any of your active classes', 403)
   }
 
   const essays = await Essay.find({ student: student._id, status: { $ne: 'draft' } }).sort({ createdAt: -1 })
@@ -164,6 +164,15 @@ export const getStudentAnalytics = asyncHandler(async (req, res) => {
  * @access  Private (teacher)
  */
 export const getStudentEssays = asyncHandler(async (req, res) => {
+  const hasAccess = await Class.exists({
+    teacher: req.user._id,
+    students: req.params.id,
+    status: 'active',
+  })
+  if (!hasAccess) {
+    throw new ErrorResponse('Student not in any of your active classes', 403)
+  }
+
   const { page = 1, limit = 20 } = req.query
 
   const essays = await Essay.find({ student: req.params.id, status: { $ne: 'draft' } })
@@ -192,10 +201,10 @@ export const getStudentVocabulary = asyncHandler(async (req, res) => {
   const studentId = req.params.id
   const { page = 1, limit = 20, category, mastery, sort = 'createdAt' } = req.query
 
-  // Verify teacher has this student in one of their classes
-  const teacherClasses = await Class.find({ teacher: req.user._id, students: studentId })
+  // Verify teacher has this student in one of their active classes
+  const teacherClasses = await Class.find({ teacher: req.user._id, students: studentId, status: 'active' })
   if (teacherClasses.length === 0) {
-    throw new ErrorResponse('Student not in any of your classes', 403)
+    throw new ErrorResponse('Student not in any of your active classes', 403)
   }
 
   // Build query

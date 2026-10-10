@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 
 const essaySchema = new mongoose.Schema({
   revisionCounter: { type: Number, default: 0 },
+  contentRevision: { type: Number, default: 0 },
   title: {
     type: String,
     required: [true, 'Please add an essay title'],
@@ -11,6 +12,7 @@ const essaySchema = new mongoose.Schema({
   content: {
     type: String,
     default: '',
+    maxlength: [30000, 'Essay content cannot exceed 30,000 characters'],
   },
   status: {
     type: String,
@@ -57,12 +59,18 @@ const essaySchema = new mongoose.Schema({
   submittedAt: {
     type: Date,
   },
+  analysisLockAt: {
+    type: Date,
+    default: null,
+  },
+  analysisLockToken: { type: String, default: null, select: false },
 }, {
   timestamps: true,
 })
 
 // Calculate text stats before saving
 essaySchema.pre('save', function () {
+  if (this.isModified('content')) this.contentRevision = (this.contentRevision || 0) + 1
   if (this.isModified('content') && this.content) {
     const cleanText = this.content
       .replace(/<br\s*\/?>/gi, '\n')

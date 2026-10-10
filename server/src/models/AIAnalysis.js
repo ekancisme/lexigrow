@@ -86,6 +86,14 @@ const aiAnalysisSchema = new mongoose.Schema({
       default: 'none' 
     }
   },
+  aiWritingDetails: {
+    isAI: { type: Boolean, default: false },
+    score: { type: Number, default: 0 },
+    confidence: { type: Number, default: 0 },
+    source: { type: String, default: 'none' }
+  },
+  contentHash: { type: String, default: '' },
+  contentRevision: { type: Number, default: -1 },
   analysisMeta: { type: mongoose.Schema.Types.Mixed, default: null },
   // Track which system prompt was used for this analysis
   promptUsed: {

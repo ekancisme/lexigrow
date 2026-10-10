@@ -59,6 +59,20 @@ const boundedString = (v, max = 2000) =>
 const stringArray = (v) =>
   Array.isArray(v) && v.length <= 10 && v.every((s) => boundedString(s))
 const invalid = () => fail('AI returned unverifiable vocabulary feedback', 502)
+
+function originalTextOffset(content, normalizedOffset, useEndBoundary = false) {
+  if (normalizedOffset <= 0) return 0
+  const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+  let normalizedPosition = 0
+  for (const { segment, index } of segmenter.segment(content)) {
+    const nextPosition = normalizedPosition + segment.normalize('NFC').length
+    if (normalizedOffset === normalizedPosition) return index
+    if (normalizedOffset < nextPosition) return useEndBoundary ? index + segment.length : index
+    if (normalizedOffset === nextPosition) return index + segment.length
+    normalizedPosition = nextPosition
+  }
+  return content.length
+}
 export function validateAnalysis(value, content, targets) {
   if (
     !value ||
@@ -68,16 +82,21 @@ export function validateAnalysis(value, content, targets) {
     !stringArray(value.lexicalSuggestions)
   )
     invalid()
+
+  const normalizedTargets = (Array.isArray(targets) ? targets : [])
+    .map((t) => (typeof t === 'string' ? t.trim().toLowerCase().normalize('NFC') : ''))
+    .filter(Boolean)
+
   if (
     !Array.isArray(value.targetWordResults) ||
-    value.targetWordResults.length !== targets.length
+    value.targetWordResults.length !== normalizedTargets.length
   )
     invalid()
   const seen = new Set()
   const results = value.targetWordResults.map((r) => {
     if (!r || typeof r.word !== 'string') invalid()
-    const word = r.word.toLowerCase()
-    if (!targets.includes(word) || seen.has(word)) invalid()
+    const word = r.word.trim().toLowerCase().normalize('NFC')
+    if (!normalizedTargets.includes(word) || seen.has(word)) invalid()
     seen.add(word)
     const matchedText = r.found ? (typeof r.matchedText === 'string' ? r.matchedText : '') : ''
     if (
@@ -97,13 +116,21 @@ export function validateAnalysis(value, content, targets) {
     if (r.suggestedUpgrade !== null && !boundedString(r.suggestedUpgrade))
       invalid()
     if ((r.status === 'not_used') !== !r.found) invalid()
-    const start = r.found ? content.indexOf(matchedText) : -1
+    const normContent = content.normalize('NFC')
+    const normMatched = matchedText.normalize('NFC')
+    const normalizedStart = r.found ? normContent.indexOf(normMatched) : -1
+    const start = normalizedStart >= 0
+      ? originalTextOffset(content, normalizedStart)
+      : -1
+    const end = normalizedStart >= 0
+      ? originalTextOffset(content, normalizedStart + normMatched.length, true)
+      : -1
     if (r.found) {
-      if (!matchedText.trim() || start < 0) invalid()
+      if (!normMatched.trim() || start < 0) invalid()
       // Conservative morphology check, with word boundaries, avoids accepting an
       // unrelated quote or substrings such as "car" in "scar".
       const quotedTokens =
-        matchedText.toLowerCase().match(/[a-z]+(?:'[a-z]+)?/g) || []
+        normMatched.toLowerCase().match(/[a-z\u00C0-\u024F]+(?:'[a-z\u00C0-\u024F]+)?/gu) || []
       const variants = new Set([
         word,
         word + 's',
@@ -130,7 +157,7 @@ export function validateAnalysis(value, content, targets) {
       suggestedUpgrade: r.suggestedUpgrade,
       quoteVerified: r.found,
       start,
-      end: r.found ? start + matchedText.length : -1,
+      end,
     }
   })
   return {
@@ -145,7 +172,7 @@ export function validateAnalysis(value, content, targets) {
 export async function analyzeVocabulary(
   content,
   targets,
-  { generate, model = process.env.GEMINI_MODEL || 'gemini-2.5-flash', meanings = [] } = {},
+  { generate, model = process.env.GEMINI_MODEL || 'gemini-2.5-flash', meanings = [], requestId } = {},
 ) {
   const started = Date.now()
   let usage,
@@ -177,6 +204,7 @@ export async function analyzeVocabulary(
         responseFormat: { type: 'json_object' },
         maxTokens: 3000,
         temperature: 0.1,
+        requestId,
       })
       generated = { response: { text: () => completion.text } }
       providerMeta = completion
@@ -208,6 +236,10 @@ export async function analyzeVocabulary(
       statusCode === 503 || err.code === 'AI_NOT_CONFIGURED' ? 'AI_NOT_CONFIGURED' : 'AI_ANALYSIS_FAILED'
     if (statusCode === 503 || err.code === 'AI_NOT_CONFIGURED') {
       err.statusCode = 503
+      throw err
+    }
+    if (statusCode === 409 || String(err.code || '').startsWith('AI_REQUEST_')) {
+      err.statusCode = statusCode || 409
       throw err
     }
     fail('Vocabulary analysis failed; retry this revision', 502)

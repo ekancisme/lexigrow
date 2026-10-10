@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
 import './AIFeedbackReview.css'
 import EssayDiscussion from '../../components/common/EssayDiscussion.jsx'
 import ShimmerSkeleton from '../../components/common/ShimmerSkeleton.jsx'
+import { sanitizeHtml } from '../../utils/sanitizeHtml.js'
 
 export default function AIFeedbackReview({
   essayId: propEssayId,
@@ -18,12 +19,14 @@ export default function AIFeedbackReview({
   const [essay, setEssay] = useState(null)
   const [analysis, setAnalysis] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [reanalyzing, setReanalyzing] = useState(false)
   const [error, setError] = useState('')
   const [isEssayExpanded, setIsEssayExpanded] = useState(true)
   const [copied, setCopied] = useState(false)
   const [addedWords, setAddedWords] = useState({})
   const [copiedSynonym, setCopiedSynonym] = useState('')
   const [teacherFeedback, setTeacherFeedback] = useState(null)
+  const reanalyzeRequestIdRef = useRef(null)
 
   // Portal states when no id is present in URL
   const [essayList, setEssayList] = useState([])
@@ -60,6 +63,7 @@ export default function AIFeedbackReview({
   }
 
   useEffect(() => {
+    reanalyzeRequestIdRef.current = null
     if (!essayId) {
       setError('')
       setLoading(false)
@@ -83,33 +87,38 @@ export default function AIFeedbackReview({
       return
     }
 
-    // Switching essays must not keep the previous essay's teacher feedback
+    // AI-12: Reset all state immediately when switching essays to prevent showing stale analysis
+    setEssay(null)
+    setAnalysis(null)
     setTeacherFeedback(null)
     setError('')
+    setLoading(true)
 
     let intervalId = null
     let pollAttempts = 0
     let requestInFlight = false
-    let stopped = false
+    let isCurrent = true
     const maxPollAttempts = 24
 
     async function fetchAnalysis() {
-      if (stopped || requestInFlight) return
+      if (!isCurrent || requestInFlight) return
       requestInFlight = true
       pollAttempts += 1
       try {
         const essayRes = await api.get(`/essays/${essayId}`)
+        if (!isCurrent) return
         setEssay(essayRes.data)
 
         try {
           const analysisRes = await api.get(`/essays/${essayId}/analysis`)
+          if (!isCurrent) return
           if (analysisRes.data) {
             setAnalysis(analysisRes.data)
 
             // Fetch teacher's manual written feedback if available
             try {
               const fbRes = await api.get(`/feedback/essay/${essayId}`)
-              if (fbRes.data) {
+              if (isCurrent && fbRes.data) {
                 setTeacherFeedback(fbRes.data)
               }
             } catch {
@@ -120,9 +129,9 @@ export default function AIFeedbackReview({
             if (intervalId) clearInterval(intervalId)
           }
         } catch (analysisErr) {
+          if (!isCurrent) return
           if (analysisErr.status !== 404) throw analysisErr
           if (pollAttempts >= maxPollAttempts) {
-            stopped = true
             setError('The detailed AI report is taking longer than expected. Retry the analysis or return to your essay history.')
             setLoading(false)
             if (intervalId) clearInterval(intervalId)
@@ -131,10 +140,10 @@ export default function AIFeedbackReview({
           }
         }
       } catch (err) {
+        if (!isCurrent) return
         console.error('Error loading feedback:', err)
         setError(err.message || 'Failed to load AI analysis')
         setLoading(false)
-        stopped = true
         if (intervalId) clearInterval(intervalId)
       } finally {
         requestInFlight = false
@@ -147,26 +156,41 @@ export default function AIFeedbackReview({
     intervalId = setInterval(fetchAnalysis, 5000)
 
     return () => {
-      stopped = true
-      clearInterval(intervalId)
+      isCurrent = false
+      if (intervalId) clearInterval(intervalId)
     }
   }, [essayId])
 
   async function handleReanalyze() {
+    if (reanalyzing || loading) return
     try {
-      setLoading(true)
+      setReanalyzing(true)
       setEssay(prev => prev ? { ...prev, status: 'submitted' } : null)
       setError('')
-      const res = await api.post(`/essays/${essayId}/reanalyze`)
+      const storageKey = `lexigrow-reanalyze:${essayId}`
+      let requestId = reanalyzeRequestIdRef.current
+      try {
+        requestId ||= localStorage.getItem(storageKey)
+      } catch {}
+      if (!requestId) {
+        requestId = globalThis.crypto?.randomUUID?.() || `reanalyze_${essayId}_${Date.now()}_${Math.random().toString(36).slice(2)}`
+        reanalyzeRequestIdRef.current = requestId
+        try { localStorage.setItem(storageKey, requestId) } catch {}
+      }
+      const res = await api.post(`/essays/${essayId}/reanalyze`, {}, {
+        headers: { 'Idempotency-Key': requestId },
+      })
       if (res.success) {
         setAnalysis(res.data)
+        reanalyzeRequestIdRef.current = null
+        try { localStorage.removeItem(storageKey) } catch {}
         const essayRes = await api.get(`/essays/${essayId}`)
         setEssay(essayRes.data)
       }
     } catch (err) {
       setError(err.message || 'Failed to reanalyze essay')
     } finally {
-      setLoading(false)
+      setReanalyzing(false)
     }
   }
 
@@ -351,13 +375,20 @@ export default function AIFeedbackReview({
           </p>
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <button className="ai-feedback__btn-outline" onClick={handleReanalyze}>
-            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>refresh</span>
-            Re-analyze
+          <button
+            className="ai-feedback__btn-outline"
+            onClick={handleReanalyze}
+            disabled={reanalyzing || loading}
+            style={{ opacity: reanalyzing ? 0.7 : 1 }}
+          >
+            <span className={`material-symbols-outlined ${reanalyzing ? 'animate-spin' : ''}`} style={{ fontSize: 18 }}>
+              {reanalyzing ? 'progress_activity' : 'refresh'}
+            </span>
+            {reanalyzing ? 'Re-analyzing...' : 'Re-analyze'}
           </button>
           <button
             className="ai-feedback__btn-primary"
-            onClick={() => onRevise ? onRevise() : navigate(`/student/writing?id=${essayId}`)}
+            onClick={() => onRevise ? onRevise() : navigate(`/student/write-essay?id=${essayId}`)}
           >
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>edit</span>
             Revise Essay
@@ -382,7 +413,7 @@ export default function AIFeedbackReview({
             <h4>Revision Requested by Teacher</h4>
             <p>Your teacher reviewed this essay and requested some changes. Please read the comments below and revise your essay.</p>
           </div>
-          <button className="ai-feedback__btn-primary" onClick={() => navigate(`/student/writing?id=${essayId}`)}>
+          <button className="ai-feedback__btn-primary" onClick={() => navigate(`/student/write-essay?id=${essayId}`)}>
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>edit</span>
             Revise Now
           </button>
@@ -535,7 +566,7 @@ export default function AIFeedbackReview({
                   color: 'var(--color-on-surface)',
                   fontSize: 'var(--text-body-md-size)',
                   textAlign: 'left'
-                }} dangerouslySetInnerHTML={{ __html: essay?.content || '' }} />
+                }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(essay?.content || '') }} />
               </div>
             )}
           </div>
@@ -717,8 +748,8 @@ export default function AIFeedbackReview({
                   backgroundColor: 'var(--color-surface-container-low)', 
                   border: '1px solid var(--color-outline-variant)' 
                 }}>
-                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>Plagiarism / Copy-Paste Check</span>
-                  {analysis.learningPatterns.plagiarismDetected ? (
+                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>Peer Plagiarism Check</span>
+                  {analysis.plagiarismDetails?.isPlagiarized ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ 
                         display: 'inline-flex', 
@@ -727,55 +758,99 @@ export default function AIFeedbackReview({
                         padding: '6px 12px', 
                         borderRadius: '20px', 
                         backgroundColor: 'var(--color-error-container)', 
-                        color: 'var(--color-error)', 
-                        fontSize: '13px', 
+                        color: 'var(--color-error)',
+                        fontSize: '13px',
                         fontWeight: 700,
                         alignSelf: 'flex-start'
                       }}>
                         <span className="material-symbols-outlined" style={{ fontSize: 16 }}>gavel</span>
-                        Potential copy-paste detected
+                        High similarity to peer submission
                       </span>
-                      {analysis.plagiarismDetails && analysis.plagiarismDetails.plagiarismType !== 'none' && (
-                        <div style={{ 
-                          fontSize: '12px', 
-                          color: 'var(--color-error)', 
-                          fontWeight: 500,
-                          textAlign: 'left',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 4
-                        }}>
-                          <span className="material-symbols-outlined" style={{ fontSize: 14 }}>info</span>
-                          <span>
-                            {analysis.plagiarismDetails.plagiarismType === 'cross_student' && (
-                              `Matches another student's essay (${Math.round(analysis.plagiarismDetails.similarityScore * 100)}% similarity).`
-                            )}
-                            {analysis.plagiarismDetails.plagiarismType === 'ai_generated' && (
-                              `Likely AI-generated content (Confidence: ${Math.round(analysis.plagiarismDetails.similarityScore * 100)}%).`
-                            )}
-                            {analysis.plagiarismDetails.plagiarismType === 'both' && (
-                              `Plagiarized from student & AI detected (Similarity: ${Math.round(analysis.plagiarismDetails.similarityScore * 100)}%).`
-                            )}
-                          </span>
-                        </div>
-                      )}
+                      <div style={{
+                        fontSize: '12px',
+                        color: 'var(--color-error)',
+                        fontWeight: 500,
+                        textAlign: 'left',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 4
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 14 }}>info</span>
+                        <span>Matches another student essay ({Math.round((analysis.plagiarismDetails.similarityScore || 0) * 100)}% similarity).</span>
+                      </div>
                     </div>
                   ) : (
-                    <span style={{ 
-                      display: 'inline-flex', 
-                      alignItems: 'center', 
-                      gap: 6, 
-                      padding: '6px 12px', 
-                      borderRadius: '20px', 
-                      backgroundColor: 'rgba(22, 163, 74, 0.1)', 
-                      color: 'var(--color-success)', 
-                      fontSize: '13px', 
+                    <span style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '6px 12px',
+                      borderRadius: '20px',
+                      backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                      color: 'var(--color-success)',
+                      fontSize: '13px',
                       fontWeight: 700,
                       alignSelf: 'flex-start'
                     }}>
                       <span className="material-symbols-outlined" style={{ fontSize: 16 }}>verified</span>
-                      Original essay
+                      Original (No peer overlap)
                     </span>
+                  )}
+                </div>
+
+                {/* AI Writing Detection Status (AI-13: Separated with confidence and source) */}
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 8,
+                  padding: '16px',
+                  borderRadius: '12px',
+                  backgroundColor: 'var(--color-surface-container-low)',
+                  border: '1px solid var(--color-outline-variant)'
+                }}>
+                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>AI Writing Detector (Supportive)</span>
+                  {analysis.aiWritingDetails?.isAI ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        padding: '6px 12px',
+                        borderRadius: '20px',
+                        backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                        color: '#b45309',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        alignSelf: 'flex-start'
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>smart_toy</span>
+                        AI markers detected ({Math.round((analysis.aiWritingDetails.confidence || analysis.aiWritingDetails.score || 0) * 100)}%)
+                      </span>
+                      <span style={{ fontSize: '11px', color: 'var(--color-outline)', textAlign: 'left' }}>
+                        Source: {analysis.aiWritingDetails.source || 'Heuristic'}. Indicative aid only, not definitive plagiarism.
+                      </span>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-start' }}>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        padding: '6px 12px',
+                        borderRadius: '20px',
+                        backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                        color: 'var(--color-success)',
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        alignSelf: 'flex-start'
+                      }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check_circle</span>
+                        No AI markers flagged
+                      </span>
+                      <span style={{ fontSize: '11px', color: 'var(--color-outline)', textAlign: 'left' }}>
+                        Heuristic scan found no strong AI indicators. (Indicative check only; not proof of human authorship.)
+                      </span>
+                    </div>
                   )}
                 </div>
 

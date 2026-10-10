@@ -1,13 +1,17 @@
-import { randomUUID } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import Config from '../models/Config.js'
 import AIProviderAccount from '../models/AIProviderAccount.js'
 import AIProviderModel from '../models/AIProviderModel.js'
 import AIModelCombo from '../models/AIModelCombo.js'
 import AILog from '../models/AILog.js'
+import AIRequest from '../models/AIRequest.js'
 import { decryptSecret } from '../utils/secretCrypto.js'
+import { fetchSafeUrl } from '../utils/ssrfValidator.js'
 
 const DEFAULT_MAX_ATTEMPTS = 3
 const DEFAULT_GROQ_MODEL = 'llama-3.3-70b-versatile'
+const AI_REQUEST_LEASE_MS = 180000
+const AI_REQUEST_RETENTION_MS = 90 * 24 * 60 * 60 * 1000
 
 const PRICING_USD_PER_MILLION = {
   'groq:llama-3.3-70b-versatile': { input: 0.59, output: 0.79 },
@@ -96,6 +100,59 @@ function maximumAttemptCost(account, { messages, prompt, maxTokens }) {
   // UTF-8 bytes are a conservative upper bound for the input token estimate.
   const inputTokenUpperBound = Buffer.byteLength(input || '', 'utf8')
   return (inputTokenUpperBound * rates.input + maxTokens * rates.output) / 1e6
+}
+
+function requestConflict(code, message) {
+  return new AIProviderError(message, { status: 409, code, retryable: false })
+}
+
+async function claimIdempotentRequest(requestId, fingerprint) {
+  if (AIRequest.db.readyState !== 1) {
+    throw new AIProviderError('AI idempotency storage is unavailable; request was not sent to a provider', {
+      status: 503,
+      code: 'AI_IDEMPOTENCY_STORE_UNAVAILABLE',
+      retryable: false,
+    })
+  }
+  const now = new Date()
+  try {
+    await AIRequest.create({
+      requestId,
+      fingerprint,
+      state: 'processing',
+      leaseUntil: new Date(now.getTime() + AI_REQUEST_LEASE_MS),
+    })
+    return { requestId, fingerprint }
+  } catch (error) {
+    if (error?.code !== 11000) throw error
+  }
+
+  const prior = await AIRequest.findOne({ requestId }).lean()
+  if (!prior) throw requestConflict('AI_REQUEST_IN_PROGRESS', 'This AI request is already being claimed; retry with the same request ID.')
+  if (prior.fingerprint !== fingerprint) {
+    throw requestConflict('AI_REQUEST_KEY_REUSED', 'This idempotency key was already used for different AI input.')
+  }
+  if (prior.state === 'completed') return { replay: prior.result }
+  if (prior.state === 'possibly_processed') {
+    throw requestConflict('AI_REQUEST_POSSIBLY_PROCESSED', 'The provider may have processed this request. It was not sent again to avoid duplicate charges.')
+  }
+  if (prior.state === 'processing' && prior.leaseUntil > now) {
+    throw requestConflict('AI_REQUEST_IN_PROGRESS', 'This AI request is still processing; retry with the same request ID.')
+  }
+  if (prior.state === 'processing') {
+    await AIRequest.updateOne(
+      { requestId, fingerprint, state: 'processing', leaseUntil: prior.leaseUntil },
+      { $set: { state: 'possibly_processed', leaseUntil: null } },
+    )
+    throw requestConflict('AI_REQUEST_POSSIBLY_PROCESSED', 'The request owner stopped responding. The provider may have processed it, so it was not resent.')
+  }
+
+  const reclaimed = await AIRequest.updateOne(
+    { requestId, fingerprint, state: 'failed' },
+    { $set: { state: 'processing', leaseUntil: new Date(now.getTime() + AI_REQUEST_LEASE_MS) }, $unset: { result: 1, expiresAt: 1 } },
+  )
+  if (!reclaimed.modifiedCount) throw requestConflict('AI_REQUEST_IN_PROGRESS', 'This AI request is already being retried.')
+  return { requestId, fingerprint }
 }
 
 function accountSafe(account) {
@@ -249,15 +306,19 @@ async function groqChat(account, { messages, model, responseFormat, temperature,
   return { text, usage: response.usage || null, providerRequestId: response.id }
 }
 
-async function openAICompatibleChat(account, { messages, model, responseFormat, temperature, maxTokens = 4096, timeoutMs = 30000 }) {
+async function openAICompatibleChat(account, { messages, model, responseFormat, temperature, maxTokens = 4096, timeoutMs = 30000, requestId }) {
   const endpoint = (account.baseUrl || 'https://api.openai.com/v1').replace(/\/$/, '') + '/chat/completions'
   let response
   const controller = new AbortController()
   const timer = setTimeout(() => controller.abort(), timeoutMs)
   try {
-    response = await fetch(endpoint, {
+    response = await fetchSafeUrl(endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${account.apiKey}` },
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${account.apiKey}`,
+        ...(requestId ? { 'Idempotency-Key': requestId, 'X-Request-Id': requestId } : {}),
+      },
       body: JSON.stringify({
         messages,
         model: modelForAccount(account, model),
@@ -266,6 +327,7 @@ async function openAICompatibleChat(account, { messages, model, responseFormat, 
         max_tokens: maxTokens,
       }),
       signal: controller.signal,
+      redirect: 'error',
     })
   } catch (error) {
     if (controller.signal.aborted) {
@@ -372,7 +434,10 @@ export async function completeAI({
   timeoutMs,
   requestId: incomingRequestId,
 }) {
-  const requestId = typeof incomingRequestId === 'string' && incomingRequestId.length <= 100 ? incomingRequestId : randomUUID()
+  const requestId = typeof incomingRequestId === 'string' && incomingRequestId.trim() && incomingRequestId.length <= 128
+    ? incomingRequestId
+    : randomUUID()
+  const hasStableRequestId = requestId === incomingRequestId
   const started = Date.now()
   const candidateSet = await candidates({ route, providerPreference, model, schema })
   const pool = candidateSet.pool
@@ -398,6 +463,15 @@ export async function completeAI({
     : (prompt ? [{ role: 'user', content: prompt }] : [])
   const effectivePrompt = prompt || (messages || []).map((m) => `${m.role}: ${m.content}`).join('\n\n')
   const effectiveResponseFormat = responseFormat || (schema ? { type: 'json_object' } : undefined)
+  let idempotencyClaim = null
+  if (hasStableRequestId) {
+    const fingerprint = createHash('sha256').update(JSON.stringify({
+      route, providerPreference, model, messages: effectiveMessages, prompt: effectivePrompt,
+      schema, responseFormat: effectiveResponseFormat, temperature, maxTokens,
+    })).digest('hex')
+    idempotencyClaim = await claimIdempotentRequest(requestId, fingerprint)
+    if (idempotencyClaim && Object.hasOwn(idempotencyClaim, 'replay')) return idempotencyClaim.replay
+  }
 
   for (const account of attemptPool) {
     lastAccount = account
@@ -422,6 +496,7 @@ export async function completeAI({
       reservedCost += projected
     }
     const attemptStarted = Date.now()
+    let upstreamReturned = false
     try {
       const result = await callAccount(account, {
         messages: effectiveMessages,
@@ -432,7 +507,9 @@ export async function completeAI({
         temperature,
         maxTokens,
         timeoutMs: Math.max(1, deadline - Date.now()),
+        requestId,
       })
+      upstreamReturned = true
       if (!account._legacy) {
         await AIProviderAccount.updateOne(
           { _id: account._id },
@@ -440,7 +517,8 @@ export async function completeAI({
         )
       }
       attempts.push({ account: accountSafe(account), status: 'success', durationMs: Date.now() - attemptStarted, cost: result.usage ? estimateCost({ provider: account.provider, model: modelForAccount(account, model), usage: result.usage, inputCostPerMillionUsd: account.inputCostPerMillionUsd, outputCostPerMillionUsd: account.outputCostPerMillionUsd }).cost : null })
-      return {
+      const anyPriorMayHaveProcessed = attempts.slice(0, -1).some(a => a.mayHaveProcessed)
+      const successResult = {
         text: result.text,
         usage: normalizeUsage(result.usage),
         usageAvailable: result.usage !== null && result.usage !== undefined,
@@ -458,11 +536,37 @@ export async function completeAI({
         durationMs: Date.now() - started,
         attempts,
         providerRequestId: result.providerRequestId || null,
+        possibly_processed: anyPriorMayHaveProcessed,
       }
+      if (idempotencyClaim) {
+        try {
+          await AIRequest.updateOne(
+            { requestId, fingerprint: idempotencyClaim.fingerprint, state: 'processing' },
+            { $set: {
+              state: 'completed',
+              result: successResult,
+              leaseUntil: null,
+              expiresAt: new Date(Date.now() + AI_REQUEST_RETENTION_MS),
+            } },
+          )
+        } catch (error) {
+          await AIRequest.updateOne(
+            { requestId, fingerprint: idempotencyClaim.fingerprint, state: 'processing' },
+            { $set: { state: 'possibly_processed', leaseUntil: null } },
+          ).catch(() => {})
+          throw Object.assign(new AIProviderError('Provider completed the request but its idempotency record could not be saved', {
+            status: 503, code: 'AI_REQUEST_RECORD_FAILED', retryable: false,
+          }), { mayHaveProcessed: true, cause: error })
+        }
+      }
+      return successResult
     } catch (rawError) {
       const error = classifyProviderError(rawError)
       lastError = error
-      const mayHaveProcessed = Boolean(rawError.mayHaveProcessed || error.mayHaveProcessed || error.code === 'TIMEOUT')
+      const mayHaveProcessed = Boolean(
+        upstreamReturned || rawError.mayHaveProcessed || error.mayHaveProcessed ||
+        error.code === 'TIMEOUT' || error.code === 'NETWORK_ERROR' || error.status >= 500,
+      )
       attempts.push({ account: accountSafe(account), status: 'failure', code: error.code, statusCode: error.status, durationMs: Date.now() - attemptStarted, mayHaveProcessed, possibleChargeUsd: mayHaveProcessed ? projectedAttemptCost : null })
       if (!account._legacy) {
         const cooldown = error.retryAfterMs || (error.retryable ? Math.min(15 * 60 * 1000, 30000 * 2 ** Math.min(account.consecutiveFailures || 0, 4)) : 0)
@@ -471,8 +575,20 @@ export async function completeAI({
           { $set: { lastErrorCode: error.code, lastErrorAt: new Date(), ...([401, 403].includes(error.status) ? { needsAttention: true } : {}), ...(cooldown ? { cooldownUntil: new Date(Date.now() + cooldown) } : {}) }, $inc: { consecutiveFailures: 1 } },
         )
       }
-      if (!error.retryable) break
+      // AI-09: Do not failover to a different provider if the request may have already been processed upstream to prevent double billing
+      if (!error.retryable || mayHaveProcessed) break
     }
+  }
+  if (idempotencyClaim) {
+    const possiblyProcessed = attempts.some((attempt) => attempt.mayHaveProcessed)
+    await AIRequest.updateOne(
+      { requestId, fingerprint: idempotencyClaim.fingerprint, state: 'processing' },
+      { $set: {
+        state: possiblyProcessed ? 'possibly_processed' : 'failed',
+        leaseUntil: null,
+        ...(possiblyProcessed ? {} : { expiresAt: new Date(Date.now() + AI_REQUEST_RETENTION_MS) }),
+      } },
+    ).catch(() => {})
   }
   lastError.attempts = attempts
   lastError.requestId = requestId

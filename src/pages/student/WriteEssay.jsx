@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import { useModal } from '../../contexts/ModalContext.jsx'
+import { sanitizeHtml } from '../../utils/sanitizeHtml.js'
 import './WriteEssay.css'
 
 const themesList = [
@@ -41,10 +42,13 @@ export default function WriteEssay() {
   const editorRef = useRef(null)
 
   useEffect(() => {
-    if (editorRef.current && essayText !== undefined && editorRef.current.innerHTML !== essayText) {
-      editorRef.current.innerHTML = essayText
-      const text = editorRef.current.innerText || ''
-      setWordCount(text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0)
+    if (editorRef.current && essayText !== undefined) {
+      const cleanHtml = sanitizeHtml(essayText)
+      if (editorRef.current.innerHTML !== cleanHtml) {
+        editorRef.current.innerHTML = cleanHtml
+        const text = editorRef.current.innerText || ''
+        setWordCount(text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0)
+      }
     }
   }, [essayText])
 
@@ -80,7 +84,7 @@ export default function WriteEssay() {
         setTitle(essay.title)
         setEssayText(essay.content)
         if (editorRef.current) {
-          editorRef.current.innerHTML = essay.content || ''
+          editorRef.current.innerHTML = sanitizeHtml(essay.content || '')
           const text = editorRef.current.innerText || ''
           setWordCount(text.trim() ? text.trim().split(/\s+/).filter(Boolean).length : 0)
         }
@@ -115,27 +119,43 @@ export default function WriteEssay() {
     loadAssignment()
   }, [assignmentId])
 
-  // Load AI suggested topics when theme changes
+  // Load AI suggested topics when theme changes (AI-20: prevent race condition)
   useEffect(() => {
+    const controller = new AbortController()
+    let isActive = true
+
     async function fetchTopics() {
       setTopicsLoading(true)
       try {
-        const res = await api.get(`/essays/suggest-topics?theme=${selectedTheme}`)
-        setTopicSuggestions(res.data || [])
+        const res = await api.get(`/essays/suggest-topics?theme=${encodeURIComponent(selectedTheme)}`, {
+          signal: controller.signal
+        })
+        if (isActive) {
+          setTopicSuggestions(res.data || [])
+        }
       } catch (err) {
+        if (!isActive || err?.name === 'CanceledError' || err?.code === 'ERR_CANCELED') return
         console.error('Error fetching AI topics:', err)
-        // Fallback default suggestions
-        setTopicSuggestions([
-          `The role of ${selectedTheme} in modern society`,
-          `How ${selectedTheme} is changing the way we live`,
-          `The future prospects of ${selectedTheme}`,
-          `Key challenges and opportunities in ${selectedTheme}`
-        ])
+        if (isActive) {
+          setTopicSuggestions([
+            `The role of ${selectedTheme} in modern society`,
+            `How ${selectedTheme} is changing the way we live`,
+            `The future prospects of ${selectedTheme}`,
+            `Key challenges and opportunities in ${selectedTheme}`
+          ])
+        }
       } finally {
-        setTopicsLoading(false)
+        if (isActive) {
+          setTopicsLoading(false)
+        }
       }
     }
+
     fetchTopics()
+    return () => {
+      isActive = false
+      controller.abort()
+    }
   }, [selectedTheme])
 
   const handlePaste = (e) => {
@@ -288,12 +308,18 @@ export default function WriteEssay() {
           selection.removeAllRanges()
           selection.addRange(range)
         } else {
-          editorRef.current.innerHTML = improvedText.replace(/\n/g, '<br>')
+          editorRef.current.innerHTML = sanitizeHtml(improvedText.replace(/\n/g, '<br>'))
         }
         handleEditorInput()
         showAlert('AI Improved', 'AI has successfully enhanced your writing style!', 'success')
       } else if (action === 'spellcheck') {
-        const errors = res.data || []
+        const occurrenceCounts = new Map()
+        const errors = (Array.isArray(res.data) ? res.data : []).map((item, index) => {
+          const error = String(item?.error || '')
+          const occurrenceIndex = occurrenceCounts.get(error) || 0
+          occurrenceCounts.set(error, occurrenceIndex + 1)
+          return { ...item, occurrenceIndex, correctionId: `${index}:${error}:${occurrenceIndex}` }
+        }).filter((item) => item.error && item.correction)
         setSpellErrors(errors)
         if (errors.length === 0) {
           showAlert('Great Job!', 'No spelling or grammar errors found!', 'success')
@@ -309,13 +335,37 @@ export default function WriteEssay() {
     }
   }
 
-  const applyCorrection = (errorText, correctionText) => {
+  const escapeRegExp = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+  const applyCorrection = (error) => {
     if (!editorRef.current) return
-    const html = editorRef.current.innerHTML
-    const newHtml = html.replace(new RegExp(`\\b${errorText}\\b`, 'g'), correctionText)
-    editorRef.current.innerHTML = newHtml
+    const errorText = String(error.error || '')
+    const escaped = escapeRegExp(errorText)
+    const pattern = /^\w+$/u.test(errorText) ? new RegExp(`\\b${escaped}\\b`, 'giu') : new RegExp(escaped, 'giu')
+    const walker = document.createTreeWalker(editorRef.current, NodeFilter.SHOW_TEXT)
+    let occurrence = 0
+    let node
+    let selectedRange = null
+    while ((node = walker.nextNode())) {
+      pattern.lastIndex = 0
+      let match
+      while ((match = pattern.exec(node.nodeValue || ''))) {
+        if (occurrence === (error.occurrenceIndex || 0)) {
+          selectedRange = document.createRange()
+          selectedRange.setStart(node, match.index)
+          selectedRange.setEnd(node, match.index + match[0].length)
+          break
+        }
+        occurrence += 1
+        if (match[0].length === 0) pattern.lastIndex += 1
+      }
+      if (selectedRange) break
+    }
+    if (!selectedRange) return
+    selectedRange.deleteContents()
+    selectedRange.insertNode(document.createTextNode(String(error.correction || '')))
     handleEditorInput()
-    setSpellErrors(prev => prev.filter(e => e.error !== errorText))
+    setSpellErrors(prev => prev.filter((item) => item.correctionId !== error.correctionId))
   }
 
   return (
@@ -484,7 +534,7 @@ export default function WriteEssay() {
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxHeight: '350px', overflowY: 'auto', paddingRight: '4px' }}>
                 {spellErrors.map((err, idx) => (
-                  <div key={idx} style={{ 
+                  <div key={err.correctionId || idx} style={{
                     padding: '10px 12px', 
                     borderRadius: '8px', 
                     backgroundColor: 'var(--color-surface-container-low)', 
@@ -510,7 +560,7 @@ export default function WriteEssay() {
                       type="button"
                       className="write-essay__btn-secondary" 
                       style={{ padding: '4px 8px', fontSize: '11px', width: '100%', justifyContent: 'center' }}
-                      onClick={() => applyCorrection(err.error, err.correction)}
+                      onClick={() => applyCorrection(err)}
                     >
                       <span className="material-symbols-outlined" style={{ fontSize: 13 }}>done</span>
                       Apply Suggestion

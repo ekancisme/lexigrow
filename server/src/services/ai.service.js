@@ -1,4 +1,5 @@
 import { spawn } from 'child_process'
+import crypto from 'crypto'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import AIAnalysis from '../models/AIAnalysis.js'
@@ -10,6 +11,7 @@ import { detectAIWriting } from './huggingface.service.js'
 import { aiMeta, normalizeUsage, estimateCost } from './aiGateway.service.js'
 import { completeThroughRelay } from './aiRelayClient.service.js'
 import { validateEnrichedWords, validateTopics } from './aiGuardrails.service.js'
+import { computeContentHash } from '../utils/contentHash.js'
 
 /**
  * Retrieve configuration value from database
@@ -66,7 +68,7 @@ const logAICall = async ({ model, action, duration, status, usage, errorMessage,
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const completeGroq = async ({ route, model, messages, responseFormat, temperature, maxTokens = 4096 }) =>
+const completeGroq = async ({ route, model, messages, responseFormat, temperature, maxTokens = 4096, requestId }) =>
   completeThroughRelay({
     route,
     providerPreference: 'groq',
@@ -75,6 +77,7 @@ const completeGroq = async ({ route, model, messages, responseFormat, temperatur
     responseFormat,
     temperature,
     maxTokens,
+    requestId,
   })
 
 /**
@@ -116,19 +119,43 @@ export const runNLPAnalysis = (text) => {
   })
 }
 
+const MAX_NLP_BUFFER_SIZE = 1024 * 1024 // 1MB buffer limit
+const SUBPROCESS_TIMEOUT_MS = 15000 // 15s timeout
+
 function setupProcessListeners(subprocess, text, resolve) {
   let stdoutData = ''
   let stderrData = ''
-  
+  let settled = false
+
+  const timer = setTimeout(() => {
+    if (!settled) {
+      settled = true
+      console.warn('[NLP] Python subprocess timed out after 15s; terminating process')
+      try { subprocess.kill('SIGKILL') } catch {}
+      resolve(null)
+    }
+  }, SUBPROCESS_TIMEOUT_MS)
+
+  const cleanup = () => {
+    clearTimeout(timer)
+  }
+
   subprocess.stdout.on('data', (data) => {
-    stdoutData += data.toString()
+    if (stdoutData.length < MAX_NLP_BUFFER_SIZE) {
+      stdoutData += data.toString().slice(0, MAX_NLP_BUFFER_SIZE - stdoutData.length)
+    }
   })
-  
+
   subprocess.stderr.on('data', (data) => {
-    stderrData += data.toString()
+    if (stderrData.length < MAX_NLP_BUFFER_SIZE) {
+      stderrData += data.toString().slice(0, MAX_NLP_BUFFER_SIZE - stderrData.length)
+    }
   })
-  
+
   subprocess.on('close', (code) => {
+    cleanup()
+    if (settled) return
+    settled = true
     if (code !== 0) {
       console.error(`Python NLP script failed with code ${code}. Stderr: ${stderrData}`)
       return resolve(null)
@@ -141,9 +168,25 @@ function setupProcessListeners(subprocess, text, resolve) {
       resolve(null)
     }
   })
-  
-  subprocess.stdin.write(text)
-  subprocess.stdin.end()
+
+  subprocess.on('error', (err) => {
+    cleanup()
+    if (settled) return
+    settled = true
+    console.error('Python NLP subprocess error:', err.message)
+    resolve(null)
+  })
+
+  try {
+    subprocess.stdin.write(text)
+    subprocess.stdin.end()
+  } catch (err) {
+    cleanup()
+    if (!settled) {
+      settled = true
+      resolve(null)
+    }
+  }
 }
 
 /**
@@ -232,7 +275,7 @@ export const sanitizeCustomPrompt = (raw) => {
 /**
  * Analyze essay using Gemini AI
  */
-export const analyzeEssay = async (essayContent, customPrompt, pastScoresSummary = '') => {
+export const analyzeEssay = async (essayContent, customPrompt, pastScoresSummary = '', requestId) => {
   const defaultPrompt = await getConfigValue('SYSTEM_ANALYSIS_PROMPT', DEFAULT_ANALYSIS_PROMPT)
   const activeModel = await getConfigValue('DEFAULT_AI_MODEL', 'llama-3.3-70b-versatile')
 
@@ -285,6 +328,7 @@ export const analyzeEssay = async (essayContent, customPrompt, pastScoresSummary
       ],
       responseFormat: { type: 'json_object' },
       maxTokens: 4096,
+      requestId,
     })
 
     usage = completion.usage
@@ -330,6 +374,8 @@ export const analyzeEssay = async (essayContent, customPrompt, pastScoresSummary
     return analysis
   } catch (error) {
     console.error('AI Analysis Error (Groq):', error.message)
+
+    if (String(error.code || '').startsWith('AI_REQUEST_') || String(error.code || '').startsWith('AI_IDEMPOTENCY_')) throw error
 
     await logAICall({
       model: activeModel,
@@ -518,7 +564,7 @@ export const classifyDetectedWords = (detectedWords = [], knownWords = [], targe
   })
 }
 
-export const processEssayAnalysis = async (essayId, studentId, essayContent, customPrompt, promptMeta = null) => {
+export const processEssayAnalysis = async (essayId, studentId, essayContent, customPrompt, promptMeta = null, requestId) => {
   const cleanContent = (essayContent || '')
     .replace(/<br\s*\/?>/gi, '\n')
     .replace(/<\/p>/gi, '\n\n')
@@ -526,9 +572,17 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
     .replace(/<[^>]+>/g, '')
     .replace(/&nbsp;/g, ' ')
     .trim();
+
+  if (cleanContent.length > 30000) {
+    throw new Error('Essay content exceeds maximum limit of 30,000 characters.')
+  }
+  const currentContentHash = computeContentHash(cleanContent)
+
   const Essay = (await import('../models/Essay.js')).default
   const essayDoc = await Essay.findById(essayId)
+  const sourceContentRevision = essayDoc?.contentRevision ?? 0
   const essayTheme = essayDoc?.theme || 'General'
+  const analysisRequestId = requestId || `essay-analysis:${essayId}:${sourceContentRevision}:${crypto.createHash('sha256').update(`${currentContentHash}\n${customPrompt || ''}`).digest('hex').slice(0, 24)}`
 
   // Fetch student's past reviewed essay analyses to detect learning patterns/trajectories
   let pastScoresSummary = ''
@@ -549,7 +603,7 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
 
   // Run Gemini AI, spaCy Python NLP, cross-student plagiarism check, and AI writing detection concurrently
   const [analysisData, nlpData, plagiarismCheck, aiCheck] = await Promise.all([
-    analyzeEssay(cleanContent, customPrompt, pastScoresSummary),
+    analyzeEssay(cleanContent, customPrompt, pastScoresSummary, analysisRequestId),
     runNLPAnalysis(cleanContent),
     checkCrossStudentPlagiarism(essayId, cleanContent),
     detectAIWriting(cleanContent)
@@ -648,7 +702,7 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
     }
   }
 
-  // Merge plagiarism and AI checks results
+  // Merge plagiarism and AI checks results (AI-13: separate AI writing detection from plagiarism)
   const lp = analysisData.learningPatterns || {
     paddedSentences: false,
     plagiarismDetected: false,
@@ -656,7 +710,7 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
     feedback: 'Insufficient historical data to analyze detailed progress trajectory.'
   }
 
-  const isPlagiarized = lp.plagiarismDetected || (plagiarismCheck && plagiarismCheck.isPlagiarized) || (aiCheck && aiCheck.isAI)
+  const isPlagiarized = Boolean(plagiarismCheck && plagiarismCheck.isPlagiarized)
   lp.plagiarismDetected = isPlagiarized
 
   let plagiarismType = 'none'
@@ -664,22 +718,47 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
     plagiarismType = 'both'
   } else if (plagiarismCheck?.isPlagiarized) {
     plagiarismType = 'cross_student'
-  } else if (aiCheck?.isAI) {
-    plagiarismType = 'ai_generated'
   }
 
   const plagiarismDetails = {
     isPlagiarized,
     matchedEssay: plagiarismCheck?.matchedEssay || null,
-    similarityScore: plagiarismCheck?.isPlagiarized ? plagiarismCheck.similarityScore : (aiCheck?.isAI ? aiCheck.score : 0),
+    similarityScore: plagiarismCheck?.isPlagiarized ? plagiarismCheck.similarityScore : 0,
     plagiarismType
   }
 
-  // Save or update AIAnalysis document
-  const analysis = await AIAnalysis.findOneAndUpdate(
-    { essay: essayId },
+  const aiWritingDetails = {
+    isAI: Boolean(aiCheck && aiCheck.isAI),
+    score: aiCheck?.score || 0,
+    confidence: aiCheck?.score || 0,
+    source: aiCheck?.isLocal ? 'heuristic' : (aiCheck?.isAI ? 'huggingface' : 'none')
+  }
+
+  // AI-10: Version guard — only commit if current essay content in DB still matches this analysis
+  const currentEssayDoc = await Essay.findById(essayId).select('content contentRevision')
+  if (!currentEssayDoc) return null
+  if (currentEssayDoc) {
+    const latestHash = computeContentHash(currentEssayDoc.content || '')
+    if (latestHash !== currentContentHash || (currentEssayDoc.contentRevision ?? 0) !== sourceContentRevision) {
+      console.warn(`[AI] Dropping stale analysis for essay ${essayId}; newer content was submitted.`)
+      return (await AIAnalysis.findOne({ essay: essayId, contentHash: latestHash })) || null
+    }
+  }
+
+  // Monotonic content revision guard: an older worker cannot overwrite a newer analysis.
+  let analysis
+  try {
+    analysis = await AIAnalysis.findOneAndUpdate(
     {
       essay: essayId,
+      $or: [
+        { contentRevision: { $lte: sourceContentRevision } },
+        { contentRevision: { $exists: false } },
+      ],
+    },
+    {
+      essay: essayId,
+      contentRevision: sourceContentRevision,
       overallScore: analysisData.overallScore,
       scores: {
         ...analysisData.scores,
@@ -697,6 +776,8 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
       nlpStats,
       learningPatterns: lp,
       plagiarismDetails,
+      aiWritingDetails,
+      contentHash: currentContentHash,
       nextEssaySuggestions: analysisData.nextEssaySuggestions || {
         transitionWords: ['Therefore', 'Moreover', 'In addition', 'However'],
         sentenceStructures: ['Relative clauses', 'Conditional sentence (Type 2)', 'Passive voice variation'],
@@ -709,7 +790,11 @@ export const processEssayAnalysis = async (essayId, studentId, essayContent, cus
         : { name: 'Default System Prompt', promptId: null, isCustom: false },
     },
     { upsert: true, new: true, runValidators: true }
-  )
+    )
+  } catch (error) {
+    if (error?.code !== 11000) throw error
+    return (await AIAnalysis.findOne({ essay: essayId })) || null
+  }
 
   // Save new words to vocabulary
   if (analysisData.newWordsDetected && analysisData.newWordsDetected.length > 0) {

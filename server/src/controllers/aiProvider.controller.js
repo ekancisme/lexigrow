@@ -6,6 +6,7 @@ import ErrorResponse from '../utils/ErrorResponse.js'
 import { encryptSecret, maskSecret } from '../utils/secretCrypto.js'
 import { testAIProviderAccount } from '../services/aiGateway.service.js'
 import { AI_ROUTES } from '../constants/aiRoutes.js'
+import { fetchSafeUrl, validateSafeUrl } from '../utils/ssrfValidator.js'
 
 const PROVIDERS = new Set(['groq', 'gemini', 'openai-compatible'])
 const clean = (value, max = 300) => typeof value === 'string' ? value.trim().slice(0, max) : ''
@@ -65,6 +66,9 @@ export const createAIProvider = asyncHandler(async (req, res) => {
   if (!selectedModels.some((item) => item.modelId === primaryModel)) selectedModels.unshift({ modelId: primaryModel, displayName: primaryModel })
   const uniqueModels = [...new Map(selectedModels.map((item) => [item.modelId, item])).values()]
   const pricing = parsePricing(inputCostPerMillionUsd, outputCostPerMillionUsd)
+  if (baseUrl) {
+    await validateSafeUrl(baseUrl)
+  }
   const account = await AIProviderAccount.create({
     name: clean(name, 100),
     provider,
@@ -111,26 +115,19 @@ export const discoverAIProviderModels = asyncHandler(async (req, res) => {
   const configuredBaseUrl = clean(baseUrl, 300) || defaultBaseUrl
   if (!configuredBaseUrl) throw new ErrorResponse('Base URL is required for this provider', 400)
 
-  let parsedUrl
-  try {
-    parsedUrl = new URL(configuredBaseUrl)
-  } catch {
-    throw new ErrorResponse('Enter a valid provider URL', 400)
-  }
-  if (parsedUrl.protocol !== 'https:' && !(parsedUrl.protocol === 'http:' && ['localhost', '127.0.0.1', '[::1]'].includes(parsedUrl.hostname))) {
-    throw new ErrorResponse('Provider URL must use HTTPS', 400)
-  }
+  await validateSafeUrl(configuredBaseUrl)
 
   const rootUrl = configuredBaseUrl.replace(/\/+$/, '').replace(/\/(?:chat\/completions|models)$/i, '')
   const endpoint = `${rootUrl}/models`
   const controller = new AbortController()
   const timeout = setTimeout(() => controller.abort(), 12000)
   try {
-    const response = await fetch(endpoint, {
+    const response = await fetchSafeUrl(endpoint, {
       headers: provider === 'gemini'
         ? { 'x-goog-api-key': clean(apiKey, 1000) }
         : { Authorization: `Bearer ${clean(apiKey, 1000)}` },
       signal: controller.signal,
+      redirect: 'error',
     })
     if (!response.ok) {
       throw new ErrorResponse(`Provider model discovery failed (HTTP ${response.status})`, response.status === 401 || response.status === 403 ? 400 : 502)
@@ -164,7 +161,10 @@ export const updateAIProvider = asyncHandler(async (req, res) => {
   if (inputCostPerMillionUsd !== undefined || outputCostPerMillionUsd !== undefined) {
     Object.assign(account, parsePricing(inputCostPerMillionUsd, outputCostPerMillionUsd))
   }
-  if (baseUrl !== undefined) account.baseUrl = clean(baseUrl, 300)
+  if (baseUrl !== undefined) {
+    if (baseUrl) await validateSafeUrl(baseUrl)
+    account.baseUrl = clean(baseUrl, 300)
+  }
   if (apiKey && !String(apiKey).includes('••••')) {
     account.encryptedApiKey = encryptSecret(apiKey)
     account.needsAttention = false

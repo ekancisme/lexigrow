@@ -181,3 +181,24 @@
   border-radius: 12px;
   font-weight: 600;
 }
+
+.rev-comp__editor-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(22, 163, 74, 0.03);
+  border: 1px solid #86efac;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-on-surface, #1e293b);
+  min-height: 160px;
+  font-family: inherit;
+  resize: vertical;
+}
+
+.rev-comp__editor-textarea:focus {
+  outline: none;
+  border-color: var(--color-primary, #005bbf);
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+}
