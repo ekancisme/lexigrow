@@ -47,11 +47,23 @@ export const getAnalysis = asyncHandler(async (req, res) => {
   // AI-05/AI-10: Check contentHash if requested by caller or if matchEssay query param is set
   const requestedHash = req.query.contentHash || (req.query.matchEssay === 'true' ? computeContentHash(essay.content) : null)
   const currentEssayHash = computeContentHash(essay.content)
-  if (requestedHash && (requestedHash !== currentEssayHash || !analysis.contentHash || analysis.contentHash !== requestedHash)) {
+  if (requestedHash && requestedHash !== currentEssayHash) {
+    return res.status(409).json({
+      success: false,
+      pending: false,
+      code: 'ANALYSIS_CONTENT_CHANGED',
+      message: 'The essay changed while its analysis was being requested.',
+      data: null,
+    })
+  }
+  if (requestedHash && (!analysis.contentHash || analysis.contentHash !== requestedHash)) {
+    const legacyAnalysisMissingHash = !analysis.contentHash
     return res.status(202).json({
       success: false,
       pending: true,
-      message: 'Analysis is still processing for this content revision',
+      needsReanalysis: legacyAnalysisMissingHash,
+      reason: legacyAnalysisMissingHash ? 'legacy_analysis_missing_hash' : 'analysis_hash_mismatch',
+      message: 'Analysis for this content revision must be generated before it can be displayed.',
       data: null,
     })
   }

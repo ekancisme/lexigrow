@@ -438,6 +438,7 @@ export default function LearningSession() {
   const [analysisResult, setAnalysisResult] = useState(null)
   const [reviewEssayId, setReviewEssayId] = useState('')
   const [submitError, setSubmitError] = useState('')
+  const [analysisRetryAvailable, setAnalysisRetryAvailable] = useState(false)
   const [draftSaveState, setDraftSaveState] = useState('')
   const [stepSaveError, setStepSaveError] = useState('')
   const [originalDraft, setOriginalDraft] = useState('')
@@ -649,6 +650,7 @@ export default function LearningSession() {
     setAnalyzingStage(1)
     setAnalyzingProgress(18)
     setSubmitError('')
+    setAnalysisRetryAvailable(false)
     try {
       const draftEssayId = await persistDraft(essayContent)
       const subIdStorageKey = `lexigrow-sub-id:${adaptive ? 'adaptive' : setSlug}:${session?._id || 'sess'}`
@@ -708,6 +710,7 @@ export default function LearningSession() {
 
       let analysisReady = false
       let attempts = 0
+      let legacyAnalysisMissingHash = false
       const maxAttempts = 25
       const expectedContentHash = revision?.contentHash
 
@@ -725,16 +728,26 @@ export default function LearningSession() {
         try {
           const queryParam = expectedContentHash ? `?contentHash=${encodeURIComponent(expectedContentHash)}` : ''
           const aRes = await api.get(`/essays/${essayId}/analysis${queryParam}`)
+          if (aRes?.needsReanalysis && aRes?.reason === 'legacy_analysis_missing_hash') {
+            legacyAnalysisMissingHash = true
+            break
+          }
           if (!aRes?.pending && (aRes?.data?.scores || aRes?.data?.overallScore !== undefined)) {
             analysisReady = true
           }
-        } catch {
+        } catch (analysisError) {
+          if (analysisError.code === 'ANALYSIS_CONTENT_CHANGED') {
+            break
+          }
           // Still processing on server
         }
       }
 
       if (!analysisReady) {
-        setSubmitError('AI analysis is still being processed by the server. Your draft was safely submitted. Please click "Submit for AI Analysis" again to check status or retry.')
+        setAnalysisRetryAvailable(true)
+        setSubmitError(legacyAnalysisMissingHash
+          ? 'This older analysis has no revision hash. Your draft was saved; submit the same draft again to safely request its analysis.'
+          : 'AI analysis is still being processed by the server. Your draft was safely submitted. Please click "Submit for AI Analysis" again to check status or retry.')
         return
       }
 
@@ -744,6 +757,7 @@ export default function LearningSession() {
 
       activeRequestIdRef.current = null
       lastSubmittedContentRef.current = null
+      setAnalysisRetryAvailable(false)
       try { localStorage.removeItem(subIdStorageKey) } catch {}
       setCurrentStep('feedback')
     } catch (err) {
@@ -971,6 +985,16 @@ export default function LearningSession() {
               {submitError && (
                 <div role="alert" className="card-base" style={{ marginBottom: 12, border: '1px solid var(--color-error)', color: 'var(--color-error)' }}>
                   {submitError}
+                  {analysisRetryAvailable && reviewEssayId && (
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      style={{ display: 'block', marginTop: 10 }}
+                      onClick={() => navigate(`/student/feedback?id=${reviewEssayId}`)}
+                    >
+                      Open feedback and retry analysis
+                    </button>
+                  )}
                 </div>
               )}
               {stepSaveError && (
@@ -998,6 +1022,7 @@ export default function LearningSession() {
                 onChange={e => {
                   setEssayContent(e.target.value)
                   setSubmitError('')
+                  setAnalysisRetryAvailable(false)
                   setDraftSaveState('unsaved')
                   try {
                     localStorage.setItem(draftStorageKey, JSON.stringify({ content: e.target.value, savedAt: Date.now() }))

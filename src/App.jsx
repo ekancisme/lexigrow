@@ -2,9 +2,9 @@ import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 
 /* Auth Pages */
-import Login from './pages/auth/Login'
-import Register from './pages/auth/Register'
-import ForgotPassword from './pages/auth/ForgotPassword'
+const Login = lazy(() => import('./pages/auth/Login'))
+const Register = lazy(() => import('./pages/auth/Register'))
+const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'))
 
 
 /* Layout */
@@ -12,57 +12,56 @@ import AppLayout from './components/layout/AppLayout'
 
 /* Student Pages */
 const StudentDashboard = lazy(() => import('./pages/student/StudentDashboard'))
-import WriteEssay from './pages/student/WriteEssay'
-import MyProgress from './pages/student/MyProgress'
-import SetWeeklyGoals from './pages/student/SetWeeklyGoals'
-import AIFeedbackReview from './pages/student/AIFeedbackReview'
-import VocabularyLibrary from './pages/student/VocabularyLibrary'
+const WriteEssay = lazy(() => import('./pages/student/WriteEssay'))
+const MyProgress = lazy(() => import('./pages/student/MyProgress'))
+const SetWeeklyGoals = lazy(() => import('./pages/student/SetWeeklyGoals'))
+const AIFeedbackReview = lazy(() => import('./pages/student/AIFeedbackReview'))
+const VocabularyLibrary = lazy(() => import('./pages/student/VocabularyLibrary'))
 const FlashcardReview = lazy(() => import('./pages/student/FlashcardReview'))
-import GameHub from './pages/game/GameHub'
-import WordMatching from './pages/game/WordMatching'
-import WordScramble from './pages/game/WordScramble'
-import ContextFiller from './pages/game/ContextFiller'
-import VocabHunter from './pages/game/VocabHunter'
+const GameHub = lazy(() => import('./pages/game/GameHub'))
+const WordMatching = lazy(() => import('./pages/game/WordMatching'))
+const WordScramble = lazy(() => import('./pages/game/WordScramble'))
+const ContextFiller = lazy(() => import('./pages/game/ContextFiller'))
+const VocabHunter = lazy(() => import('./pages/game/VocabHunter'))
 const DailyWordQuest = lazy(() => import('./pages/game/DailyWordQuest'))
-import EssayHistory from './pages/student/EssayHistory'
-import StudentClassDetail from './pages/student/StudentClassDetail'
-import Explore from './pages/student/Explore'
-import LearningSession from './pages/student/LearningSession'
-import Onboarding from './pages/student/Onboarding'
+const EssayHistory = lazy(() => import('./pages/student/EssayHistory'))
+const StudentClassDetail = lazy(() => import('./pages/student/StudentClassDetail'))
+const Explore = lazy(() => import('./pages/student/Explore'))
+const LearningSession = lazy(() => import('./pages/student/LearningSession'))
+const Onboarding = lazy(() => import('./pages/student/Onboarding'))
 const GrowthGarden = lazy(() => import('./pages/student/GrowthGardenPage.jsx'))
 
 /* Parent Pages */
-import ParentDashboard from './pages/parent/ParentDashboard'
-import ChildProgress from './pages/parent/ChildProgress'
+const ParentDashboard = lazy(() => import('./pages/parent/ParentDashboard'))
+const ChildProgress = lazy(() => import('./pages/parent/ChildProgress'))
 
 /* Teacher Pages */
 const TeacherDashboard = lazy(() => import('./pages/teacher/TeacherDashboard'))
-import ClassOverview from './pages/teacher/ClassOverview'
-import ClassManagement from './pages/teacher/ClassManagement'
-import StudentAnalyticsDetail from './pages/teacher/StudentAnalyticsDetail'
-import ManualFeedbackReview from './pages/teacher/ManualFeedbackReview'
-import EarlyWarningAlerts from './pages/teacher/EarlyWarningAlerts'
-import SystemPromptsManagement from './pages/teacher/SystemPromptsManagement'
-import ProfileSettings from './pages/teacher/ProfileSettings'
-import AssignmentDetail from './pages/teacher/AssignmentDetail'
-import AssignmentManagement from './pages/teacher/AssignmentManagement'
+const ClassOverview = lazy(() => import('./pages/teacher/ClassOverview'))
+const ClassManagement = lazy(() => import('./pages/teacher/ClassManagement'))
+const StudentAnalyticsDetail = lazy(() => import('./pages/teacher/StudentAnalyticsDetail'))
+const ManualFeedbackReview = lazy(() => import('./pages/teacher/ManualFeedbackReview'))
+const EarlyWarningAlerts = lazy(() => import('./pages/teacher/EarlyWarningAlerts'))
+const SystemPromptsManagement = lazy(() => import('./pages/teacher/SystemPromptsManagement'))
+const ProfileSettings = lazy(() => import('./pages/teacher/ProfileSettings'))
+const AssignmentDetail = lazy(() => import('./pages/teacher/AssignmentDetail'))
+const AssignmentManagement = lazy(() => import('./pages/teacher/AssignmentManagement'))
 
 /* Admin Pages */
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
-import AdminUsers from './pages/admin/AdminUsers'
-import AdminClassManagement from './pages/admin/AdminClassManagement'
-import AdminAIMonitoring from './pages/admin/AdminAIMonitoring'
-import AdminVocabulary from './pages/admin/AdminVocabulary'
-import AdminLogs from './pages/admin/AdminLogs'
-import AdminPricing from './pages/admin/AdminPricing'
-import AdminChat from './pages/admin/AdminChat'
+const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'))
+const AdminClassManagement = lazy(() => import('./pages/admin/AdminClassManagement'))
+const AdminAIMonitoring = lazy(() => import('./pages/admin/AdminAIMonitoring'))
+const AdminVocabulary = lazy(() => import('./pages/admin/AdminVocabulary'))
+const AdminLogs = lazy(() => import('./pages/admin/AdminLogs'))
+const AdminPricing = lazy(() => import('./pages/admin/AdminPricing'))
+const AdminChat = lazy(() => import('./pages/admin/AdminChat'))
 
 /* Pricing & Payment Pages */
-import PricingPage from './pages/pricing/PricingPage'
-import PaymentSuccess from './pages/pricing/PaymentSuccess'
-import PaymentCancel from './pages/pricing/PaymentCancel'
-
-import TextTranslator from './components/common/TextTranslator'
+const PricingPage = lazy(() => import('./pages/pricing/PricingPage'))
+const PaymentSuccess = lazy(() => import('./pages/pricing/PaymentSuccess'))
+const PaymentCancel = lazy(() => import('./pages/pricing/PaymentCancel'))
+const TextTranslator = lazy(() => import('./components/common/TextTranslator'))
 import { useAuth } from './contexts/AuthContext.jsx'
 
 // Route guard for Admins

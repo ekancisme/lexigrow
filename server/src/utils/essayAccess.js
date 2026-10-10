@@ -7,6 +7,54 @@ const idOf = (value) => {
   return typeof raw === 'string' ? raw : raw.toString()
 }
 
+export const teacherEssayVisibilityFilter = async (user) => {
+  if (!user || user.role !== 'teacher') return null
+  const classes = await Class.find({ teacher: user._id, status: 'active' })
+    .select('_id students')
+    .lean()
+  const studentIds = [...new Set(classes.flatMap((cls) => (cls.students || []).map(idOf)))]
+  const classClauses = classes
+    .filter((cls) => cls.students?.length)
+    .map((cls) => ({ class: cls._id, student: { $in: cls.students } }))
+
+  if (!studentIds.length) return { _id: { $in: [] } }
+
+  const memberships = await Class.find({
+    students: { $in: studentIds },
+    status: 'active',
+  }).select('teacher students').lean()
+  const membershipCount = new Map()
+  const membershipOwner = new Map()
+  for (const cls of memberships) {
+    for (const student of cls.students || []) {
+      const key = idOf(student)
+      membershipCount.set(key, (membershipCount.get(key) || 0) + 1)
+      membershipOwner.set(key, idOf(cls.teacher))
+    }
+  }
+  const unambiguousStudentIds = [...membershipCount]
+    .filter(([student, count]) => count === 1 && membershipOwner.get(student) === idOf(user._id))
+    .map(([student]) => student)
+  if (unambiguousStudentIds.length) {
+    classClauses.push({
+      student: { $in: unambiguousStudentIds },
+      $or: [{ class: null }, { class: { $exists: false } }],
+    })
+  }
+
+  if (!classClauses.length) return { _id: { $in: [] } }
+  return classClauses.length === 1 ? classClauses[0] : { $or: classClauses }
+}
+
+export const canTeacherAccessStudentProfile = async (user, studentId) => {
+  if (!user || user.role !== 'teacher' || !studentId) return false
+  const activeClasses = await Class.find({ students: studentId, status: 'active' })
+    .select('teacher')
+    .lean()
+  return activeClasses.length === 1
+    && idOf(activeClasses[0].teacher) === idOf(user._id)
+}
+
 /**
  * LG-05 / LG-06 / LG-07 / LG-08 / LG-09
  * Centralised object-level authorization (BOLA/IDOR) for essay access.
@@ -14,7 +62,8 @@ const idOf = (value) => {
  * Rules:
  *  - admin   : always true
  *  - student : only their own essay
- *  - teacher : only if an active class of theirs contains the essay's student
+ *  - teacher : only if the essay belongs to one of their active classes;
+ *              unassigned legacy essays require an unambiguous active class
  *  - parent  : only if the essay's student is one of their children
  *  - others  : false
  *
@@ -32,14 +81,17 @@ export const canAccessEssay = async (user, essay) => {
       return true
     case 'student':
       return studentId === idOf(user._id)
-    case 'teacher':
-      return Boolean(
-        await Class.exists({
+    case 'teacher': {
+      const classFilter = {
           teacher: user._id,
           students: studentId,
           status: 'active',
-        })
-      )
+      }
+      if (essay.class) {
+        return Boolean(await Class.exists({ ...classFilter, _id: idOf(essay.class) }))
+      }
+      return canTeacherAccessStudentProfile(user, studentId)
+    }
     case 'parent':
       return (
         Array.isArray(user.children) &&
@@ -66,11 +118,7 @@ export const essayVisibilityFilter = async (user) => {
     case 'student':
       return { student: user._id }
     case 'teacher': {
-      const classes = await Class.find({ teacher: user._id, status: 'active' })
-        .select('students')
-        .lean()
-      const studentIds = classes.flatMap((cls) => cls.students || [])
-      return { student: { $in: studentIds } }
+      return teacherEssayVisibilityFilter(user)
     }
     case 'parent':
       return { student: { $in: Array.isArray(user.children) ? user.children : [] } }

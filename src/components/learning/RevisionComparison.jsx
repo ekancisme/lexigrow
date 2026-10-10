@@ -1,10 +1,13 @@
 import { useState } from 'react'
+import { MAX_LEARNING_ESSAY_WORDS, MIN_LEARNING_ESSAY_WORDS } from '../../utils/learningEssay.js'
 import './RevisionComparison.css'
 
 export default function RevisionComparison({
   originalDraft = '',
   revisedDraft = '',
   resolvedItems = [],
+  minWords = MIN_LEARNING_ESSAY_WORDS,
+  maxWords = MAX_LEARNING_ESSAY_WORDS,
   onSaveRevision,
   onProceed
 }) {
@@ -20,8 +23,8 @@ export default function RevisionComparison({
       return
     }
     const count = currentRevised.trim().split(/\s+/).filter(Boolean).length
-    if (count < 60 || count > 100) {
-      setError(`Your revised essay must contain between 60 and 100 words (currently ${count} words).`)
+    if (count < minWords || count > maxWords) {
+      setError(`Your revised essay must contain between ${minWords} and ${maxWords} words (currently ${count} words).`)
       return
     }
     setSaving(true)

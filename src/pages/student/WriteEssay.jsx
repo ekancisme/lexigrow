@@ -340,28 +340,47 @@ export default function WriteEssay() {
   const applyCorrection = (error) => {
     if (!editorRef.current) return
     const errorText = String(error.error || '')
+    if (!errorText) return
     const escaped = escapeRegExp(errorText)
     const pattern = /^\w+$/u.test(errorText) ? new RegExp(`\\b${escaped}\\b`, 'giu') : new RegExp(escaped, 'giu')
     const walker = document.createTreeWalker(editorRef.current, NodeFilter.SHOW_TEXT)
-    let occurrence = 0
+    const textNodes = []
+    let combinedText = ''
     let node
-    let selectedRange = null
     while ((node = walker.nextNode())) {
-      pattern.lastIndex = 0
-      let match
-      while ((match = pattern.exec(node.nodeValue || ''))) {
-        if (occurrence === (error.occurrenceIndex || 0)) {
-          selectedRange = document.createRange()
-          selectedRange.setStart(node, match.index)
-          selectedRange.setEnd(node, match.index + match[0].length)
-          break
-        }
-        occurrence += 1
-        if (match[0].length === 0) pattern.lastIndex += 1
-      }
-      if (selectedRange) break
+      const value = node.nodeValue || ''
+      textNodes.push({ node, start: combinedText.length, end: combinedText.length + value.length })
+      combinedText += value
     }
+    pattern.lastIndex = 0
+    let occurrence = 0
+    let selectedMatch = null
+    let match
+    while ((match = pattern.exec(combinedText))) {
+      if (occurrence === (error.occurrenceIndex || 0)) {
+        selectedMatch = { start: match.index, end: match.index + match[0].length }
+        break
+      }
+      occurrence += 1
+      if (match[0].length === 0) pattern.lastIndex += 1
+    }
+    const locate = (offset, isEnd) => {
+      for (let index = 0; index < textNodes.length; index += 1) {
+        const segment = textNodes[index]
+        if ((!isEnd && offset >= segment.start && offset < segment.end)
+          || (isEnd && offset > segment.start && offset <= segment.end)
+          || (offset === segment.start && segment.start === segment.end)) {
+          return { node: segment.node, offset: offset - segment.start }
+        }
+      }
+      return null
+    }
+    const start = selectedMatch && locate(selectedMatch.start, false)
+    const end = selectedMatch && locate(selectedMatch.end, true)
+    const selectedRange = start && end ? document.createRange() : null
     if (!selectedRange) return
+    selectedRange.setStart(start.node, start.offset)
+    selectedRange.setEnd(end.node, end.offset)
     selectedRange.deleteContents()
     selectedRange.insertNode(document.createTextNode(String(error.correction || '')))
     handleEditorInput()

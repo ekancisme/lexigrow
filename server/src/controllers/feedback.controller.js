@@ -3,7 +3,7 @@ import Essay from '../models/Essay.js'
 import AIAnalysis from '../models/AIAnalysis.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
-import { canAccessEssay } from '../utils/essayAccess.js'
+import { canAccessEssay, teacherEssayVisibilityFilter } from '../utils/essayAccess.js'
 
 /**
  * Helper: compute overall score from teacher's 4 manual scores (each 1-10).
@@ -62,14 +62,13 @@ async function syncTeacherScoresToAnalysis(essayId, scores) {
  * @access  Private (teacher)
  */
 export const getPendingEssays = asyncHandler(async (req, res) => {
-  const Class = (await import('../models/Class.js')).default
-  const classes = await Class.find({ teacher: req.user._id, status: 'active' })
-  const studentIds = [...new Set(classes.flatMap(c => c.students.map(s => s.toString())))]
+  const visibility = await teacherEssayVisibilityFilter(req.user)
+  if (!visibility) throw new ErrorResponse('Not authorized to view pending essays', 403)
 
   const feedbackEssayIds = await ManualFeedback.find({ teacher: req.user._id }).distinct('essay')
 
   const pendingEssays = await Essay.find({
-    student: { $in: studentIds },
+    ...visibility,
     status: { $in: ['submitted', 'reviewed'] },
     _id: { $nin: feedbackEssayIds },
   })

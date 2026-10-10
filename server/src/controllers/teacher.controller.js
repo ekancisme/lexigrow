@@ -7,6 +7,10 @@ import Alert from '../models/Alert.js'
 import ErrorResponse from '../utils/ErrorResponse.js'
 import asyncHandler from '../utils/asyncHandler.js'
 import { classifyStudents, classifyStudentStatus } from '../services/studentStatus.service.js'
+import {
+  canTeacherAccessStudentProfile,
+  teacherEssayVisibilityFilter,
+} from '../utils/essayAccess.js'
 
 /**
  * @desc    Get teacher dashboard stats
@@ -90,11 +94,15 @@ export const getStudentAnalytics = asyncHandler(async (req, res) => {
 
   // Verify teacher has this student in one of their active classes
   const teacherClasses = await Class.find({ teacher: req.user._id, students: student._id, status: 'active' })
-  if (teacherClasses.length === 0) {
-    throw new ErrorResponse('Student not in any of your active classes', 403)
+  if (!teacherClasses.length || !(await canTeacherAccessStudentProfile(req.user, student._id))) {
+    throw new ErrorResponse('Student must belong to exactly one active class to view the unscoped profile', 403)
   }
 
-  const essays = await Essay.find({ student: student._id, status: { $ne: 'draft' } }).sort({ createdAt: -1 })
+  const essays = await Essay.find({
+    student: student._id,
+    status: { $ne: 'draft' },
+    $or: [{ class: teacherClasses[0]._id }, { class: null }, { class: { $exists: false } }],
+  }).sort({ createdAt: -1 })
   const essayIds = essays.map(e => e._id)
   const analyses = await AIAnalysis.find({ essay: { $in: essayIds } })
 
@@ -174,13 +182,17 @@ export const getStudentEssays = asyncHandler(async (req, res) => {
   }
 
   const { page = 1, limit = 20 } = req.query
+  const essayVisibility = await teacherEssayVisibilityFilter(req.user)
+  const essayQuery = {
+    $and: [essayVisibility, { student: req.params.id, status: { $ne: 'draft' } }],
+  }
 
-  const essays = await Essay.find({ student: req.params.id, status: { $ne: 'draft' } })
+  const essays = await Essay.find(essayQuery)
     .sort({ createdAt: -1 })
     .skip((page - 1) * limit)
     .limit(Number(limit))
 
-  const total = await Essay.countDocuments({ student: req.params.id, status: { $ne: 'draft' } })
+  const total = await Essay.countDocuments(essayQuery)
 
   res.status(200).json({
     success: true,
@@ -203,8 +215,8 @@ export const getStudentVocabulary = asyncHandler(async (req, res) => {
 
   // Verify teacher has this student in one of their active classes
   const teacherClasses = await Class.find({ teacher: req.user._id, students: studentId, status: 'active' })
-  if (teacherClasses.length === 0) {
-    throw new ErrorResponse('Student not in any of your active classes', 403)
+  if (!teacherClasses.length || !(await canTeacherAccessStudentProfile(req.user, studentId))) {
+    throw new ErrorResponse('Student must belong to exactly one active class to view the unscoped profile', 403)
   }
 
   // Build query
@@ -308,6 +320,7 @@ export const getClassAnalytics = asyncHandler(async (req, res) => {
 
   // Get all submitted essays
   const essays = await Essay.find({
+    class: cls._id,
     student: { $in: studentIds },
     status: { $ne: 'draft' }
   })
@@ -405,6 +418,7 @@ export const getClassInsights = asyncHandler(async (req, res) => {
 
   // Find all non-draft essays of students
   const essays = await Essay.find({
+    class: cls._id,
     student: { $in: studentIds },
     status: { $ne: 'draft' }
   })

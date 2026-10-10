@@ -188,7 +188,14 @@ export default function AIFeedbackReview({
         setEssay(essayRes.data)
       }
     } catch (err) {
-      setError(err.message || 'Failed to reanalyze essay')
+      if (err.code === 'AI_REQUEST_POSSIBLY_PROCESSED') {
+        const storageKey = `lexigrow-reanalyze:${essayId}`
+        reanalyzeRequestIdRef.current = null
+        try { localStorage.removeItem(storageKey) } catch {}
+        setError('The provider may have processed this request. No automatic retry was sent. Click Re-analyze again only if you accept that the provider may charge for another attempt.')
+      } else {
+        setError(err.message || 'Failed to reanalyze essay')
+      }
     } finally {
       setReanalyzing(false)
     }

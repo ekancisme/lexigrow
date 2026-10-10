@@ -4,14 +4,14 @@ import AIProviderAccount from '../models/AIProviderAccount.js'
 import AIProviderModel from '../models/AIProviderModel.js'
 import AIModelCombo from '../models/AIModelCombo.js'
 import AILog from '../models/AILog.js'
-import AIRequest from '../models/AIRequest.js'
+import AIRequest, { AI_REQUEST_RETENTION_MS } from '../models/AIRequest.js'
 import { decryptSecret } from '../utils/secretCrypto.js'
 import { fetchSafeUrl } from '../utils/ssrfValidator.js'
 
 const DEFAULT_MAX_ATTEMPTS = 3
 const DEFAULT_GROQ_MODEL = 'llama-3.3-70b-versatile'
 const AI_REQUEST_LEASE_MS = 180000
-const AI_REQUEST_RETENTION_MS = 90 * 24 * 60 * 60 * 1000
+const AI_REQUEST_POSSIBLY_PROCESSED_RETENTION_MS = AI_REQUEST_RETENTION_MS
 
 const PRICING_USD_PER_MILLION = {
   'groq:llama-3.3-70b-versatile': { input: 0.59, output: 0.79 },
@@ -142,7 +142,11 @@ async function claimIdempotentRequest(requestId, fingerprint) {
   if (prior.state === 'processing') {
     await AIRequest.updateOne(
       { requestId, fingerprint, state: 'processing', leaseUntil: prior.leaseUntil },
-      { $set: { state: 'possibly_processed', leaseUntil: null } },
+      { $set: {
+        state: 'possibly_processed',
+        leaseUntil: null,
+        expiresAt: new Date(now.getTime() + AI_REQUEST_POSSIBLY_PROCESSED_RETENTION_MS),
+      } },
     )
     throw requestConflict('AI_REQUEST_POSSIBLY_PROCESSED', 'The request owner stopped responding. The provider may have processed it, so it was not resent.')
   }
@@ -552,7 +556,11 @@ export async function completeAI({
         } catch (error) {
           await AIRequest.updateOne(
             { requestId, fingerprint: idempotencyClaim.fingerprint, state: 'processing' },
-            { $set: { state: 'possibly_processed', leaseUntil: null } },
+            { $set: {
+              state: 'possibly_processed',
+              leaseUntil: null,
+              expiresAt: new Date(Date.now() + AI_REQUEST_POSSIBLY_PROCESSED_RETENTION_MS),
+            } },
           ).catch(() => {})
           throw Object.assign(new AIProviderError('Provider completed the request but its idempotency record could not be saved', {
             status: 503, code: 'AI_REQUEST_RECORD_FAILED', retryable: false,
@@ -586,7 +594,9 @@ export async function completeAI({
       { $set: {
         state: possiblyProcessed ? 'possibly_processed' : 'failed',
         leaseUntil: null,
-        ...(possiblyProcessed ? {} : { expiresAt: new Date(Date.now() + AI_REQUEST_RETENTION_MS) }),
+        expiresAt: new Date(Date.now() + (possiblyProcessed
+          ? AI_REQUEST_POSSIBLY_PROCESSED_RETENTION_MS
+          : AI_REQUEST_RETENTION_MS)),
       } },
     ).catch(() => {})
   }

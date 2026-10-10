@@ -1,5 +1,7 @@
 import mongoose from 'mongoose'
 
+export const AI_REQUEST_RETENTION_MS = 90 * 24 * 60 * 60 * 1000
+
 const aiRequestSchema = new mongoose.Schema({
   requestId: { type: String, required: true, unique: true, maxlength: 128 },
   fingerprint: { type: String, required: true },
