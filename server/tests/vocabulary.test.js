@@ -25,6 +25,7 @@ vi.mock('../src/models/Vocabulary.js', () => ({
     find: vi.fn(),
     findOne: vi.fn(),
     create: vi.fn(),
+    insertMany: vi.fn(),
     countDocuments: vi.fn(),
     distinct: vi.fn(),
   }
@@ -127,5 +128,44 @@ describe('GET /api/vocabulary - Paginated Vocabulary Library', () => {
     expect(res.body.themes).toEqual(['Language', 'Tech', 'Environment'])
     expect(res.body.dueCount).toBe(5)
     expect(res.body.data).toHaveLength(2)
+  })
+})
+
+describe('POST /api/vocabulary/batch - Batch Vocabulary Creation', () => {
+  it('should batch add words and filter out existing ones', async () => {
+    Vocabulary.find.mockReturnValue(mockQuery([{ word: 'routine' }]))
+    Vocabulary.insertMany.mockResolvedValue([
+      {
+        _id: 'w2',
+        word: 'commute',
+        student: 'mock_student_id',
+        definition: 'Đi lại hàng ngày'
+      }
+    ])
+
+    const res = await request(app)
+      .post('/api/vocabulary/batch')
+      .send({
+        words: [
+          { word: 'routine', definition: 'Thói quen' },
+          { word: 'commute', definition: 'Đi lại hàng ngày' }
+        ],
+        category: 'daily',
+        theme: 'Daily Routine'
+      })
+      .expect(201)
+
+    expect(res.body.success).toBe(true)
+    expect(res.body.count).toBe(1)
+    expect(res.body.data[0].word).toBe('commute')
+  })
+
+  it('should return 400 if words array is empty or missing', async () => {
+    const res = await request(app)
+      .post('/api/vocabulary/batch')
+      .send({ words: [] })
+      .expect(400)
+
+    expect(res.body.success).toBe(false)
   })
 })

@@ -3,18 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import confetti from 'canvas-confetti'
+import GameVocabRecap from '../../components/learning/GameVocabRecap.jsx'
+import { getCuratedTopicWords, GAME_CURATED_TOPICS } from '../../utils/gameVocabHelper.js'
 import './WordMatching.css'
-
-const FALLBACK_WORDS = [
-  { _id: 'f1', word: 'Accolade', definition: 'An award or privilege granted as a special honor or recognition of merit.' },
-  { _id: 'f2', word: 'Benevolent', definition: 'Well meaning and kindly; serving a charitable purpose.' },
-  { _id: 'f3', word: 'Capricious', definition: 'Given to sudden and unaccountable changes of mood or behavior.' },
-  { _id: 'f4', word: 'Diligent', definition: 'Having or showing conscientiousness in one\'s work or duties.' },
-  { _id: 'f5', word: 'Eloquent', definition: 'Fluent or persuasive in speaking or writing.' },
-  { _id: 'f6', word: 'Frugal', definition: 'Sparing or economical with regard to money or food.' },
-  { _id: 'f7', word: 'Garrulous', definition: 'Excessively talkative, especially on trivial matters.' },
-  { _id: 'f8', word: 'Hypothesis', definition: 'A proposed explanation made on the basis of limited evidence.' }
-]
 
 export default function WordMatching() {
   const navigate = useNavigate()
@@ -22,7 +13,11 @@ export default function WordMatching() {
 
   const [gameState, setGameState] = useState('config')
   const [pairCount, setPairCount] = useState(4)
-  const [selectedCategory, setSelectedCategory] = useState('')
+  const [selectedCategory] = useState('')
+  const [vocabSource, setVocabSource] = useState('library') // 'library' | 'topic'
+  const [selectedTopic, setSelectedTopic] = useState('all')
+  const [playedWords, setPlayedWords] = useState([])
+  const [libraryCount, setLibraryCount] = useState(null)
 
   const [cards, setCards] = useState([])
   const [flippedIndices, setFlippedIndices] = useState([])
@@ -33,6 +28,29 @@ export default function WordMatching() {
   const timerInterval = useRef(null)
   const audioCtxRef = useRef(null)
   const timeoutRefs = useRef([])
+
+  // Probe student library count on mount to pick best default source
+  useEffect(() => {
+    let isMounted = true
+    async function checkLibrary() {
+      try {
+        const res = await api.get('/vocabulary?limit=1')
+        if (isMounted && res.success) {
+          const total = typeof res.total === 'number' ? res.total : (res.count || 0)
+          setLibraryCount(total)
+          if (total < 4) {
+            setVocabSource('topic')
+          }
+        }
+      } catch (e) {
+        console.warn('Could not probe vocabulary count:', e)
+      }
+    }
+    checkLibrary()
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   // Cleanup on unmount: clear timer, pending timeouts, close AudioContext
   useEffect(() => {
@@ -89,17 +107,27 @@ export default function WordMatching() {
   const loadGame = async () => {
     setGameState('loading')
     try {
-      const categoryParam = selectedCategory ? `&category=${selectedCategory}` : ''
-      const response = await api.get(`/vocabulary?limit=150${categoryParam}`)
-
       let loaded = []
-      if (response.success && response.data && response.data.length >= pairCount) {
-        loaded = response.data
+      if (vocabSource === 'topic') {
+        loaded = getCuratedTopicWords(selectedTopic)
       } else {
-        loaded = FALLBACK_WORDS
+        const categoryParam = selectedCategory ? `&category=${selectedCategory}` : ''
+        const response = await api.get(`/vocabulary?limit=150${categoryParam}`)
+
+        if (response.success && response.data && response.data.length >= pairCount) {
+          loaded = response.data
+        } else {
+          // If library doesn't have enough words, seamlessly discover from curated topics
+          loaded = getCuratedTopicWords('all')
+        }
+      }
+
+      if (!loaded || loaded.length < pairCount) {
+        loaded = getCuratedTopicWords('all')
       }
 
       const selectedWords = [...loaded].sort(() => 0.5 - Math.random()).slice(0, pairCount)
+      setPlayedWords(selectedWords)
 
       // Create card pairs: Word card + Definition card
       const cardPairs = []
@@ -114,7 +142,7 @@ export default function WordMatching() {
           id: `${item._id || item.word}-d`,
           pairId: item._id || item.word,
           type: 'definition',
-          text: item.definition
+          text: item.definition || item.meaningVi || item.meaning || ''
         })
       })
 
@@ -193,7 +221,50 @@ export default function WordMatching() {
 
           <div>
             <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
-              1. {t('games.selectPairs', 'Select Card Pairs')}
+              1. {t('games.vocabSource', 'Nguồn từ vựng')}
+            </label>
+            <div className="speed-options-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+              <div
+                className={`speed-card ${vocabSource === 'library' ? 'speed-card--active' : ''}`}
+                onClick={() => setVocabSource('library')}
+              >
+                <h4>📚 Thư viện của tôi</h4>
+                <span>{libraryCount !== null ? `${libraryCount} từ đã lưu` : 'Từ vựng cá nhân'}</span>
+              </div>
+              <div
+                className={`speed-card ${vocabSource === 'topic' ? 'speed-card--active' : ''}`}
+                onClick={() => setVocabSource('topic')}
+              >
+                <h4>✨ Đề xuất theo chủ đề</h4>
+                <span>Khám phá từ mới</span>
+              </div>
+            </div>
+          </div>
+
+          {vocabSource === 'topic' && (
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+                2. Chủ đề khám phá
+              </label>
+              <div className="game-topic-chips">
+                {GAME_CURATED_TOPICS.map((topic) => (
+                  <button
+                    key={topic.slug}
+                    type="button"
+                    className={`game-topic-chip ${selectedTopic === topic.slug ? 'game-topic-chip--active' : ''}`}
+                    onClick={() => setSelectedTopic(topic.slug)}
+                  >
+                    <span className="material-symbols-outlined">{topic.icon}</span>
+                    <span>{topic.title}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+              {vocabSource === 'topic' ? '3.' : '2.'} {t('games.selectPairs', 'Select Card Pairs')}
             </label>
             <div className="speed-options-grid">
               <div
@@ -315,7 +386,7 @@ export default function WordMatching() {
       )}
 
       {gameState === 'victory' && (
-        <div className="hunter-config-modal" style={{ textAlign: 'center' }}>
+        <div className="hunter-config-modal hunter-config-modal--victory" style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '48px', marginBottom: '8px' }}>🏆</div>
           <h2>Memory Challenge Complete!</h2>
           <p style={{ fontSize: '1.2rem', fontWeight: 700, color: '#0891B2' }}>
@@ -337,6 +408,13 @@ export default function WordMatching() {
               Exit to Hub
             </button>
           </div>
+
+          <GameVocabRecap
+            words={playedWords}
+            defaultTheme={vocabSource === 'topic' && selectedTopic !== 'all' ? selectedTopic : 'Word Matching'}
+            defaultCategory={selectedCategory || 'daily'}
+            sourceLabel={vocabSource === 'topic' ? `Đề xuất chủ đề: ${selectedTopic}` : 'Thư viện từ vựng'}
+          />
         </div>
       )}
     </div>

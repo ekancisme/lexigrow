@@ -3,16 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import confetti from 'canvas-confetti'
+import GameVocabRecap from '../../components/learning/GameVocabRecap.jsx'
+import { getCuratedTopicWords, GAME_CURATED_TOPICS } from '../../utils/gameVocabHelper.js'
 import './WordScramble.css'
-
-const FALLBACK_WORDS = [
-  { _id: 'f1', word: 'Evaluate', definition: 'Form an idea of the amount, number, or value of; assess.', partOfSpeech: 'verb', ipa: '/ɪˈvæl.ju.eɪt/' },
-  { _id: 'f2', word: 'Synthesize', definition: 'Combine a number of things into a coherent whole.', partOfSpeech: 'verb', ipa: '/ˈsɪn.θə.saɪz/' },
-  { _id: 'f3', word: 'Significant', definition: 'Sufficiently great or important to be worthy of attention; noteworthy.', partOfSpeech: 'adjective', ipa: '/sɪɡˈnɪf.ɪ.kənt/' },
-  { _id: 'f4', word: 'Empirical', definition: 'Based on, concerned with, or verifiable by observation or experience rather than theory.', partOfSpeech: 'adjective', ipa: '/ɪmˈpɪr.ɪ.kəl/' },
-  { _id: 'f5', word: 'Eloquent', definition: 'Fluent or persuasive in speaking or writing.', partOfSpeech: 'adjective', ipa: '/ˈel.ə.kwənt/' },
-  { _id: 'f6', word: 'Frugal', definition: 'Sparing or economical with regard to money or food.', partOfSpeech: 'adjective', ipa: '/ˈfruː.ɡəl/' }
-]
 
 export default function WordScramble() {
   const navigate = useNavigate()
@@ -21,7 +14,10 @@ export default function WordScramble() {
   // Game state
   const [gameState, setGameState] = useState('config') // 'config' | 'loading' | 'playing' | 'victory'
   const [roundCount, setRoundCount] = useState(5)
-  const [selectedCategory, setSelectedCategory] = useState('')
+  const [selectedCategory] = useState('')
+  const [vocabSource, setVocabSource] = useState('library') // 'library' | 'topic'
+  const [selectedTopic, setSelectedTopic] = useState('all')
+  const [libraryCount, setLibraryCount] = useState(null)
 
   // Word list state
   const [words, setWords] = useState([])
@@ -38,6 +34,29 @@ export default function WordScramble() {
   const [timer, setTimer] = useState(0)
   const inputRef = useRef(null)
   const timerInterval = useRef(null)
+
+  // Check library count to default to topic if library has few words
+  useEffect(() => {
+    let isMounted = true
+    async function checkLibrary() {
+      try {
+        const res = await api.get('/vocabulary?limit=1')
+        if (isMounted && res.success) {
+          const total = typeof res.total === 'number' ? res.total : (res.count || 0)
+          setLibraryCount(total)
+          if (total < 4) {
+            setVocabSource('topic')
+          }
+        }
+      } catch (e) {
+        console.warn('Could not probe vocabulary count:', e)
+      }
+    }
+    checkLibrary()
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   // Cleanup timer on unmount to prevent memory leaks and setState on unmounted component
   useEffect(() => {
@@ -89,14 +108,22 @@ export default function WordScramble() {
   const loadWords = async () => {
     setGameState('loading')
     try {
-      const categoryParam = selectedCategory ? `&category=${selectedCategory}` : ''
-      const response = await api.get(`/vocabulary?limit=150${categoryParam}`)
-
       let loaded = []
-      if (response.success && response.data && response.data.length > 0) {
-        loaded = response.data
+      if (vocabSource === 'topic') {
+        loaded = getCuratedTopicWords(selectedTopic)
       } else {
-        loaded = FALLBACK_WORDS
+        const categoryParam = selectedCategory ? `&category=${selectedCategory}` : ''
+        const response = await api.get(`/vocabulary?limit=150${categoryParam}`)
+
+        if (response.success && response.data && response.data.length > 0) {
+          loaded = response.data
+        } else {
+          loaded = getCuratedTopicWords('all')
+        }
+      }
+
+      if (!loaded || loaded.length === 0) {
+        loaded = getCuratedTopicWords('all')
       }
 
       const selection = [...loaded].sort(() => 0.5 - Math.random()).slice(0, Math.min(roundCount, loaded.length))
@@ -113,13 +140,13 @@ export default function WordScramble() {
       timerInterval.current = setInterval(() => setTimer((prev) => prev + 1), 1000)
     } catch (e) {
       console.error(e)
-      const selection = [...FALLBACK_WORDS].slice(0, Math.min(roundCount, FALLBACK_WORDS.length))
-      setWords(selection)
+      const fallbackSelection = getCuratedTopicWords('all').slice(0, roundCount)
+      setWords(fallbackSelection)
       setCurrentRoundIndex(0)
       setScore(0)
       setStreak(0)
       setTimer(0)
-      setupRound(selection, 0)
+      setupRound(fallbackSelection, 0)
       setGameState('playing')
     }
   }
@@ -206,7 +233,50 @@ export default function WordScramble() {
 
           <div>
             <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
-              1. {t('games.selectRounds', 'Select Puzzle Count')}
+              1. {t('games.vocabSource', 'Nguồn từ vựng')}
+            </label>
+            <div className="speed-options-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+              <div
+                className={`speed-card ${vocabSource === 'library' ? 'speed-card--active' : ''}`}
+                onClick={() => setVocabSource('library')}
+              >
+                <h4>📚 Thư viện của tôi</h4>
+                <span>{libraryCount !== null ? `${libraryCount} từ đã lưu` : 'Từ vựng cá nhân'}</span>
+              </div>
+              <div
+                className={`speed-card ${vocabSource === 'topic' ? 'speed-card--active' : ''}`}
+                onClick={() => setVocabSource('topic')}
+              >
+                <h4>✨ Đề xuất theo chủ đề</h4>
+                <span>Khám phá từ mới</span>
+              </div>
+            </div>
+          </div>
+
+          {vocabSource === 'topic' && (
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+                2. Chủ đề khám phá
+              </label>
+              <div className="game-topic-chips">
+                {GAME_CURATED_TOPICS.map((topic) => (
+                  <button
+                    key={topic.slug}
+                    type="button"
+                    className={`game-topic-chip ${selectedTopic === topic.slug ? 'game-topic-chip--active' : ''}`}
+                    onClick={() => setSelectedTopic(topic.slug)}
+                  >
+                    <span className="material-symbols-outlined">{topic.icon}</span>
+                    <span>{topic.title}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+              {vocabSource === 'topic' ? '3.' : '2.'} {t('games.selectRounds', 'Select Puzzle Count')}
             </label>
             <div className="speed-options-grid">
               <div
@@ -379,7 +449,7 @@ export default function WordScramble() {
       )}
 
       {gameState === 'victory' && (
-        <div className="hunter-config-modal" style={{ textAlign: 'center' }}>
+        <div className="hunter-config-modal hunter-config-modal--victory" style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '48px', marginBottom: '8px' }}>🏆</div>
           <h2>Scramble Challenge Complete!</h2>
           <p style={{ fontSize: '1.2rem', fontWeight: 700, color: '#7C3AED' }}>
@@ -401,6 +471,13 @@ export default function WordScramble() {
               Exit to Hub
             </button>
           </div>
+
+          <GameVocabRecap
+            words={words}
+            defaultTheme={vocabSource === 'topic' && selectedTopic !== 'all' ? selectedTopic : 'Word Scramble'}
+            defaultCategory={selectedCategory || 'daily'}
+            sourceLabel={vocabSource === 'topic' ? `Đề xuất chủ đề: ${selectedTopic}` : 'Thư viện từ vựng'}
+          />
         </div>
       )}
     </div>

@@ -3,15 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import confetti from 'canvas-confetti'
+import GameVocabRecap from '../../components/learning/GameVocabRecap.jsx'
+import { getCuratedTopicWords, GAME_CURATED_TOPICS } from '../../utils/gameVocabHelper.js'
 import './ContextFiller.css'
-
-const FALLBACK_WORDS = [
-  { _id: 'f1', word: 'stagnant', definition: 'Not growing or developing; stale or inactive.', examples: ['The economy has remained _______ for the past few quarters, with no signs of growth.'] },
-  { _id: 'f2', word: 'evaluate', definition: 'Form an idea of the amount, number, or value of.', examples: ['Researchers must _______ all evidence carefully before drawing firm conclusions.'] },
-  { _id: 'f3', word: 'synthesize', definition: 'Combine separate elements to form a coherent whole.', examples: ['The author aims to _______ diverse perspectives into a unified narrative.'] },
-  { _id: 'f4', word: 'significant', definition: 'Great or important; worthy of attention.', examples: ['There has been a _______ breakthrough in renewable energy technology this year.'] },
-  { _id: 'f5', word: 'empirical', definition: 'Based on observation or experience rather than theory.', examples: ['The scientists presented _______ data collected over five years of fieldwork.'] }
-]
 
 export default function ContextFiller() {
   const navigate = useNavigate()
@@ -19,7 +13,10 @@ export default function ContextFiller() {
 
   const [gameState, setGameState] = useState('config')
   const [roundCount, setRoundCount] = useState(5)
-  const [selectedCategory, setSelectedCategory] = useState('')
+  const [selectedCategory] = useState('')
+  const [vocabSource, setVocabSource] = useState('library') // 'library' | 'topic'
+  const [selectedTopic, setSelectedTopic] = useState('all')
+  const [libraryCount, setLibraryCount] = useState(null)
 
   const [words, setWords] = useState([])
   const [currentRoundIndex, setCurrentRoundIndex] = useState(0)
@@ -33,6 +30,29 @@ export default function ContextFiller() {
   const [streak, setStreak] = useState(0)
   const [timer, setTimer] = useState(0)
   const timerInterval = useRef(null)
+
+  // Probe library count on mount
+  useEffect(() => {
+    let isMounted = true
+    async function checkLibrary() {
+      try {
+        const res = await api.get('/vocabulary?limit=1')
+        if (isMounted && res.success) {
+          const total = typeof res.total === 'number' ? res.total : (res.count || 0)
+          setLibraryCount(total)
+          if (total < 4) {
+            setVocabSource('topic')
+          }
+        }
+      } catch (e) {
+        console.warn('Could not probe vocabulary count:', e)
+      }
+    }
+    checkLibrary()
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   // Clear the round timer when the component unmounts (e.g. Exit / navigate away).
   useEffect(() => {
@@ -75,14 +95,21 @@ export default function ContextFiller() {
   const loadWords = async () => {
     setGameState('loading')
     try {
-      const categoryParam = selectedCategory ? `&category=${selectedCategory}` : ''
-      const response = await api.get(`/vocabulary?limit=150${categoryParam}`)
-
       let loaded = []
-      if (response.success && response.data && response.data.length > 0) {
-        loaded = response.data.filter((w) => w.examples && w.examples.length > 0)
+      if (vocabSource === 'topic') {
+        loaded = getCuratedTopicWords(selectedTopic).filter((w) => w.examples && w.examples.length > 0)
+      } else {
+        const categoryParam = selectedCategory ? `&category=${selectedCategory}` : ''
+        const response = await api.get(`/vocabulary?limit=150${categoryParam}`)
+
+        if (response.success && response.data && response.data.length > 0) {
+          loaded = response.data.filter((w) => w.examples && w.examples.length > 0)
+        }
       }
-      if (loaded.length < 4) loaded = FALLBACK_WORDS
+
+      if (loaded.length < 4) {
+        loaded = getCuratedTopicWords('all').filter((w) => w.examples && w.examples.length > 0)
+      }
 
       const selection = [...loaded].sort(() => 0.5 - Math.random()).slice(0, Math.min(roundCount, loaded.length))
       setWords(selection)
@@ -98,12 +125,14 @@ export default function ContextFiller() {
       timerInterval.current = setInterval(() => setTimer((prev) => prev + 1), 1000)
     } catch (e) {
       console.error(e)
-      setWords(FALLBACK_WORDS)
+      const fallback = getCuratedTopicWords('all').filter((w) => w.examples && w.examples.length > 0)
+      const selection = fallback.slice(0, roundCount)
+      setWords(selection)
       setCurrentRoundIndex(0)
       setScore(0)
       setStreak(0)
       setTimer(0)
-      setupRound(FALLBACK_WORDS, 0, FALLBACK_WORDS)
+      setupRound(selection, 0, fallback)
       setGameState('playing')
 
       if (timerInterval.current) clearInterval(timerInterval.current)
@@ -181,7 +210,50 @@ export default function ContextFiller() {
 
           <div>
             <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
-              1. {t('games.selectRounds', 'Select Question Count')}
+              1. {t('games.vocabSource', 'Nguồn từ vựng')}
+            </label>
+            <div className="speed-options-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+              <div
+                className={`speed-card ${vocabSource === 'library' ? 'speed-card--active' : ''}`}
+                onClick={() => setVocabSource('library')}
+              >
+                <h4>📚 Thư viện của tôi</h4>
+                <span>{libraryCount !== null ? `${libraryCount} từ đã lưu` : 'Từ vựng cá nhân'}</span>
+              </div>
+              <div
+                className={`speed-card ${vocabSource === 'topic' ? 'speed-card--active' : ''}`}
+                onClick={() => setVocabSource('topic')}
+              >
+                <h4>✨ Đề xuất theo chủ đề</h4>
+                <span>Khám phá từ mới</span>
+              </div>
+            </div>
+          </div>
+
+          {vocabSource === 'topic' && (
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+                2. Chủ đề khám phá
+              </label>
+              <div className="game-topic-chips">
+                {GAME_CURATED_TOPICS.map((topic) => (
+                  <button
+                    key={topic.slug}
+                    type="button"
+                    className={`game-topic-chip ${selectedTopic === topic.slug ? 'game-topic-chip--active' : ''}`}
+                    onClick={() => setSelectedTopic(topic.slug)}
+                  >
+                    <span className="material-symbols-outlined">{topic.icon}</span>
+                    <span>{topic.title}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+              {vocabSource === 'topic' ? '3.' : '2.'} {t('games.selectRounds', 'Select Question Count')}
             </label>
             <div className="speed-options-grid">
               <div
@@ -342,7 +414,7 @@ export default function ContextFiller() {
       )}
 
       {gameState === 'victory' && (
-        <div className="hunter-config-modal" style={{ textAlign: 'center' }}>
+        <div className="hunter-config-modal hunter-config-modal--victory" style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '48px', marginBottom: '8px' }}>🏆</div>
           <h2>Context Mastery Complete!</h2>
           <p style={{ fontSize: '1.2rem', fontWeight: 700, color: 'var(--color-primary)' }}>
@@ -364,6 +436,13 @@ export default function ContextFiller() {
               Exit to Hub
             </button>
           </div>
+
+          <GameVocabRecap
+            words={words}
+            defaultTheme={vocabSource === 'topic' && selectedTopic !== 'all' ? selectedTopic : 'Context Filler'}
+            defaultCategory={selectedCategory || 'daily'}
+            sourceLabel={vocabSource === 'topic' ? `Đề xuất chủ đề: ${selectedTopic}` : 'Thư viện từ vựng'}
+          />
         </div>
       )}
     </div>

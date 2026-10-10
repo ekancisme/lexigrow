@@ -3,22 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import confetti from 'canvas-confetti'
+import GameVocabRecap from '../../components/learning/GameVocabRecap.jsx'
+import { getCuratedTopicWords, GAME_CURATED_TOPICS } from '../../utils/gameVocabHelper.js'
 import './VocabHunter.css'
-
-const FALLBACK_WORDS = [
-  { _id: 'f1', word: 'Accolade', definition: 'An award or privilege granted as special honor or in recognition of merit.', ipa: '/ˈæk.ə.leɪd/' },
-  { _id: 'f2', word: 'Benevolent', definition: 'Well meaning and kindly; serving a charitable purpose.', ipa: '/bəˈnev.əl.ənt/' },
-  { _id: 'f3', word: 'Capricious', definition: 'Given to sudden and unaccountable changes of mood or behavior.', ipa: '/kəˈprɪʃ.əs/' },
-  { _id: 'f4', word: 'Diligent', definition: 'Having or showing care and conscientiousness in one\'s work or duties.', ipa: '/ˈdɪl.ɪ.dʒənt/' },
-  { _id: 'f5', word: 'Eloquent', definition: 'Fluent or persuasive in speaking or writing.', ipa: '/ˈel.ə.kwənt/' },
-  { _id: 'f6', word: 'Frugal', definition: 'Sparing or economical with regard to money or food.', ipa: '/ˈfruː.ɡəl/' },
-  { _id: 'f7', word: 'Garrulous', definition: 'Excessively talkative, especially on trivial matters.', ipa: '/ˈɡær.ə.ləs/' },
-  { _id: 'f8', word: 'Hypothesis', definition: 'A proposed explanation made on the basis of limited evidence.', ipa: '/haɪˈpɒθ.ə.sɪs/' },
-  { _id: 'f9', word: 'Impeccable', definition: 'In accordance with the highest standards; faultless.', ipa: '/ɪmˈpek.ə.bəl/' },
-  { _id: 'f10', word: 'Jubilant', definition: 'Feeling or expressing great happiness and triumph.', ipa: '/ˈdʒuː.bəl.ənt/' },
-  { _id: 'f11', word: 'Tenacious', definition: 'Tending to keep a firm hold of something; clinging or adhering closely.', ipa: '/təˈneɪ.ʃəs/' },
-  { _id: 'f12', word: 'Meticulous', definition: 'Showing great attention to detail; very careful and precise.', ipa: '/məˈtɪk.jə.ləs/' }
-]
 
 export default function VocabHunter() {
   const navigate = useNavigate()
@@ -26,8 +13,11 @@ export default function VocabHunter() {
 
   // Game configuration
   const [gameState, setGameState] = useState('config') // 'config' | 'loading' | 'playing' | 'gameover' | 'victory'
-  const [selectedCategory, setSelectedCategory] = useState('')
+  const [selectedCategory] = useState('')
   const [speedLevel, setSpeedLevel] = useState('medium') // 'easy' | 'medium' | 'hard'
+  const [vocabSource, setVocabSource] = useState('library') // 'library' | 'topic'
+  const [selectedTopic, setSelectedTopic] = useState('all')
+  const [libraryCount, setLibraryCount] = useState(null)
 
   // Word pool
   const [vocabPool, setVocabPool] = useState([])
@@ -38,6 +28,29 @@ export default function VocabHunter() {
   const [bubbles, setBubbles] = useState([]) // array of { id, word, ipa, x, y, isWrongClicked, isCorrect }
   const [lives, setLives] = useState(3)
   const [score, setScore] = useState(0)
+
+  // Probe library count on mount
+  useEffect(() => {
+    let isMounted = true
+    async function checkLibrary() {
+      try {
+        const res = await api.get('/vocabulary?limit=1')
+        if (isMounted && res.success) {
+          const total = typeof res.total === 'number' ? res.total : (res.count || 0)
+          setLibraryCount(total)
+          if (total < 4) {
+            setVocabSource('topic')
+          }
+        }
+      } catch (e) {
+        console.warn('Could not probe vocabulary count:', e)
+      }
+    }
+    checkLibrary()
+    return () => {
+      isMounted = false
+    }
+  }, [])
   const [streak, setStreak] = useState(0)
   const [isFrozen, setIsFrozen] = useState(false)
   const [timer, setTimer] = useState(90)
@@ -117,22 +130,31 @@ export default function VocabHunter() {
   const loadVocabulary = async () => {
     setGameState('loading')
     try {
-      const categoryParam = selectedCategory ? `&category=${selectedCategory}` : ''
-      const response = await api.get(`/vocabulary?limit=150${categoryParam}`)
-
       let loaded = []
-      if (response.success && response.data && response.data.length >= 4) {
-        loaded = response.data
+      if (vocabSource === 'topic') {
+        loaded = getCuratedTopicWords(selectedTopic)
       } else {
-        loaded = FALLBACK_WORDS
+        const categoryParam = selectedCategory ? `&category=${selectedCategory}` : ''
+        const response = await api.get(`/vocabulary?limit=150${categoryParam}`)
+
+        if (response.success && response.data && response.data.length >= 4) {
+          loaded = response.data
+        } else {
+          loaded = getCuratedTopicWords('all')
+        }
+      }
+
+      if (!loaded || loaded.length < 4) {
+        loaded = getCuratedTopicWords('all')
       }
 
       setVocabPool(loaded)
       startHunterGame(loaded)
     } catch (err) {
       console.error(err)
-      setVocabPool(FALLBACK_WORDS)
-      startHunterGame(FALLBACK_WORDS)
+      const fallback = getCuratedTopicWords('all')
+      setVocabPool(fallback)
+      startHunterGame(fallback)
     }
   }
 
@@ -321,7 +343,50 @@ export default function VocabHunter() {
 
           <div>
             <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
-              1. {t('games.selectSpeed', 'Select Falling Speed')}
+              1. {t('games.vocabSource', 'Nguồn từ vựng')}
+            </label>
+            <div className="speed-options-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
+              <div
+                className={`speed-card ${vocabSource === 'library' ? 'speed-card--active' : ''}`}
+                onClick={() => setVocabSource('library')}
+              >
+                <h4>📚 Thư viện của tôi</h4>
+                <span>{libraryCount !== null ? `${libraryCount} từ đã lưu` : 'Từ vựng cá nhân'}</span>
+              </div>
+              <div
+                className={`speed-card ${vocabSource === 'topic' ? 'speed-card--active' : ''}`}
+                onClick={() => setVocabSource('topic')}
+              >
+                <h4>✨ Đề xuất theo chủ đề</h4>
+                <span>Khám phá từ mới</span>
+              </div>
+            </div>
+          </div>
+
+          {vocabSource === 'topic' && (
+            <div>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+                2. Chủ đề khám phá
+              </label>
+              <div className="game-topic-chips">
+                {GAME_CURATED_TOPICS.map((topic) => (
+                  <button
+                    key={topic.slug}
+                    type="button"
+                    className={`game-topic-chip ${selectedTopic === topic.slug ? 'game-topic-chip--active' : ''}`}
+                    onClick={() => setSelectedTopic(topic.slug)}
+                  >
+                    <span className="material-symbols-outlined">{topic.icon}</span>
+                    <span>{topic.title}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+              {vocabSource === 'topic' ? '3.' : '2.'} {t('games.selectSpeed', 'Select Falling Speed')}
             </label>
             <div className="speed-options-grid">
               <div
@@ -540,7 +605,7 @@ export default function VocabHunter() {
       )}
 
       {(gameState === 'gameover' || gameState === 'victory') && (
-        <div className="hunter-config-modal" style={{ textAlign: 'center' }}>
+        <div className="hunter-config-modal hunter-config-modal--victory" style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '48px', marginBottom: '8px' }}>
             {gameState === 'victory' ? '🏆' : '💀'}
           </div>
@@ -564,6 +629,13 @@ export default function VocabHunter() {
               Exit to Hub
             </button>
           </div>
+
+          <GameVocabRecap
+            words={vocabPool}
+            defaultTheme={vocabSource === 'topic' && selectedTopic !== 'all' ? selectedTopic : 'Vocab Hunter'}
+            defaultCategory={selectedCategory || 'daily'}
+            sourceLabel={vocabSource === 'topic' ? `Đề xuất chủ đề: ${selectedTopic}` : 'Thư viện từ vựng'}
+          />
         </div>
       )}
     </div>

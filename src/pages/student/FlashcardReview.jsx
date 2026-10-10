@@ -7,8 +7,9 @@ import './FlashcardReview.css'
 export default function FlashcardReview() {
   const navigate = useNavigate()
   const { t } = useLanguage()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const categoryFilter = searchParams.get('category')
+  const reviewMode = searchParams.get('mode') || 'due' // 'due' | 'all'
 
   // Cards state
   const [cards, setCards] = useState([])
@@ -16,6 +17,7 @@ export default function FlashcardReview() {
   const [isFlipped, setIsFlipped] = useState(false)
   const [isDone, setIsDone] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [hasLibraryWords, setHasLibraryWords] = useState(false)
 
   // Slide animation state
   const [cardAnim, setCardAnim] = useState('') // '' | 'exiting' | 'entering'
@@ -24,14 +26,50 @@ export default function FlashcardReview() {
   // Session result tracking: { again, hard, good, easy }
   const [sessionStats, setSessionStats] = useState({ again: 0, hard: 0, good: 0, easy: 0 })
 
-  // Load cards due for review today via SRS endpoint
+  // Load cards due for review today via SRS endpoint or all cards
   useEffect(() => {
     async function loadCards() {
       try {
         setLoading(true)
         const categoryParam = categoryFilter ? `&category=${categoryFilter}` : ''
-        const res = await api.get(`/vocabulary/due-today?limit=50${categoryParam}`)
-        setCards(res.data.data || [])
+        const mode = searchParams.get('mode') || 'due'
+
+        let loaded = []
+        if (mode === 'all') {
+          const res = await api.get(`/vocabulary?limit=100${categoryParam}`)
+          loaded = Array.isArray(res?.data)
+            ? res.data
+            : Array.isArray(res?.data?.data)
+              ? res.data.data
+              : Array.isArray(res)
+                ? res
+                : []
+        } else {
+          const res = await api.get(`/vocabulary/due-today?limit=50${categoryParam}`)
+          const raw = Array.isArray(res?.data)
+            ? res.data
+            : Array.isArray(res?.data?.data)
+              ? res.data.data
+              : Array.isArray(res)
+                ? res
+                : []
+          loaded = raw
+
+          if (raw.length === 0) {
+            try {
+              const allRes = await api.get(`/vocabulary?limit=1${categoryParam}`)
+              const allRaw = Array.isArray(allRes?.data) ? allRes.data : []
+              if (allRaw.length > 0) setHasLibraryWords(true)
+            } catch {
+              // ignore
+            }
+          }
+        }
+
+        setCards(loaded)
+        setCurrentIndex(0)
+        setIsFlipped(false)
+        setIsDone(false)
       } catch (err) {
         console.error('Error loading flashcards:', err)
       } finally {
@@ -45,7 +83,7 @@ export default function FlashcardReview() {
       if ('speechSynthesis' in window) window.speechSynthesis.cancel()
       if (animTimeout.current) clearTimeout(animTimeout.current)
     }
-  }, [categoryFilter])
+  }, [categoryFilter, searchParams])
 
   const currentCard = cards[currentIndex]
   const totalCards  = cards.length
@@ -155,27 +193,57 @@ export default function FlashcardReview() {
             <span className="material-symbols-outlined">arrow_back</span>
             Back to Vocabulary
           </button>
-          <span className="flashcard-page__title">Flashcard Review</span>
+          <div className="flashcard-page__mode-toggle">
+            <button
+              className={`flashcard-page__mode-btn ${reviewMode === 'due' ? 'flashcard-page__mode-btn--active' : ''}`}
+              onClick={() => setSearchParams({ mode: 'due', ...(categoryFilter ? { category: categoryFilter } : {}) })}
+            >
+              Due Today
+            </button>
+            <button
+              className={`flashcard-page__mode-btn ${reviewMode === 'all' ? 'flashcard-page__mode-btn--active' : ''}`}
+              onClick={() => setSearchParams({ mode: 'all', ...(categoryFilter ? { category: categoryFilter } : {}) })}
+            >
+              All Library
+            </button>
+          </div>
           <span className="flashcard-page__counter" />
         </header>
 
         <div className="flashcard-page__empty">
           <div className="flashcard-page__empty-icon">
-            <span className="material-symbols-outlined">verified</span>
+            <span className="material-symbols-outlined">
+              {hasLibraryWords ? 'style' : 'verified'}
+            </span>
           </div>
           <h2 className="text-headline-md" style={{ color: 'var(--color-on-surface)' }}>
-            All caught up! 🎉
+            {hasLibraryWords
+              ? 'No Cards Due for SRS Review Today 🎉'
+              : 'All caught up! 🎉'}
           </h2>
-          <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', maxWidth: 360, textAlign: 'center', lineHeight: 1.6 }}>
-            No words are due for review today. Come back tomorrow or add more words to your vocabulary library!
+          <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', maxWidth: 440, textAlign: 'center', lineHeight: 1.6 }}>
+            {hasLibraryWords
+              ? 'None of your vocabulary words are currently due based on spaced repetition. You can still practice all words in your library anytime!'
+              : 'No words are due for review today. Come back tomorrow or add more words to your vocabulary library!'}
           </p>
-          <button
-            className="flashcard-complete__btn flashcard-complete__btn--primary"
-            onClick={() => navigate('/student/vocabulary')}
-          >
-            <span className="material-symbols-outlined">menu_book</span>
-            Go to My Vocabulary
-          </button>
+          <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', justifyContent: 'center', marginTop: '16px' }}>
+            {hasLibraryWords && (
+              <button
+                className="flashcard-complete__btn flashcard-complete__btn--primary"
+                onClick={() => setSearchParams({ mode: 'all', ...(categoryFilter ? { category: categoryFilter } : {}) })}
+              >
+                <span className="material-symbols-outlined">school</span>
+                Practice All Library Words
+              </button>
+            )}
+            <button
+              className="flashcard-complete__btn flashcard-complete__btn--outline"
+              onClick={() => navigate('/student/vocabulary')}
+            >
+              <span className="material-symbols-outlined">menu_book</span>
+              Go to My Vocabulary
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -267,7 +335,20 @@ export default function FlashcardReview() {
           <span className="material-symbols-outlined">arrow_back</span>
           Back to Vocabulary
         </button>
-        <span className="flashcard-page__title">Flashcard Review</span>
+        <div className="flashcard-page__mode-toggle">
+          <button
+            className={`flashcard-page__mode-btn ${reviewMode === 'due' ? 'flashcard-page__mode-btn--active' : ''}`}
+            onClick={() => setSearchParams({ mode: 'due', ...(categoryFilter ? { category: categoryFilter } : {}) })}
+          >
+            Due Today
+          </button>
+          <button
+            className={`flashcard-page__mode-btn ${reviewMode === 'all' ? 'flashcard-page__mode-btn--active' : ''}`}
+            onClick={() => setSearchParams({ mode: 'all', ...(categoryFilter ? { category: categoryFilter } : {}) })}
+          >
+            All Library
+          </button>
+        </div>
         <span className="flashcard-page__counter">
           {currentIndex + 1} / {totalCards}
         </span>

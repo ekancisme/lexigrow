@@ -6,6 +6,7 @@ import { cellsFor, gridFor } from './questGrid.js'
 import './DailyWordQuest.css'
 import confetti from 'canvas-confetti'
 import { useSound } from '../../hooks/useSound.jsx'
+import GameVocabRecap from '../../components/learning/GameVocabRecap.jsx'
 
 export default function DailyWordQuest() {
   const { t, language } = useLanguage(),
@@ -17,7 +18,7 @@ export default function DailyWordQuest() {
   const [inputDraft, setInputDraft] = useState(null)
   const inputRef = useRef(null)
   const { play: playFanfare } = useSound('/sounds/fanfare.mp3', { volume: 0.5 })
-  const [flippedCells, setFlippedCells] = useState(new Set())
+  const [, setFlippedCells] = useState(new Set())
   const prevSolvedRef = useRef([])
   const word = quest?.words.find((w) => w.id === selected) || quest?.words[0]
   const wordKeys = word ? cellsFor(word) : []
@@ -348,6 +349,23 @@ export default function DailyWordQuest() {
               </div>
             </section>
           </div>
+          {quest?.words && quest.words.length > 0 && (
+            <div style={{ maxWidth: '980px', margin: '0 auto', width: '100%' }}>
+              <GameVocabRecap
+                words={quest.words.map((w) => ({
+                  word: w.word,
+                  definition: language === 'vi' && w.clueVi ? w.clueVi : (w.clue || w.clueVi || ''),
+                  exampleSentence: w.example || '',
+                  theme: 'Daily Quest',
+                  category: 'daily',
+                }))}
+                title={language === 'vi' ? 'Bộ từ vựng ô chữ hôm nay' : 'Today’s Crossword Vocabulary'}
+                sourceLabel="Daily Word Quest"
+                defaultTheme="Daily Quest"
+                defaultCategory="daily"
+              />
+            </div>
+          )}
           <p className="quest-muted">{t('quest.learningNote')}</p>
         </>
       )}

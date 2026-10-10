@@ -63,7 +63,17 @@ export const getVocabulary = asyncHandler(async (req, res) => {
  * @access  Private (student)
  */
 export const createVocabulary = asyncHandler(async (req, res) => {
-  const { word, category, theme } = req.body
+  const {
+    word,
+    category,
+    theme,
+    definition,
+    ipa,
+    partOfSpeech,
+    exampleSentence,
+    synonyms,
+    antonyms
+  } = req.body
 
   if (!word) {
     throw new (await import('../utils/ErrorResponse.js')).default('Please provide a word', 400)
@@ -83,29 +93,47 @@ export const createVocabulary = asyncHandler(async (req, res) => {
     definition: { $ne: '' }
   }).select('ipa partOfSpeech definition exampleSentence synonyms antonyms')
 
-  let enriched = {}
+  let enriched = {
+    ipa: ipa || '',
+    partOfSpeech: partOfSpeech || '',
+    definition: definition || '',
+    exampleSentence: exampleSentence || '',
+    synonyms: Array.isArray(synonyms) ? synonyms : [],
+    antonyms: Array.isArray(antonyms) ? antonyms : [],
+  }
+
   if (existingEnriched) {
     enriched = {
-      ipa: existingEnriched.ipa,
-      partOfSpeech: existingEnriched.partOfSpeech,
-      definition: existingEnriched.definition,
-      exampleSentence: existingEnriched.exampleSentence,
-      synonyms: existingEnriched.synonyms,
-      antonyms: existingEnriched.antonyms,
+      ipa: enriched.ipa || existingEnriched.ipa,
+      partOfSpeech: enriched.partOfSpeech || existingEnriched.partOfSpeech,
+      definition: enriched.definition || existingEnriched.definition,
+      exampleSentence: enriched.exampleSentence || existingEnriched.exampleSentence,
+      synonyms: enriched.synonyms.length ? enriched.synonyms : (existingEnriched.synonyms || []),
+      antonyms: enriched.antonyms.length ? enriched.antonyms : (existingEnriched.antonyms || []),
     }
-  } else {
-    // Call Groq Llama to enrich
+  } else if (!enriched.definition) {
+    // Call Groq Llama to enrich only if definition is missing
     const { enrichWordsList } = await import('../services/ai.service.js')
     const enrichedList = await enrichWordsList([normalizedWord])
     if (enrichedList && enrichedList.length > 0) {
-      enriched = enrichedList[0]
+      enriched = {
+        ipa: enriched.ipa || enrichedList[0].ipa || '',
+        partOfSpeech: enriched.partOfSpeech || enrichedList[0].partOfSpeech || '',
+        definition: enriched.definition || enrichedList[0].definition || '',
+        exampleSentence: enriched.exampleSentence || enrichedList[0].exampleSentence || '',
+        synonyms: enriched.synonyms.length ? enriched.synonyms : (enrichedList[0].synonyms || []),
+        antonyms: enriched.antonyms.length ? enriched.antonyms : (enrichedList[0].antonyms || []),
+      }
     }
   }
+
+  const validCategories = ['academic', 'business', 'scientific', 'daily']
+  const finalCategory = validCategories.includes(category) ? category : 'daily'
 
   const newWord = await Vocabulary.create({
     word: normalizedWord,
     student: req.user._id,
-    category: category || 'daily',
+    category: finalCategory,
     theme: theme || 'General',
     masteryLevel: 'new',
     ipa: enriched.ipa || '',
@@ -114,9 +142,68 @@ export const createVocabulary = asyncHandler(async (req, res) => {
     exampleSentence: enriched.exampleSentence || '',
     synonyms: enriched.synonyms || [],
     antonyms: enriched.antonyms || [],
+    nextReviewDate: null,
   })
 
   res.status(201).json({ success: true, data: newWord })
+})
+
+/**
+ * @desc    Add multiple vocabulary words at once (from game / topic exploration)
+ * @route   POST /api/vocabulary/batch
+ * @access  Private (student)
+ */
+export const batchCreateVocabulary = asyncHandler(async (req, res) => {
+  const { words, category, theme } = req.body
+
+  if (!Array.isArray(words) || words.length === 0) {
+    throw new (await import('../utils/ErrorResponse.js')).default('Please provide a list of words', 400)
+  }
+
+  const existingWords = await Vocabulary.find({
+    student: req.user._id,
+  }).select('word').lean()
+  const existingSet = new Set(existingWords.map((w) => w.word.toLowerCase()))
+
+  const validCategories = ['academic', 'business', 'scientific', 'daily']
+  const toCreate = []
+
+  for (const item of words) {
+    const rawWord = typeof item === 'string' ? item : item?.word
+    if (!rawWord) continue
+    const norm = String(rawWord).trim().toLowerCase()
+    if (!norm || existingSet.has(norm)) continue
+    existingSet.add(norm)
+
+    const cat = item.category || category || 'daily'
+    const finalCategory = validCategories.includes(cat) ? cat : 'daily'
+
+    toCreate.push({
+      word: norm,
+      student: req.user._id,
+      category: finalCategory,
+      theme: item.theme || theme || 'Game Discovery',
+      masteryLevel: 'new',
+      ipa: item.ipa || '',
+      partOfSpeech: item.partOfSpeech || '',
+      definition: item.definition || item.meaningVi || item.meaning || '',
+      exampleSentence: item.exampleSentence || (Array.isArray(item.examples) ? item.examples[0] : '') || '',
+      synonyms: Array.isArray(item.synonyms) ? item.synonyms : [],
+      antonyms: Array.isArray(item.antonyms) ? item.antonyms : [],
+      nextReviewDate: null,
+    })
+  }
+
+  let created = []
+  if (toCreate.length > 0) {
+    created = await Vocabulary.insertMany(toCreate)
+  }
+
+  res.status(201).json({
+    success: true,
+    count: created.length,
+    data: created,
+  })
 })
 
 /**
@@ -290,17 +377,21 @@ export const updateMastery = asyncHandler(async (req, res) => {
  * @access  Private (student)
  */
 export const getDueToday = asyncHandler(async (req, res) => {
-  const { limit = 20 } = req.query
+  const { limit = 20, category, mode } = req.query
   const now = new Date()
 
-  const words = await Vocabulary.find({
-    student: req.user._id,
-    $or: [
+  const query = { student: req.user._id }
+  if (category) query.category = category
+
+  if (mode !== 'all') {
+    query.$or = [
       { nextReviewDate: null },
       { nextReviewDate: { $lte: now } },
-    ],
-  })
-    .sort({ nextReviewDate: 1 })
+    ]
+  }
+
+  const words = await Vocabulary.find(query)
+    .sort({ nextReviewDate: 1, createdAt: -1 })
     .limit(Number(limit))
 
   res.status(200).json({

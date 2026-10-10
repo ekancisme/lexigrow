@@ -182,19 +182,20 @@ export default function VocabularyLibrary() {
         </div>
         <div style={{ display: 'flex', gap: 'var(--spacing-sm)', alignItems: 'center', flexWrap: 'wrap' }}>
           {/* Start Review Button */}
-          {dueCount > 0 && (
-            <button
-              className="vocab-lib__review-btn"
-              onClick={() => {
-                const targetQuery = selectedCategory ? `?category=${selectedCategory}` : ''
-                navigate(`/student/vocabulary/review${targetQuery}`)
-              }}
-            >
-              <span className="material-symbols-outlined">style</span>
-              <span>{t('vocabLib.reviewNow', 'Review Due Cards')}</span>
-              <span className="vocab-lib__review-badge">{dueCount}</span>
-            </button>
-          )}
+          <button
+            className={`vocab-lib__review-btn ${dueCount === 0 ? 'vocab-lib__review-btn--all' : ''}`}
+            onClick={() => {
+              const targetQuery = selectedCategory
+                ? `?category=${selectedCategory}${dueCount > 0 ? '' : '&mode=all'}`
+                : dueCount > 0 ? '' : '?mode=all'
+              navigate(`/student/vocabulary/review${targetQuery}`)
+            }}
+            title={dueCount > 0 ? 'Ôn tập các thẻ đến hạn theo lịch SRS' : 'Ôn tập toàn bộ từ vựng bằng flashcard'}
+          >
+            <span className="material-symbols-outlined">style</span>
+            <span>{dueCount > 0 ? t('vocabLib.reviewNow', 'Review Due Cards') : t('vocabLib.reviewAll', 'Ôn tập Flashcard')}</span>
+            {dueCount > 0 && <span className="vocab-lib__review-badge">{dueCount}</span>}
+          </button>
           <button
             className="vocab-lib__game-btn"
             onClick={() => navigate('/student/game')}
