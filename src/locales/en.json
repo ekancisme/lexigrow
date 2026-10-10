@@ -318,10 +318,19 @@
     "filterLabel": "Filter by proficiency:",
     "allLevels": "All Levels",
     "level": "Level",
-    "targetWordsLabel": "Target Vocabulary Words:",
+    "targetWordsLabel": "Target Vocabulary Words",
     "startSession": "Start Session",
     "reviewSession": "Practice Again",
-    "completed": "Completed"
+    "completed": "Completed",
+    "completedTab": "Completed",
+    "allProgressTab": "All Progress",
+    "newWordsBadge": "New Words",
+    "roundLabel": "Round",
+    "startNewRound": "Learn New Words",
+    "noCompletedTitle": "No Completed Topics Yet",
+    "noCompletedDesc": "Select any topic from 'All Progress' to begin learning and building your vocabulary!",
+    "noResultsTitle": "No Matching Vocabulary Sets Found",
+    "noResultsDesc": "Try searching with different keywords or adjusting the proficiency filter."
   },
   "garden": {
     "title": "Growth Garden",

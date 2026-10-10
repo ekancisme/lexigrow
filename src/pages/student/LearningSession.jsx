@@ -7,6 +7,7 @@ import PracticeStep from '../../components/learning/PracticeStep'
 import RevisionComparison from '../../components/learning/RevisionComparison'
 import SessionCompletionModal from '../../components/learning/SessionCompletionModal'
 import AIFeedbackReview from './AIFeedbackReview'
+import { getTopicRound } from '../../data/topicVocabularyRounds.js'
 import './LearningSession.css'
 
 const readStoredDraft = (key) => {
@@ -456,10 +457,12 @@ export default function LearningSession() {
       try {
         const requestedSet = searchParams.get('set')
         const isForce = searchParams.get('force') === 'true' || searchParams.get('forceSet') === 'true'
+        const isAdvance = searchParams.get('advanceTopic') === 'true'
+        const roundParam = parseInt(searchParams.get('round') || '1', 10)
         const startPayload = adaptive
           ? { adaptive: true }
           : requestedSet
-            ? { learningSetSlug: requestedSet, forceSet: isForce }
+            ? { learningSetSlug: requestedSet, forceSet: isForce, advanceTopic: isAdvance, round: roundParam }
             : { advance: true }
 
         const res = await api.post('/sessions/start', startPayload)
@@ -526,7 +529,17 @@ export default function LearningSession() {
                 words: mappedWords,
               })
             } else if (preset) {
-              setLearningSet(preset)
+              const roundData = getTopicRound(slug, roundParam)
+              if (roundData) {
+                setLearningSet({
+                  title: roundData.name || title,
+                  level: preset.level || 'B1',
+                  promptTopic: roundData.promptTopic || promptTopic,
+                  words: roundData.words,
+                })
+              } else {
+                setLearningSet(preset)
+              }
             }
           }
 
@@ -536,12 +549,20 @@ export default function LearningSession() {
               navigate('/student/writing?adaptive=true', { replace: true })
             }
           } else if (payload.learningSetSlug && searchParams.get('set') !== payload.learningSetSlug) {
-            navigate(`/student/writing?set=${payload.learningSetSlug}`, { replace: true })
+            const roundQuery = roundParam > 1 ? `&round=${roundParam}` : ''
+            navigate(`/student/writing?set=${payload.learningSetSlug}${roundQuery}`, { replace: true })
           }
         }
       } catch {
         // Fallback to offline/mock set
-        const selected = defaultLearningSets[setSlug] || defaultLearningSets['daily-life']
+        const roundData = getTopicRound(setSlug, roundParam)
+        const selected = roundData ? {
+          slug: setSlug,
+          title: roundData.name || defaultLearningSets[setSlug]?.title || setSlug,
+          level: defaultLearningSets[setSlug]?.level || 'B1',
+          promptTopic: roundData.promptTopic,
+          words: roundData.words,
+        } : (defaultLearningSets[setSlug] || defaultLearningSets['daily-life'])
         setLearningSet(selected)
         try {
           const localDraft = readStoredDraft(draftStorageKey)
@@ -557,7 +578,7 @@ export default function LearningSession() {
       }
     }
     initSession()
-  }, [adaptive, draftStorageKey, setSlug])
+  }, [adaptive, draftStorageKey, setSlug, searchParams])
 
   const words = learningSet.words || []
 

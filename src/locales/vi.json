@@ -318,10 +318,19 @@
     "filterLabel": "Lọc theo trình độ:",
     "allLevels": "Tất cả trình độ",
     "level": "Cấp độ",
-    "targetWordsLabel": "Từ vựng mục tiêu:",
+    "targetWordsLabel": "Từ vựng mục tiêu",
     "startSession": "Bắt đầu học",
     "reviewSession": "Luyện tập lại",
-    "completed": "Đã hoàn thành"
+    "completed": "Đã hoàn thành",
+    "completedTab": "Đã hoàn thành",
+    "allProgressTab": "Tất cả tiến độ",
+    "newWordsBadge": "Bộ từ mới",
+    "roundLabel": "Vòng",
+    "startNewRound": "Học từ mới",
+    "noCompletedTitle": "Chưa có chủ đề nào hoàn thành",
+    "noCompletedDesc": "Hãy chọn một chủ đề trong tab Tất cả tiến độ để bắt đầu học và tích lũy từ vựng!",
+    "noResultsTitle": "Không tìm thấy bộ từ vựng phù hợp",
+    "noResultsDesc": "Hãy thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc trình độ."
   },
   "garden": {
     "title": "Vườn Tri Thức",

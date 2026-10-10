@@ -88,6 +88,20 @@ export const getLearningHistory = asyncHandler(async (req, res) => {
     .slice(0, 5)
     .map(([topic, count]) => ({ topic, count }))
 
+  const completedSlugStats = await LearningSession.aggregate([
+    {
+      $match: {
+        student: studentId,
+        status: 'completed',
+        learningSetSlug: { $type: 'string', $ne: '' },
+      },
+    },
+    { $group: { _id: '$learningSetSlug', count: { $sum: 1 } } },
+  ])
+  const completedSlugCounts = Object.fromEntries(
+    completedSlugStats.map(({ _id, count }) => [_id, count])
+  )
+
   res.json({
     success: true,
     data: {
@@ -98,6 +112,8 @@ export const getLearningHistory = asyncHandler(async (req, res) => {
       dailyActivity: dailyActivity.slice(-30),
       topTopics,
       recentSessions: sessions.slice(0, 10).map(publicLearning),
+      completedSlugs: Object.keys(completedSlugCounts),
+      completedSlugCounts,
       hasHistory: sessions.length > 0,
     },
   })

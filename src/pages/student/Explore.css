@@ -82,8 +82,22 @@
 .explore__filter-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
+}
+
+.explore__filter-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.explore__filter-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .explore__filter-label {
@@ -120,6 +134,66 @@
   color: #ffffff;
   border-color: var(--color-primary, #005bbf);
   box-shadow: 0 4px 12px rgba(0, 91, 191, 0.2);
+}
+
+.explore__status-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: var(--color-surface-container-low, #f1f5f9);
+  border: 1px solid var(--color-outline-variant, #cbd5e1);
+  border-radius: 12px;
+}
+
+.explore__status-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: var(--color-outline, #64748b);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.explore__status-tab-btn .material-symbols-outlined {
+  font-size: 17px;
+}
+
+.explore__status-tab-btn:hover {
+  color: var(--color-primary, #005bbf);
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.explore__status-tab-btn--active {
+  background: var(--color-surface, #ffffff) !important;
+  color: var(--color-primary, #005bbf) !important;
+  box-shadow: 0 2px 8px rgba(0, 91, 191, 0.12);
+}
+
+.explore__status-tab-btn--completed.explore__status-tab-btn--active {
+  color: #15803d !important;
+}
+
+.explore__completed-counter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #22c55e;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
 }
 
 /* ── Cards Grid ── */
@@ -319,5 +393,96 @@
   background: #dcfce7;
   border-color: #4ade80;
   color: #166534;
+}
+
+/* ── New Round Badge & Styles ── */
+.topic-card--new-round {
+  border-color: #93c5fd;
+  background: linear-gradient(180deg, var(--color-surface, #ffffff) 0%, rgba(219, 234, 254, 0.2) 100%);
+}
+
+.topic-card__badge--new-round {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 8px;
+  letter-spacing: 0.02em;
+  border: 1px solid #bfdbfe;
+}
+
+.topic-card__badge--new-round .material-symbols-outlined {
+  font-size: 14px;
+  color: #2563eb;
+}
+
+.topic-card__start-btn--new-round {
+  background: linear-gradient(135deg, #005bbf 0%, #1a73e8 100%);
+  box-shadow: 0 4px 14px rgba(0, 91, 191, 0.25);
+}
+
+.topic-card__start-btn--new-round:hover {
+  background: linear-gradient(135deg, #004ba0 0%, #1557b0 100%);
+  box-shadow: 0 6px 18px rgba(0, 91, 191, 0.35);
+}
+
+/* ── Empty State ── */
+.explore__empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 64px 24px;
+  background: var(--color-surface, #ffffff);
+  border: 1.5px dashed var(--color-outline-variant, #cbd5e1);
+  border-radius: 20px;
+  margin: 16px 0;
+  grid-column: 1 / -1;
+}
+
+.explore__empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: var(--color-surface-container-low, #f1f5f9);
+  color: var(--color-primary, #005bbf);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.explore__empty-icon .material-symbols-outlined {
+  font-size: 32px;
+}
+
+.explore__empty-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-on-surface, #0f172a);
+  margin: 0 0 8px 0;
+}
+
+.explore__empty-desc {
+  font-size: 14px;
+  color: var(--color-outline, #64748b);
+  max-width: 440px;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+}
+
+.explore__empty-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
 }
 

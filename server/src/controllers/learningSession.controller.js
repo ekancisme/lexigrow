@@ -16,6 +16,7 @@ import {
   integer,
 } from '../utils/learning.js'
 import { selectAdaptiveTargets, getCompetencySnapshot, invalidateCompetencySnapshot } from '../services/competency.service.js'
+import { getTopicRoundBackend, TOPIC_VOCABULARY_ROUNDS } from '../constants/topicVocabularyRounds.js'
 export const startLearningSession = asyncHandler(async (req, res) => {
   const active = await LearningSession.findOne({
     student: req.user._id,
@@ -168,6 +169,24 @@ export const startLearningSession = asyncHandler(async (req, res) => {
   if (assignment) {
     if (!assignment.learningSetId) fail('Assignment has no learning set')
     set = await LearningSet.findOne({ _id: assignment.learningSetId, status: 'published' }).lean()
+  } else if (requestedSlug && (req.body.forceSet === true || req.body.advanceTopic === true || (Number(req.body.round) > 1))) {
+    set = await LearningSet.findOne({ slug: requestedSlug, status: 'published' }).lean()
+    if (!set && TOPIC_VOCABULARY_ROUNDS[requestedSlug]) {
+      const defaultRound = getTopicRoundBackend(requestedSlug, Number(req.body.round) || 1)
+      set = {
+        _id: new mongoose.Types.ObjectId(),
+        slug: requestedSlug,
+        title: defaultRound?.name || requestedSlug,
+        level: 'B1',
+        items: (defaultRound?.words || []).map((w) => ({
+          word: w.word,
+          partOfSpeech: w.partOfSpeech || 'noun',
+          definitionVi: w.definitionVi || '',
+          phonetic: w.ipa || '',
+          exampleSentences: [w.exampleSentence].filter(Boolean),
+        })),
+      }
+    }
   } else if (wantsAdvance || !requestedSlug || (completedSlugs.has(requestedSlug) && !req.body.forceSet)) {
     // Student wants to advance, no slug specified, OR requested set was already completed (and not forceSet):
     // Choose next uncompleted published set matching their level or next in sequence!
@@ -204,6 +223,8 @@ export const startLearningSession = asyncHandler(async (req, res) => {
   if (!set || set.items.length < 1)
     fail('No published learning set available', 404)
 
+  const roundNum = Number.isInteger(Number(req.body.round)) && Number(req.body.round) > 0 ? Number(req.body.round) : null
+
   // Query student's vocabulary to know which words they already learned or practiced
   const studentVocab = await Vocabulary.find({ student: req.user._id })
     .select('word masteryLevel reviewCount')
@@ -214,10 +235,47 @@ export const startLearningSession = asyncHandler(async (req, res) => {
       .map((v) => v.word.toLowerCase())
   )
 
-  // Filter out recently practiced words AND already mastered words
-  let availableItems = (set.items || []).filter(
-    (item) => !recentlyPracticedWords.has(item.word.toLowerCase()) && !masteredOrPracticedWords.has(item.word.toLowerCase())
-  )
+  let availableItems = []
+  if (roundNum && TOPIC_VOCABULARY_ROUNDS[set.slug]) {
+    const roundData = getTopicRoundBackend(set.slug, roundNum)
+    if (roundData?.words?.length) {
+      availableItems = roundData.words.map((w) => ({
+        word: w.word,
+        partOfSpeech: w.partOfSpeech || 'noun',
+        definitionVi: w.definitionVi || '',
+        phonetic: w.ipa || '',
+        exampleSentences: [w.exampleSentence].filter(Boolean),
+      }))
+    }
+  }
+
+  if (availableItems.length < 3) {
+    // Filter out recently practiced words AND already mastered words
+    availableItems = (set.items || []).filter(
+      (item) => !recentlyPracticedWords.has(item.word.toLowerCase()) && !masteredOrPracticedWords.has(item.word.toLowerCase())
+    )
+  }
+
+  if (availableItems.length < 3 && TOPIC_VOCABULARY_ROUNDS[set.slug]) {
+    // If set ran out of unpracticed items, check next rounds of this topic
+    const rounds = TOPIC_VOCABULARY_ROUNDS[set.slug] || []
+    for (const r of rounds) {
+      const candidates = r.words.filter(
+        (w) => !recentlyPracticedWords.has(w.word.toLowerCase()) && !masteredOrPracticedWords.has(w.word.toLowerCase())
+      )
+      if (candidates.length >= 3) {
+        availableItems = candidates.map((w) => ({
+          word: w.word,
+          partOfSpeech: w.partOfSpeech || 'noun',
+          definitionVi: w.definitionVi || '',
+          phonetic: w.ipa || '',
+          exampleSentences: [w.exampleSentence].filter(Boolean),
+        }))
+        break
+      }
+    }
+  }
+
   if (availableItems.length < 3) {
     availableItems = (set.items || []).filter(
       (item) => !recentlyPracticedWords.has(item.word.toLowerCase())

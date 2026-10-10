@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
+import { TOPIC_VOCABULARY_ROUNDS, getTopicRound } from '../../data/topicVocabularyRounds.js'
 import './Explore.css'
 
 const fallbackTopicSets = [
@@ -98,9 +99,11 @@ export default function Explore() {
   const navigate = useNavigate()
   const { t } = useLanguage()
   const [selectedLevel, setSelectedLevel] = useState('ALL')
+  const [statusTab, setStatusTab] = useState('all') // 'all' | 'completed'
   const [searchQuery, setSearchQuery] = useState('')
   const [topicSets, setTopicSets] = useState(fallbackTopicSets)
   const [completedSlugs, setCompletedSlugs] = useState(new Set())
+  const [completedCounts, setCompletedCounts] = useState({})
 
   useEffect(() => {
     let isMounted = true
@@ -116,14 +119,26 @@ export default function Explore() {
 
         // 1. Process completed sessions
         const completed = new Set()
+        const countMap = {}
         if (historyRes.status === 'fulfilled') {
-          const historyData = historyRes.value?.data
-          const sessions = historyData?.recentSessions || []
-          for (const s of sessions) {
-            if (s.learningSetSlug) completed.add(s.learningSetSlug)
+          const historyData = historyRes.value?.data?.data || historyRes.value?.data
+          if (historyData?.completedSlugCounts && Object.keys(historyData.completedSlugCounts).length > 0) {
+            Object.entries(historyData.completedSlugCounts).forEach(([slug, count]) => {
+              completed.add(slug)
+              countMap[slug] = count
+            })
+          } else {
+            const sessions = historyData?.recentSessions || []
+            for (const s of sessions) {
+              if (s.learningSetSlug) {
+                completed.add(s.learningSetSlug)
+                countMap[s.learningSetSlug] = (countMap[s.learningSetSlug] || 0) + 1
+              }
+            }
           }
         }
         setCompletedSlugs(completed)
+        setCompletedCounts(countMap)
 
         // 2. Process published learning sets from server
         if (setsRes.status === 'fulfilled') {
@@ -169,12 +184,52 @@ export default function Explore() {
     }
   }, [])
 
-  const filteredSets = topicSets.filter((set) => {
+  const processedSets = topicSets.map((topic) => {
+    const isCompleted = completedSlugs.has(topic.slug)
+    if (statusTab === 'all' && isCompleted) {
+      // In "All Progress" view, completed topics generate the next round of vocabulary
+      const completedCount = completedCounts[topic.slug] || 1
+      const totalRounds = TOPIC_VOCABULARY_ROUNDS[topic.slug]?.length || 3
+      const nextRoundNumber = (completedCount % totalRounds) + 1
+      const roundData = getTopicRound(topic.slug, nextRoundNumber)
+      if (roundData && roundData.words?.length) {
+        const newWords = roundData.words.map((w) => ({
+          word: w.word,
+          meaning: w.meaningVi || w.meaning || '',
+        }))
+        return {
+          ...topic,
+          isCompleted: true,
+          isNewRound: true,
+          roundNumber: nextRoundNumber,
+          displayWords: newWords,
+          displayDesc: roundData.promptTopic || topic.description,
+        }
+      }
+    }
+    return {
+      ...topic,
+      isCompleted,
+      isNewRound: false,
+      roundNumber: 1,
+      displayWords: topic.words,
+      displayDesc: topic.description,
+    }
+  })
+
+  const filteredSets = processedSets.filter((set) => {
+    if (statusTab === 'completed' && !set.isCompleted) {
+      return false
+    }
     const matchesLevel = selectedLevel === 'ALL' || set.level === selectedLevel
+    const q = searchQuery.toLowerCase().trim()
+    if (!q) return matchesLevel
+
     const matchesSearch =
-      set.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      set.titleVi.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      set.words.some((w) => w.word.toLowerCase().includes(searchQuery.toLowerCase()))
+      set.title.toLowerCase().includes(q) ||
+      set.titleVi.toLowerCase().includes(q) ||
+      set.displayWords.some((w) => w.word.toLowerCase().includes(q) || (w.meaning && w.meaning.toLowerCase().includes(q))) ||
+      set.words.some((w) => w.word.toLowerCase().includes(q))
     return matchesLevel && matchesSearch
   })
 
@@ -205,94 +260,169 @@ export default function Explore() {
         </div>
       </section>
 
-      {/* Level Filters */}
+      {/* Level Filters & Status Tabs */}
       <div className="explore__filter-row">
-        <span className="explore__filter-label">{t('explore.filterLabel', 'Filter by proficiency:')}</span>
-        <div className="explore__level-buttons">
-          {['ALL', 'A2', 'B1', 'B2'].map((lvl) => (
+        <div className="explore__filter-left">
+          <span className="explore__filter-label">{t('explore.filterLabel', 'Filter by proficiency:')}</span>
+          <div className="explore__level-buttons">
+            {['ALL', 'A2', 'B1', 'B2'].map((lvl) => (
+              <button
+                key={lvl}
+                className={`explore__lvl-btn ${selectedLevel === lvl ? 'explore__lvl-btn--active' : ''}`}
+                onClick={() => setSelectedLevel(lvl)}
+              >
+                {lvl === 'ALL' ? t('explore.allLevels', 'All Levels') : `${t('explore.level', 'Level')} ${lvl}`}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="explore__filter-right">
+          <div className="explore__status-tabs">
             <button
-              key={lvl}
-              className={`explore__lvl-btn ${selectedLevel === lvl ? 'explore__lvl-btn--active' : ''}`}
-              onClick={() => setSelectedLevel(lvl)}
+              type="button"
+              className={`explore__status-tab-btn ${statusTab === 'all' ? 'explore__status-tab-btn--active' : ''}`}
+              onClick={() => setStatusTab('all')}
             >
-              {lvl === 'ALL' ? t('explore.allLevels', 'All Levels') : `${t('explore.level', 'Level')} ${lvl}`}
+              <span className="material-symbols-outlined">grid_view</span>
+              {t('explore.allProgressTab', 'Tất cả tiến độ')}
             </button>
-          ))}
+            <button
+              type="button"
+              className={`explore__status-tab-btn explore__status-tab-btn--completed ${statusTab === 'completed' ? 'explore__status-tab-btn--active' : ''}`}
+              onClick={() => setStatusTab('completed')}
+            >
+              <span className="material-symbols-outlined">task_alt</span>
+              {t('explore.completedTab', 'Đã hoàn thành')}
+              {completedSlugs.size > 0 && (
+                <span className="explore__completed-counter">{completedSlugs.size}</span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Topic Cards Grid */}
-      <section className="explore__grid">
-        {filteredSets.map((topic) => {
-          const isCompleted = completedSlugs.has(topic.slug)
+      {/* Topic Cards Grid or Empty State */}
+      {filteredSets.length === 0 ? (
+        <div className="explore__empty-state card-base">
+          <div className="explore__empty-icon">
+            <span className="material-symbols-outlined">
+              {statusTab === 'completed' ? 'task_alt' : 'sentiment_dissatisfied'}
+            </span>
+          </div>
+          <h3 className="explore__empty-title">
+            {statusTab === 'completed'
+              ? t('explore.noCompletedTitle', 'Chưa có chủ đề nào hoàn thành')
+              : t('explore.noResultsTitle', 'Không tìm thấy bộ từ vựng phù hợp')}
+          </h3>
+          <p className="explore__empty-desc">
+            {statusTab === 'completed'
+              ? t('explore.noCompletedDesc', 'Hãy chọn một chủ đề trong tab Tất cả tiến độ để bắt đầu học và tích lũy từ vựng!')
+              : t('explore.noResultsDesc', 'Hãy thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc trình độ.')}
+          </p>
+          {statusTab === 'completed' && (
+            <button
+              type="button"
+              className="btn-primary explore__empty-action"
+              onClick={() => {
+                setStatusTab('all')
+                setSelectedLevel('ALL')
+              }}
+            >
+              <span className="material-symbols-outlined">explore</span>
+              {t('explore.allProgressTab', 'Tất cả tiến độ')}
+            </button>
+          )}
+        </div>
+      ) : (
+        <section className="explore__grid">
+          {filteredSets.map((topic) => {
+            const isCompletedView = statusTab === 'completed'
 
-          return (
-            <article key={topic.slug} className={`topic-card card-base ${isCompleted ? 'topic-card--completed' : ''}`}>
-              <div className="topic-card__header">
-                <div className="topic-card__icon-box">
-                  <span className="material-symbols-outlined">{topic.materialIcon}</span>
-                </div>
-                <div className="topic-card__header-meta">
-                  {isCompleted && (
-                    <span className="topic-card__badge--completed">
-                      <span className="material-symbols-outlined">check_circle</span>
-                      {t('explore.completed', 'Đã hoàn thành')}
+            return (
+              <article
+                key={topic.slug}
+                className={`topic-card card-base ${isCompletedView ? 'topic-card--completed' : ''} ${topic.isNewRound ? 'topic-card--new-round' : ''}`}
+              >
+                <div className="topic-card__header">
+                  <div className="topic-card__icon-box">
+                    <span className="material-symbols-outlined">{topic.materialIcon}</span>
+                  </div>
+                  <div className="topic-card__header-meta">
+                    {isCompletedView ? (
+                      <span className="topic-card__badge--completed">
+                        <span className="material-symbols-outlined">check_circle</span>
+                        {t('explore.completed', 'Đã hoàn thành')}
+                      </span>
+                    ) : topic.isNewRound ? (
+                      <span className="topic-card__badge--new-round">
+                        <span className="material-symbols-outlined">auto_awesome</span>
+                        {t('explore.newWordsBadge', 'Bộ từ mới')} • {t('explore.roundLabel', 'Vòng')} {topic.roundNumber}
+                      </span>
+                    ) : null}
+                    <span className={`topic-card__level-badge topic-card__level-badge--${topic.levelColor}`}>
+                      {topic.level}
                     </span>
+                    <span className="topic-card__time">
+                      <span className="material-symbols-outlined">schedule</span>
+                      {topic.timeEstimate}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="topic-card__content">
+                  <h3 className="topic-card__title">{topic.title}</h3>
+                  <h4 className="topic-card__sub">{topic.titleVi}</h4>
+                  <p className="topic-card__desc">{topic.displayDesc}</p>
+                </div>
+
+                {/* Target Words Preview */}
+                <div className="topic-card__words">
+                  <span className="topic-card__words-label">
+                    {topic.displayWords.length} {t('explore.targetWordsLabel', 'Từ vựng mục tiêu')}:
+                  </span>
+                  <div className="topic-card__chips">
+                    {topic.displayWords.map((w) => (
+                      <span key={w.word} className="topic-card__word-chip">
+                        <strong>{w.word}</strong>
+                        {w.meaning && <span className="topic-card__word-meaning">({w.meaning})</span>}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="topic-card__footer">
+                  {isCompletedView ? (
+                    <button
+                      className="btn-secondary topic-card__start-btn topic-card__start-btn--completed"
+                      onClick={() => navigate(`/student/writing?set=${topic.slug}&force=true`)}
+                    >
+                      <span className="material-symbols-outlined">restart_alt</span>
+                      {t('explore.reviewSession', 'Luyện tập lại')} ({topic.timeEstimate})
+                    </button>
+                  ) : topic.isNewRound ? (
+                    <button
+                      className="btn-primary topic-card__start-btn topic-card__start-btn--new-round"
+                      onClick={() => navigate(`/student/writing?set=${topic.slug}&round=${topic.roundNumber}&advanceTopic=true`)}
+                    >
+                      <span className="material-symbols-outlined">play_circle</span>
+                      {t('explore.startSession', 'Bắt đầu học')} ({topic.timeEstimate})
+                    </button>
+                  ) : (
+                    <button
+                      className="btn-primary topic-card__start-btn"
+                      onClick={() => navigate(`/student/writing?set=${topic.slug}`)}
+                    >
+                      <span className="material-symbols-outlined">play_circle</span>
+                      {t('explore.startSession', 'Bắt đầu học')} ({topic.timeEstimate})
+                    </button>
                   )}
-                  <span className={`topic-card__level-badge topic-card__level-badge--${topic.levelColor}`}>
-                    {topic.level}
-                  </span>
-                  <span className="topic-card__time">
-                    <span className="material-symbols-outlined">schedule</span>
-                    {topic.timeEstimate}
-                  </span>
                 </div>
-              </div>
-
-              <div className="topic-card__content">
-                <h3 className="topic-card__title">{topic.title}</h3>
-                <h4 className="topic-card__sub">{topic.titleVi}</h4>
-                <p className="topic-card__desc">{topic.description}</p>
-              </div>
-
-              {/* Target Words Preview */}
-              <div className="topic-card__words">
-                <span className="topic-card__words-label">
-                  {topic.words.length} {t('explore.targetWordsLabel', 'Từ vựng mục tiêu')}:
-                </span>
-                <div className="topic-card__chips">
-                  {topic.words.map((w) => (
-                    <span key={w.word} className="topic-card__word-chip">
-                      <strong>{w.word}</strong>
-                      {w.meaning && <span className="topic-card__word-meaning">({w.meaning})</span>}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="topic-card__footer">
-                {isCompleted ? (
-                  <button
-                    className="btn-secondary topic-card__start-btn topic-card__start-btn--completed"
-                    onClick={() => navigate(`/student/writing?set=${topic.slug}&force=true`)}
-                  >
-                    <span className="material-symbols-outlined">restart_alt</span>
-                    {t('explore.reviewSession', 'Luyện tập lại')} ({topic.timeEstimate})
-                  </button>
-                ) : (
-                  <button
-                    className="btn-primary topic-card__start-btn"
-                    onClick={() => navigate(`/student/writing?set=${topic.slug}`)}
-                  >
-                    <span className="material-symbols-outlined">play_circle</span>
-                    {t('explore.startSession', 'Bắt đầu học')} ({topic.timeEstimate})
-                  </button>
-                )}
-              </div>
-            </article>
-          )
-        })}
-      </section>
+              </article>
+            )
+          })}
+        </section>
+      )}
     </div>
   )
 }
