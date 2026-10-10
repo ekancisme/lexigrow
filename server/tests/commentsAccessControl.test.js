@@ -4,6 +4,7 @@ import request from 'supertest'
 const state = vi.hoisted(() => ({
   user: { _id: 'student1', role: 'student' },
   classExists: false,
+  classMemberships: [],
 }))
 
 vi.mock('../src/config/db.js', () => ({
@@ -52,6 +53,9 @@ vi.mock('../src/models/Comment.js', () => {
 vi.mock('../src/models/Class.js', () => ({
   default: {
     exists: vi.fn().mockImplementation(() => Promise.resolve(state.classExists)),
+    find: vi.fn().mockImplementation(() => ({
+      select: () => ({ lean: () => Promise.resolve(state.classMemberships) }),
+    })),
   },
 }))
 
@@ -76,6 +80,7 @@ describe('Comments API Object-Level Authorization (BOLA/IDOR)', () => {
   beforeEach(() => {
     state.user = { _id: 'student1', role: 'student' }
     state.classExists = false
+    state.classMemberships = []
   })
 
   it('allows the essay author (student) to read and create comments', async () => {
@@ -107,6 +112,7 @@ describe('Comments API Object-Level Authorization (BOLA/IDOR)', () => {
   it('allows a teacher who teaches the student in an active class to read and create comments', async () => {
     state.user = { _id: 'teacher1', role: 'teacher' }
     state.classExists = true
+    state.classMemberships = [{ teacher: 'teacher1' }]
 
     const getRes = await request(app).get('/api/comments/essay/essay1').expect(200)
     expect(getRes.body.success).toBe(true)
@@ -121,6 +127,7 @@ describe('Comments API Object-Level Authorization (BOLA/IDOR)', () => {
   it('rejects a teacher who does NOT teach the student in an active class', async () => {
     state.user = { _id: 'unrelated_teacher', role: 'teacher' }
     state.classExists = false
+    state.classMemberships = [{ teacher: 'teacher1' }]
 
     const getRes = await request(app).get('/api/comments/essay/essay1').expect(403)
     expect(getRes.body.success).toBe(false)

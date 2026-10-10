@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('../src/models/Class.js', () => ({
-  default: { exists: vi.fn() },
+  default: { exists: vi.fn(), find: vi.fn() },
 }))
 vi.mock('../src/models/Essay.js', () => ({
   default: { findById: vi.fn() },
@@ -21,10 +21,36 @@ describe('canAccessEssay', () => {
   })
 
   it('grants teachers only for an active class containing the student', async () => {
-    Class.exists.mockResolvedValueOnce(true)
+    Class.find.mockReturnValue({
+      select: () => ({ lean: async () => [{ teacher: 't1' }] }),
+    })
     expect(await canAccessEssay({ _id: 't1', role: 'teacher' }, { student: 's1' })).toBe(true)
-    Class.exists.mockResolvedValueOnce(false)
+    Class.find.mockReturnValue({
+      select: () => ({ lean: async () => [{ teacher: 't1' }] }),
+    })
     expect(await canAccessEssay({ _id: 't2', role: 'teacher' }, { student: 's1' })).toBe(false)
+  })
+
+  it('denies legacy essays when a student belongs to multiple active classes', async () => {
+    Class.find.mockReturnValue({
+      select: () => ({
+        lean: async () => [{ teacher: 't1' }, { teacher: 't2' }],
+      }),
+    })
+
+    await expect(
+      canAccessEssay({ _id: 't1', role: 'teacher' }, { student: 's1' })
+    ).resolves.toBe(false)
+  })
+
+  it('denies legacy essays if active class membership cannot be checked', async () => {
+    Class.find.mockImplementation(() => {
+      throw new Error('database unavailable')
+    })
+
+    await expect(
+      canAccessEssay({ _id: 't1', role: 'teacher' }, { student: 's1' })
+    ).resolves.toBe(false)
   })
 
   it('grants parents only for their own children', async () => {

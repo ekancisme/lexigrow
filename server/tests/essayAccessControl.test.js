@@ -5,6 +5,7 @@ import request from 'supertest'
 const state = vi.hoisted(() => ({
   user: { _id: 'user1', role: 'student' },
   classExists: false,
+  classMemberships: [],
 }))
 
 vi.mock('../src/config/db.js', () => ({
@@ -59,6 +60,7 @@ import app from '../src/index.js'
 describe('Essay object-level authorization (BOLA/IDOR)', () => {
   beforeEach(() => {
     state.classExists = false
+    state.classMemberships = []
     state.user = { _id: 'user1', role: 'student' }
   })
 
@@ -77,9 +79,24 @@ describe('Essay object-level authorization (BOLA/IDOR)', () => {
 
   it('allows a teacher whose active class contains the student (200)', async () => {
     state.user = { _id: 'teacherY', role: 'teacher' }
-    state.classExists = true
+    state.classMemberships = [{ teacher: 'teacherY' }]
+    const Class = (await import('../src/models/Class.js')).default
+    Class.find.mockImplementation(() => ({
+      select: () => ({ lean: () => Promise.resolve(state.classMemberships) }),
+    }))
     const res = await request(app).get('/api/essays/essay1').expect(200)
     expect(res.body.success).toBe(true)
+  })
+
+  it('denies a teacher when a legacy essay student belongs to another active class too (403)', async () => {
+    state.user = { _id: 'teacherY', role: 'teacher' }
+    state.classMemberships = [{ teacher: 'teacherY' }, { teacher: 'teacherZ' }]
+    const Class = (await import('../src/models/Class.js')).default
+    Class.find.mockImplementation(() => ({
+      select: () => ({ lean: () => Promise.resolve(state.classMemberships) }),
+    }))
+    const res = await request(app).get('/api/essays/essay1').expect(403)
+    expect(res.body.success).toBe(false)
   })
 
   it('denies a parent who is not the student\'s parent (403)', async () => {

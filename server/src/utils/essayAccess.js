@@ -90,7 +90,14 @@ export const canAccessEssay = async (user, essay) => {
       if (essay.class) {
         return Boolean(await Class.exists({ ...classFilter, _id: idOf(essay.class) }))
       }
-      return canTeacherAccessStudentProfile(user, studentId)
+      try {
+        return await canTeacherAccessStudentProfile(user, studentId)
+      } catch {
+        // Legacy essays have no class ownership to disambiguate. If the
+        // membership lookup fails, deny access rather than falling back to
+        // any active class shared with this student.
+        return false
+      }
     }
     case 'parent':
       return (
