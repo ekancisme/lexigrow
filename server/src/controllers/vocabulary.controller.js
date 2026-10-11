@@ -378,6 +378,10 @@ export const updateMastery = asyncHandler(async (req, res) => {
  */
 export const getDueToday = asyncHandler(async (req, res) => {
   const { limit = 20, category, mode } = req.query
+  const requestedLimit = Number(limit)
+  const safeLimit = Number.isInteger(requestedLimit)
+    ? Math.max(1, Math.min(100, requestedLimit))
+    : 20
   const now = new Date()
 
   const query = { student: req.user._id }
@@ -392,7 +396,7 @@ export const getDueToday = asyncHandler(async (req, res) => {
 
   const words = await Vocabulary.find(query)
     .sort({ nextReviewDate: 1, createdAt: -1 })
-    .limit(Number(limit))
+    .limit(safeLimit)
 
   res.status(200).json({
     success: true,

@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import api from '../../services/api.js'
+import { fetchAllVocabularyWords } from '../../utils/fetchAllVocabularyWords.js'
 import './GameVocabRecap.css'
 
 export default function GameVocabRecap({
@@ -16,24 +17,38 @@ export default function GameVocabRecap({
   const [batchLoading, setBatchLoading] = useState(false)
   const [toastMessage, setToastMessage] = useState('')
   const [isLibraryLoaded, setIsLibraryLoaded] = useState(false)
+  const [libraryLoadError, setLibraryLoadError] = useState(false)
 
-  // Fetch current user library words to know what's already saved
+  const loadLibrary = async () => {
+    setIsLibraryLoaded(false)
+    setLibraryLoadError(false)
+    try {
+      const words = await fetchAllVocabularyWords(api)
+      setExistingWords(new Set(words.map((w) => w.word.toLowerCase().trim())))
+    } catch (err) {
+      console.warn('Could not load vocabulary library for recap comparison', err)
+      setLibraryLoadError(true)
+    } finally {
+      setIsLibraryLoaded(true)
+    }
+  }
+
   useEffect(() => {
     let isMounted = true
-    async function loadLibrary() {
+    const load = async () => {
+      setIsLibraryLoaded(false)
+      setLibraryLoadError(false)
       try {
-        const res = await api.get('/vocabulary?limit=300')
-        if (isMounted && res.success && Array.isArray(res.data)) {
-          const set = new Set(res.data.map((w) => w.word.toLowerCase().trim()))
-          setExistingWords(set)
-        }
+        const words = await fetchAllVocabularyWords(api)
+        if (isMounted) setExistingWords(new Set(words.map((w) => w.word.toLowerCase().trim())))
       } catch (err) {
         console.warn('Could not load vocabulary library for recap comparison', err)
+        if (isMounted) setLibraryLoadError(true)
       } finally {
         if (isMounted) setIsLibraryLoaded(true)
       }
     }
-    loadLibrary()
+    load()
     return () => {
       isMounted = false
     }
@@ -72,7 +87,7 @@ export default function GameVocabRecap({
   // Handle single word add
   const handleAddSingle = async (item) => {
     const norm = item.word.trim().toLowerCase()
-    if (loadingWords.has(norm) || existingWords.has(norm) || addedWords.has(norm)) return
+    if (!isLibraryLoaded || libraryLoadError || loadingWords.has(norm) || existingWords.has(norm) || addedWords.has(norm)) return
 
     setLoadingWords((prev) => new Set([...prev, norm]))
     try {
@@ -106,7 +121,7 @@ export default function GameVocabRecap({
 
   // Handle bulk add
   const handleAddAll = async () => {
-    if (batchLoading || newWords.length === 0) return
+    if (batchLoading || !isLibraryLoaded || libraryLoadError || newWords.length === 0) return
 
     setBatchLoading(true)
     try {
@@ -126,10 +141,15 @@ export default function GameVocabRecap({
 
       const res = await api.post('/vocabulary/batch', payload)
       if (res.success) {
-        const newlyAdded = new Set(newWords.map((w) => w.word.trim().toLowerCase()))
+        const createdWords = Array.isArray(res.data) ? res.data : []
+        const newlyAdded = new Set(createdWords.map((w) => w.word.trim().toLowerCase()))
         setAddedWords((prev) => new Set([...prev, ...newlyAdded]))
-        showToast(`Đã lưu ${res.count || newlyAdded.size} từ mới vào thư viện! 🎉`)
-        if (onWordAdded) onWordAdded(newWords)
+        await loadLibrary()
+        const insertedCount = Number.isFinite(res.count) ? res.count : createdWords.length
+        showToast(insertedCount > 0
+          ? `Đã lưu ${insertedCount} từ mới vào thư viện! 🎉`
+          : 'Các từ này đã có trong thư viện.')
+        if (createdWords.length && onWordAdded) onWordAdded(createdWords)
       }
     } catch (err) {
       console.error('Batch add failed', err)
@@ -154,9 +174,18 @@ export default function GameVocabRecap({
             <span>{sourceLabel || 'Từ vựng trong game'}</span>
           </div>
           <h3 className="game-vocab-recap__title">{title}</h3>
-          <p className="game-vocab-recap__subtitle">
-            {uniqueWords.length} từ đã xuất hiện · {newWords.length} từ mới có thể lưu vào Thư viện của bạn
+          <p className="game-vocab-recap__subtitle" aria-live="polite">
+            {!isLibraryLoaded
+              ? 'Đang kiểm tra thư viện từ vựng…'
+              : libraryLoadError
+                ? 'Không thể kiểm tra thư viện. Hãy tải lại trước khi lưu từ.'
+                : `${uniqueWords.length} từ đã xuất hiện · ${newWords.length} từ mới có thể lưu vào Thư viện của bạn`}
           </p>
+          {libraryLoadError && (
+            <button className="game-vocab-recap__add-btn" onClick={loadLibrary}>
+              Thử tải lại thư viện
+            </button>
+          )}
         </div>
 
         {/* Batch Save Button */}
@@ -164,7 +193,7 @@ export default function GameVocabRecap({
           <button
             className="game-vocab-recap__bulk-btn"
             onClick={handleAddAll}
-            disabled={batchLoading}
+            disabled={batchLoading || !isLibraryLoaded || libraryLoadError}
           >
             {batchLoading ? (
               <>
@@ -178,12 +207,12 @@ export default function GameVocabRecap({
               </>
             )}
           </button>
-        ) : (
+        ) : isLibraryLoaded && !libraryLoadError ? (
           <div className="game-vocab-recap__all-saved-pill">
             <span className="material-symbols-outlined">check_circle</span>
             <span>Tất cả từ đã có trong thư viện</span>
           </div>
-        )}
+        ) : null}
       </div>
 
       {/* Word Grid */}
@@ -236,7 +265,7 @@ export default function GameVocabRecap({
                   <button
                     className="game-vocab-recap__add-btn"
                     onClick={() => handleAddSingle(item)}
-                    disabled={isLoading || batchLoading || !isLibraryLoaded}
+                    disabled={isLoading || batchLoading || !isLibraryLoaded || libraryLoadError}
                   >
                     {isLoading ? (
                       <>

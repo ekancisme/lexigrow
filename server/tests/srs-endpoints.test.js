@@ -89,6 +89,31 @@ describe('GET /api/vocabulary/due-today', () => {
     expect(chainMock.limit).toHaveBeenCalledWith(5)
   })
 
+  it.each([
+    ['0', 1],
+    ['-4', 1],
+    ['1000', 100],
+    ['not-a-number', 20],
+  ])('clamps unsafe limit %s to %i', async (limit, expected) => {
+    Vocabulary.find.mockReturnValue(mockChainQuery([]))
+
+    await request(app).get(`/api/vocabulary/due-today?limit=${limit}`).expect(200)
+
+    const chainMock = Vocabulary.find.mock.results[0].value
+    expect(chainMock.limit).toHaveBeenCalledWith(expected)
+  })
+
+  it('allows all-library mode while applying the safe result cap', async () => {
+    Vocabulary.find.mockReturnValue(mockChainQuery([]))
+
+    await request(app).get('/api/vocabulary/due-today?mode=all&limit=500').expect(200)
+
+    const findArg = Vocabulary.find.mock.calls[0][0]
+    const chainMock = Vocabulary.find.mock.results[0].value
+    expect(findArg.$or).toBeUndefined()
+    expect(chainMock.limit).toHaveBeenCalledWith(100)
+  })
+
   it('defaults to limit 20 when not provided', async () => {
     Vocabulary.find.mockReturnValue(mockChainQuery([]))
 

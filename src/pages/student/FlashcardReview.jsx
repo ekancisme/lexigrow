@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
+import { fetchAllVocabularyWords } from '../../utils/fetchAllVocabularyWords.js'
 import './FlashcardReview.css'
 
 export default function FlashcardReview() {
@@ -18,33 +19,32 @@ export default function FlashcardReview() {
   const [isDone, setIsDone] = useState(false)
   const [loading, setLoading] = useState(true)
   const [hasLibraryWords, setHasLibraryWords] = useState(false)
+  const [ratingSubmitting, setRatingSubmitting] = useState(false)
+  const [isAdvancing, setIsAdvancing] = useState(false)
+  const [ratingError, setRatingError] = useState('')
 
   // Slide animation state
   const [cardAnim, setCardAnim] = useState('') // '' | 'exiting' | 'entering'
   const animTimeout = useRef(null)
+  const advancingRef = useRef(false)
 
   // Session result tracking: { again, hard, good, easy }
   const [sessionStats, setSessionStats] = useState({ again: 0, hard: 0, good: 0, easy: 0 })
 
   // Load cards due for review today via SRS endpoint or all cards
   useEffect(() => {
+    let isCurrent = true
     async function loadCards() {
       try {
         setLoading(true)
-        const categoryParam = categoryFilter ? `&category=${categoryFilter}` : ''
+        setHasLibraryWords(false)
         const mode = searchParams.get('mode') || 'due'
 
         let loaded = []
         if (mode === 'all') {
-          const res = await api.get(`/vocabulary?limit=100${categoryParam}`)
-          loaded = Array.isArray(res?.data)
-            ? res.data
-            : Array.isArray(res?.data?.data)
-              ? res.data.data
-              : Array.isArray(res)
-                ? res
-                : []
+          loaded = await fetchAllVocabularyWords(api, { category: categoryFilter })
         } else {
+          const categoryParam = categoryFilter ? `&category=${encodeURIComponent(categoryFilter)}` : ''
           const res = await api.get(`/vocabulary/due-today?limit=50${categoryParam}`)
           const raw = Array.isArray(res?.data)
             ? res.data
@@ -58,27 +58,29 @@ export default function FlashcardReview() {
           if (raw.length === 0) {
             try {
               const allRes = await api.get(`/vocabulary?limit=1${categoryParam}`)
-              const allRaw = Array.isArray(allRes?.data) ? allRes.data : []
-              if (allRaw.length > 0) setHasLibraryWords(true)
+              if (isCurrent && (allRes?.total > 0 || allRes?.data?.total > 0)) setHasLibraryWords(true)
             } catch {
               // ignore
             }
           }
         }
 
-        setCards(loaded)
-        setCurrentIndex(0)
-        setIsFlipped(false)
-        setIsDone(false)
+        if (isCurrent) {
+          setCards(loaded)
+          setCurrentIndex(0)
+          setIsFlipped(false)
+          setIsDone(false)
+        }
       } catch (err) {
         console.error('Error loading flashcards:', err)
       } finally {
-        setLoading(false)
+        if (isCurrent) setLoading(false)
       }
     }
     loadCards()
 
     return () => {
+      isCurrent = false
       // Cleanup speech on unmount
       if ('speechSynthesis' in window) window.speechSynthesis.cancel()
       if (animTimeout.current) clearTimeout(animTimeout.current)
@@ -107,41 +109,58 @@ export default function FlashcardReview() {
   // ── Flip card ──
   const handleFlip = (e) => {
     e?.stopPropagation()
+    if (ratingSubmitting || advancingRef.current) return
     setIsFlipped(prev => !prev)
   }
 
   // ── Move to next card with animation ──
   const goToNext = useCallback(() => {
+    if (advancingRef.current) return
+    advancingRef.current = true
+    setIsAdvancing(true)
+    setRatingError('')
     setCardAnim('exiting')
     animTimeout.current = setTimeout(() => {
       setIsFlipped(false)
       const next = currentIndex + 1
       if (next >= totalCards) {
         setIsDone(true)
+        advancingRef.current = false
+        setIsAdvancing(false)
       } else {
         setCurrentIndex(next)
         setCardAnim('entering')
-        animTimeout.current = setTimeout(() => setCardAnim(''), 280)
+        animTimeout.current = setTimeout(() => {
+          setCardAnim('')
+          advancingRef.current = false
+          setIsAdvancing(false)
+        }, 280)
       }
     }, 280)
   }, [currentIndex, totalCards])
 
   // ── SRS rating handler ──
   const handleRate = async (rating) => {
-    if (!currentCard) return
+    if (!currentCard || ratingSubmitting || advancingRef.current) return
     const ratingKey = { 1: 'again', 2: 'hard', 3: 'good', 4: 'easy' }[rating]
+    setRatingSubmitting(true)
+    setRatingError('')
     try {
       await api.post('/vocabulary/review', { wordId: currentCard._id, rating })
       setSessionStats(prev => ({ ...prev, [ratingKey]: prev[ratingKey] + 1 }))
+      goToNext()
     } catch (err) {
       console.error('Error submitting review:', err)
+      setRatingError('Could not save your review. The card is still here—please try again.')
+    } finally {
+      setRatingSubmitting(false)
     }
-    goToNext()
   }
 
   // ── Previous card ──
   const handlePrev = () => {
     if (currentIndex === 0) return
+    setRatingError('')
     setIsFlipped(false)
     setCurrentIndex(prev => prev - 1)
   }
@@ -521,24 +540,27 @@ export default function FlashcardReview() {
 
         {/* ── Action Buttons (only show when flipped) ── */}
         {isFlipped ? (
-          <div className="flashcard-actions">
-            <button className="flashcard-action-btn flashcard-action-btn--again" onClick={() => handleRate(1)}>
+          <>
+          {ratingError && <p className="flashcard-review-error" role="alert">{ratingError}</p>}
+          <div className="flashcard-actions" aria-busy={ratingSubmitting || isAdvancing}>
+            <button className="flashcard-action-btn flashcard-action-btn--again" onClick={() => handleRate(1)} disabled={ratingSubmitting || isAdvancing}>
               <span className="material-symbols-outlined">replay</span>
               {t('flashcards.again', 'Again')}
             </button>
-            <button className="flashcard-action-btn flashcard-action-btn--hard" onClick={() => handleRate(2)}>
+            <button className="flashcard-action-btn flashcard-action-btn--hard" onClick={() => handleRate(2)} disabled={ratingSubmitting || isAdvancing}>
               <span className="material-symbols-outlined">sentiment_dissatisfied</span>
               {t('flashcards.hard', 'Hard')}
             </button>
-            <button className="flashcard-action-btn flashcard-action-btn--good" onClick={() => handleRate(3)}>
+            <button className="flashcard-action-btn flashcard-action-btn--good" onClick={() => handleRate(3)} disabled={ratingSubmitting || isAdvancing}>
               <span className="material-symbols-outlined">sentiment_satisfied</span>
               {t('flashcards.good', 'Good')}
             </button>
-            <button className="flashcard-action-btn flashcard-action-btn--easy" onClick={() => handleRate(4)}>
+            <button className="flashcard-action-btn flashcard-action-btn--easy" onClick={() => handleRate(4)} disabled={ratingSubmitting || isAdvancing}>
               <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>verified</span>
               {t('flashcards.easy', 'Easy')}
             </button>
           </div>
+          </>
         ) : (
           <p className="flashcard-tap-hint">
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>info</span>
@@ -551,12 +573,12 @@ export default function FlashcardReview() {
           <button
             className="flashcard-nav-btn"
             onClick={handlePrev}
-            disabled={currentIndex === 0}
+            disabled={currentIndex === 0 || ratingSubmitting || isAdvancing}
           >
             <span className="material-symbols-outlined">arrow_back_ios</span>
             {t('common.previous', 'Previous')}
           </button>
-          <button className="flashcard-nav-btn" onClick={handleSkip}>
+          <button className="flashcard-nav-btn" onClick={handleSkip} disabled={ratingSubmitting || isAdvancing}>
             {t('games.scrambleSkip', 'Skip')}
             <span className="material-symbols-outlined">arrow_forward_ios</span>
           </button>
