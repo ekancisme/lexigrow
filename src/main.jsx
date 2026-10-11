@@ -8,6 +8,12 @@ import { ModalProvider } from './contexts/ModalContext.jsx'
 import { LanguageProvider } from './contexts/LanguageContext.jsx'
 import './styles/global.css'
 
+// Auto-recover stale tabs when chunk hashes change after a deployment
+window.addEventListener('vite:preloadError', (event) => {
+  event.preventDefault()
+  window.location.reload()
+})
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>

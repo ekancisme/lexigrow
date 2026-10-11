@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import gsap from 'gsap'
+import './ArcadeCommon.css'
 import './GameHub.css'
 import QuestGardenCard from './QuestGardenCard.jsx'
 

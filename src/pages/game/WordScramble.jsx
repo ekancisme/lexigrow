@@ -5,6 +5,7 @@ import api from '../../services/api.js'
 import confetti from 'canvas-confetti'
 import GameVocabRecap from '../../components/learning/GameVocabRecap.jsx'
 import { getCuratedTopicWords, GAME_CURATED_TOPICS } from '../../utils/gameVocabHelper.js'
+import './ArcadeCommon.css'
 import './WordScramble.css'
 
 export default function WordScramble() {
@@ -232,7 +233,7 @@ export default function WordScramble() {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+            <label className="config-section-label">
               1. {t('games.vocabSource', 'Nguồn từ vựng')}
             </label>
             <div className="speed-options-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
@@ -255,7 +256,7 @@ export default function WordScramble() {
 
           {vocabSource === 'topic' && (
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+              <label className="config-section-label">
                 2. Chủ đề khám phá
               </label>
               <div className="game-topic-chips">
@@ -275,7 +276,7 @@ export default function WordScramble() {
           )}
 
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+            <label className="config-section-label">
               {vocabSource === 'topic' ? '3.' : '2.'} {t('games.selectRounds', 'Select Puzzle Count')}
             </label>
             <div className="speed-options-grid">

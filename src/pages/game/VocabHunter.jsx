@@ -342,7 +342,7 @@ export default function VocabHunter() {
           </div>
 
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+            <label className="config-section-label">
               1. {t('games.vocabSource', 'Nguồn từ vựng')}
             </label>
             <div className="speed-options-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
@@ -365,7 +365,7 @@ export default function VocabHunter() {
 
           {vocabSource === 'topic' && (
             <div>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+              <label className="config-section-label">
                 2. Chủ đề khám phá
               </label>
               <div className="game-topic-chips">
@@ -385,7 +385,7 @@ export default function VocabHunter() {
           )}
 
           <div>
-            <label style={{ display: 'block', marginBottom: '8px', fontSize: '13px', fontFamily: 'JetBrains Mono', fontWeight: 700, textTransform: 'uppercase', color: 'var(--color-on-surface-variant)' }}>
+            <label className="config-section-label">
               {vocabSource === 'topic' ? '3.' : '2.'} {t('games.selectSpeed', 'Select Falling Speed')}
             </label>
             <div className="speed-options-grid">

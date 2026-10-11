@@ -1,12 +1,12 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { io } from 'socket.io-client'
 import { useAuth } from '../contexts/AuthContext.jsx'
+import { getSocket, connectSocket } from '../services/socket.js'
 import chatService from '../services/chat.service.js'
 
 export function useChat(room = 'support') {
   const { user } = useAuth()
   const [messages, setMessages] = useState([])
-  const [isConnected, setIsConnected] = useState(false)
+  const [isConnected, setIsConnected] = useState(() => Boolean(getSocket()?.connected))
   const [error, setError] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const socketRef = useRef(null)
@@ -16,45 +16,45 @@ export function useChat(room = 'support') {
   useEffect(() => {
     if (!user) return
 
-    const socket = io({
-      withCredentials: true,
-      transports: ['websocket', 'polling'],
-      reconnection: true,
-      reconnectionAttempts: 5,
-    })
-
+    const socket = getSocket() || connectSocket()
     socketRef.current = socket
 
-    socket.on('connect', () => {
+    const handleConnect = () => {
       setIsConnected(true)
       setError(null)
-      // Join the chat room
       socket.emit('join_chat_room', room)
-    })
+    }
 
-    socket.on('disconnect', () => {
+    const handleDisconnect = () => {
       setIsConnected(false)
-    })
+    }
 
-    socket.on('connect_error', (err) => {
-      setError('Không thể kết nối đến máy chủ chat.')
-      console.error('Socket connection error:', err)
-    })
-
-    socket.on('chat_message', (message) => {
+    const handleChatMessage = (message) => {
       setMessages((prev) => {
         // Avoid duplicates
         if (prev.some((m) => m._id === message._id)) return prev
         return [...prev, message]
       })
-    })
+    }
 
-    socket.on('chat_error', (data) => {
+    const handleChatError = (data) => {
       setError(data.message)
-    })
+    }
+
+    if (socket.connected) {
+      socket.emit('join_chat_room', room)
+    }
+
+    socket.on('connect', handleConnect)
+    socket.on('disconnect', handleDisconnect)
+    socket.on('chat_message', handleChatMessage)
+    socket.on('chat_error', handleChatError)
 
     return () => {
-      socket.disconnect()
+      socket.off('connect', handleConnect)
+      socket.off('disconnect', handleDisconnect)
+      socket.off('chat_message', handleChatMessage)
+      socket.off('chat_error', handleChatError)
     }
   }, [user, room])
 

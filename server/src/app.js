@@ -105,6 +105,10 @@ if (fs.existsSync(distPath)) {
     maxAge: '1y',
     immutable: true
   }))
+  // Never fallback to index.html for missing static assets under /assets
+  app.use('/assets', (req, res) => {
+    res.status(404).type('text/plain').send('Asset not found')
+  })
   app.use(express.static(distPath, {
     setHeaders: (res, filePath) => {
       if (filePath.endsWith('.html')) {
@@ -116,6 +120,10 @@ if (fs.existsSync(distPath)) {
   }))
   app.use((req, res, next) => {
     if ((req.method === 'GET' || req.method === 'HEAD') && !req.path.startsWith('/api')) {
+      // Do not return index.html for missing file requests (e.g. .css, .js, .png)
+      if (path.extname(req.path)) {
+        return res.status(404).type('text/plain').send('File not found')
+      }
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
       res.setHeader('Pragma', 'no-cache')
       res.setHeader('Expires', '0')
