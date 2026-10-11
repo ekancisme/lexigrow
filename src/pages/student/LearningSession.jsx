@@ -55,6 +55,7 @@ const enrichLessonWords = (words = [], slug = '', level = '') => {
       ...curated,
       ...word,
       _id: word.wordId || word._id || `w_${word.word}_${idx}`,
+      topicSlug: slug || curated.topicSlug || '',
       ipa: word.ipa || word.phonetic || curated.ipa || '',
       partOfSpeech: word.partOfSpeech || curated.partOfSpeech || '',
       level: word.level || curated.level || level,
@@ -962,6 +963,8 @@ export default function LearningSession() {
       {currentStep === 'lesson' && (
         <WordLesson
           words={words}
+          topicSlug={learningSet?.slug || setSlug}
+          topicTitle={learningSet?.title}
           onComplete={() => handleStepChange('practice')}
           onBack={() => navigate('/student/dashboard')}
         />
