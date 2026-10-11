@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken'
 import request from 'supertest'
 import router, { resolveQuestSource } from '../src/routes/dailyQuest.routes.js'
 import DailyQuest from '../src/models/DailyQuest.js'
+import ExperienceEvent from '../src/models/ExperienceEvent.js'
 import User from '../src/models/User.js'
 import Vocabulary from '../src/models/Vocabulary.js'
 import { wordCells } from '../src/services/crossword.service.js'
@@ -170,6 +171,7 @@ describe('Daily Quest API with MongoDB', () => {
       .expect(200)
     expect(retry.body.data.completedAt).toBeTruthy()
     expect(retry.body.data.reward).toBe(1)
+    expect(await ExperienceEvent.countDocuments({ student: student._id, source: 'daily_quest', points: 20 })).toBe(1)
     expect(retry.body.data.words[0].answer).toBeTruthy()
     const summary = await request(app)
       .get('/quests/summary')

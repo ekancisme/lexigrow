@@ -13,6 +13,14 @@ const connectDB = async () => {
   try {
     const conn = await mongoose.connect(uri)
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`)
+
+    // These unique indexes enforce XP idempotency and 24-hour announcement suppression
+    // even when automatic Mongoose index creation is disabled in production.
+    const [ExperienceEvent, AnnouncementDismissal] = await Promise.all([
+      import('../models/ExperienceEvent.js').then((m) => m.default),
+      import('../models/AnnouncementDismissal.js').then((m) => m.default),
+    ])
+    await Promise.all([ExperienceEvent.createIndexes(), AnnouncementDismissal.createIndexes()])
     
     // Auto verify legacy users
     try {

@@ -90,7 +90,8 @@
     "newClass": "New Class",
     "linkStudent": "Link Student",
     "measuredGrowth": "Measured Growth",
-    "viewingStudent": "Viewing student"
+    "viewingStudent": "Viewing student",
+    "announcements": "Announcements"
   },
   "header": {
     "searchStudent": "Search students or metrics...",
@@ -268,6 +269,15 @@
     "saved": "Draft saved"
   },
   "games": {
+    "xpPracticeOnly": "Practice only · no XP reward",
+    "playerLevel": "Level",
+    "cefrLevel": "English level",
+    "weeklyRanking": "Weekly ranking",
+    "notRankedYet": "Not ranked yet",
+    "weeklyExperience": "Experience this week",
+    "currentLevel": "Current level",
+    "level": "Level",
+    "totalExperience": "Total experience earned",
     "hubTitle": "LexiGrow Play Zone",
     "hubSubtitle": "Expand your vocabulary naturally through interactive, high-retention mini-games.",
     "playNow": "Play Now",
@@ -366,7 +376,27 @@
     "evidenceWallDesc": "Authentic sentences composed in your essays and verified by AI as contextually accurate.",
     "confidence": "Confidence",
     "writtenOn": "Written on",
-    "masteredStandard": "Mastered Standard Met"
+    "masteredStandard": "Mastered Standard Met",
+    "tabLeaderboard": "Leaderboard",
+    "leaderboard": {
+      "title": "Weekly leaderboard",
+      "subtitle": "Earn experience through verified learning activity. Rankings reset every Monday.",
+      "level": "Level",
+      "totalXp": "Total experience",
+      "weeklyXp": "This week",
+      "scope": "Leaderboard scope",
+      "global": "All learners",
+      "myClass": "My class",
+      "selectClass": "Select class",
+      "noClasses": "No active classes",
+      "class": "Class",
+      "weekOf": "Week of",
+      "you": "You",
+      "rank": "Your rank",
+      "empty": "No experience earned this week yet. Complete a review or daily quest to appear here.",
+      "rules": "Verified rewards: first vocabulary review each day (+5 XP) and daily quest completion (+20 XP). Arcade scores do not grant XP yet.",
+      "loadError": "Could not load the leaderboard."
+    }
   },
   "onboarding": {
     "badge": "AI Personalized Roadmap Setup",
@@ -759,5 +789,40 @@
     "emptySub": "We will get back to you as soon as possible.",
     "system": "System",
     "inputPlaceholder": "Type a message..."
+  },
+  "announcements": {
+    "close": "Close",
+    "suppress24h": "Don't show again for 24 hours",
+    "admin": {
+      "title": "Announcements",
+      "subtitle": "Create bilingual announcements shown to selected signed-in users.",
+      "edit": "Edit announcement",
+      "create": "New announcement",
+      "titleField": "Title",
+      "body": "Message",
+      "imageAlt": "Image description",
+      "banner": "Banner image URL",
+      "image": "Content image URL",
+      "actionLabel": "Button label",
+      "actionUrl": "Internal link",
+      "audience": "Audience",
+      "roles": {
+        "student": "Students",
+        "teacher": "Teachers",
+        "parent": "Parents",
+        "admin": "Administrators"
+      },
+      "status": "Status",
+      "draft": "Draft",
+      "published": "Published",
+      "archived": "Archived",
+      "priority": "Priority",
+      "starts": "Starts at",
+      "ends": "Ends at",
+      "preview": "Preview",
+      "existing": "Existing announcements",
+      "delete": "Delete",
+      "confirmDelete": "Delete this announcement?"
+    }
   }
 }

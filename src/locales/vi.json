@@ -90,7 +90,8 @@
     "newClass": "Tạo lớp mới",
     "linkStudent": "Liên kết học sinh",
     "measuredGrowth": "Học tập & Tăng trưởng",
-    "viewingStudent": "Đang xem học sinh"
+    "viewingStudent": "Đang xem học sinh",
+    "announcements": "Thông báo"
   },
   "header": {
     "searchStudent": "Tìm học sinh hoặc chỉ số...",
@@ -268,6 +269,15 @@
     "saved": "Đã lưu bản nháp"
   },
   "games": {
+    "xpPracticeOnly": "Chỉ luyện tập · chưa có điểm XP",
+    "playerLevel": "Cấp độ",
+    "cefrLevel": "Trình độ tiếng Anh",
+    "weeklyRanking": "Xếp hạng tuần",
+    "notRankedYet": "Chưa có thứ hạng",
+    "weeklyExperience": "Kinh nghiệm tuần này",
+    "currentLevel": "Cấp độ hiện tại",
+    "level": "Cấp độ",
+    "totalExperience": "Tổng kinh nghiệm đã nhận",
     "hubTitle": "Khu Trò Chơi LexiGrow",
     "hubSubtitle": "Nâng cao vốn từ vựng của bạn một cách tự nhiên qua các trò chơi tương tác sinh động.",
     "playNow": "Chơi ngay",
@@ -366,7 +376,27 @@
     "evidenceWallDesc": "Các câu văn thực tế bạn tự viết trong bài luận và được AI chứng thực ngữ cảnh chính xác.",
     "confidence": "Độ tin cậy",
     "writtenOn": "Đã viết ngày",
-    "masteredStandard": "Đạt chuẩn thành thạo"
+    "masteredStandard": "Đạt chuẩn thành thạo",
+    "tabLeaderboard": "Xếp hạng",
+    "leaderboard": {
+      "title": "Bảng xếp hạng tuần",
+      "subtitle": "Nhận kinh nghiệm qua hoạt động học tập đã được xác minh. Bảng xếp hạng làm mới vào mỗi thứ Hai.",
+      "level": "Cấp độ",
+      "totalXp": "Tổng kinh nghiệm",
+      "weeklyXp": "Tuần này",
+      "scope": "Phạm vi xếp hạng",
+      "global": "Toàn hệ thống",
+      "myClass": "Lớp của tôi",
+      "selectClass": "Chọn lớp",
+      "noClasses": "Không có lớp đang hoạt động",
+      "class": "Lớp học",
+      "weekOf": "Tuần bắt đầu",
+      "you": "Bạn",
+      "rank": "Thứ hạng của bạn",
+      "empty": "Tuần này chưa có kinh nghiệm. Hoàn thành lượt ôn tập hoặc nhiệm vụ hằng ngày để xuất hiện tại đây.",
+      "rules": "Điểm thưởng đã xác minh: lượt ôn từ vựng đầu tiên mỗi ngày (+5 XP) và hoàn thành nhiệm vụ hằng ngày (+20 XP). Điểm trò chơi hiện chưa được cộng XP.",
+      "loadError": "Không thể tải bảng xếp hạng."
+    }
   },
   "onboarding": {
     "badge": "Thiết Lập Lộ Trình Cá Nhân Hóa AI",
@@ -759,5 +789,40 @@
     "emptySub": "Chúng tôi sẽ phản hồi trong thời gian sớm nhất.",
     "system": "Hệ thống",
     "inputPlaceholder": "Nhập tin nhắn..."
+  },
+  "announcements": {
+    "close": "Đóng",
+    "suppress24h": "Không hiển thị lại trong 24 giờ",
+    "admin": {
+      "title": "Quản lý thông báo",
+      "subtitle": "Tạo thông báo song ngữ cho các nhóm người dùng đã đăng nhập.",
+      "edit": "Sửa thông báo",
+      "create": "Thông báo mới",
+      "titleField": "Tiêu đề",
+      "body": "Nội dung",
+      "imageAlt": "Mô tả hình ảnh",
+      "banner": "URL ảnh banner",
+      "image": "URL ảnh nội dung",
+      "actionLabel": "Nhãn nút",
+      "actionUrl": "Liên kết nội bộ",
+      "audience": "Đối tượng nhận",
+      "roles": {
+        "student": "Học sinh",
+        "teacher": "Giáo viên",
+        "parent": "Phụ huynh",
+        "admin": "Quản trị viên"
+      },
+      "status": "Trạng thái",
+      "draft": "Bản nháp",
+      "published": "Đã xuất bản",
+      "archived": "Đã lưu trữ",
+      "priority": "Ưu tiên",
+      "starts": "Bắt đầu lúc",
+      "ends": "Kết thúc lúc",
+      "preview": "Xem trước",
+      "existing": "Thông báo hiện có",
+      "delete": "Xóa",
+      "confirmDelete": "Bạn có chắc muốn xóa thông báo này không?"
+    }
   }
 }

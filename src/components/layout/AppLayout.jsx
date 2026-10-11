@@ -5,6 +5,7 @@ import TopNav from './TopNav'
 import ParentBottomNav from './ParentBottomNav'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import ChatWidget from '../chat/ChatWidget'
+import AnnouncementPopup from '../common/AnnouncementPopup.jsx'
 import './AppLayout.css'
 
 // Routes that need full-bleed layout (no padding, no max-width)
@@ -57,6 +58,7 @@ export default function AppLayout({ role, children }) {
         <ParentBottomNav childId={selectedChildId} onMore={() => setMobileMenuOpen(true)} />
       )}
       <ChatWidget />
+      {user && <AnnouncementPopup role={resolvedRole} userId={user._id || user.id} />}
     </div>
   )
 }

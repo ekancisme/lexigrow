@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
+import { useSearchParams } from 'react-router-dom'
 import GrowthGardenWidget from '../../components/student/GrowthGardenWidget.jsx'
+import ExperienceRanking from '../../components/progress/ExperienceRanking.jsx'
 import './MyProgress.css'
 
 export default function MyProgress() {
   const { t, language } = useLanguage()
-  const [activeTab, setActiveTab] = useState('overview') // 'overview' | 'garden' | 'evidence'
+  const [searchParams] = useSearchParams()
+  const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') === 'leaderboard' ? 'ranking' : 'overview') // 'overview' | 'garden' | 'evidence' | 'ranking'
   const [overview, setOverview] = useState(null)
   const [categories, setCategories] = useState([])
   const [, setMilestones] = useState([])
@@ -88,8 +91,10 @@ export default function MyProgress() {
           </p>
         </div>
 
-        <div className="my-progress__tabs">
+        <div className="my-progress__tabs" role="tablist" aria-label={t('progress.title', 'Progress & Knowledge Garden')}>
           <button
+            role="tab"
+            aria-selected={activeTab === 'overview'}
             className={`my-progress__tab-btn ${activeTab === 'overview' ? 'my-progress__tab-btn--active' : ''}`}
             onClick={() => setActiveTab('overview')}
           >
@@ -97,6 +102,8 @@ export default function MyProgress() {
             {t('progress.tabOverview', 'Vocab Overview')}
           </button>
           <button
+            role="tab"
+            aria-selected={activeTab === 'garden'}
             className={`my-progress__tab-btn ${activeTab === 'garden' ? 'my-progress__tab-btn--active' : ''}`}
             onClick={() => setActiveTab('garden')}
           >
@@ -104,11 +111,22 @@ export default function MyProgress() {
             {t('progress.tabGarden', 'Growth Garden')}
           </button>
           <button
+            role="tab"
+            aria-selected={activeTab === 'evidence'}
             className={`my-progress__tab-btn ${activeTab === 'evidence' ? 'my-progress__tab-btn--active' : ''}`}
             onClick={() => setActiveTab('evidence')}
           >
             <span className="material-symbols-outlined">verified</span>
             {t('progress.tabEvidence', 'Usage Evidence')} ({evidenceList.length})
+          </button>
+          <button
+            role="tab"
+            aria-selected={activeTab === 'ranking'}
+            className={`my-progress__tab-btn ${activeTab === 'ranking' ? 'my-progress__tab-btn--active' : ''}`}
+            onClick={() => setActiveTab('ranking')}
+          >
+            <span className="material-symbols-outlined">leaderboard</span>
+            {t('progress.tabLeaderboard', 'Leaderboard')}
           </button>
         </div>
       </section>
@@ -216,6 +234,8 @@ export default function MyProgress() {
       {activeTab === 'garden' && (
         <GrowthGardenWidget />
       )}
+
+      {activeTab === 'ranking' && <ExperienceRanking />}
 
       {/* TAB 3: VERIFIED EVIDENCE WALL */}
       {activeTab === 'evidence' && (

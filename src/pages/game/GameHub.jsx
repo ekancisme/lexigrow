@@ -11,31 +11,33 @@ import QuestGardenCard from './QuestGardenCard.jsx'
 export default function GameHub() {
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const cardsRef = useRef([])
 
   const [overview, setOverview] = useState(null)
   const [questSummary, setQuestSummary] = useState(null)
+  const [experience, setExperience] = useState(null)
+  const [weeklyRank, setWeeklyRank] = useState(null)
   const [streakData, setStreakData] = useState({ streakDays: user?.streakDays || 0 })
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     async function loadHubStats() {
       try {
-        setLoading(true)
-        const [overviewRes, questRes, streakRes] = await Promise.allSettled([
+        const [overviewRes, questRes, streakRes, experienceRes, leaderboardRes] = await Promise.allSettled([
           api.get('/progress/overview'),
           api.get('/daily-quests/summary'),
-          api.get('/progress/streak')
+          api.get('/progress/streak'),
+          api.get('/progress/experience'),
+          api.get('/progress/leaderboard?scope=global')
         ])
 
         if (overviewRes.status === 'fulfilled') setOverview(overviewRes.value?.data || null)
         if (questRes.status === 'fulfilled') setQuestSummary(questRes.value?.data || null)
         if (streakRes.status === 'fulfilled') setStreakData(streakRes.value?.data || { streakDays: user?.streakDays || 0 })
+        if (experienceRes.status === 'fulfilled') setExperience(experienceRes.value?.data?.data || experienceRes.value?.data || null)
+        if (leaderboardRes.status === 'fulfilled') setWeeklyRank(leaderboardRes.value?.data?.data?.currentRank || null)
       } catch (err) {
         console.error('Error loading GameHub stats:', err)
-      } finally {
-        setLoading(false)
       }
     }
     loadHubStats()
@@ -60,21 +62,9 @@ export default function GameHub() {
 
   const currentStreak = streakData.streakDays || user?.streakDays || 0
   const totalVocab = overview?.totalVocab || 0
-  const totalEssays = overview?.totalEssays || 0
-  const fireflies = questSummary?.fireflies || 0
-  const earnedXP = totalVocab * 10 + totalEssays * 50 + fireflies * 20
+  const earnedXP = experience?.totalXp || 0
 
   const userRank = overview?.rank || 'A1'
-  const leagueMap = {
-    A1: { name: 'Bronze League', icon: 'military_tech', rankNum: '#42' },
-    A2: { name: 'Silver League', icon: 'military_tech', rankNum: '#28' },
-    B1: { name: 'Gold League', icon: 'military_tech', rankNum: '#19' },
-    B2: { name: 'Platinum League', icon: 'military_tech', rankNum: '#12' },
-    C1: { name: 'Diamond League', icon: 'military_tech', rankNum: '#5' },
-    C2: { name: 'Master League', icon: 'military_tech', rankNum: '#1' },
-  }
-  const currentLeague = leagueMap[userRank] || leagueMap.A1
-
   const solvedQuest = questSummary?.solved || 0
   const totalQuest = questSummary?.total || 6
   const questPercent = totalQuest > 0 ? Math.min(100, Math.round((solvedQuest / totalQuest) * 100)) : 0
@@ -89,7 +79,7 @@ export default function GameHub() {
       subtitle: t('games.hunterSubtitle', 'Speed Drills · 90s Time Attack'),
       description: t('games.hunterDesc', 'Pop falling bubbles before they hit danger zone! Speed reading & target definition reflex testing lexical rapid-recall.'),
       featureLeft: 'Target speed: 45 WPM',
-      featureRight: '+50 XP / round',
+      featureRight: t('games.xpPracticeOnly', 'Practice only · no XP reward'),
       icon: 'sports_esports',
       cardClass: 'arcade-card--hunter',
       btnClass: 'arcade-btn--hunter',
@@ -104,7 +94,7 @@ export default function GameHub() {
       subtitle: t('games.fillerSubtitle', 'Literature & News Cloze Drills'),
       description: t('games.fillerDesc', 'Read authentic sentences from literature & news, choose the missing vocabulary in context with syntactic accuracy.'),
       featureLeft: '"Her lexical precision was ___."',
-      featureRight: '+45 XP / set',
+      featureRight: t('games.xpPracticeOnly', 'Practice only · no XP reward'),
       icon: 'psychology',
       cardClass: 'arcade-card--filler',
       btnClass: 'arcade-btn--filler',
@@ -119,7 +109,7 @@ export default function GameHub() {
       subtitle: t('games.scrambleSubtitle', 'Phonetic Transcription & Anagrams'),
       description: t('games.scrambleDesc', 'Rearrange scrambled letters with phonetic IPA, definitions, and spelling hints to unlock root etymologies.'),
       featureLeft: 'Phonetic IPA clues',
-      featureRight: '+60 XP / puzzle',
+      featureRight: t('games.xpPracticeOnly', 'Practice only · no XP reward'),
       icon: 'spellcheck',
       cardClass: 'arcade-card--scramble',
       btnClass: 'arcade-btn--scramble',
@@ -134,7 +124,7 @@ export default function GameHub() {
       subtitle: t('games.matchingSubtitle', 'Pairs Flip & Semantic Association'),
       description: t('games.matchingDesc', '3D memory card flip challenge. Match advanced target words with their exact definitions and usage nuances under pressure.'),
       featureLeft: '16 Cards · Grid 4x4',
-      featureRight: '+55 XP / match',
+      featureRight: t('games.xpPracticeOnly', 'Practice only · no XP reward'),
       icon: 'extension',
       cardClass: 'arcade-card--matching',
       btnClass: 'arcade-btn--matching',
@@ -169,9 +159,9 @@ export default function GameHub() {
               <span>{currentStreak} <span className="hud-pill__label">{t('dashboard.streak', 'Days')}</span></span>
             </div>
 
-            <div className="hud-pill hud-pill--xp" title="Earned Fireflies & XP">
+            <div className="hud-pill hud-pill--xp" title={t('games.totalExperience', 'Total experience earned')}>
               <span className="material-symbols-outlined hud-pill__icon">grade</span>
-              <span>{earnedXP.toLocaleString()} <span className="hud-pill__label">XP</span></span>
+              <span>{earnedXP.toLocaleString(language === 'vi' ? 'vi-VN' : 'en-US')} <span className="hud-pill__label">XP</span></span>
             </div>
 
             <div className="hud-pill hud-pill--hearts" title="Life Energy 5/5">
@@ -186,7 +176,7 @@ export default function GameHub() {
           <div>
             <div className="hero-tag">
               <span className="hero-tag__dot" />
-              <span>Live Battle Arena · {userRank} Tier</span>
+              <span>{t('games.playerLevel', 'Level')} {experience?.level || 1} · {userRank} {t('games.cefrLevel', 'English level')}</span>
             </div>
             <div className="hero-title-row">
               <h1 className="hero-title">{t('games.hubTitle', 'LexiGrow Play Zone')}</h1>
@@ -197,18 +187,18 @@ export default function GameHub() {
             </p>
           </div>
 
-          {/* Quick League Status Widget */}
-          <div className="hero-league-widget">
+          {/* Verified weekly ranking and level */}
+          <button className="hero-league-widget" type="button" onClick={() => navigate('/student/progress?tab=leaderboard')} style={{ border: 0, background: 'transparent', color: 'inherit', font: 'inherit', textAlign: 'left', cursor: 'pointer' }}>
             <div className="league-icon-box">
-              <span className="material-symbols-outlined">{currentLeague.icon}</span>
+              <span className="material-symbols-outlined">leaderboard</span>
             </div>
             <div className="league-meta">
-              <div className="league-meta__tier">{currentLeague.name}</div>
+              <div className="league-meta__tier">{t('games.weeklyRanking', 'Weekly ranking')}</div>
               <div className="league-meta__rank">
-                Rank {currentLeague.rankNum} <span>▲ Top 10%</span>
+                {weeklyRank ? `#${weeklyRank}` : t('games.notRankedYet', 'Not ranked yet')}
               </div>
             </div>
-          </div>
+          </button>
         </section>
 
         {/* FEATURED BANNER: Quest Garden (Daily Crossword) */}
@@ -297,30 +287,27 @@ export default function GameHub() {
             </div>
           </div>
 
-          {/* Today's XP Yield */}
+          {/* Verified weekly XP */}
           <div className="bottom-strip-item">
             <div className="strip-item-icon strip-item-icon--purple">
               <span className="material-symbols-outlined">grade</span>
             </div>
             <div className="strip-item-info">
-              <span className="strip-item-label">Today&apos;s Fireflies & XP</span>
+              <span className="strip-item-label">{t('games.weeklyExperience', 'Experience this week')}</span>
               <div className="strip-item-value" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <span>+{fireflies > 0 ? fireflies * 20 : 50} XP Today</span>
-                <span style={{ fontSize: '11px', padding: '2px 6px', borderRadius: '12px', background: 'rgba(124, 58, 237, 0.15)', color: '#7C3AED', fontWeight: 600 }}>
-                  🔥 Active
-                </span>
+                <span>{(experience?.weeklyXp || 0).toLocaleString(language === 'vi' ? 'vi-VN' : 'en-US')} XP</span>
               </div>
             </div>
           </div>
 
-          {/* Competitive Ladder */}
+          {/* Current level */}
           <div className="bottom-strip-item">
             <div className="strip-item-icon strip-item-icon--green">
               <span className="material-symbols-outlined">military_tech</span>
             </div>
             <div className="strip-item-info">
-              <span className="strip-item-label">Competitive Ladder</span>
-              <div className="strip-item-value">Rank {currentLeague.rankNum} in {currentLeague.name}</div>
+              <span className="strip-item-label">{t('games.currentLevel', 'Current level')}</span>
+              <div className="strip-item-value">{t('games.level', 'Level')} {experience?.level || 1} · {earnedXP.toLocaleString(language === 'vi' ? 'vi-VN' : 'en-US')} XP</div>
             </div>
           </div>
         </section>

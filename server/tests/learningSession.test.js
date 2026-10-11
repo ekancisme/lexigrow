@@ -21,6 +21,7 @@ import LearningSet from '../src/models/LearningSet.js'
 import Vocabulary from '../src/models/Vocabulary.js'
 import LearningSession from '../src/models/LearningSession.js'
 import ReviewEvent from '../src/models/ReviewEvent.js'
+import ExperienceEvent from '../src/models/ExperienceEvent.js'
 import PracticeAttempt from '../src/models/PracticeAttempt.js'
 import EssayRevision from '../src/models/EssayRevision.js'
 import WordUsageEvidence from '../src/models/WordUsageEvidence.js'
@@ -288,6 +289,7 @@ describe('Learning API with real Mongo transactions and JWT', () => {
     expect(rr.every((r) => r.status === 200)).toBe(true)
     expect((await Vocabulary.findById(word.id)).reviewCount).toBe(1)
     expect(await ReviewEvent.countDocuments()).toBe(1)
+    expect(await ExperienceEvent.countDocuments({ student: student._id, source: 'srs_daily', points: 5 })).toBe(1)
     await auth(request(app).post('/api/srs/review'), otherToken)
       .set('Idempotency-Key', 'other')
       .send({ vocabularyId: word.id, rating: 3 })

@@ -56,6 +56,7 @@ const AdminVocabulary = lazy(() => import('./pages/admin/AdminVocabulary'))
 const AdminLogs = lazy(() => import('./pages/admin/AdminLogs'))
 const AdminPricing = lazy(() => import('./pages/admin/AdminPricing'))
 const AdminChat = lazy(() => import('./pages/admin/AdminChat'))
+const AdminAnnouncements = lazy(() => import('./pages/admin/AdminAnnouncements'))
 
 /* Pricing & Payment Pages */
 const PricingPage = lazy(() => import('./pages/pricing/PricingPage'))
@@ -239,6 +240,7 @@ function App() {
           <Route path="pricing" element={<AdminPricing />} />
           <Route path="logs" element={<AdminLogs />} />
           <Route path="chat" element={<AdminChat />} />
+          <Route path="announcements" element={<AdminAnnouncements />} />
         </Route>
 
         {/* Pricing & Payment Routes */}

@@ -2,11 +2,14 @@ import { Router } from 'express'
 import { getOverview, getGrowthChart, getMilestones, getWeeklyComparison, getStreak } from '../controllers/progress.controller.js'
 import { protect, authorize } from '../middleware/auth.middleware.js'
 import { getActiveVocabulary, getWordEvidence } from '../controllers/learningProgress.controller.js'
+import { getExperienceProfile, getExperienceLeaderboard } from '../controllers/experience.controller.js'
 
 const router = Router()
 
 router.use(protect)
 router.use(authorize('student', 'teacher', 'parent'))
+router.get('/experience', authorize('student'), getExperienceProfile)
+router.get('/leaderboard', authorize('student'), getExperienceLeaderboard)
 router.get('/active-vocabulary', authorize('student'), getActiveVocabulary)
 router.get('/evidence', authorize('student'), getWordEvidence)
 router.get('/evidence/:word', authorize('student'), getWordEvidence)

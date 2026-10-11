@@ -9,6 +9,7 @@ import Vocabulary from '../models/Vocabulary.js'
 import GlobalVocabulary from '../models/GlobalVocabulary.js'
 import { generateCrossword, STARTER_WORDS, questDay } from '../services/crossword.service.js'
 import { applyPlay, publicQuest } from '../services/dailyQuest.service.js'
+import { awardDailyQuestXp } from '../services/experience.service.js'
 
 export const resolveQuestSource = ({ candidateSource, puzzleWordCount }) =>
   puzzleWordCount < 5 ? 'offline_fallback' : candidateSource
@@ -145,8 +146,10 @@ router.post(
     const quest = await DailyQuest.findOne(filter).lean()
     if (!quest) throw new ErrorResponse('Quest not found', 404)
     // A lost completion response can be retried without another reward.
-    if (quest.completedAt)
+    if (quest.completedAt) {
+      await awardDailyQuestXp(req.user._id, quest._id, quest.completedAt)
       return res.json({ success: true, data: publicQuest(quest), correct: true })
+    }
     if (quest.day !== questDay())
       return res
         .status(410)
@@ -171,6 +174,7 @@ router.post(
           error: 'Quest changed on another tab. Reload to continue.',
           code: 'QUEST_CONFLICT',
         })
+    if (updated.completedAt) await awardDailyQuestXp(req.user._id, updated._id, updated.completedAt)
     res.json({ success: true, data: publicQuest(updated), correct })
   }),
 )

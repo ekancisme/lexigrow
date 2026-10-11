@@ -4,6 +4,7 @@ import asyncHandler from '../utils/asyncHandler.js'
 import { calculateSM2 } from '../services/srs.service.js'
 import { invalidateCompetencySnapshot } from '../services/competency.service.js'
 import { transactIntent } from '../services/learningTransaction.service.js'
+import { awardDailySrsXp, learningDayKey } from '../services/experience.service.js'
 import {
   fail,
   objectId,
@@ -27,8 +28,8 @@ export const submitSrsReview = asyncHandler(async (req, res) => {
         student: req.user._id,
       }).session(tx)
       if (!word) fail('Word not found', 404)
-      const zone = req.user.learningProfile?.timezone || 'Asia/Ho_Chi_Minh',
-        now = new Date()
+      const zone = req.user.learningProfile?.timezone || 'Asia/Ho_Chi_Minh'
+      const now = new Date()
       const before = word.reviewInterval
       const next = calculateSM2(
         {
@@ -61,6 +62,13 @@ export const submitSrsReview = asyncHandler(async (req, res) => {
       return word.toObject()
     },
   )
+  // Use the persisted review timestamp so retrying an old idempotent request
+  // cannot mint XP on a later calendar day.
+  const review = await ReviewEvent.findOne({ student: req.user._id, requestId: key }).select('reviewedAt timezone').lean()
+  if (review) {
+    const dayKey = learningDayKey(review.reviewedAt, review.timezone)
+    await awardDailySrsXp(req.user._id, dayKey, review.reviewedAt)
+  }
   await invalidateCompetencySnapshot(req.user._id)
   res.json({ success: true, data: out.result })
 })

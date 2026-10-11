@@ -36,6 +36,7 @@ export default function Sidebar({ role = 'student', mobileOpen = false, onClose 
     { icon: 'payments', label: t('nav.pricingPayOS', 'Pricing & PayOS'), path: '/admin/pricing' },
     { icon: 'monitoring', label: t('nav.aiMonitoring', 'AI Monitoring'), path: '/admin/ai-monitoring' },
     { icon: 'dictionary', label: t('nav.vocabulary', 'Vocabulary'), path: '/admin/vocabulary' },
+    { icon: 'campaign', label: t('nav.announcements', 'Announcements'), path: '/admin/announcements' },
     { icon: 'receipt_long', label: t('nav.auditLogs', 'Audit Logs'), path: '/admin/logs' },
   ]
 

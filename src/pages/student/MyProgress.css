@@ -17,6 +17,10 @@
 
 .my-progress__tabs {
   display: flex;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
   background: var(--color-surface-container-low, #f1f5f9);
   padding: 4px;
   border-radius: 12px;
@@ -35,6 +39,7 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
+  flex: 0 0 auto;
   transition: all 0.2s ease;
 }
 
