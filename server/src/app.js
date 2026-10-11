@@ -63,12 +63,16 @@ import adminPricingRoutes from './routes/admin.pricing.routes.js'
 import chatRoutes from './routes/chat.routes.js'
 import aiProviderRoutes from './routes/aiProvider.routes.js'
 import internalAiRelayRoutes from './routes/internalAiRelay.routes.js'
+import announcementRoutes from './routes/announcement.routes.js'
+import adminAnnouncementRoutes from './routes/admin.announcement.routes.js'
 
 app.use('/api/auth', authRoutes)
 app.use('/api/essays', essayRoutes)
 app.use('/api/essays', analysisRoutes)
 app.use('/api/vocabulary', vocabularyRoutes)
 app.use('/api/progress', progressRoutes)
+app.use('/api/announcements', announcementRoutes)
+app.use('/api/admin/announcements', adminAnnouncementRoutes)
 app.use('/api/goals', goalsRoutes)
 app.use('/api/classes', classRoutes)
 app.use('/api/teacher', teacherRoutes)
@@ -111,7 +115,7 @@ if (fs.existsSync(distPath)) {
   })
   app.use(express.static(distPath, {
     setHeaders: (res, filePath) => {
-      if (filePath.endsWith('.html')) {
+      if (filePath.endsWith('.html') || filePath.endsWith('sw.js')) {
         res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
         res.setHeader('Pragma', 'no-cache')
         res.setHeader('Expires', '0')

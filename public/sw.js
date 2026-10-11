@@ -1,7 +1,7 @@
 // LexiGrow Service Worker
 // Caches assets for offline use and installable PWA
 
-const CACHE_NAME = 'lexigrow-v2'
+const CACHE_NAME = 'lexigrow-v5'
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -11,32 +11,35 @@ const STATIC_ASSETS = [
   '/offline.html',
 ]
 
-// Install event - cache static assets
+// Install event - cache static assets and activate immediately
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[SW] Caching static assets')
+        console.log('[SW] Caching static assets with cache:', CACHE_NAME)
         return cache.addAll(STATIC_ASSETS)
       })
       .then(() => self.skipWaiting())
   )
 })
 
-// Activate event - clean old caches
+// Activate event - clean all old caches and take control of all open clients
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
           .filter((name) => name !== CACHE_NAME)
-          .map((name) => caches.delete(name))
+          .map((name) => {
+            console.log('[SW] Deleting old cache:', name)
+            return caches.delete(name)
+          })
       )
     }).then(() => self.clients.claim())
   )
 })
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - network-first for navigation/HTML, stale-while-revalidate for static assets
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url)
 
@@ -55,37 +58,19 @@ self.addEventListener('fetch', (event) => {
     return
   }
 
-  // For HTML pages, always try network first, fallback to cache
-  if (url.pathname.endsWith('.html') || url.pathname === '/') {
+  // Identify HTML/Navigation requests (e.g. /student/learning-session, /, index.html)
+  const isHtmlNavigation =
+    event.request.mode === 'navigate' ||
+    event.request.destination === 'document' ||
+    url.pathname.endsWith('.html') ||
+    url.pathname === '/' ||
+    (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html'))
+
+  if (isHtmlNavigation) {
+    // ALWAYS network-first for HTML pages so user always receives fresh code
     event.respondWith(
       fetch(event.request)
         .then((response) => {
-          // Cache the fresh response for offline fallback
-          const clonedResponse = response.clone()
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, clonedResponse)
-          })
-          return response
-        })
-        .catch(() => {
-          return caches.match(event.request)
-            .then((cached) => {
-              if (cached) return cached
-              // Fallback to offline page
-              return caches.match('/offline.html')
-            })
-        })
-    )
-    return
-  }
-
-  // For static assets (js, css, images, etc.)
-  // Stale-while-revalidate: serve from cache, update in background
-  event.respondWith(
-    caches.match(event.request).then((cached) => {
-      const fetchPromise = fetch(event.request)
-        .then((response) => {
-          // Cache successful response for future
           if (response && response.status === 200) {
             const clonedResponse = response.clone()
             caches.open(CACHE_NAME).then((cache) => {
@@ -95,18 +80,37 @@ self.addEventListener('fetch', (event) => {
           return response
         })
         .catch(() => {
-          // If fetch fails, return cached if available
+          return caches.match(event.request).then((cached) => {
+            if (cached) return cached
+            return caches.match('/offline.html')
+          })
+        })
+    )
+    return
+  }
+
+  // For static hashed assets (Vite /assets/*)
+  event.respondWith(
+    caches.match(event.request).then((cached) => {
+      const fetchPromise = fetch(event.request)
+        .then((response) => {
+          if (response && response.status === 200) {
+            const clonedResponse = response.clone()
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(event.request, clonedResponse)
+            })
+          }
+          return response
+        })
+        .catch(() => {
           if (cached) return cached
-          // For images, return a placeholder
           if (event.request.destination === 'image') {
             return caches.match('/icons.svg')
           }
           return new Response('Offline', { status: 503, statusText: 'Offline' })
         })
 
-      // If we have a cached version, return it first
       if (cached) {
-        // Also revalidate in background
         event.waitUntil(fetchPromise.catch(() => {}))
         return cached
       }

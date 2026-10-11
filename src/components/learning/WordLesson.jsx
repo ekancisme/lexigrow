@@ -6,7 +6,7 @@ const TOPIC_VISUALS = {
     title: 'Travel & Exploration',
     icon: 'flight_takeoff',
     accentColor: '#0d9488',
-    gradient: 'linear-gradient(135deg, rgba(13, 148, 136, 0.3) 0%, rgba(20, 184, 166, 0.1) 100%)',
+    gradient: 'linear-gradient(135deg, rgba(13, 148, 136, 0.35) 0%, rgba(20, 184, 166, 0.15) 100%)',
     imageUrl: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80',
     alt: 'Travel and exploration itinerary'
   },
@@ -14,7 +14,7 @@ const TOPIC_VISUALS = {
     title: 'Daily Life & Routines',
     icon: 'wb_sunny',
     accentColor: '#005bbf',
-    gradient: 'linear-gradient(135deg, rgba(0, 91, 191, 0.3) 0%, rgba(26, 115, 232, 0.1) 100%)',
+    gradient: 'linear-gradient(135deg, rgba(0, 91, 191, 0.35) 0%, rgba(26, 115, 232, 0.15) 100%)',
     imageUrl: 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80',
     alt: 'Daily routine and productivity'
   },
@@ -22,7 +22,7 @@ const TOPIC_VISUALS = {
     title: 'Technology & Digital Era',
     icon: 'smart_toy',
     accentColor: '#0284c7',
-    gradient: 'linear-gradient(135deg, rgba(2, 132, 199, 0.3) 0%, rgba(56, 189, 248, 0.1) 100%)',
+    gradient: 'linear-gradient(135deg, rgba(2, 132, 199, 0.35) 0%, rgba(56, 189, 248, 0.15) 100%)',
     imageUrl: 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80',
     alt: 'Technology and innovation'
   },
@@ -30,7 +30,7 @@ const TOPIC_VISUALS = {
     title: 'Environment & Sustainability',
     icon: 'eco',
     accentColor: '#16a34a',
-    gradient: 'linear-gradient(135deg, rgba(22, 163, 74, 0.3) 0%, rgba(34, 197, 94, 0.1) 100%)',
+    gradient: 'linear-gradient(135deg, rgba(22, 163, 74, 0.35) 0%, rgba(34, 197, 94, 0.15) 100%)',
     imageUrl: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=800&q=80',
     alt: 'Nature and sustainable environment'
   },
@@ -38,7 +38,7 @@ const TOPIC_VISUALS = {
     title: 'Hobbies & Creative Arts',
     icon: 'palette',
     accentColor: '#7c3aed',
-    gradient: 'linear-gradient(135deg, rgba(124, 58, 237, 0.3) 0%, rgba(139, 92, 246, 0.1) 100%)',
+    gradient: 'linear-gradient(135deg, rgba(124, 58, 237, 0.35) 0%, rgba(139, 92, 246, 0.15) 100%)',
     imageUrl: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=800&q=80',
     alt: 'Hobbies and creative arts'
   },
@@ -46,7 +46,7 @@ const TOPIC_VISUALS = {
     title: 'Business & Career',
     icon: 'business_center',
     accentColor: '#ea580c',
-    gradient: 'linear-gradient(135deg, rgba(234, 88, 12, 0.3) 0%, rgba(249, 115, 22, 0.1) 100%)',
+    gradient: 'linear-gradient(135deg, rgba(234, 88, 12, 0.35) 0%, rgba(249, 115, 22, 0.15) 100%)',
     imageUrl: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=800&q=80',
     alt: 'Business and career development'
   },
@@ -54,7 +54,7 @@ const TOPIC_VISUALS = {
     title: 'Academic & Science',
     icon: 'school',
     accentColor: '#4f46e5',
-    gradient: 'linear-gradient(135deg, rgba(79, 70, 229, 0.3) 0%, rgba(99, 102, 241, 0.1) 100%)',
+    gradient: 'linear-gradient(135deg, rgba(79, 70, 229, 0.35) 0%, rgba(99, 102, 241, 0.15) 100%)',
     imageUrl: 'https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=800&q=80',
     alt: 'Academic study and research'
   }
@@ -64,7 +64,7 @@ const DEFAULT_VISUAL = {
   title: 'Vocabulary Lesson',
   icon: 'auto_stories',
   accentColor: '#005bbf',
-  gradient: 'linear-gradient(135deg, rgba(0, 91, 191, 0.3) 0%, rgba(79, 131, 255, 0.1) 100%)',
+  gradient: 'linear-gradient(135deg, rgba(0, 91, 191, 0.35) 0%, rgba(79, 131, 255, 0.15) 100%)',
   imageUrl: 'https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?auto=format&fit=crop&w=800&q=80',
   alt: 'LexiGrow Vocabulary'
 }
@@ -145,6 +145,13 @@ export default function WordLesson({
     .map(col => typeof col === 'string' ? col : col?.phrase)
     .filter(Boolean)
 
+  const posLabel = {
+    noun: 'Danh từ (Noun) — chỉ người, sự vật hoặc khái niệm',
+    verb: 'Động từ (Verb) — chỉ hành động hoặc quá trình',
+    adjective: 'Tính từ (Adjective) — miêu tả đặc điểm, tính chất',
+    adverb: 'Trạng từ (Adverb) — bổ nghĩa hành động hoặc mức độ',
+  }[currentWord.partOfSpeech?.toLowerCase()] || (currentWord.partOfSpeech ? `Từ loại: ${currentWord.partOfSpeech}` : '')
+
   const stopAudio = () => {
     if ('speechSynthesis' in window) window.speechSynthesis.cancel()
     setIsPlayingAudio(false)
@@ -157,7 +164,10 @@ export default function WordLesson({
   }
 
   const handlePlayAudio = (text, e) => {
-    if (e) e.stopPropagation()
+    if (e) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
     if ('speechSynthesis' in window) {
       setIsPlayingAudio(true)
       window.speechSynthesis.cancel()
@@ -170,17 +180,28 @@ export default function WordLesson({
     }
   }
 
-  const handleCardClick = (e, targetFlipState) => {
-    // Prevent flipping if user clicked on interactive elements (buttons, inputs, links)
-    if (e.target.closest('button, a, input, [data-no-flip="true"]')) {
+  const handleFrontClick = (e) => {
+    // If clicked on audio button or interactive elements, ignore
+    if (e.target.closest('.word-lesson__audio-btn, .word-lesson__example-audio-btn, [data-no-flip="true"]')) {
       return
     }
-    // Prevent flipping if user is selecting/highlighting text to copy
+    // If user is selecting text to copy, ignore
     const selection = window.getSelection()?.toString()
     if (selection && selection.trim().length > 0) {
       return
     }
-    setIsFlipped(targetFlipState)
+    setIsFlipped(true)
+  }
+
+  const handleBackClick = (e) => {
+    if (e.target.closest('.word-lesson__audio-btn, .word-lesson__example-audio-btn, [data-no-flip="true"]')) {
+      return
+    }
+    const selection = window.getSelection()?.toString()
+    if (selection && selection.trim().length > 0) {
+      return
+    }
+    setIsFlipped(false)
   }
 
   const handleCardKeyDown = (e) => {
@@ -241,18 +262,20 @@ export default function WordLesson({
         onKeyDown={handleCardKeyDown}
       >
         <div className={`word-lesson__card-inner ${isFlipped ? 'word-lesson__card-inner--flipped' : ''}`}>
-          {/* FRONT FACE */}
+          {/* FRONT FACE - Click anywhere to flip */}
           <section
             className="word-lesson__face word-lesson__face--front card-base"
             aria-hidden={isFlipped}
             inert={isFlipped}
-            onClick={(e) => handleCardClick(e, true)}
+            onClick={handleFrontClick}
           >
+            {/* Top Row: Word & Audio button */}
             <div className="word-lesson__top">
               <div className="word-lesson__title-row">
                 <h2 className="word-lesson__word">{currentWord.word}</h2>
                 <button
                   type="button"
+                  data-no-flip="true"
                   className={`word-lesson__audio-btn ${isPlayingAudio ? 'word-lesson__audio-btn--playing' : ''}`}
                   onClick={(e) => handlePlayAudio(currentWord.word, e)}
                   title="Listen to pronunciation"
@@ -283,95 +306,110 @@ export default function WordLesson({
               </div>
             </div>
 
-            {/* Visual illustration banner */}
-            <div className="word-lesson__visual-banner" style={{ background: visual.gradient }}>
-              {!isImageFailed && visualImageSrc ? (
-                <img
-                  src={visualImageSrc}
-                  alt={visual.alt || currentWord.word}
-                  className="word-lesson__visual-img"
-                  loading="lazy"
-                  onError={() => {
-                    setFailedImages(prev => {
-                      const next = new Set(prev)
-                      next.add(currentWord.word)
-                      return next
-                    })
-                  }}
-                />
-              ) : (
-                <div className="word-lesson__visual-fallback">
-                  <span className="material-symbols-outlined word-lesson__visual-fallback-icon">
-                    {visual.icon}
+            {/* Interactive Body Area - What the user circled */}
+            <div className="word-lesson__body-interactive">
+              {/* Visual illustration banner */}
+              <div className="word-lesson__visual-banner" style={{ background: visual.gradient }}>
+                {!isImageFailed && visualImageSrc ? (
+                  <img
+                    src={visualImageSrc}
+                    alt={visual.alt || currentWord.word}
+                    className="word-lesson__visual-img"
+                    loading="lazy"
+                    onError={() => {
+                      setFailedImages(prev => {
+                        const next = new Set(prev)
+                        next.add(currentWord.word)
+                        return next
+                      })
+                    }}
+                  />
+                ) : (
+                  <div className="word-lesson__visual-fallback">
+                    <span className="material-symbols-outlined word-lesson__visual-fallback-icon">
+                      {visual.icon}
+                    </span>
+                  </div>
+                )}
+                <div className="word-lesson__visual-overlay">
+                  <span className="word-lesson__visual-tag">
+                    <span className="material-symbols-outlined">{visual.icon}</span>
+                    <span>{topicTitle || visual.title}</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Sample Collocations / Từ mẫu gợi ý */}
+              {sampleCollocations.length > 0 && (
+                <div className="word-lesson__sample-section">
+                  <div className="word-lesson__front-subtitle">
+                    <span className="material-symbols-outlined">auto_awesome</span>
+                    <span>Cụm từ mẫu thường gặp (Sample collocations):</span>
+                  </div>
+                  <div className="word-lesson__sample-chips">
+                    {sampleCollocations.slice(0, 4).map((phrase, idx) => (
+                      <span key={`${phrase}-${idx}`} className="word-lesson__sample-chip">
+                        <span className="material-symbols-outlined">label</span>
+                        <span>{phrase}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Context Clue / Câu mẫu gợi ý trong ngữ cảnh */}
+              {exampleSentence && (
+                <div className="word-lesson__context-clue">
+                  <div className="word-lesson__front-subtitle">
+                    <span className="material-symbols-outlined">format_quote</span>
+                    <span>Câu ví dụ mẫu trong ngữ cảnh:</span>
+                  </div>
+                  <p className="word-lesson__context-sentence">
+                    “{renderHighlightedSentence(exampleSentence, currentWord.word)}”
+                  </p>
+                  <span className="word-lesson__context-subnote">
+                    💡 Thử suy đoán nghĩa của từ trong câu trên trước khi lật thẻ.
                   </span>
                 </div>
               )}
-              <div className="word-lesson__visual-overlay">
-                <span className="word-lesson__visual-tag">
-                  <span className="material-symbols-outlined">{visual.icon}</span>
-                  <span>{topicTitle || visual.title}</span>
-                </span>
-              </div>
-            </div>
 
-            {/* Sample Collocations / Từ mẫu gợi ý */}
-            {sampleCollocations.length > 0 && (
-              <div className="word-lesson__sample-section">
-                <div className="word-lesson__front-subtitle">
-                  <span className="material-symbols-outlined">auto_awesome</span>
-                  <span>Cụm từ mẫu / Sample collocations:</span>
+              {/* Memory hook / Vai trò từ loại */}
+              {posLabel && (
+                <div className="word-lesson__role-box">
+                  <span className="material-symbols-outlined">info</span>
+                  <span>{posLabel}</span>
                 </div>
-                <div className="word-lesson__sample-chips">
-                  {sampleCollocations.slice(0, 4).map((phrase, idx) => (
-                    <span key={`${phrase}-${idx}`} className="word-lesson__sample-chip">
-                      <span className="material-symbols-outlined">label</span>
-                      <span>{phrase}</span>
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
+              )}
 
-            {/* Context Clue / Câu mẫu gợi ý trong ngữ cảnh */}
-            {exampleSentence && (
-              <div className="word-lesson__context-clue">
-                <div className="word-lesson__front-subtitle">
-                  <span className="material-symbols-outlined">psychology_alt</span>
-                  <span>Gợi ý câu mẫu trong ngữ cảnh:</span>
+              {/* Big prominent click-to-flip callout bar */}
+              <div className="word-lesson__flip-action-bar">
+                <div className="word-lesson__flip-action-text">
+                  <span className="material-symbols-outlined word-lesson__pulse-icon">touch_app</span>
+                  <span>Chạm vào đây hoặc bất kỳ đâu trên thẻ để xem nghĩa & cách dùng</span>
                 </div>
-                <p className="word-lesson__context-sentence">
-                  “{renderHighlightedSentence(exampleSentence, currentWord.word)}”
-                </p>
+                <button
+                  ref={frontFlipButtonRef}
+                  type="button"
+                  data-no-flip="true"
+                  className="word-lesson__flip-btn"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    setIsFlipped(true)
+                  }}
+                >
+                  <span>Show meaning & usage</span>
+                  <span className="material-symbols-outlined" aria-hidden="true">flip_to_back</span>
+                </button>
               </div>
-            )}
-
-            {/* Bottom prompt to flip */}
-            <div className="word-lesson__flip-prompt-row">
-              <p className="word-lesson__front-hint">
-                <span className="material-symbols-outlined">touch_app</span>
-                Nhấn vào bất kỳ đâu trên thẻ để xem nghĩa & cách dùng
-              </p>
-              <button
-                ref={frontFlipButtonRef}
-                type="button"
-                className="word-lesson__flip-btn"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setIsFlipped(true)
-                }}
-              >
-                <span>Show meaning & usage</span>
-                <span className="material-symbols-outlined" aria-hidden="true">flip_to_back</span>
-              </button>
             </div>
           </section>
 
-          {/* BACK FACE */}
+          {/* BACK FACE - Click anywhere to flip back */}
           <section
             className="word-lesson__face word-lesson__face--back card-base"
             aria-hidden={!isFlipped}
             inert={!isFlipped}
-            onClick={(e) => handleCardClick(e, false)}
+            onClick={handleBackClick}
           >
             <div className="word-lesson__back-heading">
               <div>
@@ -381,6 +419,7 @@ export default function WordLesson({
               <button
                 ref={backFlipButtonRef}
                 type="button"
+                data-no-flip="true"
                 className="word-lesson__flip-btn word-lesson__flip-btn--back"
                 onClick={(e) => {
                   e.stopPropagation()
@@ -436,6 +475,7 @@ export default function WordLesson({
                   )}
                   <button
                     type="button"
+                    data-no-flip="true"
                     className="word-lesson__example-audio-btn"
                     onClick={(e) => handlePlayAudio(exampleSentence, e)}
                     title="Listen to example sentence"
@@ -449,11 +489,12 @@ export default function WordLesson({
             )}
 
             {/* Back face flip prompt indicator */}
-            <div className="word-lesson__flip-prompt-row word-lesson__flip-prompt-row--back">
-              <p className="word-lesson__front-hint">
-                <span className="material-symbols-outlined">touch_app</span>
-                Nhấn vào bất kỳ đâu trên thẻ để quay lại mặt trước
-              </p>
+            <div className="word-lesson__flip-action-bar word-lesson__flip-action-bar--back">
+              <div className="word-lesson__flip-action-text">
+                <span className="material-symbols-outlined word-lesson__pulse-icon">touch_app</span>
+                <span>Chạm vào đây hoặc bất kỳ đâu trên thẻ để quay lại mặt trước</span>
+              </div>
+              <span className="material-symbols-outlined" aria-hidden="true">flip_to_front</span>
             </div>
           </section>
         </div>
