@@ -1,9 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import './WordLesson.css'
 
 export default function WordLesson({ words = [], onComplete, onBack }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isPlayingAudio, setIsPlayingAudio] = useState(false)
+  const [isFlipped, setIsFlipped] = useState(false)
+  const frontFlipButtonRef = useRef(null)
+  const backFlipButtonRef = useRef(null)
+  const previousFlipStateRef = useRef(isFlipped)
 
   // Cancel any in-flight speech when the lesson unmounts
   useEffect(() => {
@@ -13,6 +17,14 @@ export default function WordLesson({ words = [], onComplete, onBack }) {
       }
     }
   }, [])
+
+  useEffect(() => {
+    if (previousFlipStateRef.current !== isFlipped) {
+      previousFlipStateRef.current = isFlipped
+      const focusTarget = isFlipped ? backFlipButtonRef.current : frontFlipButtonRef.current
+      focusTarget?.focus({ preventScroll: true })
+    }
+  }, [isFlipped])
 
   if (!words || words.length === 0) {
     return (
@@ -26,6 +38,19 @@ export default function WordLesson({ words = [], onComplete, onBack }) {
 
   const currentWord = words[currentIndex]
   const isLastWord = currentIndex === words.length - 1
+  const ipa = currentWord.ipa || currentWord.phonetic || ''
+  const exampleSentence = currentWord.exampleSentence || currentWord.exampleSentences?.[0] || ''
+
+  const stopAudio = () => {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel()
+    setIsPlayingAudio(false)
+  }
+
+  const selectWord = (index) => {
+    stopAudio()
+    setIsFlipped(false)
+    setCurrentIndex(index)
+  }
 
   const handlePlayAudio = (text) => {
     if ('speechSynthesis' in window) {
@@ -41,6 +66,8 @@ export default function WordLesson({ words = [], onComplete, onBack }) {
   }
 
   const handleNext = () => {
+    stopAudio()
+    setIsFlipped(false)
     if (isLastWord) {
       onComplete?.()
     } else {
@@ -50,6 +77,8 @@ export default function WordLesson({ words = [], onComplete, onBack }) {
 
   const handlePrev = () => {
     if (currentIndex > 0) {
+      stopAudio()
+      setIsFlipped(false)
       setCurrentIndex(prev => prev - 1)
     }
   }
@@ -63,7 +92,9 @@ export default function WordLesson({ words = [], onComplete, onBack }) {
             <button
               key={w._id || w.word || idx}
               className={`word-lesson__step-dot ${idx === currentIndex ? 'word-lesson__step-dot--active' : ''} ${idx < currentIndex ? 'word-lesson__step-dot--done' : ''}`}
-              onClick={() => setCurrentIndex(idx)}
+              onClick={() => selectWord(idx)}
+              aria-label={`Show word ${idx + 1}: ${w.word}`}
+              aria-current={idx === currentIndex ? 'step' : undefined}
               title={w.word}
             >
               <span>{idx + 1}</span>
@@ -76,89 +107,124 @@ export default function WordLesson({ words = [], onComplete, onBack }) {
       </div>
 
       {/* Main Flash/Lesson Card */}
-      <div className="word-lesson__card card-base">
-        <div className="word-lesson__top">
-          <div className="word-lesson__title-row">
-            <h2 className="word-lesson__word">{currentWord.word}</h2>
-            <button
-              className={`word-lesson__audio-btn ${isPlayingAudio ? 'word-lesson__audio-btn--playing' : ''}`}
-              onClick={() => handlePlayAudio(currentWord.word)}
-              title="Listen to pronunciation"
-              aria-label="Pronunciation"
-            >
-              <span className="material-symbols-outlined">
-                {isPlayingAudio ? 'volume_up' : 'volume_down'}
-              </span>
-            </button>
-          </div>
+      <div className="word-lesson__card">
+        <div className={`word-lesson__card-inner ${isFlipped ? 'word-lesson__card-inner--flipped' : ''}`}>
+          <section
+            className="word-lesson__face word-lesson__face--front card-base"
+            aria-hidden={isFlipped}
+            inert={isFlipped}
+          >
+            <div className="word-lesson__top">
+              <div className="word-lesson__title-row">
+                <h2 className="word-lesson__word">{currentWord.word}</h2>
+                <button
+                  type="button"
+                  className={`word-lesson__audio-btn ${isPlayingAudio ? 'word-lesson__audio-btn--playing' : ''}`}
+                  onClick={() => handlePlayAudio(currentWord.word)}
+                  title="Listen to pronunciation"
+                  aria-label={`Listen to ${currentWord.word}`}
+                >
+                  <span className="material-symbols-outlined">
+                    {isPlayingAudio ? 'volume_up' : 'volume_down'}
+                  </span>
+                </button>
+              </div>
 
-          <div className="word-lesson__meta">
-            {currentWord.ipa && <span className="word-lesson__ipa">{currentWord.ipa}</span>}
-            {currentWord.partOfSpeech && (
-              <span className="word-lesson__badge word-lesson__badge--pos">
-                {currentWord.partOfSpeech}
-              </span>
-            )}
-            {currentWord.level && (
-              <span className="word-lesson__badge word-lesson__badge--level">
-                {currentWord.level.toUpperCase()}
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Vietnamese / Definition Meaning */}
-        <div className="word-lesson__section">
-          <h4 className="word-lesson__section-title">
-            <span className="material-symbols-outlined">translate</span>
-            Meaning & Definition
-          </h4>
-          <p className="word-lesson__meaning">
-            {currentWord.meaningVi || currentWord.vietnameseMeaning || currentWord.definitionVi || currentWord.definition || currentWord.meaning || 'No definition available.'}
-          </p>
-        </div>
-
-        {/* Collocations */}
-        {currentWord.collocations && currentWord.collocations.length > 0 && (
-          <div className="word-lesson__section">
-            <h4 className="word-lesson__section-title">
-              <span className="material-symbols-outlined">link</span>
-              Common Collocations
-            </h4>
-            <div className="word-lesson__collocations">
-              {currentWord.collocations.map((col, idx) => (
-                <div key={idx} className="word-lesson__collocation-chip">
-                  <span className="material-symbols-outlined">auto_awesome</span>
-                  <span className="word-lesson__collocation-text">{typeof col === 'string' ? col : col.phrase}</span>
-                  {col.meaning && <span className="word-lesson__collocation-sub">({col.meaning})</span>}
-                </div>
-              ))}
+              <div className="word-lesson__meta">
+                {ipa && <span className="word-lesson__ipa">{ipa}</span>}
+                {currentWord.partOfSpeech && (
+                  <span className="word-lesson__badge word-lesson__badge--pos">
+                    {currentWord.partOfSpeech}
+                  </span>
+                )}
+                {currentWord.level && (
+                  <span className="word-lesson__badge word-lesson__badge--level">
+                    {currentWord.level.toUpperCase()}
+                  </span>
+                )}
+              </div>
             </div>
-          </div>
-        )}
 
-        {/* Example in Context */}
-        {currentWord.exampleSentence && (
-          <div className="word-lesson__section word-lesson__section--example">
-            <h4 className="word-lesson__section-title">
-              <span className="material-symbols-outlined">format_quote</span>
-              Example in Context
-            </h4>
-            <div className="word-lesson__example-box">
-              <p className="word-lesson__example-en">"{currentWord.exampleSentence}"</p>
-              {currentWord.exampleTranslation && (
-                <p className="word-lesson__example-vi">→ {currentWord.exampleTranslation}</p>
-              )}
-              <button
-                className="word-lesson__example-audio-btn"
-                onClick={() => handlePlayAudio(currentWord.exampleSentence)}
-                title="Listen to example sentence"
-              >
-                <span className="material-symbols-outlined">volume_up</span> Listen to example
+            <p className="word-lesson__front-hint">Think of the meaning and an example before you flip.</p>
+            <button ref={frontFlipButtonRef} type="button" className="word-lesson__flip-btn" onClick={() => setIsFlipped(true)}>
+              <span>Show meaning & usage</span>
+              <span className="material-symbols-outlined" aria-hidden="true">flip_to_back</span>
+            </button>
+          </section>
+
+          <section
+            className="word-lesson__face word-lesson__face--back card-base"
+            aria-hidden={!isFlipped}
+            inert={!isFlipped}
+          >
+            <div className="word-lesson__back-heading">
+              <div>
+                <p className="word-lesson__back-eyebrow">Meaning & usage</p>
+                <h3 className="word-lesson__back-word">{currentWord.word}</h3>
+              </div>
+              <button ref={backFlipButtonRef} type="button" className="word-lesson__flip-btn word-lesson__flip-btn--back" onClick={() => setIsFlipped(false)}>
+                <span className="material-symbols-outlined" aria-hidden="true">flip_to_front</span>
+                <span>Show word</span>
               </button>
             </div>
-          </div>
-        )}
+
+            <div className="word-lesson__section">
+              <h4 className="word-lesson__section-title">
+                <span className="material-symbols-outlined">translate</span>
+                Meaning & definition
+              </h4>
+              <p className="word-lesson__meaning">
+                {currentWord.meaningVi || currentWord.vietnameseMeaning || currentWord.definitionVi || currentWord.definition || currentWord.meaning || 'No definition available.'}
+              </p>
+            </div>
+
+            {currentWord.collocations?.length > 0 && (
+              <div className="word-lesson__section">
+                <h4 className="word-lesson__section-title">
+                  <span className="material-symbols-outlined">link</span>
+                  Common collocations
+                </h4>
+                <div className="word-lesson__collocations">
+                  {currentWord.collocations.map((col, idx) => {
+                    const phrase = typeof col === 'string' ? col : col.phrase
+                    const meaning = typeof col === 'string' ? '' : col.meaning
+                    return (
+                      <div key={`${phrase}-${idx}`} className="word-lesson__collocation-chip">
+                        <span className="word-lesson__collocation-text">{phrase}</span>
+                        {meaning && <span className="word-lesson__collocation-sub">{meaning}</span>}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {exampleSentence && (
+              <div className="word-lesson__section word-lesson__section--example">
+                <h4 className="word-lesson__section-title">
+                  <span className="material-symbols-outlined">format_quote</span>
+                  Example in context
+                </h4>
+                <div className="word-lesson__example-box">
+                  <p className="word-lesson__example-en">“{exampleSentence}”</p>
+                  {currentWord.exampleTranslation && (
+                    <p className="word-lesson__example-vi">{currentWord.exampleTranslation}</p>
+                  )}
+                  <button
+                    type="button"
+                    className="word-lesson__example-audio-btn"
+                    onClick={() => handlePlayAudio(exampleSentence)}
+                    title="Listen to example sentence"
+                    aria-label="Listen to example sentence"
+                  >
+                    <span className="material-symbols-outlined" aria-hidden="true">volume_up</span>
+                    Listen to example
+                  </button>
+                </div>
+              </div>
+            )}
+          </section>
+        </div>
       </div>
 
       {/* Navigation actions */}

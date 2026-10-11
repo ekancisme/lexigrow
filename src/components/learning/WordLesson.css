@@ -55,14 +55,105 @@
 }
 
 .word-lesson__card {
-  padding: 32px;
-  border-radius: 20px;
+  perspective: 1200px;
+  width: 100%;
+}
+
+.word-lesson__card-inner {
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform 200ms ease-out;
+}
+
+.word-lesson__card-inner--flipped {
+  transform: rotateY(180deg);
+}
+
+.word-lesson__face {
+  grid-area: 1 / 1;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  border: 1px solid var(--color-outline-variant, #e2e8f0);
-  background: var(--color-surface-container-lowest, #ffffff);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+  min-width: 0;
+  padding: 32px;
+  border: 1px solid var(--color-outline-variant, #334155);
+  border-radius: 20px;
+  background: var(--color-surface-container-lowest, #0b0f15);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.word-lesson__face--back {
+  transform: rotateY(180deg);
+}
+
+.word-lesson__front-hint {
+  margin: 0;
+  color: var(--color-outline, #94a3b8);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.word-lesson__flip-btn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--color-primary, #4f83ff);
+  border-radius: 10px;
+  background: var(--color-primary, #4f83ff);
+  color: var(--color-on-primary, #fff);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.word-lesson__flip-btn:hover {
+  transform: translateY(-1px);
+}
+
+.word-lesson__flip-btn:focus-visible,
+.word-lesson__step-dot:focus-visible,
+.word-lesson__audio-btn:focus-visible,
+.word-lesson__example-audio-btn:focus-visible {
+  outline: 3px solid var(--color-primary, #4f83ff);
+  outline-offset: 3px;
+}
+
+.word-lesson__flip-btn--back {
+  flex-shrink: 0;
+  background: transparent;
+  color: var(--color-on-surface, #e2e8f0);
+}
+
+.word-lesson__back-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--color-outline-variant, #334155);
+}
+
+.word-lesson__back-eyebrow {
+  margin: 0 0 4px;
+  color: var(--color-outline, #94a3b8);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.word-lesson__back-word {
+  margin: 0;
+  color: var(--color-on-surface, #e2e8f0);
+  font-size: 22px;
+  font-weight: 750;
+  overflow-wrap: anywhere;
 }
 
 .word-lesson__top {
@@ -186,15 +277,22 @@
 }
 
 .word-lesson__collocation-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
+  min-width: 0;
   background: var(--color-surface-container-low, #f1f5f9);
   border: 1px solid var(--color-outline-variant, #e2e8f0);
   padding: 6px 12px;
   border-radius: 12px;
   font-size: 14px;
   transition: all 0.2s ease;
+}
+
+.word-lesson__collocation-text,
+.word-lesson__collocation-sub {
+  overflow-wrap: anywhere;
 }
 
 .word-lesson__collocation-chip .material-symbols-outlined {
@@ -279,4 +377,61 @@
   border-radius: 12px;
   font-weight: 600;
   margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .word-lesson {
+    gap: 16px;
+  }
+
+  .word-lesson__face {
+    gap: 20px;
+    padding: 22px 18px;
+    border-radius: 16px;
+  }
+
+  .word-lesson__word {
+    font-size: clamp(27px, 8vw, 36px);
+    overflow-wrap: anywhere;
+  }
+
+  .word-lesson__back-heading {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .word-lesson__flip-btn--back {
+    min-height: 40px;
+    padding: 8px 12px;
+  }
+
+  .word-lesson__meaning {
+    font-size: 18px;
+    overflow-wrap: anywhere;
+  }
+
+  .word-lesson__actions {
+    flex-wrap: wrap;
+  }
+
+  .word-lesson__btn-prev,
+  .word-lesson__btn-next {
+    justify-content: center;
+    flex: 1 1 145px;
+    margin-left: 0;
+    padding: 11px 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .word-lesson__card-inner,
+  .word-lesson__flip-btn,
+  .word-lesson__step-dot,
+  .word-lesson__audio-btn {
+    transition-duration: 0.01ms;
+  }
+
+  .word-lesson__audio-btn--playing {
+    animation: none;
+  }
 }

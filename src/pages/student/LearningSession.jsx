@@ -7,7 +7,7 @@ import PracticeStep from '../../components/learning/PracticeStep'
 import RevisionComparison from '../../components/learning/RevisionComparison'
 import SessionCompletionModal from '../../components/learning/SessionCompletionModal'
 import AIFeedbackReview from './AIFeedbackReview'
-import { getTopicRound } from '../../data/topicVocabularyRounds.js'
+import { getTopicRound, TOPIC_VOCABULARY_ROUNDS } from '../../data/topicVocabularyRounds.js'
 import './LearningSession.css'
 
 const readStoredDraft = (key) => {
@@ -37,6 +37,33 @@ const matchWordInText = (targetWord, text) => {
     if (inflectedRegex.test(textNorm)) return true
   }
   return false
+}
+
+const enrichLessonWords = (words = [], slug = '', level = '') => {
+  const curatedWords = (TOPIC_VOCABULARY_ROUNDS[slug] || [])
+    .flatMap(round => round.words || [])
+  const curatedByWord = new Map(
+    curatedWords.map(word => [String(word.word || '').trim().normalize('NFC').toLowerCase(), word])
+  )
+
+  return words.map((word, idx) => {
+    const key = String(word.word || '').trim().normalize('NFC').toLowerCase()
+    const curated = curatedByWord.get(key) || {}
+    const exampleSentences = word.exampleSentences || curated.exampleSentences || []
+
+    return {
+      ...curated,
+      ...word,
+      _id: word.wordId || word._id || `w_${word.word}_${idx}`,
+      ipa: word.ipa || word.phonetic || curated.ipa || '',
+      partOfSpeech: word.partOfSpeech || curated.partOfSpeech || '',
+      level: word.level || curated.level || level,
+      meaningVi: word.meaningVi || word.definitionVi || word.definition || word.meaning || curated.meaningVi || curated.meaning || '',
+      collocations: word.collocations?.length ? word.collocations : (curated.collocations || []),
+      exampleSentence: word.exampleSentence || exampleSentences[0] || curated.exampleSentence || '',
+      exampleTranslation: word.exampleTranslation || curated.exampleTranslation || '',
+    }
+  })
 }
 
 // Built-in starter learning sets matching tasks/learning-spec.md
@@ -493,7 +520,11 @@ export default function LearningSession() {
           }
           if (payload.currentStep) setCurrentStep(payload.currentStep)
           if (payload.learningSet?.words) {
-            setLearningSet(payload.learningSet)
+            const slug = payload.learningSetSlug || payload.learningSet.slug || setSlug
+            setLearningSet({
+              ...payload.learningSet,
+              words: enrichLessonWords(payload.learningSet.words, slug, payload.learningSet.level || payload.level),
+            })
           } else {
             const slug = payload.learningSetSlug || setSlug
             const preset = defaultLearningSets[slug]
@@ -515,13 +546,7 @@ export default function LearningSession() {
             }
 
             if (payload.targetWords?.length) {
-              const mappedWords = payload.targetWords.map((w, idx) => ({
-                ...w,
-                _id: w.wordId || w._id || `w_${w.word}_${idx}`,
-                meaningVi: w.definitionVi || w.definition || w.meaningVi || '',
-                exampleSentence: w.exampleSentence || w.exampleSentences?.[0] || '',
-                exampleTranslation: w.exampleTranslation || '',
-              }))
+              const mappedWords = enrichLessonWords(payload.targetWords, slug, payload.level || preset?.level)
               setLearningSet({
                 title,
                 level: payload.level || preset?.level || 'B1',
@@ -814,13 +839,7 @@ export default function LearningSession() {
         let promptTopic = preset?.promptTopic || (payload.snapshot?.rationale || 'Write a short paragraph (60–100 words) incorporating the target words into your writing.')
 
         if (payload.targetWords?.length) {
-          const mappedWords = payload.targetWords.map((w, idx) => ({
-            ...w,
-            _id: w.wordId || w._id || `w_${w.word}_${idx}`,
-            meaningVi: w.definitionVi || w.definition || w.meaningVi || '',
-            exampleSentence: w.exampleSentence || w.exampleSentences?.[0] || '',
-            exampleTranslation: w.exampleTranslation || '',
-          }))
+          const mappedWords = enrichLessonWords(payload.targetWords, slug, payload.level || preset?.level)
           setLearningSet({
             title,
             level: payload.level || preset?.level || 'B1',
