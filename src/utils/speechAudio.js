@@ -163,8 +163,8 @@ export function playEnglishAudio(text, { onStart, onEnd, onError } = {}) {
     }
   }
 
-  // Strategy A: HTML5 Audio stream via Google Translate TTS
-  // Native MP3 format; works on 100% of browsers and OSs (desktop & mobile)
+  // Strategy A: HTML5 Audio stream via LexiGrow server proxy (/api/audio/tts)
+  // Native MP3 format served from same origin without Google third-party referer blocking
   const playWithAudioStream = () => {
     const AudioClass = typeof Audio !== 'undefined' ? Audio : (getGlobalScope().Audio || null)
     if (!AudioClass) {
@@ -173,8 +173,8 @@ export function playEnglishAudio(text, { onStart, onEnd, onError } = {}) {
     }
 
     try {
-      const encoded = encodeURIComponent(cleanText.slice(0, 200))
-      const url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=en&client=tw-ob&q=${encoded}`
+      const encoded = encodeURIComponent(cleanText.slice(0, 300))
+      const url = `/api/audio/tts?text=${encoded}&lang=en`
       const audio = new AudioClass(url)
       activeAudio = audio
 

@@ -65,7 +65,9 @@ import aiProviderRoutes from './routes/aiProvider.routes.js'
 import internalAiRelayRoutes from './routes/internalAiRelay.routes.js'
 import announcementRoutes from './routes/announcement.routes.js'
 import adminAnnouncementRoutes from './routes/admin.announcement.routes.js'
+import audioRoutes from './routes/audio.routes.js'
 
+app.use('/api/audio', audioRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/essays', essayRoutes)
 app.use('/api/essays', analysisRoutes)

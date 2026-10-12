@@ -1,9 +1,10 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
+import request from 'supertest'
+import app from '../src/app.js'
 import { playEnglishAudio, stopAudioPlayback } from '../../src/utils/speechAudio.js'
 
-describe('speechAudio utility', () => {
+describe('speechAudio utility and /api/audio/tts proxy', () => {
   beforeEach(() => {
-    // Reset global state
     stopAudioPlayback()
   })
 
@@ -24,7 +25,7 @@ describe('speechAudio utility', () => {
     expect(onError).toHaveBeenCalled()
   })
 
-  it('creates an Audio instance with Google Translate TTS endpoint', () => {
+  it('creates an Audio instance with same-origin /api/audio/tts endpoint', () => {
     let playedUrl = ''
     let playCalled = false
 
@@ -47,9 +48,9 @@ describe('speechAudio utility', () => {
     playEnglishAudio('routine')
 
     expect(playCalled).toBe(true)
-    expect(playedUrl).toContain('https://translate.google.com/translate_tts')
-    expect(playedUrl).toContain('q=routine')
-    expect(playedUrl).toContain('tl=en')
+    expect(playedUrl).toContain('/api/audio/tts')
+    expect(playedUrl).toContain('text=routine')
+    expect(playedUrl).toContain('lang=en')
   })
 
   it('stops active audio on stopAudioPlayback()', () => {
@@ -86,7 +87,7 @@ describe('speechAudio utility', () => {
 
     globalThis.speechSynthesis = {
       paused: true,
-      cancel: () => { cancelCalled = true },
+      cancel: () => {},
       resume: () => { resumed = true },
       speak: (utt) => { spokenUtterance = utt },
       getVoices: () => [{ lang: 'en-US', name: 'US English' }]
@@ -108,5 +109,19 @@ describe('speechAudio utility', () => {
     expect(resumed).toBe(true)
     expect(spokenUtterance).not.toBeNull()
     expect(spokenUtterance.text).toBe('commute')
+  })
+
+  it('rejects /api/audio/tts without text param with 400', async () => {
+    const res = await request(app).get('/api/audio/tts')
+    expect(res.status).toBe(400)
+    expect(res.body.success).toBe(false)
+  })
+
+  it('proxies audio for a word and returns audio/mpeg with 200', async () => {
+    const res = await request(app).get('/api/audio/tts?text=routine')
+    expect(res.status).toBe(200)
+    expect(res.headers['content-type']).toMatch(/audio\/mpeg/)
+    expect(res.headers['cache-control']).toContain('public')
+    expect(res.body.length).toBeGreaterThan(0)
   })
 })
