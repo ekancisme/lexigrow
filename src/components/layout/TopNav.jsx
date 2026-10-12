@@ -44,6 +44,23 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
     return () => document.removeEventListener('pointerdown', dismiss)
   }, [menuOpen, onMenuClose])
 
+  useEffect(() => {
+    if (!openId && !menuOpen) return undefined
+    const dismissWithEscape = event => {
+      if (event.key !== 'Escape' || event.defaultPrevented) return
+      if (openId) {
+        const trigger = headerRef.current?.querySelector('.navigation-disclosure.is-open > button')
+        setDisclosure(current => ({ ...current, id: null }))
+        trigger?.focus()
+      } else {
+        onMenuClose()
+        menuButtonRef.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', dismissWithEscape)
+    return () => document.removeEventListener('keydown', dismissWithEscape)
+  }, [openId, menuOpen, onMenuClose])
+
   const subtitle = role === 'teacher'
     ? user?.institution || t('header.educator')
     : role === 'parent'

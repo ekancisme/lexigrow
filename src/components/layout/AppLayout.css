@@ -42,4 +42,8 @@
     padding-bottom: calc(var(--margin-mobile) + 72px + env(safe-area-inset-bottom));
   }
 
+  .app-layout[data-role='parent'] .chat-widget {
+    bottom: calc(88px + env(safe-area-inset-bottom));
+  }
+
 }
