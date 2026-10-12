@@ -34,9 +34,8 @@ export default function QuestGardenCard({ garden = false }) {
       <div className="quest-banner-content">
         {/* Left Side: Icon & Copy */}
         <div className="quest-banner-left">
-          <div className="quest-banner-icon">
-            <span className="material-symbols-outlined">{garden ? 'emoji_nature' : 'psychology'}</span>
-            <span className="quest-banner-icon__ping" />
+          <div className="quest-banner-artwork-wrap">
+            <img src="/assets/editorial/artwork/daily-quest.svg" alt="Daily Quest" className="quest-banner-illustration" />
           </div>
 
           <div className="quest-banner-info">

@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    LexiGrow Game Zone - Desktop Play Hub (Arcade Editorial Design)
    Stitch Project: 16402852567940569945
    Fully Adaptive for Light Mode & Dark Mode
@@ -14,45 +14,9 @@
   padding-bottom: var(--spacing-2xl);
 }
 
-/* Ambient Background Glow */
+/* Ambient Background Glow (Removed in favor of crisp editorial layout) */
 .game-hub-ambient {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 600px;
-  overflow: hidden;
-  pointer-events: none;
-  z-index: 0;
-}
-
-.ambient-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.25;
-  animation: pulse-glow 6s ease-in-out infinite;
-}
-
-[data-theme="dark"] .ambient-orb {
-  opacity: 0.18;
-}
-
-.ambient-orb--blue {
-  top: -80px;
-  left: -100px;
-  width: 450px;
-  height: 450px;
-  background: #005BBF;
-}
-
-.ambient-orb--green {
-  top: 40px;
-  right: -50px;
-  width: 500px;
-  height: 400px;
-  background: #16A34A;
-  animation-delay: 3s;
+  display: none;
 }
 
 @keyframes pulse-glow {
@@ -309,35 +273,23 @@
   max-width: 680px;
 }
 
-.quest-banner-icon {
-  position: relative;
-  width: 68px;
-  height: 68px;
-  border-radius: var(--radius-2xl);
-  background: linear-gradient(135deg, #006e2e 0%, #003914 100%);
-  color: #7ffc97;
+.quest-banner-artwork-wrap {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-lg, 12px);
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-outline-variant, #e2e8f0);
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
   flex-shrink: 0;
-  border: 2px solid rgba(127, 252, 151, 0.4);
-  box-shadow: 0 4px 16px rgba(0, 110, 46, 0.4);
 }
 
-.quest-banner-icon .material-symbols-outlined {
-  font-size: 38px;
-}
-
-.quest-banner-icon__ping {
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #62df7d;
-  box-shadow: 0 0 10px #62df7d;
-  animation: pulse-glow 2s infinite;
+.quest-banner-illustration {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .quest-banner-info h3 {
@@ -445,37 +397,44 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: var(--spacing-xl);
-  border-radius: var(--radius-2xl);
-  background: var(--color-surface-container-low);
-  border: 2px solid var(--color-outline-variant);
-  box-shadow: var(--shadow-md);
-  transition: all var(--transition-slow);
+  padding: 20px;
+  border-radius: var(--radius-lg, 12px);
+  background: var(--color-surface-container-lowest, #ffffff);
+  border: 1px solid var(--color-outline-variant, #e2e8f0);
+  box-shadow: var(--shadow-card, 0 1px 3px rgba(0, 0, 0, 0.05));
+  transition: transform var(--transition-fast, 0.15s ease), box-shadow var(--transition-fast, 0.15s ease), border-color var(--transition-fast, 0.15s ease);
   overflow: hidden;
-  gap: var(--spacing-md);
+  gap: 16px;
 }
 
 .arcade-game-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  box-shadow: var(--shadow-card-hover, 0 6px 16px -2px rgba(15, 23, 42, 0.08));
 }
 
-/* Card Ambient Background Glow */
+/* Card Artwork Header */
+.card-artwork-header {
+  width: 100%;
+  height: 140px;
+  border-radius: var(--radius-md, 8px);
+  background: var(--color-surface-container-low, #f8fafc);
+  border: 1px solid var(--color-outline-variant, #e2e8f0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.card-artwork-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Card Ambient Background Glow (Removed) */
 .card-ambient-glow {
-  position: absolute;
-  top: -40px;
-  right: -40px;
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  filter: blur(50px);
-  pointer-events: none;
-  opacity: 0.25;
-  transition: transform 0.4s ease, opacity 0.4s ease;
-}
-
-.arcade-game-card:hover .card-ambient-glow {
-  transform: scale(1.3);
-  opacity: 0.45;
+  display: none;
 }
 
 /* Top Meta Row in Card */

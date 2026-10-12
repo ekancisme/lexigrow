@@ -141,7 +141,7 @@
 
 .flashcard-page__progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-primary), #1A73E8);
+  background: var(--color-primary, #1e40af);
   border-radius: var(--radius-full);
   transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -190,14 +190,11 @@
   width: 100%;
   height: 100%;
   min-height: inherit; /* Inherit min-height to enforce container height */
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg, 12px);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
   overflow: hidden;
-  box-shadow:
-    0 4px 6px -1px rgba(0, 0, 0, 0.07),
-    0 20px 40px -8px rgba(0, 91, 191, 0.12),
-    0 0 0 1px var(--color-outline-variant);
+  box-shadow: var(--shadow-card, 0 1px 3px rgba(0, 0, 0, 0.05)), 0 0 0 1px var(--color-outline-variant, #e2e8f0);
   transition: opacity 0.65s cubic-bezier(0.4, 0, 0.2, 1); /* Sync flip animation */
 }
 
@@ -249,8 +246,8 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--color-primary), #1A73E8, var(--color-secondary));
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--color-primary, #1e40af);
+  border-radius: var(--radius-lg, 12px) var(--radius-lg, 12px) 0 0;
 }
 
 /* Mastery badge — top left */

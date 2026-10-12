@@ -81,6 +81,7 @@ export default function GameHub() {
       featureLeft: 'Target speed: 45 WPM',
       featureRight: t('games.xpPracticeOnly', 'Practice only · no XP reward'),
       icon: 'sports_esports',
+      artwork: '/assets/editorial/artwork/vocab-hunter.svg',
       cardClass: 'arcade-card--hunter',
       btnClass: 'arcade-btn--hunter',
       path: '/student/game/hunter'
@@ -96,6 +97,7 @@ export default function GameHub() {
       featureLeft: '"Her lexical precision was ___."',
       featureRight: t('games.xpPracticeOnly', 'Practice only · no XP reward'),
       icon: 'psychology',
+      artwork: '/assets/editorial/artwork/context-filler.svg',
       cardClass: 'arcade-card--filler',
       btnClass: 'arcade-btn--filler',
       path: '/student/game/filler'
@@ -111,6 +113,7 @@ export default function GameHub() {
       featureLeft: 'Phonetic IPA clues',
       featureRight: t('games.xpPracticeOnly', 'Practice only · no XP reward'),
       icon: 'spellcheck',
+      artwork: '/assets/editorial/artwork/word-scramble.svg',
       cardClass: 'arcade-card--scramble',
       btnClass: 'arcade-btn--scramble',
       path: '/student/game/scramble'
@@ -126,6 +129,7 @@ export default function GameHub() {
       featureLeft: '16 Cards · Grid 4x4',
       featureRight: t('games.xpPracticeOnly', 'Practice only · no XP reward'),
       icon: 'extension',
+      artwork: '/assets/editorial/artwork/word-matching.svg',
       cardClass: 'arcade-card--matching',
       btnClass: 'arcade-btn--matching',
       path: '/student/game/matching'
@@ -221,8 +225,10 @@ export default function GameHub() {
                 ref={(el) => (cardsRef.current[idx] = el)}
                 className={`arcade-game-card ${game.cardClass}`}
               >
-                {/* Background Ambient Glow */}
-                <div className="card-ambient-glow" />
+                {/* Editorial Game Artwork Banner */}
+                <div className="card-artwork-header">
+                  <img src={game.artwork} alt={game.title} className="card-artwork-img" loading="lazy" />
+                </div>
 
                 <div>
                   {/* Category Tag & High Score */}
