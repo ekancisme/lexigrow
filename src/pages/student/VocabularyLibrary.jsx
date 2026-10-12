@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
+import { playEnglishAudio, stopAudioPlayback } from '../../utils/speechAudio.js'
 import './VocabularyLibrary.css'
 
 export default function VocabularyLibrary() {
@@ -121,21 +122,14 @@ export default function VocabularyLibrary() {
     }
   }
 
-  // Speak word using Web Speech Synthesis API
+  // Speak word using reliable audio playback
   const handleSpeak = (text) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel()
-      const utterance = new SpeechSynthesisUtterance(text)
-      utterance.lang = 'en-US'
-      utterance.rate = 0.9
-      window.speechSynthesis.speak(utterance)
-    }
+    if (!text) return
+    playEnglishAudio(text)
   }
 
   const handleCloseDetail = () => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel()
-    }
+    stopAudioPlayback()
     setSelectedWord(null)
   }
 

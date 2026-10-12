@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import api from '../../services/api.js'
+import { playEnglishAudio, stopAudioPlayback } from '../../utils/speechAudio.js'
 import './TextTranslator.css'
 
 export default function TextTranslator() {
@@ -86,18 +87,13 @@ export default function TextTranslator() {
   }
 
   const handleSpeak = () => {
-    if ('speechSynthesis' in window && selectionInfo?.text) {
-      window.speechSynthesis.cancel()
-      const utterance = new SpeechSynthesisUtterance(selectionInfo.text)
-      utterance.lang = 'en-US'
-      window.speechSynthesis.speak(utterance)
+    if (selectionInfo?.text) {
+      playEnglishAudio(selectionInfo.text)
     }
   }
 
   const handleClose = () => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel()
-    }
+    stopAudioPlayback()
     setSelectionInfo(null)
     setIsOpen(false)
     setTranslation('')

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import { fetchAllVocabularyWords } from '../../utils/fetchAllVocabularyWords.js'
+import { playEnglishAudio, stopAudioPlayback } from '../../utils/speechAudio.js'
 import './FlashcardReview.css'
 
 export default function FlashcardReview() {
@@ -81,8 +82,8 @@ export default function FlashcardReview() {
 
     return () => {
       isCurrent = false
-      // Cleanup speech on unmount
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel()
+      // Cleanup audio on unmount
+      stopAudioPlayback()
       if (animTimeout.current) clearTimeout(animTimeout.current)
     }
   }, [categoryFilter, searchParams])
@@ -96,14 +97,8 @@ export default function FlashcardReview() {
   // ── Voice: pronounce word ──
   const handleSpeak = useCallback((e) => {
     e?.stopPropagation()
-    if (!currentCard) return
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel()
-      const utterance = new SpeechSynthesisUtterance(currentCard.word)
-      utterance.lang = 'en-US'
-      utterance.rate = 0.85
-      window.speechSynthesis.speak(utterance)
-    }
+    if (!currentCard?.word) return
+    playEnglishAudio(currentCard.word)
   }, [currentCard])
 
   // ── Flip card ──

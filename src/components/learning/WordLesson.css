@@ -54,675 +54,419 @@
   font-weight: 500;
 }
 
-/* Card Container */
+/* ── Main Flashcard Card (Single face, clean presentation) ── */
 .word-lesson__card {
-  perspective: 1200px;
   width: 100%;
-  cursor: pointer;
   border-radius: 20px;
-  outline: none;
-  user-select: text;
-}
-
-.word-lesson__card:focus-visible {
-  outline: 3px solid var(--color-primary, #4f83ff);
-  outline-offset: 4px;
-}
-
-.word-lesson__card-inner {
-  display: grid;
-  transform-style: preserve-3d;
-  transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.word-lesson__card-inner--flipped {
-  transform: rotateY(180deg);
-}
-
-/* Front & Back Faces - Z-Index and Pointer-Events Guarantee */
-.word-lesson__face {
-  grid-area: 1 / 1;
+  padding: 32px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
   display: flex;
   flex-direction: column;
   gap: 20px;
-  min-width: 0;
-  padding: 28px;
-  border: 1px solid var(--color-outline-variant, #334155);
-  border-radius: 20px;
-  background: var(--color-surface-container-lowest, #0b0f15);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.word-lesson__face--front {
-  z-index: 2;
-  pointer-events: auto;
+/* Top Header */
+.word-lesson__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
 }
 
-.word-lesson__card-inner--flipped .word-lesson__face--front {
-  z-index: 1;
-  pointer-events: none;
-}
-
-.word-lesson__face--back {
-  z-index: 1;
-  pointer-events: none;
-  transform: rotateY(180deg);
-}
-
-.word-lesson__card-inner--flipped .word-lesson__face--back {
-  z-index: 2;
-  pointer-events: auto;
-}
-
-.word-lesson__card:hover .word-lesson__face {
-  border-color: rgba(79, 131, 255, 0.5);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.3);
-}
-
-/* Top Section */
-.word-lesson__top {
+.word-lesson__header-main {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--color-surface-variant, rgba(255, 255, 255, 0.08));
-}
-
-.word-lesson__title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }
 
 .word-lesson__word {
-  font-size: 36px;
+  font-size: 38px;
   font-weight: 800;
-  color: var(--color-on-surface, #f8fafc);
-  letter-spacing: -0.02em;
+  color: #0f172a;
   margin: 0;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
+.word-lesson__meta-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.word-lesson__badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.word-lesson__badge--ipa {
+  background: #f1f5f9;
+  color: #475569;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.word-lesson__badge--pos {
+  background: #dbeafe;
+  color: #1d4ed8;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+.word-lesson__badge--level {
+  background: #ede9fe;
+  color: #4338ca;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Audio Pronunciation Button */
 .word-lesson__audio-btn {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: var(--color-primary-fixed, #1e3a8a);
-  color: var(--color-primary, #60a5fa);
+  background: #e0edff;
+  color: #2563eb;
   border: none;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
-  z-index: 3;
 }
 
 .word-lesson__audio-btn:hover {
-  background: var(--color-primary, #2563eb);
-  color: #fff;
+  background: #2563eb;
+  color: #ffffff;
   transform: scale(1.08);
 }
 
+.word-lesson__audio-btn:focus-visible {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+
 .word-lesson__audio-btn--playing {
+  background: #2563eb;
+  color: #ffffff;
   animation: pulse-audio 1s infinite;
 }
 
 @keyframes pulse-audio {
   0% { transform: scale(1); }
-  50% { transform: scale(1.12); }
+  50% { transform: scale(1.1); }
   100% { transform: scale(1); }
 }
 
-.word-lesson__meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px;
-}
-
-.word-lesson__ipa {
-  font-family: monospace;
-  font-size: 15px;
-  color: var(--color-outline, #94a3b8);
-  background: var(--color-surface-container-low, rgba(255, 255, 255, 0.05));
-  padding: 4px 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.word-lesson__badge {
-  font-size: 12px;
-  font-weight: 700;
-  padding: 4px 8px;
-  border-radius: 6px;
-  text-transform: uppercase;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.word-lesson__badge--pos {
-  background: var(--color-secondary-container, rgba(99, 102, 241, 0.2));
-  color: var(--color-on-secondary-container, #a5b4fc);
-}
-
-.word-lesson__badge--level {
-  background: var(--color-primary-fixed, rgba(37, 99, 235, 0.2));
-  color: var(--color-primary, #60a5fa);
-}
-
-.word-lesson__badge--topic {
-  background: rgba(13, 148, 136, 0.2);
-  color: #2dd4bf;
-  text-transform: none;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.word-lesson__badge--topic .material-symbols-outlined {
-  font-size: 15px;
-}
-
-/* Interactive Body Area */
-.word-lesson__body-interactive {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+/* Subtle Divider */
+.word-lesson__divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 4px 0;
   width: 100%;
-  cursor: pointer;
 }
 
-/* Visual Illustration Banner */
-.word-lesson__visual-banner {
-  position: relative;
-  width: 100%;
-  height: 145px;
-  border-radius: 14px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background-size: cover;
-  background-position: center;
-}
-
-.word-lesson__visual-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.4s ease;
-}
-
-.word-lesson__card:hover .word-lesson__visual-img {
-  transform: scale(1.03);
-}
-
-.word-lesson__visual-fallback {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.word-lesson__visual-fallback-icon {
-  font-size: 64px;
-  color: rgba(255, 255, 255, 0.35);
-}
-
-.word-lesson__visual-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(11, 15, 21, 0.85) 0%, rgba(11, 15, 21, 0.2) 60%, transparent 100%);
-  display: flex;
-  align-items: flex-end;
-  padding: 12px 14px;
-}
-
-.word-lesson__visual-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: #f1f5f9;
-  font-size: 12px;
-  font-weight: 600;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-.word-lesson__visual-tag .material-symbols-outlined {
-  font-size: 15px;
-  color: #60a5fa;
-}
-
-/* Front Subtitles & Sections */
-.word-lesson__front-subtitle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13.5px;
-  font-weight: 650;
-  color: var(--color-outline, #94a3b8);
-  margin-bottom: 8px;
-}
-
-.word-lesson__front-subtitle .material-symbols-outlined {
-  font-size: 17px;
-  color: var(--color-primary, #60a5fa);
-}
-
-.word-lesson__sample-section {
-  display: flex;
-  flex-direction: column;
-}
-
-.word-lesson__sample-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.word-lesson__sample-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 13px;
-  border-radius: 10px;
-  background: rgba(96, 165, 250, 0.1);
-  border: 1px solid rgba(96, 165, 250, 0.25);
-  color: #bfdbfe;
-  font-size: 13.5px;
-  font-weight: 600;
-  transition: all 0.2s ease;
-}
-
-.word-lesson__sample-chip .material-symbols-outlined {
-  font-size: 14px;
-  color: #60a5fa;
-}
-
-.word-lesson__sample-chip:hover {
-  background: rgba(96, 165, 250, 0.2);
-  border-color: rgba(96, 165, 250, 0.45);
-}
-
-/* Context Clue Box */
-.word-lesson__context-clue {
-  background: rgba(255, 255, 255, 0.03);
-  border-left: 3px solid var(--color-primary, #3b82f6);
-  border-radius: 0 10px 10px 0;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.word-lesson__context-sentence {
-  margin: 0;
-  font-size: 14.5px;
-  line-height: 1.5;
-  color: var(--color-on-surface, #e2e8f0);
-  font-style: italic;
-}
-
-.word-lesson__context-highlight {
-  font-weight: 750;
-  color: #60a5fa;
-  font-style: normal;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.word-lesson__context-subnote {
-  font-size: 12px;
-  color: #94a3b8;
-  font-style: normal;
-}
-
-/* Role / Memory Box */
-.word-lesson__role-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px dashed rgba(255, 255, 255, 0.12);
-  font-size: 12.5px;
-  color: #94a3b8;
-}
-
-.word-lesson__role-box .material-symbols-outlined {
-  font-size: 16px;
-  color: #38bdf8;
-}
-
-/* Flip Action Bar */
-.word-lesson__flip-action-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.12) 0%, rgba(79, 131, 255, 0.06) 100%);
-  border: 1px solid rgba(79, 131, 255, 0.3);
-  margin-top: 4px;
-  transition: all 0.2s ease;
-}
-
-.word-lesson__face:hover .word-lesson__flip-action-bar {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.2) 0%, rgba(79, 131, 255, 0.12) 100%);
-  border-color: rgba(79, 131, 255, 0.5);
-  box-shadow: 0 4px 16px rgba(0, 91, 191, 0.2);
-}
-
-.word-lesson__flip-action-bar--back {
-  justify-content: space-between;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px dashed rgba(255, 255, 255, 0.15);
-}
-
-.word-lesson__flip-action-text {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #93c5fd;
-  line-height: 1.4;
-}
-
-.word-lesson__pulse-icon {
-  font-size: 18px;
-  color: #60a5fa;
-  animation: pulse-icon 1.8s infinite;
-}
-
-@keyframes pulse-icon {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.15); opacity: 0.8; }
-}
-
-.word-lesson__flip-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 38px;
-  padding: 8px 16px;
-  border: 1px solid var(--color-primary, #4f83ff);
-  border-radius: 10px;
-  background: var(--color-primary, #4f83ff);
-  color: var(--color-on-primary, #fff);
-  font: inherit;
-  font-size: 13.5px;
-  font-weight: 700;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
-  z-index: 3;
-}
-
-.word-lesson__flip-btn:hover {
-  transform: translateY(-1px);
-  background: #3b73f6;
-}
-
-.word-lesson__flip-btn:focus-visible,
-.word-lesson__step-dot:focus-visible,
-.word-lesson__audio-btn:focus-visible,
-.word-lesson__example-audio-btn:focus-visible {
-  outline: 3px solid var(--color-primary, #4f83ff);
-  outline-offset: 3px;
-}
-
-.word-lesson__flip-btn--back {
-  flex-shrink: 0;
-  background: transparent;
-  color: var(--color-on-surface, #e2e8f0);
-}
-
-/* Back Face Sections */
-.word-lesson__back-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--color-outline-variant, #334155);
-}
-
-.word-lesson__back-eyebrow {
-  margin: 0 0 4px;
-  color: var(--color-outline, #94a3b8);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.word-lesson__back-word {
-  margin: 0;
-  color: var(--color-on-surface, #e2e8f0);
-  font-size: 24px;
-  font-weight: 750;
-  overflow-wrap: anywhere;
-}
-
+/* Section Common Styles */
 .word-lesson__section {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.word-lesson__section-title {
+.word-lesson__section-heading {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  color: #64748b;
   font-size: 14px;
   font-weight: 600;
-  color: var(--color-outline, #94a3b8);
-  margin: 0;
 }
 
-.word-lesson__section-title .material-symbols-outlined {
-  font-size: 18px;
-  color: var(--color-primary, #60a5fa);
+.word-lesson__heading-icon {
+  color: #2563eb;
+  font-size: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
+.word-lesson__heading-label {
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Section 1: Meaning */
 .word-lesson__meaning {
   font-size: 20px;
-  font-weight: 600;
-  color: var(--color-on-surface, #f8fafc);
+  font-weight: 700;
+  color: #0f172a;
   margin: 0;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 
+/* Section 2: Collocations */
 .word-lesson__collocations {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
-.word-lesson__collocation-chip {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 8px;
-  min-width: 0;
-  background: var(--color-surface-container-low, rgba(255, 255, 255, 0.04));
-  border: 1px solid var(--color-outline-variant, #334155);
-  padding: 6px 12px;
-  border-radius: 12px;
+.word-lesson__collocation-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 7px 14px;
+  transition: all 0.15s ease;
+}
+
+.word-lesson__collocation-pill:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.word-lesson__collocation-sparkle {
   font-size: 14px;
-  transition: all 0.2s ease;
-}
-
-.word-lesson__collocation-text,
-.word-lesson__collocation-sub {
-  overflow-wrap: anywhere;
+  line-height: 1;
 }
 
 .word-lesson__collocation-text {
+  font-size: 14px;
   font-weight: 600;
-  color: var(--color-on-surface, #f1f5f9);
+  color: #1e293b;
 }
 
-.word-lesson__collocation-sub {
-  color: var(--color-outline, #94a3b8);
-  font-size: 13px;
-}
-
-.word-lesson__example-box {
-  background: linear-gradient(135deg, rgba(0, 91, 191, 0.08) 0%, rgba(26, 115, 232, 0.12) 100%);
-  border-left: 4px solid var(--color-primary, #3b82f6);
-  border-radius: 0 12px 12px 0;
-  padding: 16px;
+/* Section 3: Example in Context */
+.word-lesson__example-callout {
+  background: #f0f7ff;
+  border-radius: 12px;
+  border-left: 4px solid #005bbf;
+  padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
 }
 
-.word-lesson__example-en {
+.word-lesson__example-sentence {
   font-size: 16px;
-  font-weight: 500;
-  color: var(--color-on-surface, #f8fafc);
   font-style: italic;
+  font-weight: 500;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.word-lesson__example-translation {
+  font-size: 14px;
+  color: #475569;
   margin: 0;
   line-height: 1.5;
 }
 
-.word-lesson__example-vi {
-  font-size: 14px;
-  color: var(--color-outline, #cbd5e1);
-  margin: 0;
-}
-
 .word-lesson__example-audio-btn {
-  align-self: flex-start;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  background: none;
+  gap: 6px;
+  background: transparent;
   border: none;
-  color: var(--color-primary, #60a5fa);
-  font-size: 13px;
-  font-weight: 600;
+  padding: 0;
   cursor: pointer;
-  padding: 4px 0;
-  z-index: 3;
+  color: #005bbf;
+  font-size: 14px;
+  font-weight: 600;
+  width: fit-content;
+  transition: all 0.15s ease;
+}
+
+.word-lesson__example-audio-btn:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+.word-lesson__example-audio-btn:focus-visible {
+  outline: 2px solid #005bbf;
+  outline-offset: 2px;
 }
 
 .word-lesson__example-audio-btn .material-symbols-outlined {
-  font-size: 16px;
+  font-size: 18px;
 }
 
-/* Actions Footer */
+.word-lesson__example-audio-btn--playing {
+  color: #1d4ed8;
+  animation: pulse-audio 1s infinite;
+}
+
+/* ── Navigation Actions ── */
 .word-lesson__actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
-.word-lesson__btn-prev {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  border-radius: 12px;
-  font-weight: 600;
-}
-
+.word-lesson__btn-prev,
 .word-lesson__btn-next {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 28px;
-  border-radius: 12px;
+  padding: 10px 20px;
   font-weight: 600;
-  margin-left: auto;
+  font-size: 15px;
 }
 
-/* Mobile Responsiveness */
+.word-lesson__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 60px 20px;
+  text-align: center;
+  border-radius: 20px;
+}
+
+/* ── Dark Mode Adaptations ── */
+[data-theme="dark"] .word-lesson__card,
+.dark .word-lesson__card {
+  background: var(--color-surface, #131b2e);
+  border-color: var(--color-outline-variant, #1e293b);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .word-lesson__word,
+.dark .word-lesson__word {
+  color: var(--color-on-surface, #f8fafc);
+}
+
+[data-theme="dark"] .word-lesson__badge--ipa,
+.dark .word-lesson__badge--ipa {
+  background: #1e293b;
+  color: #cbd5e1;
+}
+
+[data-theme="dark"] .word-lesson__badge--pos,
+.dark .word-lesson__badge--pos {
+  background: rgba(37, 99, 235, 0.2);
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .word-lesson__badge--level,
+.dark .word-lesson__badge--level {
+  background: rgba(139, 92, 246, 0.2);
+  color: #c4b5fd;
+}
+
+[data-theme="dark"] .word-lesson__audio-btn,
+.dark .word-lesson__audio-btn {
+  background: rgba(37, 99, 235, 0.25);
+  color: #93c5fd;
+}
+
+[data-theme="dark"] .word-lesson__audio-btn:hover,
+.dark .word-lesson__audio-btn:hover {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .word-lesson__divider,
+.dark .word-lesson__divider {
+  background: #1e293b;
+}
+
+[data-theme="dark"] .word-lesson__heading-label,
+.dark .word-lesson__heading-label {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .word-lesson__heading-icon,
+.dark .word-lesson__heading-icon {
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .word-lesson__meaning,
+.dark .word-lesson__meaning {
+  color: var(--color-on-surface, #f8fafc);
+}
+
+[data-theme="dark"] .word-lesson__collocation-pill,
+.dark .word-lesson__collocation-pill {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .word-lesson__collocation-text,
+.dark .word-lesson__collocation-text {
+  color: #f1f5f9;
+}
+
+[data-theme="dark"] .word-lesson__example-callout,
+.dark .word-lesson__example-callout {
+  background: rgba(30, 58, 138, 0.25);
+  border-left-color: #3b82f6;
+}
+
+[data-theme="dark"] .word-lesson__example-sentence,
+.dark .word-lesson__example-sentence {
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .word-lesson__example-translation,
+.dark .word-lesson__example-translation {
+  color: #94a3b8;
+}
+
+[data-theme="dark"] .word-lesson__example-audio-btn,
+.dark .word-lesson__example-audio-btn {
+  color: #60a5fa;
+}
+
+/* ── Mobile responsiveness ── */
 @media (max-width: 640px) {
-  .word-lesson {
+  .word-lesson__card {
+    padding: 20px;
     gap: 16px;
-  }
-
-  .word-lesson__face {
-    gap: 16px;
-    padding: 20px 16px;
-    border-radius: 16px;
-  }
-
-  .word-lesson__visual-banner {
-    height: 110px;
   }
 
   .word-lesson__word {
-    font-size: clamp(26px, 7vw, 34px);
-    overflow-wrap: anywhere;
+    font-size: 28px;
   }
 
-  .word-lesson__back-heading {
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .word-lesson__flip-btn--back {
-    min-height: 38px;
-    padding: 6px 12px;
+  .word-lesson__audio-btn {
+    width: 42px;
+    height: 42px;
   }
 
   .word-lesson__meaning {
     font-size: 18px;
-    overflow-wrap: anywhere;
   }
 
-  .word-lesson__flip-action-bar {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-  }
-
-  .word-lesson__flip-btn {
-    width: 100%;
+  .word-lesson__example-callout {
+    padding: 14px 16px;
   }
 
   .word-lesson__actions {
-    flex-wrap: wrap;
+    flex-direction: column-reverse;
   }
 
   .word-lesson__btn-prev,
   .word-lesson__btn-next {
+    width: 100%;
     justify-content: center;
-    flex: 1 1 145px;
-    margin-left: 0;
-    padding: 11px 14px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .word-lesson__card-inner,
-  .word-lesson__flip-btn,
-  .word-lesson__step-dot,
-  .word-lesson__audio-btn,
-  .word-lesson__visual-img {
-    transition-duration: 0.01ms;
-  }
-
-  .word-lesson__audio-btn--playing,
-  .word-lesson__pulse-icon {
-    animation: none;
   }
 }
