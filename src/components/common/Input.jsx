@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react'
+import { forwardRef, useId } from 'react'
 import './Input.css'
 
 const Input = forwardRef(function Input({
@@ -13,7 +13,13 @@ const Input = forwardRef(function Input({
   disabled = false,
   ...rest
 }, ref) {
-  const inputId = id || (label ? `lexi-input-${label.toLowerCase().replace(/\s+/g, '-')}` : undefined)
+  const generatedId = useId()
+  const fallbackId = `lexi-input-${generatedId.replace(/:/g, '')}`
+  const inputId = id || (label ? `lexi-input-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : fallbackId)
+
+  const errorId = error ? `${inputId}-error` : undefined
+  const helperId = helperText ? `${inputId}-helper` : undefined
+  const describedBy = [errorId, helperId].filter(Boolean).join(' ') || undefined
 
   const inputClasses = [
     'lexi-input',
@@ -42,8 +48,8 @@ const Input = forwardRef(function Input({
           type={type}
           disabled={disabled}
           className={inputClasses}
-          aria-invalid={!!error}
-          aria-describedby={error ? `${inputId}-error` : helperText ? `${inputId}-helper` : undefined}
+          aria-invalid={Boolean(error)}
+          aria-describedby={describedBy}
           {...rest}
         />
         {rightIcon && (
@@ -53,11 +59,11 @@ const Input = forwardRef(function Input({
         )}
       </div>
       {error ? (
-        <span id={`${inputId}-error`} className="lexi-field__error" role="alert">
+        <span id={errorId} className="lexi-field__error" role="alert">
           {error}
         </span>
       ) : helperText ? (
-        <span id={`${inputId}-helper`} className="lexi-field__helper">
+        <span id={helperId} className="lexi-field__helper">
           {helperText}
         </span>
       ) : null}

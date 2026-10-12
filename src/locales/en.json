@@ -231,7 +231,13 @@
     "weeklyGoals": "Weekly Goals",
     "newWordsAcquired": "New Words Acquired",
     "writingVolume": "Writing Volume",
-    "targetLevel": "Target Level"
+    "targetLevel": "Target Level",
+    "recentEssaysDesc": "Review latest submissions, CEFR scores, and teacher or AI diagnostic reports.",
+    "spacedRepetition": "Spaced Repetition (SRS)",
+    "vocabGrowth": "Vocabulary Growth",
+    "weekly": "Weekly",
+    "monthly": "Monthly",
+    "chartLoadError": "Could not load vocabulary growth."
   },
   "flashcards": {
     "title": "SRS Flashcard Review",
@@ -282,6 +288,7 @@
     "saved": "Draft saved"
   },
   "games": {
+    "arcadePractice": "Arcade Practice",
     "xpPracticeOnly": "Practice only · no XP reward",
     "playerLevel": "Level",
     "cefrLevel": "English level",
@@ -1013,7 +1020,20 @@
     "step2": "2. Quick Practice",
     "step3": "3. Smart Writing",
     "step4": "4. AI Feedback",
-    "sessionDuration": "Level {level} · 10-Minute Session"
+    "sessionDuration": "Level {level} · 10-Minute Session",
+    "gradingTitle": "AI Agent is Evaluating & Analyzing Your Essay...",
+    "gradingSubtitle": "Please wait a moment while the AI evaluates your essay against CEFR rubrics. Results will appear automatically once complete!",
+    "gradingProgress": "AI Evaluation Progress",
+    "gradingProcessing": "In progress",
+    "gradingComplete": "Completed",
+    "gradingStage1Title": "1. Target Vocabulary Check",
+    "gradingStage1Desc": "Checking accuracy, context, and collocations of required vocabulary.",
+    "gradingStage2Title": "2. Grammar & Lexical Diversity",
+    "gradingStage2Desc": "Measuring academic indices (TTR, HD-D, MTLD) and syntactic precision.",
+    "gradingStage3Title": "3. Coherence & Improvement Suggestions",
+    "gradingStage3Desc": "Detecting repetitive terms, analyzing clause structures, and formulating suggestions.",
+    "gradingStage4Title": "4. Compiling Diagnostic Report",
+    "gradingStage4Desc": "Synthesizing comprehensive feedback, getting ready to present results."
   },
   "adminChat": {
     "roomsTitle": "Chat Rooms",
@@ -1031,5 +1051,34 @@
     "loadingRooms": "Loading chat rooms...",
     "user": "User {id}",
     "generalSupport": "General Support"
+  },
+  "headerNavigation": {
+    "learning": "Learn",
+    "practice": "Practice",
+    "flashcards": "Flashcards",
+    "games": "Vocabulary games",
+    "dailyQuest": "Daily word quest",
+    "progressOverview": "Progress & rankings",
+    "teaching": "Teaching",
+    "tracking": "Monitoring",
+    "tools": "Tools",
+    "management": "Management",
+    "operations": "Operations",
+    "billing": "Billing",
+    "support": "Support chat",
+    "myChild": "My child",
+    "family": "Family",
+    "levelNotSet": "Level not set",
+    "activeAlerts": "{count} active alerts",
+    "linkChildFirst": "Link a student to view their learning progress.",
+    "primaryNavigation": "Main navigation",
+    "homeLabel": "LexiGrow home",
+    "account": "Account",
+    "openMenu": "Open navigation",
+    "closeMenu": "Close navigation",
+    "parentOf": "Parent of {names}",
+    "administrator": "Administrator",
+    "currentPlan": "{tier} plan",
+    "sponsoredPlan": "Sponsored by your teacher"
   }
 }

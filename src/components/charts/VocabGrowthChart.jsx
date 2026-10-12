@@ -1,10 +1,14 @@
 import { useState } from 'react'
 import useDashboardResource from '../../hooks/useDashboardResource.js'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import './VocabGrowthChart.css'
 
-export default function VocabGrowthChart({ title = 'Vocabulary Growth', activeTab = 'Weekly' }) {
+export default function VocabGrowthChart({ title, activeTab = 'Weekly' }) {
+  const { t } = useLanguage()
+  const displayTitle = title || t('dashboard.vocabGrowth', 'Vocabulary Growth')
   const [tab, setTab] = useState(activeTab)
-  const periodParam = tab === 'Monthly' ? 'monthly' : 'weekly'
+  const isMonthly = tab === 'Monthly' || tab === 'monthly'
+  const periodParam = isMonthly ? 'monthly' : 'weekly'
   const chartResource = useDashboardResource(`/vocabulary/growth?period=${periodParam}`)
   const chartData = chartResource.response?.success && Array.isArray(chartResource.response.data)
     ? chartResource.response.data
@@ -40,19 +44,19 @@ export default function VocabGrowthChart({ title = 'Vocabulary Growth', activeTa
   return (
     <div className="vocab-chart card-base">
       <div className="vocab-chart__header">
-        <h3 className="text-title-lg">{title}</h3>
+        <h3 className="text-title-lg">{displayTitle}</h3>
         <div className="vocab-chart__tabs">
           <button 
-            className={`vocab-chart__tab ${tab === 'Weekly' ? 'vocab-chart__tab--active' : ''}`}
+            className={`vocab-chart__tab ${!isMonthly ? 'vocab-chart__tab--active' : ''}`}
             onClick={() => setTab('Weekly')}
           >
-            Weekly
+            {t('dashboard.weekly', 'Weekly')}
           </button>
           <button 
-            className={`vocab-chart__tab ${tab === 'Monthly' ? 'vocab-chart__tab--active' : ''}`}
+            className={`vocab-chart__tab ${isMonthly ? 'vocab-chart__tab--active' : ''}`}
             onClick={() => setTab('Monthly')}
           >
-            Monthly
+            {t('dashboard.monthly', 'Monthly')}
           </button>
         </div>
       </div>
@@ -60,12 +64,12 @@ export default function VocabGrowthChart({ title = 'Vocabulary Growth', activeTa
         {chartResource.loading ? (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '160px', color: 'var(--color-outline)' }}>
             <span className="material-symbols-outlined animate-spin" style={{ marginRight: 8 }}>progress_activity</span>
-            <span>Loading...</span>
+            <span>{t('common.loading', 'Loading...')}</span>
           </div>
         ) : chartResource.error ? (
           <div role="alert" style={{ minHeight: 160, display: 'grid', placeContent: 'center', gap: 12, textAlign: 'center' }}>
-            <span>{chartResource.error.code === 'TIMEOUT' ? 'The chart took too long to load.' : 'Could not load vocabulary growth.'}</span>
-            <button type="button" className="btn-secondary" onClick={chartResource.retry}>Retry chart</button>
+            <span>{chartResource.error.code === 'TIMEOUT' ? t('common.timeout', 'The chart took too long to load.') : t('dashboard.chartLoadError', 'Could not load vocabulary growth.')}</span>
+            <button type="button" className="btn-secondary" onClick={chartResource.retry}>{t('common.retry', 'Retry chart')}</button>
           </div>
         ) : (
           <>

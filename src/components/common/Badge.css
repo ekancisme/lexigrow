@@ -21,7 +21,8 @@
 }
 
 /* ── Variants ── */
-.lexi-badge--primary {
+.lexi-badge--primary,
+.lexi-badge--info {
   background-color: #eff6ff;
   color: #1d4ed8;
   border-color: #dbeafe;
@@ -39,7 +40,8 @@
   border-color: #fef3c7;
 }
 
-.lexi-badge--danger {
+.lexi-badge--danger,
+.lexi-badge--error {
   background-color: #fef2f2;
   color: #b91c1c;
   border-color: #fee2e2;
@@ -52,7 +54,8 @@
 }
 
 /* Dark mode adjustments */
-[data-theme='dark'] .lexi-badge--primary {
+[data-theme='dark'] .lexi-badge--primary,
+[data-theme='dark'] .lexi-badge--info {
   background-color: rgba(37, 99, 235, 0.15);
   color: #93c5fd;
   border-color: rgba(37, 99, 235, 0.3);
@@ -70,7 +73,8 @@
   border-color: rgba(217, 119, 6, 0.3);
 }
 
-[data-theme='dark'] .lexi-badge--danger {
+[data-theme='dark'] .lexi-badge--danger,
+[data-theme='dark'] .lexi-badge--error {
   background-color: rgba(220, 38, 38, 0.15);
   color: #fca5a5;
   border-color: rgba(220, 38, 38, 0.3);

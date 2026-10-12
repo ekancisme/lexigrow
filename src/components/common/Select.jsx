@@ -1,4 +1,4 @@
-import React from 'react'
+import { useId } from 'react'
 import './Select.css'
 import './Input.css' // Reuses .lexi-field label/error styles
 
@@ -13,7 +13,13 @@ export default function Select({
   disabled = false,
   ...rest
 }) {
-  const selectId = id || (label ? `lexi-select-${label.toLowerCase().replace(/\s+/g, '-')}` : undefined)
+  const generatedId = useId()
+  const fallbackId = `lexi-select-${generatedId.replace(/:/g, '')}`
+  const selectId = id || (label ? `lexi-select-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : fallbackId)
+
+  const errorId = error ? `${selectId}-error` : undefined
+  const helperId = helperText ? `${selectId}-helper` : undefined
+  const describedBy = [errorId, helperId].filter(Boolean).join(' ') || undefined
 
   return (
     <div className="lexi-field">
@@ -27,6 +33,8 @@ export default function Select({
           id={selectId}
           disabled={disabled}
           className={`lexi-select ${error ? 'lexi-input--error' : ''} ${className}`}
+          aria-invalid={Boolean(error)}
+          aria-describedby={describedBy}
           {...rest}
         >
           {options.length > 0
@@ -42,11 +50,11 @@ export default function Select({
         </span>
       </div>
       {error ? (
-        <span className="lexi-field__error" role="alert">
+        <span id={errorId} className="lexi-field__error" role="alert">
           {error}
         </span>
       ) : helperText ? (
-        <span className="lexi-field__helper">{helperText}</span>
+        <span id={helperId} className="lexi-field__helper">{helperText}</span>
       ) : null}
     </div>
   )

@@ -1,21 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="100%" height="100%">
   <rect width="320" height="180" fill="#F8FAFC" rx="12"/>
-  <!-- Scrambled letter tiles -->
-  <g transform="translate(26, 40)">
-    <rect x="0" y="0" width="48" height="48" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
-    <text x="24" y="32" font-family="Inter, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#0F172A">R</text>
-    
-    <rect x="56" y="0" width="48" height="48" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2"/>
-    <text x="80" y="32" font-family="Inter, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#1E40AF">O</text>
-    
-    <rect x="112" y="0" width="48" height="48" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
-    <text x="136" y="32" font-family="Inter, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#0F172A">W</text>
-    
-    <rect x="168" y="0" width="48" height="48" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
-    <text x="192" y="32" font-family="Inter, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#0F172A">G</text>
+  <!-- Scrambled letter tiles (6 letters: G-R-O-W-T-H) -->
+  <g transform="translate(20, 44)">
+    <rect x="0" y="0" width="40" height="40" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+    <text x="20" y="26" font-family="Inter, sans-serif" font-size="18" font-weight="700" text-anchor="middle" fill="#0F172A">R</text>
 
-    <rect x="224" y="0" width="48" height="48" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
-    <text x="248" y="32" font-family="Inter, sans-serif" font-size="20" font-weight="700" text-anchor="middle" fill="#0F172A">T</text>
+    <rect x="48" y="0" width="40" height="40" rx="6" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2"/>
+    <text x="68" y="26" font-family="Inter, sans-serif" font-size="18" font-weight="700" text-anchor="middle" fill="#1E40AF">O</text>
+
+    <rect x="96" y="0" width="40" height="40" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+    <text x="116" y="26" font-family="Inter, sans-serif" font-size="18" font-weight="700" text-anchor="middle" fill="#0F172A">W</text>
+
+    <rect x="144" y="0" width="40" height="40" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+    <text x="164" y="26" font-family="Inter, sans-serif" font-size="18" font-weight="700" text-anchor="middle" fill="#0F172A">G</text>
+
+    <rect x="192" y="0" width="40" height="40" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+    <text x="212" y="26" font-family="Inter, sans-serif" font-size="18" font-weight="700" text-anchor="middle" fill="#0F172A">T</text>
+
+    <rect x="240" y="0" width="40" height="40" rx="6" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+    <text x="260" y="26" font-family="Inter, sans-serif" font-size="18" font-weight="700" text-anchor="middle" fill="#0F172A">H</text>
   </g>
   <!-- Target solved hint -->
   <rect x="36" y="112" width="248" height="36" rx="6" fill="#F1F5F9" stroke="#E2E8F0" stroke-width="1"/>

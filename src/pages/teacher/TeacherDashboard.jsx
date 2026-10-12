@@ -127,7 +127,7 @@ export default function TeacherDashboard() {
               {recentAlerts.length === 0 ? (
                 <p className="text-body-md" style={{ color: 'var(--color-outline)', padding: 16, textAlign: 'center' }}>{t('teacher.dashboardSubtitle', 'No recent alerts.')}</p>
               ) : (
-                recentAlerts.map((a, i) => {
+                recentAlerts.map((a) => {
                   const alertType = a.type === 'critical' ? 'error' : a.type === 'warning' ? 'warning' : 'info'
                   const alertIcon = a.type === 'critical' ? 'warning' : a.type === 'warning' ? 'assignment_late' : 'info'
                   return (

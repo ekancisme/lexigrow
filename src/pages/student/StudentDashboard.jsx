@@ -159,9 +159,7 @@ export default function StudentDashboard() {
           )}
 
           {/* 3. Vocabulary Growth Chart */}
-          <Card padding="md">
-            <VocabGrowthChart />
-          </Card>
+          <VocabGrowthChart />
 
           {/* 4. Recent Writing Submissions */}
           <Card padding="md">
@@ -202,7 +200,10 @@ export default function StudentDashboard() {
                         </div>
                       </div>
                     </div>
-                    <Badge variant={essay.status === 'evaluated' ? 'success' : 'neutral'}>
+                    <Badge
+                      variant={essay.status === 'evaluated' ? 'success' : 'neutral'}
+                      className="student-dash__essay-badge"
+                    >
                       {essay.status === 'evaluated' ? t('essayHistory.statusGraded', 'AI Evaluated') : t('essayHistory.statusDraft', 'Draft')}
                     </Badge>
                   </div>
@@ -237,11 +238,13 @@ export default function StudentDashboard() {
             <Card padding="md" className="student-dash__srs-card">
               <div className="student-dash__srs-header">
                 <div>
-                  <Badge variant="primary" icon="style">Spaced Repetition</Badge>
-                  <h4 style={{ margin: '8px 0 2px 0', fontSize: 16, fontWeight: 700, color: '#1e40af' }}>
+                  <Badge variant="primary" icon="style">
+                    {t('dashboard.spacedRepetition', 'Spaced Repetition')}
+                  </Badge>
+                  <h4 className="student-dash__srs-title">
                     {dueSrsCount} {t('dashboard.wordsDueReview', 'words due today')}
                   </h4>
-                  <p style={{ margin: 0, fontSize: 12, color: '#3b82f6' }}>
+                  <p className="student-dash__srs-subtitle">
                     {t('flashcards.tapToFlip', 'Tap to review before retention drops')}
                   </p>
                 </div>
@@ -297,27 +300,31 @@ export default function StudentDashboard() {
           </Card>
 
           {/* 4. Growth Garden Teaser */}
-          <Card
-            padding="md"
-            interactive
-            className="student-dash__garden-card"
-            onClick={() => navigate('/student/garden')}
+          <Link
+            to="/student/garden"
+            style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
           >
-            <div>
-              <Badge variant="success" icon="yard">
-                {t('garden.title', 'Vocabulary Garden')}
-              </Badge>
-              <h4 style={{ margin: '8px 0 4px 0', fontSize: 15, fontWeight: 700, color: 'var(--color-on-surface)' }}>
-                {t('garden.subtitle', 'Growing Knowledge Tree')}
-              </h4>
-              <p style={{ margin: 0, fontSize: 12, color: 'var(--color-on-surface-variant)' }}>
-                {isVi ? 'Mỗi từ thuộc sẽ tưới nước cho cây.' : 'Each mastered word waters your tree.'}
-              </p>
-            </div>
-            <span className="material-symbols-outlined student-dash__garden-icon">
-              potted_plant
-            </span>
-          </Card>
+            <Card
+              padding="md"
+              interactive
+              className="student-dash__garden-card"
+            >
+              <div>
+                <Badge variant="success" icon="yard">
+                  {t('garden.title', 'Vocabulary Garden')}
+                </Badge>
+                <h4 style={{ margin: '8px 0 4px 0', fontSize: 15, fontWeight: 700, color: 'var(--color-on-surface)' }}>
+                  {t('garden.subtitle', 'Growing Knowledge Tree')}
+                </h4>
+                <p style={{ margin: 0, fontSize: 12, color: 'var(--color-on-surface-variant)' }}>
+                  {isVi ? 'Mỗi từ thuộc sẽ tưới nước cho cây.' : 'Each mastered word waters your tree.'}
+                </p>
+              </div>
+              <span className="material-symbols-outlined student-dash__garden-icon">
+                potted_plant
+              </span>
+            </Card>
+          </Link>
         </aside>
       </div>
     </div>

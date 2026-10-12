@@ -194,6 +194,8 @@
 
 [data-theme='dark'] {
   --color-primary: #789DFF;
+  --color-primary-hover: #93B3FF;
+  --color-primary-active: #5E88F5;
   --color-primary-container: #1A73E8;
   --color-primary-fixed: #004493;
   --color-primary-fixed-dim: #00306E;

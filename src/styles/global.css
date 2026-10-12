@@ -198,7 +198,7 @@ ul, ol {
   justify-content: center;
   gap: 8px;
   background: var(--color-primary);
-  color: #ffffff;
+  color: var(--color-on-primary, #ffffff);
   padding: 10px 20px;
   border-radius: var(--radius-md);
   font-weight: 600;

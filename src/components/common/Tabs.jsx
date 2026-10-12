@@ -1,4 +1,3 @@
-import React from 'react'
 import './Tabs.css'
 
 export default function Tabs({
@@ -9,13 +8,41 @@ export default function Tabs({
   className = '',
   ariaLabel = 'Navigation tabs'
 }) {
+  const normalizedVariant = variant === 'pill' ? 'pills' : variant
+
+  const handleKeyDown = (e, currentIndex) => {
+    if (!tabs || tabs.length === 0) return
+
+    let nextIndex = null
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault()
+      nextIndex = (currentIndex + 1) % tabs.length
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault()
+      nextIndex = (currentIndex - 1 + tabs.length) % tabs.length
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      nextIndex = 0
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      nextIndex = tabs.length - 1
+    }
+
+    if (nextIndex !== null) {
+      const nextTab = tabs[nextIndex]
+      onChange?.(nextTab.id)
+      const nextElem = document.getElementById(`tab-${nextTab.id}`)
+      nextElem?.focus()
+    }
+  }
+
   return (
     <div
       role="tablist"
       aria-label={ariaLabel}
-      className={`lexi-tabs-nav lexi-tabs-nav--${variant} ${className}`}
+      className={`lexi-tabs-nav lexi-tabs-nav--${normalizedVariant} ${className}`}
     >
-      {tabs.map((tab) => {
+      {tabs.map((tab, idx) => {
         const isActive = activeTab === tab.id
         return (
           <button
@@ -26,8 +53,9 @@ export default function Tabs({
             aria-controls={`tabpanel-${tab.id}`}
             id={`tab-${tab.id}`}
             tabIndex={isActive ? 0 : -1}
-            className={`lexi-tab--${variant} ${isActive ? 'is-active' : ''}`}
-            onClick={() => onChange && onChange(tab.id)}
+            className={`lexi-tab--${normalizedVariant} ${isActive ? 'is-active' : ''}`}
+            onClick={() => onChange?.(tab.id)}
+            onKeyDown={(e) => handleKeyDown(e, idx)}
           >
             {tab.icon && (
               <span className="material-symbols-outlined" style={{ fontSize: 16, marginRight: 6, verticalAlign: -3 }}>

@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="100%" height="100%">
   <rect width="320" height="180" fill="#F8FAFC" rx="12"/>
-  
+
   <!-- Target definition banner -->
   <rect x="24" y="20" width="272" height="40" rx="8" fill="#1E293B"/>
-  <text x="160" y="45" font-family="Inter, sans-serif" font-size="13" font-weight="500" text-anchor="middle" fill="#F8FAFC">Target: "Khả năng phục hồi"</text>
+  <text x="160" y="45" font-family="Inter, sans-serif" font-size="13" font-weight="500" text-anchor="middle" fill="#F8FAFC">Target: "Ability to recover quickly"</text>
 
   <!-- Moving word bubbles/targets -->
   <g transform="translate(36, 80)">

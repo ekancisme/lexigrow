@@ -349,29 +349,31 @@ const defaultLearningSets = {
 }
 
 function AIGradingProgress({ stage = 1, progress = 15 }) {
+  const { t } = useLanguage()
+
   const stages = [
     {
       id: 1,
-      title: '1. Đánh giá từ vựng mục tiêu (Target Vocabulary Check)',
-      desc: 'Kiểm tra độ chính xác, ngữ cảnh và cách kết hợp collocations của các từ vựng bắt buộc.',
+      title: t('learning.gradingStage1Title', '1. Đánh giá từ vựng mục tiêu'),
+      desc: t('learning.gradingStage1Desc', 'Kiểm tra độ chính xác, ngữ cảnh và cách kết hợp collocations của các từ vựng bắt buộc.'),
       icon: 'flag',
     },
     {
       id: 2,
-      title: '2. Phân tích ngữ pháp & Độ phong phú từ vựng (Grammar & Lexical Diversity)',
-      desc: 'Đo lường các chỉ số học thuật TTR, HD-D, MTLD và kiểm tra độ chính xác ngữ pháp.',
+      title: t('learning.gradingStage2Title', '2. Phân tích ngữ pháp & Độ phong phú từ vựng'),
+      desc: t('learning.gradingStage2Desc', 'Đo lường các chỉ số học thuật TTR, HD-D, MTLD và kiểm tra độ chính xác ngữ pháp.'),
       icon: 'spellcheck',
     },
     {
       id: 3,
-      title: '3. Đo lường mạch lạc & Đề xuất cải thiện (Coherence & Suggestions)',
-      desc: 'Phát hiện từ lặp, kiểm tra cấu trúc câu phức và tổng hợp gợi ý nâng cấp diễn đạt.',
+      title: t('learning.gradingStage3Title', '3. Đo lường mạch lạc & Đề xuất cải thiện'),
+      desc: t('learning.gradingStage3Desc', 'Phát hiện từ lặp, kiểm tra cấu trúc câu phức và tổng hợp gợi ý nâng cấp diễn đạt.'),
       icon: 'psychology',
     },
     {
       id: 4,
-      title: '4. Hoàn thiện bảng điểm & Báo cáo chi tiết (Compiling Report)',
-      desc: 'Tổng hợp nhận xét toàn diện, sẵn sàng hiển thị kết quả chấm điểm cho bạn.',
+      title: t('learning.gradingStage4Title', '4. Hoàn thiện bảng điểm & Báo cáo chi tiết'),
+      desc: t('learning.gradingStage4Desc', 'Tổng hợp nhận xét toàn diện, sẵn sàng hiển thị kết quả chấm điểm cho bạn.'),
       icon: 'auto_awesome',
     },
   ]
@@ -388,16 +390,18 @@ function AIGradingProgress({ stage = 1, progress = 15 }) {
           </span>
         </div>
         <h2 className="ai-grading-loader__title">
-          AI Agent đang chấm bài & phân tích chi tiết...
+          {t('learning.gradingTitle', 'AI Agent đang chấm bài & phân tích chi tiết...')}
         </h2>
         <p className="ai-grading-loader__subtitle">
-          Vui lòng đợi trong giây lát, chuyên gia AI đang đánh giá toàn diện bài viết theo rubric chuẩn CEFR. Kết quả sẽ tự động hiển thị ngay khi hoàn tất!
+          {t('learning.gradingSubtitle', 'Vui lòng đợi trong giây lát, chuyên gia AI đang đánh giá toàn diện bài viết theo rubric chuẩn CEFR. Kết quả sẽ tự động hiển thị ngay khi hoàn tất!')}
         </p>
 
         {/* Progress Bar */}
         <div className="ai-grading-loader__bar-container">
           <div className="ai-grading-loader__bar-header">
-            <span className="ai-grading-loader__bar-label">Tiến trình chấm điểm AI</span>
+            <span className="ai-grading-loader__bar-label">
+              {t('learning.gradingProgress', 'Tiến trình chấm điểm AI')}
+            </span>
             <span className="ai-grading-loader__bar-val">{progress}%</span>
           </div>
           <div className="ai-grading-loader__bar-track">
@@ -437,8 +441,16 @@ function AIGradingProgress({ stage = 1, progress = 15 }) {
               <div className="ai-grading-loader__step-content">
                 <div className="ai-grading-loader__step-title">
                   <span>{st.title}</span>
-                  {isCurrent && <span className="ai-grading-loader__badge ai-grading-loader__badge--current">Đang xử lý</span>}
-                  {isDone && <span className="ai-grading-loader__badge ai-grading-loader__badge--done">Đã hoàn tất</span>}
+                  {isCurrent && (
+                    <span className="ai-grading-loader__badge ai-grading-loader__badge--current">
+                      {t('learning.gradingProcessing', 'Đang xử lý')}
+                    </span>
+                  )}
+                  {isDone && (
+                    <span className="ai-grading-loader__badge ai-grading-loader__badge--done">
+                      {t('learning.gradingComplete', 'Đã hoàn tất')}
+                    </span>
+                  )}
                 </div>
                 <div className="ai-grading-loader__step-desc">{st.desc}</div>
               </div>

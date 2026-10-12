@@ -134,13 +134,6 @@
   height: 8px;
   border-radius: 50%;
   background: currentColor;
-  box-shadow: 0 0 8px currentColor;
-  animation: ping-soft 2s infinite;
-}
-
-@keyframes ping-soft {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.85); }
 }
 
 .hero-title-row {
@@ -188,21 +181,20 @@
   background: var(--color-surface-container-low);
   border: 1px solid var(--color-outline-variant);
   padding: 12px 18px;
-  border-radius: var(--radius-2xl);
+  border-radius: var(--radius-xl);
   box-shadow: var(--shadow-sm);
-  backdrop-filter: blur(12px);
 }
 
 .league-icon-box {
   width: 44px;
   height: 44px;
-  border-radius: var(--radius-xl);
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(0, 91, 191, 0.1));
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-container);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #7C3AED;
-  border: 1px solid rgba(124, 58, 237, 0.3);
+  color: var(--color-primary);
+  border: 1px solid var(--color-outline-variant);
 }
 
 .league-meta__tier {
@@ -235,25 +227,25 @@
 .quest-garden-banner {
   position: relative;
   overflow: hidden;
-  border-radius: var(--radius-2xl);
-  background: linear-gradient(135deg, rgba(22, 163, 74, 0.12) 0%, var(--color-surface-container-low) 60%, var(--color-surface-container) 100%);
-  border: 2px solid rgba(22, 163, 74, 0.35);
-  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-container-low);
+  border: 1px solid var(--color-outline-variant);
+  box-shadow: var(--shadow-sm);
   padding: var(--spacing-lg) var(--spacing-xl);
   display: flex;
   flex-direction: column;
   gap: var(--spacing-md);
-  transition: all var(--transition-slow);
+  transition: all var(--transition-fast);
 }
 
 [data-theme="dark"] .quest-garden-banner {
-  background: linear-gradient(135deg, #0d281e 0%, var(--color-surface-container) 50%, var(--color-surface-container-high) 100%);
-  border-color: rgba(98, 223, 125, 0.3);
+  background: var(--color-surface-container-low);
+  border-color: var(--color-outline-variant);
 }
 
 .quest-garden-banner:hover {
-  border-color: #16A34A;
-  box-shadow: 0 12px 32px rgba(22, 163, 74, 0.2);
+  border-color: var(--color-outline);
+  box-shadow: var(--shadow-md);
 }
 
 .quest-banner-content {
@@ -569,131 +561,126 @@
 /* Theme 1: Hunter Amber (#B35C00) */
 .arcade-card--hunter:hover {
   border-color: #B35C00;
-  box-shadow: 0 10px 28px rgba(179, 92, 0, 0.22);
+  box-shadow: var(--shadow-md);
 }
-.arcade-card--hunter .card-ambient-glow { background: #B35C00; }
+.arcade-card--hunter .card-ambient-glow { display: none; }
 .arcade-card--hunter .card-category-tag {
-  background: rgba(179, 92, 0, 0.15);
-  color: #CC6A00;
-  border: 1px solid rgba(179, 92, 0, 0.4);
+  background: rgba(179, 92, 0, 0.12);
+  color: #B35C00;
+  border: 1px solid rgba(179, 92, 0, 0.3);
 }
 .arcade-card--hunter .card-icon-anchor {
-  background: linear-gradient(135deg, rgba(179, 92, 0, 0.35), #421D00);
-  color: #F59E0B;
-  border-color: rgba(245, 158, 11, 0.5);
+  background: rgba(179, 92, 0, 0.12);
+  color: #B35C00;
+  border-color: rgba(179, 92, 0, 0.3);
 }
 .arcade-btn--hunter {
   background: #B35C00;
   color: #FFFFFF;
-  box-shadow: 0 4px 0 #663300;
 }
 .arcade-btn--hunter:hover {
-  background: #CC6A00;
-  box-shadow: 0 4px 0 #663300, 0 0 16px rgba(179, 92, 0, 0.4);
+  background: #994D00;
+  box-shadow: var(--shadow-sm);
 }
 .arcade-btn--hunter:active {
-  box-shadow: 0 1px 0 #663300 !important;
+  transform: translateY(1px);
 }
 
-/* Theme 2: Context Filler Slate Blue (#005BBF) */
+/* Theme 2: Context Filler Slate Blue (#1E40AF) */
 .arcade-card--filler:hover {
   border-color: var(--color-primary);
-  box-shadow: 0 10px 28px rgba(0, 91, 191, 0.22);
+  box-shadow: var(--shadow-md);
 }
-.arcade-card--filler .card-ambient-glow { background: var(--color-primary); }
+.arcade-card--filler .card-ambient-glow { display: none; }
 .arcade-card--filler .card-category-tag {
-  background: rgba(0, 91, 191, 0.15);
+  background: rgba(30, 64, 175, 0.1);
   color: var(--color-primary);
-  border: 1px solid rgba(0, 91, 191, 0.4);
+  border: 1px solid rgba(30, 64, 175, 0.25);
 }
 .arcade-card--filler .card-icon-anchor {
-  background: linear-gradient(135deg, rgba(0, 91, 191, 0.35), #00224D);
-  color: #60A5FA;
-  border-color: rgba(96, 165, 250, 0.5);
+  background: rgba(30, 64, 175, 0.1);
+  color: var(--color-primary);
+  border-color: rgba(30, 64, 175, 0.25);
 }
 .arcade-btn--filler {
-  background: #005BBF;
-  color: #FFFFFF;
-  box-shadow: 0 4px 0 #003673;
+  background: var(--color-primary);
+  color: var(--color-on-primary, #FFFFFF);
 }
 .arcade-btn--filler:hover {
-  background: #006EE6;
-  box-shadow: 0 4px 0 #003673, 0 0 16px rgba(0, 91, 191, 0.4);
+  background: var(--color-primary-hover, #1D4ED8);
+  box-shadow: var(--shadow-sm);
 }
 .arcade-btn--filler:active {
-  box-shadow: 0 1px 0 #003673 !important;
+  transform: translateY(1px);
 }
 
-/* Theme 3: Word Scramble Electric Violet (#7C3AED) */
+/* Theme 3: Word Scramble Violet (#6D28D9) */
 .arcade-card--scramble:hover {
-  border-color: #7C3AED;
-  box-shadow: 0 10px 28px rgba(124, 58, 237, 0.25);
+  border-color: #6D28D9;
+  box-shadow: var(--shadow-md);
 }
-.arcade-card--scramble .card-ambient-glow { background: #7C3AED; }
+.arcade-card--scramble .card-ambient-glow { display: none; }
 .arcade-card--scramble .card-category-tag {
-  background: rgba(124, 58, 237, 0.15);
-  color: #8B5CF6;
-  border: 1px solid rgba(124, 58, 237, 0.4);
+  background: rgba(109, 40, 217, 0.1);
+  color: #6D28D9;
+  border: 1px solid rgba(109, 40, 217, 0.25);
 }
 .arcade-card--scramble .card-icon-anchor {
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.35), #290060);
-  color: #C4B5FD;
-  border-color: rgba(196, 181, 253, 0.5);
+  background: rgba(109, 40, 217, 0.1);
+  color: #6D28D9;
+  border-color: rgba(109, 40, 217, 0.25);
 }
 .arcade-btn--scramble {
-  background: #7C3AED;
+  background: #6D28D9;
   color: #FFFFFF;
-  box-shadow: 0 4px 0 #4C1D95;
 }
 .arcade-btn--scramble:hover {
-  background: #8B5CF6;
-  box-shadow: 0 4px 0 #4C1D95, 0 0 16px rgba(124, 58, 237, 0.4);
+  background: #5B21B6;
+  box-shadow: var(--shadow-sm);
 }
 .arcade-btn--scramble:active {
-  box-shadow: 0 1px 0 #4C1D95 !important;
+  transform: translateY(1px);
 }
 
-/* Theme 4: Word Matching Arcade Cyan (#0891B2) */
+/* Theme 4: Word Matching Cyan/Teal (#0F766E) */
 .arcade-card--matching:hover {
-  border-color: #0891B2;
-  box-shadow: 0 10px 28px rgba(8, 145, 178, 0.22);
+  border-color: #0F766E;
+  box-shadow: var(--shadow-md);
 }
-.arcade-card--matching .card-ambient-glow { background: #0891B2; }
+.arcade-card--matching .card-ambient-glow { display: none; }
 .arcade-card--matching .card-category-tag {
-  background: rgba(8, 145, 178, 0.15);
-  color: #06B6D4;
-  border: 1px solid rgba(8, 145, 178, 0.4);
+  background: rgba(15, 118, 110, 0.1);
+  color: #0F766E;
+  border: 1px solid rgba(15, 118, 110, 0.25);
 }
 .arcade-card--matching .card-icon-anchor {
-  background: linear-gradient(135deg, rgba(8, 145, 178, 0.35), #022F3B);
-  color: #67E8F9;
-  border-color: rgba(103, 232, 249, 0.5);
+  background: rgba(15, 118, 110, 0.1);
+  color: #0F766E;
+  border-color: rgba(15, 118, 110, 0.25);
 }
 .arcade-btn--matching {
-  background: #0891B2;
+  background: #0F766E;
   color: #FFFFFF;
-  box-shadow: 0 4px 0 #0E7490;
 }
 .arcade-btn--matching:hover {
-  background: #0AA3C7;
-  box-shadow: 0 4px 0 #0E7490, 0 0 16px rgba(8, 145, 178, 0.4);
+  background: #115E59;
+  box-shadow: var(--shadow-sm);
 }
 .arcade-btn--matching:active {
-  box-shadow: 0 1px 0 #0E7490 !important;
+  transform: translateY(1px);
 }
 
 /* Quest Button (Tertiary Green) */
 .arcade-btn--tertiary {
   background: #16A34A;
   color: #FFFFFF;
-  box-shadow: 0 4px 0 #005320;
 }
 .arcade-btn--tertiary:hover {
   background: #15803D;
-  box-shadow: 0 4px 0 #005320, 0 0 16px rgba(22, 163, 74, 0.4);
+  box-shadow: var(--shadow-sm);
 }
 .arcade-btn--tertiary:active {
-  box-shadow: 0 1px 0 #005320 !important;
+  transform: translateY(1px);
 }
 
 /* ==========================================================================

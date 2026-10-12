@@ -26,14 +26,14 @@
   gap: 24px;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1180px) {
   .student-dash__grid {
     grid-template-columns: minmax(0, 1fr) 340px;
     align-items: start;
   }
 }
 
-@media (min-width: 1280px) {
+@media (min-width: 1360px) {
   .student-dash__grid {
     grid-template-columns: minmax(0, 1fr) 360px;
     gap: 32px;
@@ -111,16 +111,11 @@
 }
 
 /* ── 2. Stats Grid ── */
+/* ── 2. Stats Grid ── */
 .student-dash__stats-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 16px;
-}
-
-@media (min-width: 640px) {
-  .student-dash__stats-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
 }
 
 /* ── 3. Recent Essays ── */
@@ -134,6 +129,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 12px 16px;
   border-radius: var(--radius-md, 8px);
   border: 1px solid var(--color-outline-variant, #f1f5f9);
@@ -153,6 +149,12 @@
   align-items: center;
   gap: 12px;
   min-width: 0;
+  flex: 1 1 auto;
+}
+
+.student-dash__essay-left > div {
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .student-dash__essay-icon {
@@ -169,6 +171,11 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.student-dash__essay-badge {
+  flex-shrink: 0;
 }
 
 .student-dash__essay-meta {
@@ -208,6 +215,12 @@
   flex-shrink: 0;
 }
 
+[data-theme='dark'] .student-dash__streak-icon-wrap {
+  background-color: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #fbbf24;
+}
+
 .student-dash__streak-number {
   font-size: 18px;
   font-weight: 700;
@@ -221,11 +234,16 @@
 
 /* SRS Due Card */
 .student-dash__srs-card {
-  background-color: #eff6ff;
-  border: 1px solid #bfdbfe;
+  background-color: var(--color-surface-container-low, #eff6ff);
+  border: 1px solid var(--color-outline-variant, #bfdbfe);
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+[data-theme='dark'] .student-dash__srs-card {
+  background-color: rgba(30, 64, 175, 0.15);
+  border-color: rgba(120, 157, 255, 0.3);
 }
 
 .student-dash__srs-header {
@@ -234,10 +252,23 @@
   justify-content: space-between;
 }
 
+.student-dash__srs-title {
+  margin: 8px 0 2px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-primary, #1e40af);
+}
+
+.student-dash__srs-subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: var(--color-on-surface-variant, #64748b);
+}
+
 .student-dash__srs-count-badge {
   font-size: 18px;
   font-weight: 700;
-  color: #1d4ed8;
+  color: var(--color-primary, #1d4ed8);
 }
 
 /* Goals Rail */
@@ -263,4 +294,8 @@
 .student-dash__garden-icon {
   font-size: 28px;
   color: #16a34a;
+}
+
+[data-theme='dark'] .student-dash__garden-icon {
+  color: #4ade80;
 }

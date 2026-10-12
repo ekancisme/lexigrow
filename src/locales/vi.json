@@ -231,7 +231,13 @@
     "weeklyGoals": "Mục tiêu tuần",
     "newWordsAcquired": "Từ mới tích lũy",
     "writingVolume": "Khối lượng viết",
-    "targetLevel": "Cấp độ mục tiêu"
+    "targetLevel": "Cấp độ mục tiêu",
+    "recentEssaysDesc": "Xem lại các bài viết gần đây, điểm số CEFR và báo cáo phản hồi chi tiết từ AI & giáo viên.",
+    "spacedRepetition": "Ôn tập ngắt quãng (SRS)",
+    "vocabGrowth": "Tăng trưởng từ vựng",
+    "weekly": "Theo tuần",
+    "monthly": "Theo tháng",
+    "chartLoadError": "Không thể tải dữ liệu tăng trưởng từ vựng."
   },
   "flashcards": {
     "title": "Ôn tập thẻ ghi nhớ SRS",
@@ -282,6 +288,7 @@
     "saved": "Đã lưu bản nháp"
   },
   "games": {
+    "arcadePractice": "Khu vực luyện tập",
     "xpPracticeOnly": "Chỉ luyện tập · chưa có điểm XP",
     "playerLevel": "Cấp độ",
     "cefrLevel": "Trình độ tiếng Anh",
@@ -1013,7 +1020,20 @@
     "step2": "2. Luyện tập nhanh",
     "step3": "3. Luyện viết AI",
     "step4": "4. Nhận xét AI",
-    "sessionDuration": "Cấp độ {level} · Phiên học 10 phút"
+    "sessionDuration": "Cấp độ {level} · Phiên học 10 phút",
+    "gradingTitle": "AI Agent đang chấm bài & phân tích chi tiết...",
+    "gradingSubtitle": "Vui lòng đợi trong giây lát, chuyên gia AI đang đánh giá toàn diện bài viết theo rubric chuẩn CEFR. Kết quả sẽ tự động hiển thị ngay khi hoàn tất!",
+    "gradingProgress": "Tiến trình chấm điểm AI",
+    "gradingProcessing": "Đang xử lý",
+    "gradingComplete": "Đã hoàn tất",
+    "gradingStage1Title": "1. Đánh giá từ vựng mục tiêu",
+    "gradingStage1Desc": "Kiểm tra độ chính xác, ngữ cảnh và cách kết hợp collocations của các từ vựng bắt buộc.",
+    "gradingStage2Title": "2. Phân tích ngữ pháp & Độ phong phú từ vựng",
+    "gradingStage2Desc": "Đo lường các chỉ số học thuật TTR, HD-D, MTLD và kiểm tra độ chính xác ngữ pháp.",
+    "gradingStage3Title": "3. Đo lường mạch lạc & Đề xuất cải thiện",
+    "gradingStage3Desc": "Phát hiện từ lặp, kiểm tra cấu trúc câu phức và tổng hợp gợi ý nâng cấp diễn đạt.",
+    "gradingStage4Title": "4. Hoàn thiện bảng điểm & Báo cáo chi tiết",
+    "gradingStage4Desc": "Tổng hợp nhận xét toàn diện, sẵn sàng hiển thị kết quả chấm điểm cho bạn."
   },
   "adminChat": {
     "roomsTitle": "Phòng chat",
@@ -1031,5 +1051,34 @@
     "loadingRooms": "Đang tải phòng chat...",
     "user": "Người dùng {id}",
     "generalSupport": "Hỗ trợ chung"
+  },
+  "headerNavigation": {
+    "learning": "Học tập",
+    "practice": "Luyện tập",
+    "flashcards": "Ôn tập Flashcard",
+    "games": "Trò chơi từ vựng",
+    "dailyQuest": "Ô chữ hằng ngày",
+    "progressOverview": "Tiến độ & xếp hạng",
+    "teaching": "Giảng dạy",
+    "tracking": "Theo dõi",
+    "tools": "Công cụ",
+    "management": "Quản lý",
+    "operations": "Vận hành",
+    "billing": "Thanh toán",
+    "support": "Chat hỗ trợ",
+    "myChild": "Học tập của con",
+    "family": "Gia đình",
+    "levelNotSet": "Chưa đặt trình độ",
+    "activeAlerts": "{count} cảnh báo đang mở",
+    "linkChildFirst": "Liên kết học sinh để xem tiến độ học tập của con.",
+    "primaryNavigation": "Điều hướng chính",
+    "homeLabel": "Trang chủ LexiGrow",
+    "account": "Tài khoản",
+    "openMenu": "Mở điều hướng",
+    "closeMenu": "Đóng điều hướng",
+    "parentOf": "Phụ huynh của {names}",
+    "administrator": "Quản trị viên",
+    "currentPlan": "Gói {tier}",
+    "sponsoredPlan": "Được giáo viên tài trợ"
   }
 }

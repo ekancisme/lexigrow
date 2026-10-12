@@ -1,4 +1,4 @@
-import React, { useEffect, useId, useRef } from 'react'
+import { useEffect, useId, useRef } from 'react'
 import './Modal.css'
 
 // Track nested modals so the body scroll lock is released only once

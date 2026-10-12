@@ -1,4 +1,3 @@
-import React from 'react'
 import './Card.css'
 
 export default function Card({
@@ -8,18 +7,38 @@ export default function Card({
   elevated = false,
   interactive = false,
   onClick,
+  onKeyDown,
   ...rest
 }) {
+  const isInteractive = interactive || Boolean(onClick)
   const classes = [
     'lexi-card',
     `lexi-card--pad-${padding}`,
     elevated ? 'lexi-card--elevated' : '',
-    interactive ? 'lexi-card--interactive' : '',
+    isInteractive ? 'lexi-card--interactive' : '',
     className
   ].filter(Boolean).join(' ')
 
+  const handleKeyDown = (e) => {
+    if (onKeyDown) {
+      onKeyDown(e)
+      return
+    }
+    if (onClick && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault()
+      onClick(e)
+    }
+  }
+
   return (
-    <div className={classes} onClick={onClick} {...rest}>
+    <div
+      className={classes}
+      onClick={onClick}
+      role={onClick ? 'button' : undefined}
+      tabIndex={onClick ? 0 : undefined}
+      onKeyDown={onClick || onKeyDown ? handleKeyDown : undefined}
+      {...rest}
+    >
       {children}
     </div>
   )

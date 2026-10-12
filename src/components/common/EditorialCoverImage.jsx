@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState, useEffect } from 'react'
 import imageManifest from '../../assets/editorial/image-manifest.json'
 import { useLanguage } from '../../contexts/LanguageContext'
 import './EditorialCoverImage.css'
@@ -21,6 +21,11 @@ export default function EditorialCoverImage({
   const manifestEntry = topicSlug ? imageManifest.topics[topicSlug] : null
   const resolvedSrc = src || manifestEntry?.localPath || manifestEntry?.remoteUrl
   const resolvedAlt = alt || (manifestEntry?.alt ? (language === 'vi' ? manifestEntry.alt.vi : manifestEntry.alt.en) : (fallbackTitle || 'Topic Cover'))
+
+  useEffect(() => {
+    setHasError(false)
+    setIsLoaded(false)
+  }, [resolvedSrc])
 
   if (!resolvedSrc || hasError) {
     return (
@@ -48,6 +53,7 @@ export default function EditorialCoverImage({
         src={resolvedSrc}
         alt={resolvedAlt}
         className={`editorial-cover-img ${isLoaded ? 'is-loaded' : 'is-loading'}`}
+        style={{ objectPosition: manifestEntry?.focalPoint || 'center' }}
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
         onLoad={() => setIsLoaded(true)}

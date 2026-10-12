@@ -51,7 +51,7 @@
 /* Primary (Solid Cobalt) */
 .lexi-btn--primary {
   background-color: var(--color-primary, #1e40af);
-  color: #ffffff;
+  color: var(--color-on-primary, #ffffff);
 }
 .lexi-btn--primary:hover:not(:disabled) {
   background-color: var(--color-primary-hover, #1d4ed8);

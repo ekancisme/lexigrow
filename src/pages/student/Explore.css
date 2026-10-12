@@ -209,16 +209,16 @@
 .explore__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 24px;
+  gap: 20px;
 }
 
-@media (max-width: 1140px) {
+@media (max-width: 1099px) {
   .explore__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 679px) {
   .explore__grid {
     grid-template-columns: 1fr;
   }
@@ -388,21 +388,23 @@
 .topic-card__word-chip {
   background: var(--color-surface, #ffffff);
   border: 1px solid var(--color-outline-variant, #cbd5e1);
-  padding: 6px 10px;
+  padding: 8px 10px;
   border-radius: 6px;
-  font-size: 12px;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 6px 10px;
-  align-items: baseline;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   width: 100%;
   min-width: 0;
+  box-sizing: border-box;
 }
 
 .topic-card__word-term {
   color: var(--color-on-surface, #0f172a);
   font-weight: 600;
+  font-size: 12.5px;
+  line-height: 1.4;
   overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .topic-card__word-meaning {
@@ -413,13 +415,6 @@
   /* Crucial: Wrap naturally without ellipsis cutting off Vietnamese translation */
   overflow-wrap: anywhere;
   word-break: break-word;
-}
-
-@media (max-width: 480px) {
-  .topic-card__word-chip {
-    grid-template-columns: 1fr;
-    gap: 2px;
-  }
 }
 
 .topic-card__footer {

@@ -184,7 +184,7 @@ export default function GameHub() {
             </div>
             <div className="hero-title-row">
               <h1 className="hero-title">{t('games.hubTitle', 'LexiGrow Play Zone')}</h1>
-              <span className="hero-badge-pro">PRO PLAY</span>
+              <span className="hero-badge-pro">{t('games.arcadePractice', 'Arcade Practice')}</span>
             </div>
             <p className="hero-desc">
               {t('games.hubSubtitle', 'Sharpen vocabulary retention, master phonetics, and unlock linguistic mastery through tactile arcade drills.')}

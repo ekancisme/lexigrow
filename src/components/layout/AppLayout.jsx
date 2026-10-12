@@ -1,6 +1,5 @@
 import { useState, Suspense } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
-import Sidebar from './Sidebar'
 import TopNav from './TopNav'
 import ParentBottomNav from './ParentBottomNav'
 import { useAuth } from '../../contexts/AuthContext.jsx'
@@ -17,7 +16,8 @@ export default function AppLayout({ role, children }) {
   const { user, selectedParentChildId } = useAuth()
   const resolvedRole = role || user?.role || 'student'
   const location = useLocation()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileMenuRoute, setMobileMenuRoute] = useState(null)
+  const mobileMenuOpen = mobileMenuRoute === location.key
 
   const isFullBleed = FULL_BLEED_ROUTES.some(r => location.pathname.startsWith(r))
   const storedChildIsValid = user?.children?.some(child => child._id === selectedParentChildId)
@@ -28,20 +28,10 @@ export default function AppLayout({ role, children }) {
 
   return (
     <div className="app-layout">
-      <Sidebar
-        role={resolvedRole}
-        mobileOpen={mobileMenuOpen}
-        onClose={() => setMobileMenuOpen(false)}
-      />
-      {mobileMenuOpen && (
-        <button
-          className="app-layout__sidebar-overlay"
-          aria-label="Close navigation menu"
-          onClick={() => setMobileMenuOpen(false)}
-        />
-      )}
       <div className="app-layout__main">
-        <TopNav role={resolvedRole} onMenuToggle={() => setMobileMenuOpen(open => !open)} />
+        <TopNav role={resolvedRole} menuOpen={mobileMenuOpen}
+          onMenuToggle={() => setMobileMenuRoute(current => current === location.key ? null : location.key)}
+          onMenuClose={() => setMobileMenuRoute(null)} />
         <main className={`app-layout__content${isFullBleed ? ' app-layout__content--no-padding' : ''}${resolvedRole === 'parent' ? ' app-layout__content--parent' : ''}`}>
           <Suspense fallback={
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '50vh' }}>
@@ -55,7 +45,7 @@ export default function AppLayout({ role, children }) {
         </main>
       </div>
       {resolvedRole === 'parent' && (
-        <ParentBottomNav childId={selectedChildId} onMore={() => setMobileMenuOpen(true)} />
+        <ParentBottomNav childId={selectedChildId} onMore={() => setMobileMenuRoute(location.key)} />
       )}
       <ChatWidget />
       {user && <AnnouncementPopup role={resolvedRole} userId={user._id || user.id} />}

@@ -1,4 +1,3 @@
-import React from 'react';
 
 /**
  * Mascot — Linh vật minh họa cho các Empty States
