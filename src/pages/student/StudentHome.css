@@ -77,6 +77,10 @@
   border-radius: var(--radius-lg, 12px);
   background: var(--color-surface-container-lowest, #fff);
 }
+.student-home__announcement--no-image {
+  grid-template-columns: 1fr;
+  min-height: auto;
+}
 .student-home__announcement-copy { align-self: center; padding: clamp(26px, 4.6vw, 54px); }
 .student-home__announcement .student-home__eyebrow { display: flex; align-items: center; gap: 8px; }
 .student-home__announcement .student-home__eyebrow > span { width: 7px; height: 7px; flex: 0 0 auto; border-radius: 50%; background: #c15d32; }

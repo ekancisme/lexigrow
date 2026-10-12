@@ -55,9 +55,11 @@ export default function StudentHome() {
   const actionLabel = language === 'vi' ? announcement?.actionLabelVi : announcement?.actionLabelEn
   const imageAlt = language === 'vi' ? announcement?.imageAltVi : announcement?.imageAltEn
 
+  const hasAnnouncementImage = Boolean(announcement?.bannerUrl || announcement?.imageUrl)
+
   return (
     <div className="student-home">
-      {announcement && <section className="student-home__announcement" aria-labelledby="student-home-announcement-title">
+      {announcement && <section className={`student-home__announcement ${hasAnnouncementImage ? '' : 'student-home__announcement--no-image'}`} aria-labelledby="student-home-announcement-title">
         <div className="student-home__announcement-copy">
           <span className="student-home__eyebrow"><span aria-hidden="true" />{t('homePage.eventLabel')}</span>
           <h2 id="student-home-announcement-title">{announcementTitle}</h2>
