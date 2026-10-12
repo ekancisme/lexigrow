@@ -13,9 +13,9 @@ const featuredTopics = [
 ]
 
 const learningLinks = [
-  { id: 'writing', icon: 'edit_note', href: '/student/writing', titleKey: 'writingTitle', descriptionKey: 'writingDesc', actionKey: 'writingAction' },
-  { id: 'review', icon: 'style', href: '/student/vocabulary/review', titleKey: 'reviewTitle', descriptionKey: 'reviewDesc', actionKey: 'reviewAction' },
-  { id: 'games', icon: 'extension', href: '/student/game', titleKey: 'gamesTitle', descriptionKey: 'gamesDescription', actionKey: 'gamesAction' },
+  { id: 'writing', icon: 'edit_note', image: '/assets/editorial/topics/auth-study.webp', href: '/student/writing', titleKey: 'writingTitle', descriptionKey: 'writingDesc', actionKey: 'writingAction' },
+  { id: 'review', icon: 'style', image: '/assets/editorial/topics/daily-life.webp', href: '/student/vocabulary/review', titleKey: 'reviewTitle', descriptionKey: 'reviewDesc', actionKey: 'reviewAction' },
+  { id: 'games', icon: 'extension', image: '/assets/editorial/topics/hobbies.webp', href: '/student/game', titleKey: 'gamesTitle', descriptionKey: 'gamesDescription', actionKey: 'gamesAction' },
 ]
 
 const methodSteps = [
@@ -91,8 +91,18 @@ export default function StudentHome() {
             <Link className="student-home__button student-home__button--primary" to="/student/explore">{t('homePage.exploreAction')}<span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span></Link>
             <Link className="student-home__text-link" to={user ? '/student/dashboard' : '/login'}>{user ? t('homePage.dashboardAction') : t('homePage.loginAction')}</Link>
           </div>
+          <ul className="student-home__promise-list" aria-label={t('homePage.learningAreas')}>
+            {[
+              ['travel_explore', 'heroPointTopics'],
+              ['edit_note', 'heroPointWriting'],
+              ['update', 'heroPointReview'],
+            ].map(([icon, key]) => <li key={key}><span className="material-symbols-outlined" aria-hidden="true">{icon}</span>{t(`homePage.${key}`)}</li>)}
+          </ul>
         </div>
-        <img className="student-home__intro-image" src="/assets/editorial/home/study-hero.jpg" alt={language === 'vi' ? 'Góc học tập với sách, sổ ghi chép và máy tính trong ánh sáng tự nhiên' : 'A calm study desk with books, notes, and a laptop in natural light'} width="512" height="512" fetchPriority="high" />
+        <figure className="student-home__hero-visual">
+          <img className="student-home__intro-image" src="/assets/editorial/home/study-hero.jpg" alt={language === 'vi' ? 'Sách tiếng Anh học thuật, vở ghi từ vựng và bài viết đang được luyện tập trên bàn học trong thư viện' : 'English academic books, a vocabulary notebook, and a writing exercise arranged on a study desk in a library'} width="1400" height="933" fetchPriority="high" />
+          <figcaption><span className="material-symbols-outlined" aria-hidden="true">menu_book</span><span>{t('homePage.heroCaption')}</span></figcaption>
+        </figure>
       </section>
 
       <section className="student-home__method-intro" aria-labelledby="student-home-method-intro-title">
@@ -137,9 +147,8 @@ export default function StudentHome() {
         </div>
         <div className="student-home__learning-grid">
           {learningLinks.map(item => <Link className="student-home__learning-card" to={item.href} key={item.id}>
-            <span className="student-home__learning-icon material-symbols-outlined" aria-hidden="true">{item.icon}</span>
-            <div><h3>{t(`homePage.${item.titleKey}`)}</h3><p>{t(`homePage.${item.descriptionKey}`)}</p></div>
-            <span className="student-home__card-link">{t(`homePage.${item.actionKey}`)}<span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span></span>
+            <img className="student-home__learning-image" src={item.image} alt="" loading="lazy" decoding="async" width="800" height="450" />
+            <div className="student-home__learning-copy"><span className="student-home__learning-icon material-symbols-outlined" aria-hidden="true">{item.icon}</span><h3>{t(`homePage.${item.titleKey}`)}</h3><p>{t(`homePage.${item.descriptionKey}`)}</p><span className="student-home__card-link">{t(`homePage.${item.actionKey}`)}<span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span></span></div>
           </Link>)}
         </div>
       </section>

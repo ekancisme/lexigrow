@@ -1,12 +1,13 @@
 {
   "source": "Google Stitch project 11383605484519510830, screen 208b4518f14a42acb72773832b817f8e",
-  "generation": "AI-generated editorial learning photography supplied with the Stitch screen",
+  "generation": "The environment and technology images came with the Stitch design. The hero was generated specifically for LexiGrow with OpenAI ImageGen.",
   "licenseNote": "Generated design assets; no stock-photo author attribution was supplied by Stitch.",
   "images": {
     "study-hero.jpg": {
+      "source": "OpenAI ImageGen, created for the LexiGrow home page",
       "alt": {
-        "en": "A calm study desk with books, notes, and a laptop in natural light",
-        "vi": "Góc học tập với sách, sổ ghi chép và máy tính trong ánh sáng tự nhiên"
+        "en": "English study books, a vocabulary notebook, and a writing exercise on a desk in a university library",
+        "vi": "Sách học tiếng Anh, sổ ghi từ vựng và bài luyện viết trên bàn học trong thư viện đại học"
       }
     },
     "environment.jpg": {

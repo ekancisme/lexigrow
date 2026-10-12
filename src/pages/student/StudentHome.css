@@ -102,7 +102,13 @@
 .student-home__intro h1 { max-width: 670px; margin-bottom: 17px; font-size: clamp(39px, 5vw, 64px); line-height: 1.02; }
 .student-home__lead { max-width: 570px; margin-bottom: 24px; color: var(--home-muted); font-size: clamp(16px, 1.45vw, 18px); line-height: 1.7; }
 .student-home__actions { display: flex; align-items: center; flex-wrap: wrap; gap: 16px 20px; }
-.student-home__intro-image { display: block; width: 100%; aspect-ratio: 1.2; border-radius: 4px; object-fit: cover; object-position: center; background: var(--color-surface-container-low); }
+.student-home__hero-visual { min-width: 0; margin: 0; }
+.student-home__intro-image { display: block; width: 100%; aspect-ratio: 1.36; border: 1px solid var(--home-line); border-radius: 8px; object-fit: cover; object-position: center; background: var(--color-surface-container-low); }
+.student-home__hero-visual figcaption { display: flex; align-items: center; gap: 8px; margin-top: 11px; color: var(--home-muted); font-size: 12px; line-height: 1.5; }
+.student-home__hero-visual figcaption .material-symbols-outlined { color: var(--color-primary); font-size: 17px; }
+.student-home__promise-list { display: flex; flex-wrap: wrap; gap: 10px 16px; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--home-line); list-style: none; }
+.student-home__promise-list li { display: inline-flex; align-items: center; gap: 6px; color: var(--home-muted); font-size: 12px; line-height: 1.4; }
+.student-home__promise-list .material-symbols-outlined { color: var(--color-primary); font-size: 16px; }
 
 .student-home__method-intro { display: grid; gap: 24px; padding: clamp(24px, 4vw, 42px); border: 1px solid var(--home-line); border-radius: var(--radius-lg, 12px); background: var(--color-surface-container-lowest, #fff); }
 .student-home__method-intro > div:first-child { max-width: 840px; }
@@ -140,11 +146,13 @@
 .student-home__card-link .material-symbols-outlined { font-size: 17px; }
 
 .student-home__learning-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-.student-home__learning-card { min-height: 196px; display: flex; flex-direction: column; align-items: flex-start; gap: 13px; padding: 20px; border: 1px solid var(--home-line); border-radius: var(--radius-lg, 12px); background: var(--color-surface-container-lowest, #fff); text-decoration: none; transition: border-color .16s ease, box-shadow .16s ease; }
+.student-home__learning-card { min-width: 0; min-height: 330px; display: flex; flex-direction: column; align-items: stretch; overflow: hidden; border: 1px solid var(--home-line); border-radius: var(--radius-lg, 12px); background: var(--color-surface-container-lowest, #fff); text-decoration: none; transition: border-color .16s ease, box-shadow .16s ease; }
 .student-home__learning-card:hover { border-color: color-mix(in srgb, var(--color-primary) 42%, var(--home-line)); box-shadow: var(--shadow-card-hover); text-decoration: none; }
-.student-home__learning-icon { color: var(--color-primary); font-size: 23px; }
-.student-home__learning-card h3 { margin-bottom: 6px; font-size: 17px; line-height: 1.4; }
-.student-home__learning-card p { margin-bottom: 0; color: var(--home-muted); font-size: 13px; line-height: 1.6; }
+.student-home__learning-image { display: block; width: 100%; height: 156px; object-fit: cover; background: var(--color-surface-container-low); }
+.student-home__learning-copy { flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 9px; padding: 18px; }
+.student-home__learning-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 8px; color: var(--color-primary); background: var(--color-primary-fixed); font-size: 20px; }
+.student-home__learning-card h3 { margin-bottom: 0; font-size: 17px; line-height: 1.4; }
+.student-home__learning-card p { margin-bottom: 8px; color: var(--home-muted); font-size: 13px; line-height: 1.6; }
 
 .student-home__steps-section { display: grid; grid-template-columns: minmax(220px, .7fr) minmax(0, 1.3fr); gap: clamp(34px, 7vw, 88px); padding: clamp(30px, 5vw, 54px) 0; border-top: 1px solid var(--home-line); border-bottom: 1px solid var(--home-line); }
 .student-home__steps-intro h2 { margin-bottom: 10px; font-size: clamp(27px, 3.1vw, 36px); line-height: 1.15; }
@@ -179,9 +187,10 @@
   .student-home__announcement-image { min-height: 0; max-height: 250px; grid-row: 1; }
   .student-home__announcement-copy { padding: 24px; }
   .student-home__intro { grid-template-columns: 1fr; gap: 24px; }
-  .student-home__intro-image { max-height: 380px; }
+  .student-home__intro-image { max-height: 430px; }
   .student-home__learning-grid { grid-template-columns: 1fr; }
   .student-home__learning-card { min-height: 0; }
+  .student-home__learning-image { height: clamp(170px, 48vw, 250px); }
   .student-home__steps-section { grid-template-columns: 1fr; gap: 28px; }
 }
 @media (max-width: 520px) {
