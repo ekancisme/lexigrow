@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
+import { useAuth } from '../../contexts/AuthContext.jsx'
 import EditorialCoverImage from '../../components/common/EditorialCoverImage.jsx'
 import api from '../../services/api.js'
 import './StudentHome.css'
@@ -20,11 +21,13 @@ const methodSteps = [
 
 export default function StudentHome() {
   const { t, language } = useLanguage()
+  const { user } = useAuth()
   const [announcements, setAnnouncements] = useState([])
   const [activeAnnouncement, setActiveAnnouncement] = useState(0)
 
   useEffect(() => {
     let current = true
+    if (!user) return
     api.get('/announcements/active')
       .then(({ data }) => {
         if (current) setAnnouncements(Array.isArray(data?.data) ? data.data : [])
@@ -33,7 +36,7 @@ export default function StudentHome() {
         if (current) setAnnouncements([])
       })
     return () => { current = false }
-  }, [])
+  }, [user])
 
   const currentAnnouncementIndex = Math.min(activeAnnouncement, Math.max(announcements.length - 1, 0))
   const announcement = announcements[currentAnnouncementIndex]

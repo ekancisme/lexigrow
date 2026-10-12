@@ -94,6 +94,12 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
           <HeaderNavigation role={role} openId={openId} setOpenId={setOpenId} onNavigate={closeNavigation} />
           <div className="topnav__mobile-tools">
             {role !== 'parent' && searchInput}
+            {!user && (
+              <Link to="/login" className="header-navigation__link" onClick={closeNavigation}>
+                <span className="material-symbols-outlined" aria-hidden="true">login</span>
+                <span>{t('auth.loginBtn', 'Đăng nhập')}</span>
+              </Link>
+            )}
             <button type="button" className="header-navigation__link" onClick={toggleTheme}>
               <span className="material-symbols-outlined" aria-hidden="true">{theme === 'light' ? 'dark_mode' : 'light_mode'}</span>
               {theme === 'light' ? t('header.themeDark') : t('header.themeLight')}
@@ -114,24 +120,33 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
             title={theme === 'light' ? t('header.themeDark') : t('header.themeLight')}>
             <span className="material-symbols-outlined" aria-hidden="true">{theme === 'light' ? 'dark_mode' : 'light_mode'}</span>
           </button>
-          <NotificationBell />
-          <NavigationDisclosure className="topnav__account" align="end" triggerLabel={t('headerNavigation.account')}
-            label={<><span className="topnav__avatar" aria-hidden="true">{user?.name?.trim()?.[0]?.toUpperCase() || 'L'}</span><span className="topnav__account-label">{t('headerNavigation.account')}</span></>}
-            open={openId === 'account'} onOpen={() => setOpenId('account')}
-            onClose={() => setOpenId(current => current === 'account' ? null : current)}
-            onToggle={() => setOpenId(current => current === 'account' ? null : 'account')}>
-            <div className="topnav__account-summary"><strong>{user?.name || t('headerNavigation.account')}</strong><p>{subtitle}</p></div>
-            <Link to="/settings" className="header-navigation__link" onClick={closeNavigation}><span className="material-symbols-outlined" aria-hidden="true">settings</span>{t('nav.settings')}</Link>
-            {role !== 'admin' && <Link to="/pricing" className="header-navigation__link" onClick={closeNavigation}>
-              <span className="material-symbols-outlined" aria-hidden="true">workspace_premium</span>
-              {tierInfo?.tier && tierInfo.tier !== 'free'
-                ? <span>{t('headerNavigation.currentPlan', { tier: tierInfo.tier.toUpperCase() })}{tierInfo.source === 'teacher_sponsored' && <small>{tierInfo.planName || t('headerNavigation.sponsoredPlan')}</small>}</span>
-                : role === 'teacher' ? t('nav.teacherPlans') : t('nav.upgradePlan')}
-            </Link>}
-            {user && <button type="button" className="header-navigation__link topnav__logout" onClick={() => { closeNavigation(); logout(); navigate('/login') }}>
-              <span className="material-symbols-outlined" aria-hidden="true">logout</span>{t('nav.logout')}
-            </button>}
-          </NavigationDisclosure>
+          {user ? (
+            <>
+              <NotificationBell />
+              <NavigationDisclosure className="topnav__account" align="end" triggerLabel={t('headerNavigation.account')}
+                label={<><span className="topnav__avatar" aria-hidden="true">{user?.name?.trim()?.[0]?.toUpperCase() || 'L'}</span><span className="topnav__account-label">{t('headerNavigation.account')}</span></>}
+                open={openId === 'account'} onOpen={() => setOpenId('account')}
+                onClose={() => setOpenId(current => current === 'account' ? null : current)}
+                onToggle={() => setOpenId(current => current === 'account' ? null : 'account')}>
+                <div className="topnav__account-summary"><strong>{user?.name || t('headerNavigation.account')}</strong><p>{subtitle}</p></div>
+                <Link to="/settings" className="header-navigation__link" onClick={closeNavigation}><span className="material-symbols-outlined" aria-hidden="true">settings</span>{t('nav.settings')}</Link>
+                {role !== 'admin' && <Link to="/pricing" className="header-navigation__link" onClick={closeNavigation}>
+                  <span className="material-symbols-outlined" aria-hidden="true">workspace_premium</span>
+                  {tierInfo?.tier && tierInfo.tier !== 'free'
+                    ? <span>{t('headerNavigation.currentPlan', { tier: tierInfo.tier.toUpperCase() })}{tierInfo.source === 'teacher_sponsored' && <small>{tierInfo.planName || t('headerNavigation.sponsoredPlan')}</small>}</span>
+                    : role === 'teacher' ? t('nav.teacherPlans') : t('nav.upgradePlan')}
+                </Link>}
+                <button type="button" className="header-navigation__link topnav__logout" onClick={() => { closeNavigation(); logout(); navigate('/login') }}>
+                  <span className="material-symbols-outlined" aria-hidden="true">logout</span>{t('nav.logout')}
+                </button>
+              </NavigationDisclosure>
+            </>
+          ) : (
+            <Link to="/login" className="topnav__login-btn" onClick={closeNavigation}>
+              <span className="material-symbols-outlined" aria-hidden="true">login</span>
+              <span>{t('auth.loginBtn', 'Đăng nhập')}</span>
+            </Link>
+          )}
           <button ref={menuButtonRef} type="button" className="topnav__icon-btn topnav__menu-btn" onClick={() => { setOpenId(null); onMenuToggle() }}
             aria-label={menuOpen ? t('headerNavigation.closeMenu') : t('headerNavigation.openMenu')}
             aria-expanded={menuOpen} aria-controls="topnav-main-navigation">

@@ -165,7 +165,10 @@ class ApiClient {
           response.status === 401 &&
           !endpoint.includes('/auth/') &&
           typeof window !== 'undefined' &&
-          window.location.pathname !== '/login'
+          window.location.pathname !== '/login' &&
+          window.location.pathname !== '/' &&
+          window.location.pathname !== '/home' &&
+          window.location.pathname !== '/student/home'
         ) {
           this.removeToken()
           window.location.href = '/login'

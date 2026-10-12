@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 
 /* Auth Pages */
 const Login = lazy(() => import('./pages/auth/Login'))
@@ -136,7 +136,29 @@ function RoleProtectedRoute({ allowedRoles, children }) {
     return <Navigate to="/login" replace state={{ infoMessage: 'You do not have permission to access this workspace.' }} />
   }
 
-  return children
+  return children || <Outlet />
+}
+
+function RootRoute() {
+  const { user, isAuthenticated, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
+        <span className="material-symbols-outlined animate-spin" style={{ fontSize: 48, color: 'var(--color-primary)' }}>
+          progress_activity
+        </span>
+      </div>
+    )
+  }
+
+  if (isAuthenticated && user?.role) {
+    if (user.role === 'teacher') return <Navigate to="/teacher/dashboard" replace />
+    if (user.role === 'admin') return <Navigate to="/admin/dashboard" replace />
+    if (user.role === 'parent') return <Navigate to="/parent/dashboard" replace />
+  }
+
+  return <Navigate to="/student/home" replace />
 }
 
 function App() {
@@ -155,38 +177,35 @@ function App() {
         <Route path="/student/onboarding" element={<Onboarding />} />
         <Route path="/onboarding" element={<Navigate to="/student/onboarding" replace />} />
 
-        {/* Student routes */}
-        <Route
-          path="/student"
-          element={
-            <RoleProtectedRoute allowedRoles={['student']}>
-              <AppLayout role="student" />
-            </RoleProtectedRoute>
-          }
-        >
-          <Route index element={<Navigate to="home" replace />} />
+        {/* Student & Public Home routes */}
+        <Route path="/student" element={<AppLayout role="student" />}>
+          <Route index element={<StudentHome />} />
           <Route path="home" element={<StudentHome />} />
-          <Route path="dashboard" element={<StudentDashboard />} />
-          <Route path="write-essay" element={<WriteEssay />} />
-          <Route path="write" element={<WriteEssay />} />
-          <Route path="explore" element={<Explore />} />
-          <Route path="writing" element={<LearningSession />} />
-          <Route path="garden" element={<GrowthGarden />} />
-          <Route path="my-words" element={<VocabularyLibrary />} />
-          <Route path="vocabulary" element={<VocabularyLibrary />} />
-          <Route path="vocabulary/review" element={<FlashcardReview />} />
-          <Route path="game" element={<GameHub />} />
-          <Route path="game/matching" element={<WordMatching />} />
-          <Route path="game/scramble" element={<WordScramble />} />
-          <Route path="game/filler" element={<ContextFiller />} />
-          <Route path="game/hunter" element={<VocabHunter />} />
-          <Route path="game/daily-quest" element={<Suspense fallback={<div role="status" aria-label="Loading">…</div>}><DailyWordQuest /></Suspense>} />
-          <Route path="essays" element={<EssayHistory />} />
-          <Route path="progress" element={<MyProgress />} />
-          <Route path="goals" element={<SetWeeklyGoals />} />
-          <Route path="feedback" element={<AIFeedbackReview />} />
-          <Route path="class" element={<StudentClassDetail />} />
-          <Route path="class/:classId" element={<StudentClassDetail />} />
+
+          {/* Protected student routes */}
+          <Route element={<RoleProtectedRoute allowedRoles={['student']} />}>
+            <Route path="dashboard" element={<StudentDashboard />} />
+            <Route path="write-essay" element={<WriteEssay />} />
+            <Route path="write" element={<WriteEssay />} />
+            <Route path="explore" element={<Explore />} />
+            <Route path="writing" element={<LearningSession />} />
+            <Route path="garden" element={<GrowthGarden />} />
+            <Route path="my-words" element={<VocabularyLibrary />} />
+            <Route path="vocabulary" element={<VocabularyLibrary />} />
+            <Route path="vocabulary/review" element={<FlashcardReview />} />
+            <Route path="game" element={<GameHub />} />
+            <Route path="game/matching" element={<WordMatching />} />
+            <Route path="game/scramble" element={<WordScramble />} />
+            <Route path="game/filler" element={<ContextFiller />} />
+            <Route path="game/hunter" element={<VocabHunter />} />
+            <Route path="game/daily-quest" element={<Suspense fallback={<div role="status" aria-label="Loading">…</div>}><DailyWordQuest /></Suspense>} />
+            <Route path="essays" element={<EssayHistory />} />
+            <Route path="progress" element={<MyProgress />} />
+            <Route path="goals" element={<SetWeeklyGoals />} />
+            <Route path="feedback" element={<AIFeedbackReview />} />
+            <Route path="class" element={<StudentClassDetail />} />
+            <Route path="class/:classId" element={<StudentClassDetail />} />
+          </Route>
         </Route>
 
         {/* Teacher routes */}
@@ -262,8 +281,9 @@ function App() {
         </Route>
 
         {/* Default redirect */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="/home" element={<Navigate to="/student/home" replace />} />
+        <Route path="/" element={<RootRoute />} />
+        <Route path="*" element={<Navigate to="/student/home" replace />} />
       </Routes>
       </Suspense>
       <TextTranslator />
