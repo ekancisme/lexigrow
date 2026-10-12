@@ -31,6 +31,7 @@ docs
 # Local secret files — never commit
 APIKEY.txt
 *.vpp
+*.key
 
 # Local AI agent files
 .claude/
@@ -42,4 +43,5 @@ APIKEY.txt
 *.pdf
 deploy.*
 Person1_*
+server/scripts/seedRoleProAccounts.js
 
