@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import { TOPIC_VOCABULARY_ROUNDS, getTopicRound } from '../../data/topicVocabularyRounds.js'
+import EditorialCoverImage from '../../components/common/EditorialCoverImage.jsx'
+import Button from '../../components/common/Button.jsx'
+import Badge from '../../components/common/Badge.jsx'
 import './Explore.css'
 
 const fallbackTopicSets = [
@@ -238,10 +241,9 @@ export default function Explore() {
       {/* Header & Filter Bar */}
       <section className="explore__hero">
         <div className="explore__hero-left">
-          <div className="explore__badge">
-            <span className="material-symbols-outlined">explore</span>
+          <Badge variant="info" icon="explore" className="explore__badge">
             {t('explore.badge', 'Thematic Vocabulary Sets Library')}
-          </div>
+          </Badge>
           <h2 className="explore__title">{t('explore.title', 'Explore Target Vocabulary Sets')}</h2>
           <p className="explore__desc">
             {t('explore.desc', 'Pick your favorite topic to start a 10-minute learning loop: Explore Words ➔ Quick Quiz ➔ Smart Writing ➔ Detailed AI Feedback.')}
@@ -321,17 +323,17 @@ export default function Explore() {
               : t('explore.noResultsDesc', 'Hãy thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc trình độ.')}
           </p>
           {statusTab === 'completed' && (
-            <button
-              type="button"
-              className="btn-primary explore__empty-action"
+            <Button
+              variant="primary"
+              leftIcon="explore"
+              className="explore__empty-action"
               onClick={() => {
                 setStatusTab('all')
                 setSelectedLevel('ALL')
               }}
             >
-              <span className="material-symbols-outlined">explore</span>
               {t('explore.allProgressTab', 'Tất cả tiến độ')}
-            </button>
+            </Button>
           )}
         </div>
       ) : (
@@ -342,24 +344,16 @@ export default function Explore() {
             return (
               <article
                 key={topic.slug}
-                className={`topic-card card-base ${isCompletedView ? 'topic-card--completed' : ''} ${topic.isNewRound ? 'topic-card--new-round' : ''}`}
+                className={`topic-card ${isCompletedView ? 'topic-card--completed' : ''} ${topic.isNewRound ? 'topic-card--new-round' : ''}`}
               >
-                <div className="topic-card__header">
-                  <div className="topic-card__icon-box">
-                    <span className="material-symbols-outlined">{topic.materialIcon}</span>
-                  </div>
-                  <div className="topic-card__header-meta">
-                    {isCompletedView ? (
-                      <span className="topic-card__badge--completed">
-                        <span className="material-symbols-outlined">check_circle</span>
-                        {t('explore.completed', 'Đã hoàn thành')}
-                      </span>
-                    ) : topic.isNewRound ? (
-                      <span className="topic-card__badge--new-round">
-                        <span className="material-symbols-outlined">auto_awesome</span>
-                        {t('explore.newWordsBadge', 'Bộ từ mới')} • {t('explore.roundLabel', 'Vòng')} {topic.roundNumber}
-                      </span>
-                    ) : null}
+                <div className="topic-card__cover-wrap">
+                  <EditorialCoverImage
+                    topicSlug={topic.slug}
+                    fallbackTitle={topic.title}
+                    fallbackIcon={topic.materialIcon || 'school'}
+                    className="topic-card__cover"
+                  />
+                  <div className="topic-card__cover-badges">
                     <span className={`topic-card__level-badge topic-card__level-badge--${topic.levelColor}`}>
                       {topic.level}
                     </span>
@@ -370,53 +364,73 @@ export default function Explore() {
                   </div>
                 </div>
 
-                <div className="topic-card__content">
-                  <h3 className="topic-card__title">{topic.title}</h3>
-                  <h4 className="topic-card__sub">{topic.titleVi}</h4>
-                  <p className="topic-card__desc">{topic.displayDesc}</p>
-                </div>
-
-                {/* Target Words Preview */}
-                <div className="topic-card__words">
-                  <span className="topic-card__words-label">
-                    {topic.displayWords.length} {t('explore.targetWordsLabel', 'Từ vựng mục tiêu')}:
-                  </span>
-                  <div className="topic-card__chips">
-                    {topic.displayWords.map((w) => (
-                      <span key={w.word} className="topic-card__word-chip">
-                        <strong>{w.word}</strong>
-                        {w.meaning && <span className="topic-card__word-meaning">({w.meaning})</span>}
-                      </span>
-                    ))}
+                <div className="topic-card__body">
+                  <div className="topic-card__meta-bar">
+                    {isCompletedView ? (
+                      <Badge variant="success" icon="check_circle">
+                        {t('explore.completed', 'Đã hoàn thành')}
+                      </Badge>
+                    ) : topic.isNewRound ? (
+                      <Badge variant="info" icon="auto_awesome">
+                        {t('explore.newWordsBadge', 'Bộ từ mới')} • {t('explore.roundLabel', 'Vòng')} {topic.roundNumber}
+                      </Badge>
+                    ) : null}
                   </div>
-                </div>
 
-                <div className="topic-card__footer">
-                  {isCompletedView ? (
-                    <button
-                      className="btn-secondary topic-card__start-btn topic-card__start-btn--completed"
-                      onClick={() => navigate(`/student/writing?set=${topic.slug}&force=true`)}
-                    >
-                      <span className="material-symbols-outlined">restart_alt</span>
-                      {t('explore.reviewSession', 'Luyện tập lại')} ({topic.timeEstimate})
-                    </button>
-                  ) : topic.isNewRound ? (
-                    <button
-                      className="btn-primary topic-card__start-btn topic-card__start-btn--new-round"
-                      onClick={() => navigate(`/student/writing?set=${topic.slug}&round=${topic.roundNumber}&advanceTopic=true`)}
-                    >
-                      <span className="material-symbols-outlined">play_circle</span>
-                      {t('explore.startSession', 'Bắt đầu học')} ({topic.timeEstimate})
-                    </button>
-                  ) : (
-                    <button
-                      className="btn-primary topic-card__start-btn"
-                      onClick={() => navigate(`/student/writing?set=${topic.slug}`)}
-                    >
-                      <span className="material-symbols-outlined">play_circle</span>
-                      {t('explore.startSession', 'Bắt đầu học')} ({topic.timeEstimate})
-                    </button>
-                  )}
+                  <div className="topic-card__content">
+                    <h3 className="topic-card__title">{topic.title}</h3>
+                    <h4 className="topic-card__sub">{topic.titleVi}</h4>
+                    <p className="topic-card__desc">{topic.displayDesc}</p>
+                  </div>
+
+                  {/* Target Words Preview with wrap-safe long text */}
+                  <div className="topic-card__words">
+                    <div className="topic-card__words-header">
+                      <span className="material-symbols-outlined topic-card__words-icon">format_list_bulleted</span>
+                      <span className="topic-card__words-label">
+                        {topic.displayWords.length} {t('explore.targetWordsLabel', 'Từ vựng mục tiêu')}:
+                      </span>
+                    </div>
+                    <div className="topic-card__chips">
+                      {topic.displayWords.map((w) => (
+                        <div key={w.word} className="topic-card__word-chip">
+                          <strong className="topic-card__word-term">{w.word}</strong>
+                          {w.meaning && <span className="topic-card__word-meaning">{w.meaning}</span>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="topic-card__footer">
+                    {isCompletedView ? (
+                      <Button
+                        variant="secondary"
+                        fullWidth
+                        leftIcon="restart_alt"
+                        onClick={() => navigate(`/student/writing?set=${topic.slug}&force=true`)}
+                      >
+                        {t('explore.reviewSession', 'Luyện tập lại')} ({topic.timeEstimate})
+                      </Button>
+                    ) : topic.isNewRound ? (
+                      <Button
+                        variant="primary"
+                        fullWidth
+                        leftIcon="play_circle"
+                        onClick={() => navigate(`/student/writing?set=${topic.slug}&round=${topic.roundNumber}&advanceTopic=true`)}
+                      >
+                        {t('explore.startSession', 'Bắt đầu học')} ({topic.timeEstimate})
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="primary"
+                        fullWidth
+                        leftIcon="play_circle"
+                        onClick={() => navigate(`/student/writing?set=${topic.slug}`)}
+                      >
+                        {t('explore.startSession', 'Bắt đầu học')} ({topic.timeEstimate})
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </article>
             )

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="100%" height="100%">
+  <rect width="320" height="180" fill="#F8FAFC" rx="12"/>
+  <rect x="20" y="24" width="128" height="60" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+  <text x="36" y="58" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#0F172A">Innovation</text>
+  <rect x="172" y="24" width="128" height="60" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="2"/>
+  <text x="188" y="58" font-family="Inter, sans-serif" font-size="13" font-weight="500" fill="#1E40AF">Sự đổi mới</text>
+  <path d="M148 54 C 160 54, 160 54, 172 54" stroke="#2563EB" stroke-width="2" stroke-dasharray="4 2"/>
+  <rect x="20" y="96" width="128" height="60" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+  <text x="36" y="130" font-family="Inter, sans-serif" font-size="14" font-weight="600" fill="#0F172A">Resilience</text>
+  <rect x="172" y="96" width="128" height="60" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+  <text x="188" y="130" font-family="Inter, sans-serif" font-size="13" font-weight="500" fill="#475569">Sự kiên cường</text>
+</svg>

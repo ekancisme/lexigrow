@@ -1,0 +1,159 @@
+{
+  "version": "1.0.0",
+  "updatedAt": "2026-10-12",
+  "licensePolicy": "Compliant with Unsplash License and Pexels License. Static optimized WebP assets stored locally with author attribution.",
+  "topics": {
+    "daily-life": {
+      "id": "topic-daily-life",
+      "slug": "daily-life",
+      "title": "Daily Life & Routines",
+      "titleVi": "Sinh hoạt hàng ngày, đi lại & năng suất",
+      "source": "Unsplash",
+      "author": "Andrew Neel",
+      "authorUrl": "https://unsplash.com/@andrewtneel",
+      "sourceUrl": "https://unsplash.com/photos/cckf4TsHAuw",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "localPath": "/assets/editorial/topics/daily-life.webp",
+      "remoteUrl": "https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=800&q=80",
+      "aspectRatio": "16:9",
+      "focalPoint": "center",
+      "alt": {
+        "vi": "Góc làm việc buổi sáng với sổ tay, cà phê và máy tính ngập tràn ánh sáng tự nhiên",
+        "en": "Morning workspace with notebook, coffee, and laptop in natural daylight"
+      }
+    },
+    "travel": {
+      "id": "topic-travel",
+      "slug": "travel",
+      "title": "Travel & Exploration",
+      "titleVi": "Du lịch, lịch trình & trải nghiệm",
+      "source": "Unsplash",
+      "author": "Francesca Tirico",
+      "authorUrl": "https://unsplash.com/@francescatirico",
+      "sourceUrl": "https://unsplash.com/photos/1q_OflPimkg",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "localPath": "/assets/editorial/topics/travel.webp",
+      "remoteUrl": "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=800&q=80",
+      "aspectRatio": "16:9",
+      "focalPoint": "center",
+      "alt": {
+        "vi": "Góc nhìn thành phố cổ kính và hành trình khám phá du lịch",
+        "en": "Scenic perspective of city architecture and travel exploration"
+      }
+    },
+    "hobbies": {
+      "id": "topic-hobbies",
+      "slug": "hobbies",
+      "title": "Hobbies & Creative Arts",
+      "titleVi": "Sở thích, thư giãn & nghệ thuật",
+      "source": "Unsplash",
+      "author": "Alice Dietrich",
+      "authorUrl": "https://unsplash.com/@alicedietrich",
+      "sourceUrl": "https://unsplash.com/photos/FwF_fKj5tBo",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "localPath": "/assets/editorial/topics/hobbies.webp",
+      "remoteUrl": "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=800&q=80",
+      "aspectRatio": "16:9",
+      "focalPoint": "center",
+      "alt": {
+        "vi": "Xưởng vẽ nghệ thuật với màu vẽ, cọ và các tác phẩm sáng tạo",
+        "en": "Art studio workspace with paints, brushes, and creative hobbies"
+      }
+    },
+    "technology": {
+      "id": "topic-technology",
+      "slug": "technology",
+      "title": "Technology & Digital Era",
+      "titleVi": "Công nghệ, đổi mới & kết nối số",
+      "source": "Unsplash",
+      "author": "Markus Spiske",
+      "authorUrl": "https://unsplash.com/@markusspiske",
+      "sourceUrl": "https://unsplash.com/photos/iar-afB0QQw",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "localPath": "/assets/editorial/topics/technology.webp",
+      "remoteUrl": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80",
+      "aspectRatio": "16:9",
+      "focalPoint": "center",
+      "alt": {
+        "vi": "Không gian công nghệ hiện đại với mã nguồn máy tính sạch sẽ và tối giản",
+        "en": "Clean and minimal modern workspace with programming code on display"
+      }
+    },
+    "environment": {
+      "id": "topic-environment",
+      "slug": "environment",
+      "title": "Environment & Ecology",
+      "titleVi": "Môi trường, sinh thái & phát triển bền vững",
+      "source": "Unsplash",
+      "author": "Sebastian Unrau",
+      "authorUrl": "https://unsplash.com/@sebastian_unrau",
+      "sourceUrl": "https://unsplash.com/photos/sp-p7uuT0tw",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "localPath": "/assets/editorial/topics/environment.webp",
+      "remoteUrl": "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=800&q=80",
+      "aspectRatio": "16:9",
+      "focalPoint": "center",
+      "alt": {
+        "vi": "Khu rừng nguyên sinh xanh mát dưới ánh nắng mai trong lành",
+        "en": "Lush forest canopy in calm morning sunlight representing environmental conservation"
+      }
+    },
+    "auth-study": {
+      "id": "auth-study-cover",
+      "slug": "auth-study",
+      "title": "Focused Study & Academic Learning",
+      "titleVi": "Không gian học tập tập trung",
+      "source": "Unsplash",
+      "author": "Susan Q Yin",
+      "authorUrl": "https://unsplash.com/@yinauthor",
+      "sourceUrl": "https://unsplash.com/photos/2JIvboGLeho",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "localPath": "/assets/editorial/topics/auth-study.webp",
+      "remoteUrl": "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=800&q=80",
+      "aspectRatio": "16:9",
+      "focalPoint": "center",
+      "alt": {
+        "vi": "Bàn học trong thư viện yên tĩnh với những cuốn sách xếp ngay ngắn",
+        "en": "Quiet study library desk with neatly stacked academic books"
+      }
+    }
+  },
+  "artwork": {
+    "matching": {
+      "id": "game-matching-art",
+      "title": "Word Matching",
+      "path": "/assets/editorial/artwork/word-matching.svg",
+      "alt": "Word matching pair connection game artwork"
+    },
+    "scramble": {
+      "id": "game-scramble-art",
+      "title": "Word Scramble",
+      "path": "/assets/editorial/artwork/word-scramble.svg",
+      "alt": "Word scramble letter tile rearrangement artwork"
+    },
+    "filler": {
+      "id": "game-filler-art",
+      "title": "Context Filler",
+      "path": "/assets/editorial/artwork/context-filler.svg",
+      "alt": "Context filler cloze sentence completion artwork"
+    },
+    "hunter": {
+      "id": "game-hunter-art",
+      "title": "Vocab Hunter",
+      "path": "/assets/editorial/artwork/vocab-hunter.svg",
+      "alt": "Vocab hunter target precision action artwork"
+    },
+    "daily-quest": {
+      "id": "quest-crossword-art",
+      "title": "Daily Word Quest",
+      "path": "/assets/editorial/artwork/daily-quest.svg",
+      "alt": "Daily crossword puzzle quest artwork"
+    }
+  }
+}

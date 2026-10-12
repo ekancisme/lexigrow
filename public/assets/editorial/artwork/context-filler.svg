@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" width="100%" height="100%">
+  <rect width="320" height="180" fill="#F8FAFC" rx="12"/>
+  <rect x="24" y="24" width="272" height="68" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5"/>
+  <text x="40" y="52" font-family="Inter, sans-serif" font-size="13" font-weight="400" fill="#334155">
+    The new policy is designed to
+  </text>
+  <rect x="40" y="58" width="96" height="22" rx="4" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5" stroke-dasharray="3 2"/>
+  <text x="88" y="74" font-family="Inter, sans-serif" font-size="12" font-weight="600" text-anchor="middle" fill="#1D4ED8">[ _______ ]</text>
+  <text x="144" y="74" font-family="Inter, sans-serif" font-size="13" font-weight="400" fill="#334155">growth.</text>
+
+  <!-- Options -->
+  <g transform="translate(24, 108)">
+    <rect x="0" y="0" width="84" height="42" rx="6" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+    <text x="42" y="26" font-family="Inter, sans-serif" font-size="13" font-weight="500" text-anchor="middle" fill="#0F172A">delay</text>
+
+    <rect x="94" y="0" width="84" height="42" rx="6" fill="#1E40AF" stroke="#1E40AF" stroke-width="1.5"/>
+    <text x="136" y="26" font-family="Inter, sans-serif" font-size="13" font-weight="600" text-anchor="middle" fill="#FFFFFF">foster</text>
+
+    <rect x="188" y="0" width="84" height="42" rx="6" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+    <text x="230" y="26" font-family="Inter, sans-serif" font-size="13" font-weight="500" text-anchor="middle" fill="#0F172A">ignore</text>
+  </g>
+</svg>

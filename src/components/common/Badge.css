@@ -1,0 +1,83 @@
+.lexi-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-family, 'Inter', sans-serif);
+  font-weight: 500;
+  border-radius: var(--radius-full, 9999px);
+  border: 1px solid transparent;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.lexi-badge--sm {
+  font-size: 11px;
+  padding: 3px 8px;
+}
+
+.lexi-badge--md {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+/* ── Variants ── */
+.lexi-badge--primary {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  border-color: #dbeafe;
+}
+
+.lexi-badge--success {
+  background-color: #f0fdf4;
+  color: #15803d;
+  border-color: #dcfce7;
+}
+
+.lexi-badge--warning {
+  background-color: #fffbeb;
+  color: #b45309;
+  border-color: #fef3c7;
+}
+
+.lexi-badge--danger {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border-color: #fee2e2;
+}
+
+.lexi-badge--neutral {
+  background-color: #f8fafc;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+/* Dark mode adjustments */
+[data-theme='dark'] .lexi-badge--primary {
+  background-color: rgba(37, 99, 235, 0.15);
+  color: #93c5fd;
+  border-color: rgba(37, 99, 235, 0.3);
+}
+
+[data-theme='dark'] .lexi-badge--success {
+  background-color: rgba(22, 163, 74, 0.15);
+  color: #86efac;
+  border-color: rgba(22, 163, 74, 0.3);
+}
+
+[data-theme='dark'] .lexi-badge--warning {
+  background-color: rgba(217, 119, 6, 0.15);
+  color: #fde68a;
+  border-color: rgba(217, 119, 6, 0.3);
+}
+
+[data-theme='dark'] .lexi-badge--danger {
+  background-color: rgba(220, 38, 38, 0.15);
+  color: #fca5a5;
+  border-color: rgba(220, 38, 38, 0.3);
+}
+
+[data-theme='dark'] .lexi-badge--neutral {
+  background-color: rgba(148, 163, 184, 0.15);
+  color: #cbd5e1;
+  border-color: rgba(148, 163, 184, 0.25);
+}

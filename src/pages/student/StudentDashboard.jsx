@@ -6,6 +6,10 @@ import StatCard from '../../components/common/StatCard'
 import AnimatedCounter from '../../components/common/AnimatedCounter'
 import CircularProgress from '../../components/common/CircularProgress'
 import VocabGrowthChart from '../../components/charts/VocabGrowthChart'
+import Card, { CardHeader, CardTitle } from '../../components/common/Card'
+import Button from '../../components/common/Button'
+import Badge from '../../components/common/Badge'
+import { formatDate } from '../../utils/formatters.js'
 import './StudentDashboard.css'
 
 function ResourceNotice({ resource, label }) {
@@ -19,9 +23,11 @@ function ResourceNotice({ resource, label }) {
         : resource.error?.code === 'TIMEOUT'
           ? (isVi ? `Tải ${label} quá lâu. Vui lòng thử lại.` : `Loading ${label} timed out. Please retry.`)
           : (isVi ? `Chưa tải được ${label}.` : `Could not load ${label}.`)}</p>
-      {resource.error && <button type="button" className="btn-secondary" onClick={resource.retry}>
-        {isVi ? 'Thử lại' : 'Retry'}
-      </button>}
+      {resource.error && (
+        <Button variant="secondary" size="sm" onClick={resource.retry} style={{ marginTop: 8 }}>
+          {isVi ? 'Thử lại' : 'Retry'}
+        </Button>
+      )}
     </div>
   )
 }
@@ -31,12 +37,14 @@ export default function StudentDashboard() {
   const { t, language } = useLanguage()
   const isVi = language === 'vi'
   const navigate = useNavigate()
+
   const overviewResource = useDashboardResource('/progress/overview')
   const goalsResource = useDashboardResource('/goals')
   const essaysResource = useDashboardResource('/essays')
   const sessionResource = useDashboardResource('/sessions/current')
   const vocabularyResource = useDashboardResource('/vocabulary/due-today')
   const recommendationResource = useDashboardResource('/sessions/recommendation', 8000)
+
   const overview = overviewResource.response?.data
   const weeklyGoal = goalsResource.response?.data
   const recentEssays = essaysResource.response?.data?.slice(0, 5) || []
@@ -55,198 +63,263 @@ export default function StudentDashboard() {
 
   return (
     <div className="student-dash animate-fade-in">
-      {/* ── 1. Hero Action Banner: Today's 10-min Session ── */}
-      <section className="student-dash__hero">
-        <div className="student-dash__hero-content">
-          <div className="student-dash__hero-badge">
-            <span className="material-symbols-outlined">schedule</span>
-            {t('dashboard.continueLesson', "Today's Micro-Session · 10 Mins")}
-          </div>
-          <h2 className="student-dash__hero-title">
-            {t('dashboard.recommendedSets', 'Learn & Apply Target Words')}: <span className="student-dash__hero-words">{recommendation?.targetWords?.map((word) => word.word).join(' · ') || 'Your next adaptive set'}</span>
-          </h2>
-          <p className="student-dash__hero-desc">
-            {recommendation?.rationale || 'Explore in context, take quick quizzes, and write a 60–100 word paragraph for instant feedback.'}
-          </p>
-
-          <ResourceNotice resource={recommendationResource} label={isVi ? 'gợi ý học tập' : 'learning recommendations'} />
-          {recommendationFallback && (
-            <div role="status" aria-live="polite">
-              <p>{isVi ? 'Gợi ý AI tạm thời chưa sẵn sàng. Bạn vẫn có thể học với bộ từ được chọn từ tiến độ hiện tại.' : 'AI advice is temporarily unavailable. You can still study words selected from your current progress.'}</p>
-              <button type="button" className="btn-secondary" onClick={recommendationResource.retry}>{isVi ? 'Tải lại gợi ý' : 'Retry recommendations'}</button>
+      <div className="student-dash__grid">
+        {/* ── LEFT COLUMN (68% - Main Focus) ── */}
+        <main className="student-dash__main">
+          {/* 1. Hero Action Banner: Clean Academic */}
+          <section className="student-dash__hero-card">
+            <div className="student-dash__hero-header">
+              <Badge variant="primary" icon="schedule">
+                {t('dashboard.continueLesson', "Today's Micro-Session · 10 Mins")}
+              </Badge>
+              {user?.englishLevel && (
+                <Badge variant="neutral">
+                  CEFR: {user.englishLevel}
+                </Badge>
+              )}
             </div>
-          )}
-          <ResourceNotice resource={sessionResource} label={isVi ? 'phiên học hiện tại' : 'your current session'} />
-          <div className="student-dash__hero-actions">
-            <button
-              className="btn-primary student-dash__hero-btn"
-              onClick={() => navigate(recommendation?.targetWords?.length ? '/student/writing?adaptive=true' : '/student/writing')}
-            >
-              <span className="material-symbols-outlined">play_circle</span>
-              {sessionResource.loading || sessionResource.error ? (isVi ? 'Mở phiên học' : 'Open learning session') : currentSession ? t('dashboard.continueLesson', 'Resume Active Session') : t('common.start', 'Start Session Now (10 mins)')}
-            </button>
 
-            <Link to="/student/explore" className="btn-secondary">
-              <span className="material-symbols-outlined">explore</span>
-              {t('dashboard.exploreSets', 'Explore other topics')}
-            </Link>
-          </div>
-        </div>
-
-        <div className="student-dash__hero-art">
-          <div className="student-dash__streak-pill">
-            <span className="material-symbols-outlined student-dash__streak-icon">local_fire_department</span>
             <div>
-              <div className="student-dash__streak-count">{user?.streakDays || 0} {t('dashboard.streak', 'day streak')}</div>
-              <div className="student-dash__streak-sub">{t('dashboard.streakKeep', 'Daily goal achieved')}</div>
-            </div>
-          </div>
-
-          <ResourceNotice resource={vocabularyResource} label={isVi ? 'từ cần ôn tập' : 'words due for review'} />
-          {dueSrsCount > 0 && (
-            <div className="student-dash__srs-pill" onClick={() => navigate('/student/vocabulary/review')}>
-              <span className="material-symbols-outlined">style</span>
-              <div>
-                <div className="student-dash__srs-count">{dueSrsCount} {t('dashboard.wordsDueReview', 'words due for SRS review')}</div>
-                <div className="student-dash__srs-sub">{t('flashcards.tapToFlip', 'Tap to flip flashcards')}</div>
+              <h1 className="student-dash__hero-title">
+                {t('dashboard.recommendedSets', 'Learn & Apply Target Words')}
+              </h1>
+              <div className="student-dash__hero-words">
+                {recommendation?.targetWords?.map((w) => w.word).join(' · ') || 'Adaptive vocabulary set'}
               </div>
             </div>
+
+            <p className="student-dash__hero-desc">
+              {recommendation?.rationale || 'Explore curated vocabulary in context, complete targeted quizzes, and compose a 60–100 word essay for instant evaluation.'}
+            </p>
+
+            <ResourceNotice resource={recommendationResource} label={isVi ? 'gợi ý học tập' : 'learning recommendations'} />
+            {recommendationFallback && (
+              <div role="status" aria-live="polite" style={{ padding: '8px 12px', background: '#fffbeb', borderRadius: 8, fontSize: 13, border: '1px solid #fde68a' }}>
+                <p style={{ margin: 0 }}>{isVi ? 'Gợi ý AI tạm thời chưa sẵn sàng. Bạn vẫn có thể học với bộ từ được chọn từ tiến độ hiện tại.' : 'AI advice is temporarily unavailable. You can still study words selected from your current progress.'}</p>
+                <Button variant="secondary" size="sm" onClick={recommendationResource.retry} style={{ marginTop: 6 }}>
+                  {isVi ? 'Tải lại gợi ý' : 'Retry recommendations'}
+                </Button>
+              </div>
+            )}
+            <ResourceNotice resource={sessionResource} label={isVi ? 'phiên học hiện tại' : 'your current session'} />
+
+            <div className="student-dash__hero-actions">
+              <Button
+                variant="primary"
+                size="lg"
+                leftIcon="play_circle"
+                onClick={() => navigate(recommendation?.targetWords?.length ? '/student/writing?adaptive=true' : '/student/writing')}
+              >
+                {sessionResource.loading || sessionResource.error
+                  ? (isVi ? 'Mở phiên học' : 'Open learning session')
+                  : currentSession
+                    ? t('dashboard.continueLesson', 'Resume Active Session')
+                    : t('common.start', 'Start Session Now (10 mins)')}
+              </Button>
+
+              <Button
+                variant="outline"
+                size="lg"
+                leftIcon="explore"
+                onClick={() => navigate('/student/explore')}
+              >
+                {t('dashboard.exploreSets', 'Explore other topics')}
+              </Button>
+            </div>
+          </section>
+
+          {/* 2. Stat Cards Grid */}
+          <ResourceNotice resource={overviewResource} label={isVi ? 'thống kê học tập' : 'learning statistics'} />
+          {!overviewResource.loading && !overviewResource.error && (
+            <section className="student-dash__stats-grid">
+              <StatCard
+                label={t('progress.essaysCount', 'Essays Submitted')}
+                value={<AnimatedCounter value={overview?.totalEssays || 0} />}
+                icon="description"
+              />
+              <StatCard
+                label={t('progress.totalLearned', 'Vocab Growth')}
+                value={<>+<AnimatedCounter value={overview?.thisMonthWords || 0} /></>}
+                subtitle={`${overview?.growthRate >= 0 ? '+' : ''}${overview?.growthRate || 0}% vs last month`}
+                icon="trending_up"
+              />
+              <StatCard
+                label={t('writing.vocabDiversity', 'Lexical Diversity (TTR)')}
+                value={<AnimatedCounter value={Math.round((overview?.avgTTR || 0) * 100)} format="percent" />}
+                icon="analytics"
+                progress={Math.round((overview?.avgTTR || 0) * 100)}
+              />
+              <StatCard
+                label={t('writing.cefrLevel', 'Estimated CEFR')}
+                value={<>{overview?.rank || '—'}</>}
+                subtitle={t('dashboard.basedOnWriting', 'Based on active writing')}
+                icon="equalizer"
+              />
+            </section>
           )}
-        </div>
-      </section>
 
-      {/* ── 2. Stat Cards Overview ── */}
-      <ResourceNotice resource={overviewResource} label={isVi ? 'thống kê học tập' : 'learning statistics'} />
-      {!overviewResource.loading && !overviewResource.error && <section className="student-dash__stats">
-        <StatCard
-          label={t('progress.essaysCount', 'Essays Submitted')}
-          value={<AnimatedCounter value={overview?.totalEssays || 0} />}
-          icon="description"
-        />
-        <StatCard
-          label={t('progress.totalLearned', 'Vocab Growth')}
-          value={<>+<AnimatedCounter value={overview?.thisMonthWords || 0} /></>}
-          subtitle={`${overview?.growthRate >= 0 ? '+' : ''}${overview?.growthRate || 0}% vs last month`}
-          icon="trending_up"
-        />
-        <StatCard
-          label={t('writing.vocabDiversity', 'Lexical Diversity (TTR)')}
-          value={<AnimatedCounter value={Math.round((overview?.avgTTR || 0) * 100)} format="percent" />}
-          icon="analytics"
-          progress={Math.round((overview?.avgTTR || 0) * 100)}
-        />
-        <StatCard
-          label={t('writing.cefrLevel', 'Estimated CEFR')}
-          value={<>{overview?.rank || '—'}</>}
-          subtitle={t('dashboard.basedOnWriting', 'Based on active writing')}
-          icon="equalizer"
-        />
-      </section>}
+          {/* 3. Vocabulary Growth Chart */}
+          <Card padding="md">
+            <VocabGrowthChart />
+          </Card>
 
-      {/* ── 3. Charts & Weekly Goals ── */}
-      <section className="student-dash__charts">
-        <div className="student-dash__chart-main">
-          <VocabGrowthChart />
-        </div>
+          {/* 4. Recent Writing Submissions */}
+          <Card padding="md">
+            <CardHeader>
+              <CardTitle subtitle={t('dashboard.recentEssaysDesc', 'Track your completed essays and review feedback')}>
+                {t('dashboard.recentEssays', 'Recent Writing')}
+              </CardTitle>
+              <Link to="/student/essays" style={{ color: 'var(--color-primary)', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>
+                {t('common.all', 'All Essays')} →
+              </Link>
+            </CardHeader>
 
-        <div className="student-dash__side-cards">
-          <div className="student-dash__goals card-base">
-            <div className="flex justify-between items-center" style={{ marginBottom: 20 }}>
-              <h3 className="text-title-lg">{t('dashboard.weeklyGoals', 'Weekly Goals')}</h3>
-              <Link to="/student/goals" className="text-label-md" style={{ color: 'var(--color-primary)', textDecoration: 'none' }}>
+            <ResourceNotice resource={essaysResource} label={isVi ? 'bài viết gần đây' : 'recent writing'} />
+            {!essaysResource.loading && !essaysResource.error && (recentEssays.length === 0 ? (
+              <div className="student-dash__essays-empty">
+                <span className="material-symbols-outlined" style={{ fontSize: 40, opacity: 0.5 }}>edit_note</span>
+                <p>{t('dashboard.noEssays', 'No essays yet. Start your first writing exercise!')}</p>
+                <Button variant="primary" size="md" onClick={() => navigate('/student/writing')}>
+                  {t('dashboard.writeEssay', 'Write Paragraph Now')}
+                </Button>
+              </div>
+            ) : (
+              <div className="student-dash__essays-list">
+                {recentEssays.map((essay) => (
+                  <div
+                    key={essay._id}
+                    className="student-dash__essay-item"
+                    onClick={() => navigate(essay.status === 'draft' ? `/student/writing?id=${essay._id}` : `/student/feedback?id=${essay._id}`)}
+                  >
+                    <div className="student-dash__essay-left">
+                      <span className="material-symbols-outlined student-dash__essay-icon">article</span>
+                      <div>
+                        <h4 className="student-dash__essay-title">
+                          {essay.title || t('writing.title', 'Vocabulary Practice Essay')}
+                        </h4>
+                        <div className="student-dash__essay-meta">
+                          {formatDate(essay.createdAt, language)} · {essay.wordCount || 85} {t('dashboard.wordsCount', 'words')}
+                        </div>
+                      </div>
+                    </div>
+                    <Badge variant={essay.status === 'evaluated' ? 'success' : 'neutral'}>
+                      {essay.status === 'evaluated' ? t('essayHistory.statusGraded', 'AI Evaluated') : t('essayHistory.statusDraft', 'Draft')}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </Card>
+        </main>
+
+        {/* ── RIGHT COLUMN (32% - Secondary Rail) ── */}
+        <aside className="student-dash__rail">
+          {/* 1. Streak & Daily Goal Counter */}
+          <Card padding="md">
+            <div className="student-dash__streak-card">
+              <div className="student-dash__streak-icon-wrap">
+                <span className="material-symbols-outlined">local_fire_department</span>
+              </div>
+              <div>
+                <div className="student-dash__streak-number">
+                  {user?.streakDays || 0} {t('dashboard.streak', 'day streak')}
+                </div>
+                <div className="student-dash__streak-label">
+                  {t('dashboard.streakKeep', 'Daily goal achieved')}
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          {/* 2. SRS Due Today Flashcard Action */}
+          <ResourceNotice resource={vocabularyResource} label={isVi ? 'từ cần ôn tập' : 'words due for review'} />
+          {dueSrsCount > 0 && (
+            <Card padding="md" className="student-dash__srs-card">
+              <div className="student-dash__srs-header">
+                <div>
+                  <Badge variant="primary" icon="style">Spaced Repetition</Badge>
+                  <h4 style={{ margin: '8px 0 2px 0', fontSize: 16, fontWeight: 700, color: '#1e40af' }}>
+                    {dueSrsCount} {t('dashboard.wordsDueReview', 'words due today')}
+                  </h4>
+                  <p style={{ margin: 0, fontSize: 12, color: '#3b82f6' }}>
+                    {t('flashcards.tapToFlip', 'Tap to review before retention drops')}
+                  </p>
+                </div>
+              </div>
+              <Button
+                variant="primary"
+                size="md"
+                fullWidth
+                rightIcon="arrow_forward"
+                onClick={() => navigate('/student/vocabulary/review')}
+              >
+                {t('vocabLib.reviewAll', 'Review Now')}
+              </Button>
+            </Card>
+          )}
+
+          {/* 3. Weekly Goals Progress */}
+          <Card padding="md">
+            <CardHeader>
+              <CardTitle>{t('dashboard.weeklyGoals', 'Weekly Goals')}</CardTitle>
+              <Link to="/student/goals" style={{ color: 'var(--color-primary)', textDecoration: 'none', fontSize: 12, fontWeight: 600 }}>
                 {t('common.settings', 'Settings')}
               </Link>
-            </div>
+            </CardHeader>
+
             <ResourceNotice resource={goalsResource} label={isVi ? 'mục tiêu tuần' : 'weekly goals'} />
             {!goalsResource.loading && !goalsResource.error && (!weeklyGoal?.goals?.length ? (
-              <p>{isVi ? 'Bạn chưa đặt mục tiêu tuần.' : 'No weekly goals set yet.'}</p>
-            ) : <div className="student-dash__goals-list">
-              <CircularProgress
-                percentage={wordsPercentage}
-                color="primary"
-                label={t('dashboard.newWordsAcquired', 'New Words Acquired')}
-                sublabel={`${wordsGoal?.current ?? 0} / ${wordsGoal?.target ?? '—'} ${t('dashboard.wordsCount', 'words')}`}
-              />
-              <CircularProgress
-                percentage={lengthPercentage}
-                color="secondary"
-                label={t('dashboard.writingVolume', 'Writing Volume')}
-                sublabel={`${lengthGoal?.current ?? 0} / ${lengthGoal?.target ?? '—'} ${t('dashboard.wordsCount', 'words')}`}
-              />
-              <CircularProgress
-                percentage={complexityPercentage}
-                color="tertiary"
-                label={t('dashboard.targetLevel', 'Target Level')}
-                sublabel={`Level: ${overview?.rank || '—'}`}
-              />
-            </div>)}
-          </div>
-        </div>
-      </section>
+              <p style={{ fontSize: 13, color: 'var(--color-on-surface-variant)', margin: 0 }}>
+                {isVi ? 'Bạn chưa đặt mục tiêu tuần.' : 'No weekly goals set yet.'}
+              </p>
+            ) : (
+              <div className="student-dash__goals-list">
+                <CircularProgress
+                  percentage={wordsPercentage}
+                  color="primary"
+                  label={t('dashboard.newWordsAcquired', 'New Words Acquired')}
+                  sublabel={`${wordsGoal?.current ?? 0} / ${wordsGoal?.target ?? '—'} ${t('dashboard.wordsCount', 'words')}`}
+                />
+                <CircularProgress
+                  percentage={lengthPercentage}
+                  color="secondary"
+                  label={t('dashboard.writingVolume', 'Writing Volume')}
+                  sublabel={`${lengthGoal?.current ?? 0} / ${lengthGoal?.target ?? '—'} ${t('dashboard.wordsCount', 'words')}`}
+                />
+                <CircularProgress
+                  percentage={complexityPercentage}
+                  color="tertiary"
+                  label={t('dashboard.targetLevel', 'Target Level')}
+                  sublabel={`Level: ${overview?.rank || '—'}`}
+                />
+              </div>
+            ))}
+          </Card>
 
-      {/* ── 4. Quick Actions & Recent Writing ── */}
-      <section className="student-dash__bottom-grid">
-        {/* Growth Garden Teaser */}
-        <div className="student-dash__garden-teaser card-base" onClick={() => navigate('/student/progress')}>
-          <div className="student-dash__garden-info">
-            <div className="student-dash__garden-badge">
-              <span className="material-symbols-outlined">yard</span>
-              {t('garden.title', 'Vocabulary Garden')}
+          {/* 4. Growth Garden Teaser */}
+          <Card
+            padding="md"
+            interactive
+            className="student-dash__garden-card"
+            onClick={() => navigate('/student/garden')}
+          >
+            <div>
+              <Badge variant="success" icon="yard">
+                {t('garden.title', 'Vocabulary Garden')}
+              </Badge>
+              <h4 style={{ margin: '8px 0 4px 0', fontSize: 15, fontWeight: 700, color: 'var(--color-on-surface)' }}>
+                {t('garden.subtitle', 'Growing Knowledge Tree')}
+              </h4>
+              <p style={{ margin: 0, fontSize: 12, color: 'var(--color-on-surface-variant)' }}>
+                {isVi ? 'Mỗi từ thuộc sẽ tưới nước cho cây.' : 'Each mastered word waters your tree.'}
+              </p>
             </div>
-            <h3 className="text-title-lg">{t('garden.subtitle', 'Growing Knowledge Tree')}</h3>
-            <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>
-              {t('garden.subtitle', 'Visualize your vocabulary expansion. Every mastered word waters your tree!')}
-            </p>
-            <span className="student-dash__garden-link">
-              {t('dashboard.viewGarden', 'Explore Growth Garden')} <span className="material-symbols-outlined">arrow_forward</span>
+            <span className="material-symbols-outlined student-dash__garden-icon">
+              potted_plant
             </span>
-          </div>
-        </div>
-
-        {/* Recent Essays */}
-        <div className="student-dash__recent-essays card-base">
-          <div className="flex justify-between items-center" style={{ marginBottom: 16 }}>
-            <h3 className="text-title-lg">{t('dashboard.recentEssays', 'Recent Writing')}</h3>
-            <Link to="/student/essays" className="text-label-md" style={{ color: 'var(--color-primary)', textDecoration: 'none' }}>
-              {t('common.all', 'All Essays')}
-            </Link>
-          </div>
-
-          <ResourceNotice resource={essaysResource} label={isVi ? 'bài viết gần đây' : 'recent writing'} />
-          {!essaysResource.loading && !essaysResource.error && (recentEssays.length === 0 ? (
-            <div className="student-dash__essays-empty">
-              <span className="material-symbols-outlined">edit_note</span>
-              <p>{t('dashboard.noEssays', 'No essays yet. Start your first writing exercise!')}</p>
-              <button className="btn-primary" onClick={() => navigate('/student/writing')}>
-                {t('dashboard.writeEssay', 'Write Paragraph Now')}
-              </button>
-            </div>
-          ) : (
-            <div className="student-dash__essays-list">
-              {recentEssays.map(essay => (
-                <div
-                  key={essay._id}
-                  className="student-dash__essay-item"
-                  onClick={() => navigate(essay.status === 'draft' ? `/student/writing?id=${essay._id}` : `/student/feedback?id=${essay._id}`)}
-                >
-                  <div className="student-dash__essay-item-left">
-                    <span className="material-symbols-outlined student-dash__essay-icon">article</span>
-                    <div>
-                      <h4 className="student-dash__essay-title">{essay.title || t('writing.title', 'Vocabulary Practice Essay')}</h4>
-                      <span className="student-dash__essay-date">
-                        {new Date(essay.createdAt).toLocaleDateString('en-US')} · {essay.wordCount || 85} {t('dashboard.wordsCount', 'words')}
-                      </span>
-                    </div>
-                  </div>
-                  <span className={`student-dash__essay-status student-dash__essay-status--${essay.status || 'evaluated'}`}>
-                    {essay.status === 'evaluated' ? t('essayHistory.statusGraded', 'AI Evaluated') : t('essayHistory.statusDraft', 'Draft')}
-                  </span>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      </section>
+          </Card>
+        </aside>
+      </div>
     </div>
   )
 }

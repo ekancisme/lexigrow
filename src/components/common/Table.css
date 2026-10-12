@@ -1,0 +1,41 @@
+.lexi-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--color-outline-variant, #e2e8f0);
+  border-radius: var(--radius-lg, 12px);
+  background-color: var(--color-surface-container-lowest, #ffffff);
+}
+
+.lexi-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-family: var(--font-family, 'Inter', sans-serif);
+  font-size: 14px;
+}
+
+.lexi-table th {
+  background-color: var(--color-surface-container-low, #f8fafc);
+  color: var(--color-on-surface-variant, #475569);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-outline-variant, #e2e8f0);
+  white-space: nowrap;
+}
+
+.lexi-table td {
+  padding: 14px 16px;
+  color: var(--color-on-surface, #0f172a);
+  border-bottom: 1px solid var(--color-outline-variant, #f1f5f9);
+}
+
+.lexi-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.lexi-table--hover tbody tr:hover {
+  background-color: var(--color-surface-container-low, #f8fafc);
+}

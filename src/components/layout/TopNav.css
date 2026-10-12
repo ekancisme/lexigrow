@@ -3,10 +3,8 @@
   top: 0;
   z-index: var(--z-topnav);
   height: var(--topnav-height);
-  background: rgba(243, 245, 249, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-container-lowest, #ffffff);
+  border-bottom: 1px solid var(--color-outline-variant, #e2e8f0);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -24,7 +22,8 @@
 }
 
 [data-theme='dark'] .topnav {
-  background: rgba(14, 20, 32, 0.8);
+  background: var(--color-surface-container-low, #131a26);
+  border-bottom-color: var(--color-outline-variant, #334155);
 }
 
 /* Search */
@@ -36,8 +35,7 @@
 }
 
 .topnav__search--focused {
-  box-shadow: 0 0 0 2px rgba(0, 91, 191, 0.15);
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md, 8px);
 }
 
 .topnav__search-icon {
@@ -52,9 +50,9 @@
 .topnav__search-input {
   width: 100%;
   padding: 8px 16px 8px 40px;
-  background: var(--color-surface-container-lowest);
-  border: 1px solid var(--color-outline-variant);
-  border-radius: var(--radius-full);
+  background: var(--color-surface-container-low, #f8fafc);
+  border: 1px solid var(--color-outline-variant, #e2e8f0);
+  border-radius: var(--radius-md, 8px);
   font-size: var(--text-body-md-size);
   color: var(--color-on-surface);
   transition: all var(--transition-normal);
@@ -65,8 +63,9 @@
 }
 
 .topnav__search-input:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+  border-color: var(--color-primary, #1e40af);
+  background: var(--color-surface-container-lowest, #ffffff);
+  box-shadow: 0 0 0 2px rgba(30, 64, 175, 0.15);
 }
 
 .topnav__parent-context { display: flex; align-items: center; gap: 10px; color: var(--color-on-surface-variant); }
@@ -93,20 +92,18 @@
   align-items: center;
   gap: 6px;
   padding: 6px 14px;
-  background: linear-gradient(135deg, #1a73e8, #4f46e5);
+  background: var(--color-primary, #1e40af);
   color: #fff;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md, 8px);
   font-size: 0.8125rem;
-  font-weight: 700;
-  border: none;
+  font-weight: 600;
+  border: 1px solid var(--color-primary, #1e40af);
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
   transition: all var(--transition-fast);
 }
 
 .topnav__upgrade-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(26, 115, 232, 0.45);
+  background: var(--color-primary-hover, #1d4ed8);
 }
 
 .topnav__upgrade-btn .material-symbols-outlined {

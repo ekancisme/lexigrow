@@ -4,16 +4,18 @@
    ============================================ */
 
 :root {
-  /* ── Color Palette (Material Design 3 - Blue) ── */
-  --color-primary: #005BBF;
-  --color-primary-container: #1A73E8;
-  --color-primary-fixed: #D8E2FF;
-  --color-primary-fixed-dim: #ADC7FF;
+  /* ── Color Palette (Modern Academic - Deep Cobalt) ── */
+  --color-primary: #1E40AF;
+  --color-primary-hover: #1D4ED8;
+  --color-primary-active: #1E3A8A;
+  --color-primary-container: #2563EB;
+  --color-primary-fixed: #DBEAFE;
+  --color-primary-fixed-dim: #BFDBFE;
   --color-on-primary: #FFFFFF;
   --color-on-primary-container: #FFFFFF;
-  --color-on-primary-fixed: #001A41;
-  --color-on-primary-fixed-variant: #004493;
-  --color-inverse-primary: #ADC7FF;
+  --color-on-primary-fixed: #1E3A8A;
+  --color-on-primary-fixed-variant: #1E40AF;
+  --color-inverse-primary: #93C5FD;
 
   --color-secondary: #3D608E;
   --color-secondary-container: #A9CBFF;
@@ -168,9 +170,12 @@
 
   /* ── Shadows ── */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 1px 3px 0 rgba(16, 24, 40, 0.05), 0 1px 2px 0 rgba(16, 24, 40, 0.03);
+  --shadow-card-hover: 0 4px 6px -1px rgba(16, 24, 40, 0.08), 0 2px 4px -2px rgba(16, 24, 40, 0.04);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --border-card: 1px solid var(--color-outline-variant, #E2E8F0);
 
   /* ── Transitions ── */
   --transition-fast: 150ms ease;

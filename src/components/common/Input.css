@@ -1,0 +1,96 @@
+.lexi-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.lexi-field__label {
+  font-family: var(--font-family, 'Inter', sans-serif);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-on-surface, #0f172a);
+}
+
+.lexi-field__wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.lexi-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 14px;
+  font-family: var(--font-family, 'Inter', sans-serif);
+  font-size: 14px;
+  color: var(--color-on-surface, #0f172a);
+  background-color: var(--color-surface-container-lowest, #ffffff);
+  border: 1px solid var(--color-outline-variant, #cbd5e1);
+  border-radius: var(--radius-md, 8px);
+  transition: all var(--transition-fast, 150ms ease);
+  box-sizing: border-box;
+}
+
+.lexi-input:hover {
+  border-color: var(--color-outline, #94a3b8);
+}
+
+.lexi-input:focus {
+  outline: none;
+  border-color: var(--color-primary, #1e40af);
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
+}
+
+.lexi-input:disabled {
+  background-color: var(--color-surface-container-low, #f1f5f9);
+  color: var(--color-on-surface-variant, #94a3b8);
+  cursor: not-allowed;
+}
+
+.lexi-input--has-left-icon {
+  padding-left: 38px;
+}
+
+.lexi-input--has-right-icon {
+  padding-right: 38px;
+}
+
+.lexi-input--error {
+  border-color: var(--color-danger, #ba1a1a);
+}
+.lexi-input--error:focus {
+  border-color: var(--color-danger, #ba1a1a);
+  box-shadow: 0 0 0 3px rgba(186, 26, 26, 0.12);
+}
+
+.lexi-field__left-icon,
+.lexi-field__right-icon {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-on-surface-variant, #64748b);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lexi-field__left-icon {
+  left: 12px;
+}
+
+.lexi-field__right-icon {
+  right: 12px;
+}
+
+.lexi-field__helper {
+  font-size: 12px;
+  color: var(--color-on-surface-variant, #64748b);
+}
+
+.lexi-field__error {
+  font-size: 12px;
+  color: var(--color-danger, #ba1a1a);
+}

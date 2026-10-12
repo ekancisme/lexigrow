@@ -1,0 +1,119 @@
+.lexi-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-family, 'Inter', sans-serif);
+  font-weight: 500;
+  border-radius: var(--radius-md, 8px);
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  transition: all var(--transition-fast, 150ms ease);
+  position: relative;
+  text-decoration: none;
+}
+
+.lexi-btn:focus-visible {
+  outline: 2px solid var(--color-primary, #1e40af);
+  outline-offset: 2px;
+}
+
+.lexi-btn:disabled,
+.lexi-btn.is-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Sizes ── */
+.lexi-btn--sm {
+  height: 32px;
+  padding: 0 12px;
+  font-size: var(--text-label-sm, 12px);
+}
+
+.lexi-btn--md {
+  height: 40px;
+  padding: 0 16px;
+  font-size: var(--text-label-md, 14px);
+}
+
+.lexi-btn--lg {
+  height: 48px;
+  padding: 0 24px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+/* ── Variants ── */
+/* Primary (Solid Cobalt) */
+.lexi-btn--primary {
+  background-color: var(--color-primary, #1e40af);
+  color: #ffffff;
+}
+.lexi-btn--primary:hover:not(:disabled) {
+  background-color: var(--color-primary-hover, #1d4ed8);
+}
+.lexi-btn--primary:active:not(:disabled) {
+  background-color: var(--color-primary-active, #1e3a8a);
+}
+
+/* Secondary (Soft Slate) */
+.lexi-btn--secondary {
+  background-color: var(--color-surface-container-low, #f1f5f9);
+  color: var(--color-on-surface, #0f172a);
+}
+.lexi-btn--secondary:hover:not(:disabled) {
+  background-color: var(--color-surface-container, #e2e8f0);
+}
+
+/* Outline */
+.lexi-btn--outline {
+  background-color: transparent;
+  border-color: var(--color-outline-variant, #e2e8f0);
+  color: var(--color-on-surface, #0f172a);
+}
+.lexi-btn--outline:hover:not(:disabled) {
+  background-color: var(--color-surface-container-low, #f1f5f9);
+  border-color: var(--color-outline, #64748b);
+}
+
+/* Ghost */
+.lexi-btn--ghost {
+  background-color: transparent;
+  color: var(--color-on-surface-variant, #475569);
+}
+.lexi-btn--ghost:hover:not(:disabled) {
+  background-color: var(--color-surface-container-low, #f1f5f9);
+  color: var(--color-on-surface, #0f172a);
+}
+
+/* Danger */
+.lexi-btn--danger {
+  background-color: var(--color-danger, #ba1a1a);
+  color: #ffffff;
+}
+.lexi-btn--danger:hover:not(:disabled) {
+  background-color: #991b1b;
+}
+
+/* Full Width */
+.lexi-btn--full {
+  width: 100%;
+}
+
+/* Spinner */
+.lexi-btn__spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: lexi-spin 0.6s linear infinite;
+}
+
+@keyframes lexi-spin {
+  to { transform: rotate(360deg); }
+}
