@@ -89,9 +89,17 @@ export default function StudentHome() {
             <span className="student-home__event-label"><span aria-hidden="true" />{t('homePage.eventLabel')}</span>
             <h3>{title}</h3>
             <p>{body}</p>
-            {announcement.actionUrl && actionLabel && <Link className="student-home__event-link" to={announcement.actionUrl}>
-              {actionLabel}<span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-            </Link>}
+            {announcement.actionUrl && actionLabel && (
+              announcement.actionUrl.startsWith('http://') || announcement.actionUrl.startsWith('https://') ? (
+                <a className="student-home__event-link" href={announcement.actionUrl} target="_blank" rel="noopener noreferrer">
+                  {actionLabel}<span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                </a>
+              ) : (
+                <Link className="student-home__event-link" to={announcement.actionUrl}>
+                  {actionLabel}<span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+                </Link>
+              )
+            )}
           </div>
           {(announcement.bannerUrl || announcement.imageUrl) && <img
             className="student-home__event-image"
