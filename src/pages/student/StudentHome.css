@@ -184,7 +184,8 @@
 .student-home__steps p { margin-bottom: 0; color: var(--home-muted); font-size: 13px; line-height: 1.6; }
 
 .student-home__footer { display: flex; align-items: center; gap: 18px; padding: 0 0 8px; color: var(--home-muted); font-size: 12px; }
-.student-home__footer-brand { color: var(--home-ink) !important; font-size: 15px; font-weight: 700; text-decoration: none; }
+.student-home__footer-brand { display: inline-flex; align-items: center; gap: 7px; color: var(--home-ink) !important; font-size: 15px; font-weight: 700; text-decoration: none; }
+.student-home__footer-logo { width: 20px; height: 20px; object-fit: contain; display: block; }
 .student-home__footer p { margin: 0 auto 0 0; }
 .student-home__footer > a:last-child { color: var(--color-primary); font-weight: 600; text-decoration: none; }
 

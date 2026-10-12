@@ -67,9 +67,7 @@ export default function Sidebar({ role = 'student', mobileOpen = false, onClose 
       {/* Brand */}
       <div className="sidebar__brand" onClick={() => { navigate(`/${role}/dashboard`); onClose?.() }}>
         <div className="sidebar__logo">
-          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
-            auto_stories
-          </span>
+          <img src="/assets/brand/lexigrow-emblem.png" alt="" width="36" height="36" className="sidebar__logo-img" />
         </div>
         <div>
           <h1 className="sidebar__title">LexiGrow</h1>

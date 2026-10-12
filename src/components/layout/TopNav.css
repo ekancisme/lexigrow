@@ -17,8 +17,8 @@
 }
 .topnav__brand { display: inline-flex; align-items: center; gap: 9px; flex-shrink: 0; color: var(--color-on-surface); font-size: 20px; font-weight: 700; }
 .topnav__brand:hover { text-decoration: none; }
-.topnav__brand-mark { display: grid; place-items: center; width: 32px; height: 32px; background: var(--color-primary); color: var(--color-on-primary); border-radius: var(--radius-md); }
-.topnav__brand-mark .material-symbols-outlined { font-size: 21px; }
+.topnav__brand-mark { display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--radius-md); overflow: hidden; flex-shrink: 0; }
+.topnav__brand-img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .topnav__navigation { flex: 1; min-width: 0; }
 .header-navigation { display: flex; align-items: center; gap: 4px; }
 .header-navigation__home, .navigation-disclosure__trigger {

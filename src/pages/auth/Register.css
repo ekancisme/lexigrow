@@ -20,14 +20,18 @@
 
 .register__logo {
   display: inline-flex;
-  width: 48px;
-  height: 48px;
-  background: var(--color-primary);
-  border-radius: var(--radius-xl);
+  width: 56px;
+  height: 56px;
   align-items: center;
   justify-content: center;
-  color: var(--color-on-primary);
   margin-bottom: var(--spacing-sm);
+}
+
+.register__logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 }
 
 .register__card {

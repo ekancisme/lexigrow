@@ -150,7 +150,10 @@ export default function StudentHome() {
       </section>
 
       <footer className="student-home__footer">
-        <Link to="/student/home" className="student-home__footer-brand">LexiGrow</Link>
+        <Link to="/student/home" className="student-home__footer-brand">
+          <img src="/assets/brand/lexigrow-emblem.png" alt="" width="22" height="22" className="student-home__footer-logo" />
+          <span>LexiGrow</span>
+        </Link>
         <p>{t('homePage.footerCopy')}</p>
         <Link to="/settings">{t('homePage.helpLink')}</Link>
       </footer>

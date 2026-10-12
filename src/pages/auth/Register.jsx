@@ -151,9 +151,7 @@ export default function Register() {
         {/* Brand */}
         <div className="register__brand">
           <div className="register__logo">
-            <span className="material-symbols-outlined" style={{ fontSize: 32, fontVariationSettings: "'FILL' 1" }}>
-              auto_stories
-            </span>
+            <img src="/assets/brand/lexigrow-emblem.png" alt="LexiGrow" width="56" height="56" className="register__logo-img" />
           </div>
           <h1 className="text-headline-lg">
             {verificationEmail ? 'Verify Your Email' : t('auth.registerTitle', 'Create Account')}

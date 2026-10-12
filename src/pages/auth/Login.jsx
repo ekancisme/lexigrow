@@ -126,9 +126,7 @@ export default function Login() {
         {/* Brand */}
         <div className="login__brand">
           <div className="login__logo">
-            <span className="material-symbols-outlined" style={{ fontSize: 32, fontVariationSettings: "'FILL' 1" }}>
-              auto_stories
-            </span>
+            <img src="/assets/brand/lexigrow-emblem.png" alt="LexiGrow" width="56" height="56" className="login__logo-img" />
           </div>
           <h1 className="text-headline-lg">LexiGrow</h1>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
