@@ -29,7 +29,7 @@
 .student-home__method-intro h2,
 .student-home__steps-intro h2,
 .student-home__closing h2 {
-  font-family: Georgia, 'Times New Roman', serif;
+  font-family: var(--font-family);
   font-weight: 600;
   letter-spacing: -.035em;
   text-wrap: balance;
