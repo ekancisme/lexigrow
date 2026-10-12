@@ -91,3 +91,11 @@ Shell đang sử dụng `TopNav.jsx`, `HeaderNavigation.jsx` và `NavigationDisc
 - Tài khoản chứa hồ sơ, gói cước và đăng xuất. Ngôn ngữ và thông báo luôn có trên header; theme chuyển vào panel trên màn hình rất nhỏ. Tìm kiếm mở bằng nút trên desktop và xuất hiện trong panel mobile.
 - Phụ huynh chọn con trong dropdown; giữ view đang xem khi đổi con, thể hiện badge cảnh báo và hướng dẫn liên kết khi chưa có con. Bottom navigation phụ huynh vẫn phục vụ thao tác nhanh trên mobile; nút More mở panel header.
 - Mọi nhãn mới dùng `headerNavigation` trong EN/VI; màu và focus dùng token của theme hiện có. Không dùng glow hoặc animation trang trí cho navigation.
+
+## 7. Student Home và Dashboard
+
+- `/student/home` là trang khám phá LexiGrow: giới thiệu phương pháp học, lối vào các luồng học hiện có và thông báo/sự kiện đang xuất bản.
+- `/student/dashboard` giữ nội dung cá nhân như phiên học, tiến độ, mục tiêu và hoạt động gần đây. Tab Dashboard luôn dẫn tới route này; logo và tab Home dẫn tới `/student/home`.
+- Home dùng `GET /announcements/active` để lấy nội dung banner do admin quản lý; tiêu đề, mô tả, ảnh, CTA dùng bản dịch theo ngôn ngữ hiện tại. Carousel chuyển thủ công và không tự đổi slide.
+- Ảnh chủ đề trên Home lấy từ `image-manifest.json` và `EditorialCoverImage`; ảnh thông báo dùng URL trong announcement hiện có. Tất cả tiêu đề và mô tả Home nằm trong `homePage` ở hai locale EN/VI.
+- Bố cục editorial dùng ảnh tỷ lệ cố định, phân cách bằng khoảng trắng/đường viền, và thu về một cột trên màn hình nhỏ. CTA giữ nguyên route học hiện tại.

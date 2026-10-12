@@ -68,9 +68,16 @@ export default function HeaderNavigation({ role, openId, setOpenId, onNavigate }
   const activeGroup = groups.find(group => group.items.some(navItem => navItem.path === location.pathname))?.id || groups.find(group => group.items.some(matches))?.id
   return (
     <nav className="header-navigation" aria-label={t('headerNavigation.primaryNavigation')}>
-      <NavLink to={`/${role}/dashboard`} className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
-        {role === 'student' ? t('nav.today') : t('nav.overview')}
-      </NavLink>
+      {role === 'student' ? <>
+        <NavLink to="/student/home" end className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
+          {t('nav.home')}
+        </NavLink>
+        <NavLink to="/student/dashboard" end className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
+          {t('nav.dashboard')}
+        </NavLink>
+      </> : <NavLink to={`/${role}/dashboard`} className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
+        {t('nav.overview')}
+      </NavLink>}
       {groups.map(group => (
         <NavigationDisclosure key={group.id} label={group.label} active={activeGroup === group.id} open={openId === group.id}
           onOpen={() => setOpenId(group.id)} onClose={() => setOpenId(current => current === group.id ? null : current)}

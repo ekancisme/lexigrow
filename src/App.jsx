@@ -12,6 +12,7 @@ import AppLayout from './components/layout/AppLayout'
 
 /* Student Pages */
 const StudentDashboard = lazy(() => import('./pages/student/StudentDashboard'))
+const StudentHome = lazy(() => import('./pages/student/StudentHome.jsx'))
 const WriteEssay = lazy(() => import('./pages/student/WriteEssay'))
 const MyProgress = lazy(() => import('./pages/student/MyProgress'))
 const SetWeeklyGoals = lazy(() => import('./pages/student/SetWeeklyGoals'))
@@ -163,7 +164,8 @@ function App() {
             </RoleProtectedRoute>
           }
         >
-          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route index element={<Navigate to="home" replace />} />
+          <Route path="home" element={<StudentHome />} />
           <Route path="dashboard" element={<StudentDashboard />} />
           <Route path="write-essay" element={<WriteEssay />} />
           <Route path="write" element={<WriteEssay />} />

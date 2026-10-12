@@ -84,7 +84,7 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
       }
     }}>
       <div className="topnav__bar">
-        <Link to={`/${role}/dashboard`} className="topnav__brand" onClick={closeNavigation} aria-label={t('headerNavigation.homeLabel')}>
+        <Link to={role === 'student' ? '/student/home' : `/${role}/dashboard`} className="topnav__brand" onClick={closeNavigation} aria-label={t('headerNavigation.homeLabel')}>
           <span className="topnav__brand-mark"><span className="material-symbols-outlined" aria-hidden="true">auto_stories</span></span>
           <span>LexiGrow</span>
         </Link>
