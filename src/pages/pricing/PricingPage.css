@@ -471,8 +471,9 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--color-danger-bg, #fee2e2);
+  color: var(--color-error, #b91c1c);
+  border: 1px solid color-mix(in srgb, var(--color-error) 25%, transparent);
   padding: 0.85rem 1.25rem;
   border-radius: 12px;
   margin-bottom: 2rem;

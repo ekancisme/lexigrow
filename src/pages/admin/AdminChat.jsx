@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useChat } from '../../hooks/useChat.js'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
@@ -23,7 +23,6 @@ const AdminChat = () => {
     loadHistory,
     markRoomRead,
     messagesEndRef,
-    setMessages
   } = useChat(selectedRoom || 'support')
 
   // Load available rooms on mount
@@ -103,7 +102,10 @@ const AdminChat = () => {
   return (
     <div className="admin-chat">
       <div className="admin-chat-sidebar">
-        <h3 className="admin-chat-sidebar-title">📬 {t('adminChat.roomsTitle')}</h3>
+        <h3 className="admin-chat-sidebar-title">
+          <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 20 }}>inbox</span>
+          <span>{t('adminChat.roomsTitle')}</span>
+        </h3>
         <div className="admin-chat-room-list">
           {rooms.length === 0 && (
             <div className="admin-chat-empty-rooms">{t('adminChat.emptyRooms')}</div>
@@ -161,7 +163,11 @@ const AdminChat = () => {
                   >
                     <div className="admin-chat-msg-sender">
                       {msg.sender?.name || t('adminChat.system')}
-                      {msg.sender?.role === 'admin' && ' ⭐'}
+                      {msg.sender?.role === 'admin' && (
+                        <span className="material-symbols-outlined" aria-hidden="true" style={{ fontSize: 14, marginLeft: 4, color: 'var(--color-primary)' }} title="Admin">
+                          verified
+                        </span>
+                      )}
                     </div>
                     <div className="admin-chat-msg-content">
                       <div className="admin-chat-msg-text">{msg.content}</div>

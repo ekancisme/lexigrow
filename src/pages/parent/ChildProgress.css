@@ -158,3 +158,52 @@
   .child-progress__goal-list { grid-template-columns: 1fr; }
   .child-progress__goals > header { align-items: flex-start; flex-direction: column; }
 }
+
+[data-theme='dark'] .child-progress__insight {
+  background: color-mix(in srgb, var(--color-success) 12%, var(--color-surface-container-lowest));
+  color: var(--color-on-surface);
+  border-left-color: var(--color-success);
+}
+
+[data-theme='dark'] .child-progress__insight--attention {
+  background: color-mix(in srgb, var(--color-warning) 12%, var(--color-surface-container-lowest));
+  color: var(--color-on-surface);
+  border-left-color: var(--color-warning);
+}
+
+[data-theme='dark'] .child-progress__insight > .material-symbols-outlined {
+  background: var(--color-surface-container-high);
+  color: var(--color-on-surface);
+}
+
+[data-theme='dark'] .child-progress__insight button {
+  background: var(--color-surface-container-high);
+  color: var(--color-on-surface);
+}
+
+[data-theme='dark'] .child-progress__status--reviewed {
+  color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+[data-theme='dark'] .child-progress__status--needs_revision {
+  color: var(--color-warning);
+  background: var(--color-warning-bg);
+}
+
+[data-theme='dark'] .child-progress__alert.is-unread {
+  background: color-mix(in srgb, var(--color-warning) 12%, var(--color-surface-container-lowest));
+  border-left-color: var(--color-warning);
+}
+
+[data-theme='dark'] .child-progress__alert-icon {
+  background: var(--color-warning-bg);
+  border-color: color-mix(in srgb, var(--color-warning) 30%, transparent);
+  color: var(--color-warning);
+}
+
+[data-theme='dark'] .child-progress__alert--critical .child-progress__alert-icon {
+  background: var(--color-danger-bg);
+  border-color: color-mix(in srgb, var(--color-danger) 30%, transparent);
+  color: var(--color-danger);
+}

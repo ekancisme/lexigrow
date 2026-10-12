@@ -109,3 +109,43 @@
   .parent-dashboard__student-actions > button { flex: 1; }
   .parent-dashboard__student-actions > button span:last-child { display: none; }
 }
+
+[data-theme='dark'] .parent-dashboard__attention {
+  background: color-mix(in srgb, var(--color-warning) 12%, var(--color-surface-container-lowest));
+  color: var(--color-on-surface);
+  border-left-color: var(--color-warning);
+}
+
+[data-theme='dark'] .parent-dashboard__attention-heading > .material-symbols-outlined {
+  background: var(--color-surface-container-high);
+  color: var(--color-warning);
+}
+
+[data-theme='dark'] .parent-dashboard__attention-heading p {
+  color: var(--color-on-surface-variant);
+}
+
+[data-theme='dark'] .parent-dashboard__attention-list button {
+  border-bottom-color: var(--color-outline-variant);
+}
+
+[data-theme='dark'] .parent-dashboard__status--watch {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+[data-theme='dark'] .parent-dashboard__status--needs_attention {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+[data-theme='dark'] .parent-dashboard__status {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+[data-theme='dark'] .parent-dashboard__notice--success {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border-color: color-mix(in srgb, var(--color-success) 35%, transparent);
+}

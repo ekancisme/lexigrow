@@ -94,7 +94,7 @@ export default function StudentDashboard() {
 
             <ResourceNotice resource={recommendationResource} label={isVi ? 'gợi ý học tập' : 'learning recommendations'} />
             {recommendationFallback && (
-              <div role="status" aria-live="polite" style={{ padding: '8px 12px', background: '#fffbeb', borderRadius: 8, fontSize: 13, border: '1px solid #fde68a' }}>
+              <div role="status" aria-live="polite" style={{ padding: '8px 12px', background: 'var(--color-warning-bg, #fffbeb)', borderRadius: 8, fontSize: 13, border: '1px solid var(--color-outline-variant, #fde68a)', color: 'var(--color-on-surface)' }}>
                 <p style={{ margin: 0 }}>{isVi ? 'Gợi ý AI tạm thời chưa sẵn sàng. Bạn vẫn có thể học với bộ từ được chọn từ tiến độ hiện tại.' : 'AI advice is temporarily unavailable. You can still study words selected from your current progress.'}</p>
                 <Button variant="secondary" size="sm" onClick={recommendationResource.retry} style={{ marginTop: 6 }}>
                   {isVi ? 'Tải lại gợi ý' : 'Retry recommendations'}

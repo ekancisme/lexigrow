@@ -260,10 +260,10 @@
 }
 
 .evidence-wall__item:hover {
-  border-color: #16a34a;
-  background: #ffffff;
+  border-color: var(--color-success, #16a34a);
+  background: var(--color-surface-container-lowest, #ffffff);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+  box-shadow: var(--shadow-card-hover, 0 6px 20px rgba(0, 0, 0, 0.04));
 }
 
 .evidence-wall__item-top {
@@ -277,12 +277,12 @@
   align-items: center;
   gap: 8px;
   font-size: 16px;
-  color: #15803d;
+  color: var(--color-success, #15803d);
 }
 
 .evidence-wall__word-tag .material-symbols-outlined {
   font-size: 20px;
-  color: #16a34a;
+  color: var(--color-success, #16a34a);
 }
 
 .evidence-wall__topic-badge {
@@ -297,8 +297,8 @@
 .evidence-wall__score-pill {
   font-size: 12px;
   font-weight: 700;
-  color: #166534;
-  background: #dcfce7;
+  color: var(--color-success, #166534);
+  background: var(--color-success-bg, #dcfce7);
   padding: 3px 8px;
   border-radius: 6px;
 }
