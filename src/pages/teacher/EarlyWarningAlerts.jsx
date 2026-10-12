@@ -1,50 +1,31 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
+import { formatRelativeTime as fmtRelTime } from '../../utils/formatters.js'
 import './EarlyWarningAlerts.css'
 
 /* ─── Helpers ────────────────────────────────────────── */
-function formatRelativeTime(dateStr) {
-  const now = Date.now()
-  const created = new Date(dateStr).getTime()
-  const diffMs = now - created
-  const diffMin = Math.floor(diffMs / 60000)
-  const diffHr = Math.floor(diffMs / 3600000)
-  const diffDay = Math.floor(diffMs / 86400000)
-  if (diffMin < 1) return 'Just now'
-  if (diffMin < 60) return `${diffMin}m ago`
-  if (diffHr < 24) return `${diffHr}h ago`
-  if (diffDay < 7) return `${diffDay}d ago`
-  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-}
-
-function getAlertMeta(type) {
+function getAlertMeta(type, t) {
   switch (type) {
-    case 'critical': return { icon: 'warning', label: 'Critical', cls: 'critical' }
-    case 'warning': return { icon: 'assignment_late', label: 'Warning', cls: 'warning' }
-    case 'info': return { icon: 'info', label: 'Info', cls: 'info' }
-    case 'success': return { icon: 'check_circle', label: 'Success', cls: 'success' }
+    case 'critical': return { icon: 'warning', label: t('earlyWarning.filterCritical'), cls: 'critical' }
+    case 'warning': return { icon: 'assignment_late', label: t('earlyWarning.filterWarning'), cls: 'warning' }
+    case 'info': return { icon: 'info', label: t('earlyWarning.filterInfo'), cls: 'info' }
+    case 'success': return { icon: 'check_circle', label: t('earlyWarning.resolved'), cls: 'success' }
     default: return { icon: 'notifications', label: type || 'Alert', cls: 'info' }
   }
 }
 
-function metricLabel(metric) {
+function metricLabel(metric, t) {
   if (!metric) return null
   const map = {
-    vocabulary_stagnation: 'Vocabulary Stagnation',
-    grammar_decline: 'Grammar Decline',
-    overall_score_decline: 'Overall Score Decline',
-    missed_assignment_deadline: 'Missed Assignment Deadline',
+    vocabulary_stagnation: t('earlyWarning.metricVocabStagnation'),
+    grammar_decline: t('earlyWarning.metricGrammarDecline'),
+    overall_score_decline: t('earlyWarning.metricOverallDecline'),
+    missed_assignment_deadline: t('earlyWarning.metricMissedDeadline'),
   }
   return map[metric] || metric.replace(/_/g, ' ')
 }
-
-const TYPE_FILTERS = [
-  { key: '', label: 'All', icon: 'filter_list' },
-  { key: 'critical', label: 'Critical', icon: 'warning' },
-  { key: 'warning', label: 'Warning', icon: 'assignment_late' },
-  { key: 'info', label: 'Info', icon: 'info' },
-]
 
 const PAGE_SIZE = 15
 
@@ -70,16 +51,16 @@ function AlertSkeleton() {
 }
 
 /* ─── Alert Card ──────────────────────────────────────── */
-function AlertCard({ alert, onResolve, resolving }) {
+function AlertCard({ alert, onResolve, resolving, t, language }) {
   const navigate = useNavigate()
-  const meta = getAlertMeta(alert.type)
+  const meta = getAlertMeta(alert.type, t)
   const studentId = alert.student?._id
 
   return (
     <div
       className={`ewa-card card-base ewa-card--${meta.cls} ${alert.isResolved ? 'ewa-card--resolved' : ''} animate-fade-in`}
       role="article"
-      aria-label={`Alert for ${alert.student?.name || 'Unknown student'}`}
+      aria-label={`Alert for ${alert.student?.name || t('earlyWarning.unknownStudent')}`}
     >
       {/* TOP ROW */}
       <div className="ewa-card__top">
@@ -90,7 +71,7 @@ function AlertCard({ alert, onResolve, resolving }) {
           <div className="ewa-card__student-info">
             <div className="ewa-card__student-header">
               <h4 className="ewa-card__student-name">
-                {alert.student?.name || 'Unknown Student'}
+                {alert.student?.name || t('earlyWarning.unknownStudent')}
               </h4>
               {alert.student?.email && (
                 <span className="ewa-card__student-email">({alert.student.email})</span>
@@ -106,7 +87,7 @@ function AlertCard({ alert, onResolve, resolving }) {
               {alert.metric && (
                 <span className="ewa-card__meta-chip ewa-card__meta-chip--metric">
                   <span className="material-symbols-outlined" style={{ fontSize: 14 }}>query_stats</span>
-                  {metricLabel(alert.metric)}
+                  {metricLabel(alert.metric, t)}
                 </span>
               )}
             </div>
@@ -116,14 +97,14 @@ function AlertCard({ alert, onResolve, resolving }) {
         <div className="ewa-card__badges">
           <span className={`ewa-badge ewa-badge--${meta.cls}`}>{meta.label}</span>
           {alert.isResolved && (
-            <span className="ewa-badge ewa-badge--resolved">Resolved</span>
+            <span className="ewa-badge ewa-badge--resolved">{t('earlyWarning.resolved')}</span>
           )}
           {!alert.isRead && !alert.isResolved && (
-            <span className="ewa-badge ewa-badge--new">New</span>
+            <span className="ewa-badge ewa-badge--new">{t('childProgress.newBadge')}</span>
           )}
           <span className="ewa-card__time text-label-sm">
             <span className="material-symbols-outlined" style={{ fontSize: 14 }}>schedule</span>
-            {formatRelativeTime(alert.createdAt)}
+            {fmtRelTime(alert.createdAt, language)}
           </span>
         </div>
       </div>
@@ -141,7 +122,7 @@ function AlertCard({ alert, onResolve, resolving }) {
             disabled={!studentId}
           >
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>person</span>
-            View Profile
+            {t('parent.viewChildDetail', 'View Profile')}
           </button>
           <button
             id={`resolve-${alert._id}`}
@@ -152,12 +133,12 @@ function AlertCard({ alert, onResolve, resolving }) {
             {resolving === alert._id ? (
               <>
                 <span className="material-symbols-outlined animate-spin" style={{ fontSize: 16 }}>progress_activity</span>
-                Resolving…
+                {t('childProgress.saving')}
               </>
             ) : (
               <>
                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check_circle</span>
-                Mark Resolved
+                {t('earlyWarning.markResolved')}
               </>
             )}
           </button>
@@ -165,7 +146,7 @@ function AlertCard({ alert, onResolve, resolving }) {
       ) : (
         <div className="ewa-card__resolved-row">
           <span className="material-symbols-outlined" style={{ fontSize: 16, color: 'var(--color-success)' }}>verified</span>
-          <span className="text-label-sm" style={{ color: 'var(--color-success)' }}>This alert has been resolved</span>
+          <span className="text-label-sm" style={{ color: 'var(--color-success)' }}>{t('earlyWarning.resolved')}</span>
           <button
             className="ewa-btn ewa-btn--ghost"
             style={{ marginLeft: 'auto' }}
@@ -173,7 +154,7 @@ function AlertCard({ alert, onResolve, resolving }) {
             disabled={!studentId}
           >
             <span className="material-symbols-outlined" style={{ fontSize: 15 }}>open_in_new</span>
-            View Profile
+            {t('parent.viewChildDetail', 'View Profile')}
           </button>
         </div>
       )}
@@ -183,6 +164,7 @@ function AlertCard({ alert, onResolve, resolving }) {
 
 /* ─── Main Component ──────────────────────────────────── */
 export default function EarlyWarningAlerts() {
+  const { t, language } = useLanguage()
   const [alerts, setAlerts] = useState([])
   const [stats, setStats] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -194,6 +176,13 @@ export default function EarlyWarningAlerts() {
   const [page, setPage] = useState(1)
   const [total, setTotal] = useState(0)
   const hasMore = alerts.length < total
+
+  const typeFilters = [
+    { key: '', label: t('earlyWarning.filterAll'), icon: 'filter_list' },
+    { key: 'critical', label: t('earlyWarning.filterCritical'), icon: 'warning' },
+    { key: 'warning', label: t('earlyWarning.filterWarning'), icon: 'assignment_late' },
+    { key: 'info', label: t('earlyWarning.filterInfo'), icon: 'info' },
+  ]
 
   // Track which alerts we auto-marked as read on mount
   const markedReadRef = useRef(new Set())
@@ -210,97 +199,127 @@ export default function EarlyWarningAlerts() {
     }
   }
 
-  /* ── Fetch alerts (first page / filter change) ────────── */
-  const loadAlerts = useCallback(async (reset = true) => {
+  /* ── Fetch Stats ─────────────────────────────────────── */
+  const loadStats = useCallback(async () => {
+    try {
+      const res = await api.get('/alerts/stats')
+      if (res.success && res.data) {
+        setStats(res.data)
+      }
+    } catch {
+      // non-critical, ignore
+    }
+  }, [])
+
+  /* ── Fetch Alerts ────────────────────────────────────── */
+  const loadAlerts = useCallback(async (reset = false) => {
+    const targetPage = reset ? 1 : page
     if (reset) {
       setLoading(true)
-      setPage(1)
-      setAlerts([])
+      setError(null)
     } else {
       setLoadingMore(true)
     }
-    setError(null)
 
     try {
-      const params = new URLSearchParams()
-      if (activeFilter) params.set('type', activeFilter)
-      params.set('limit', PAGE_SIZE)
-      params.set('page', reset ? 1 : page + 1)
-
-      const res = await api.get(`/alerts?${params}`)
-      // res = { success, count, total, page, data: [...] }
-      const incoming = Array.isArray(res.data) ? res.data : []
-      setTotal(res.total ?? 0)
-
-      if (reset) {
-        setAlerts(incoming)
-      } else {
-        setAlerts(prev => [...prev, ...incoming])
-        setPage(p => p + 1)
+      const params = {
+        page: targetPage,
+        limit: PAGE_SIZE,
+        ...(activeFilter ? { type: activeFilter } : {}),
       }
 
-      // Auto-mark newly-loaded unread alerts
-      incoming.filter(a => !a.isRead && !a.isResolved).forEach(a => {
-        setTimeout(() => markAlertRead(a._id), 500)
-      })
+      const res = await api.get('/alerts', { params })
+
+      if (res.success && Array.isArray(res.data)) {
+        const incoming = res.data
+
+        setAlerts(prev => {
+          if (reset) return incoming
+          const existingIds = new Set(prev.map(a => a._id))
+          const fresh = incoming.filter(a => !existingIds.has(a._id))
+          return [...prev, fresh]
+        })
+
+        if (res.pagination) {
+          setTotal(res.pagination.total ?? incoming.length)
+        } else {
+          setTotal(incoming.length)
+        }
+
+        // Auto-mark first few unread as read (softly)
+        incoming.filter(a => !a.isRead).slice(0, 5).forEach(a => markAlertRead(a._id))
+      } else {
+        throw new Error(res.message || 'Failed to load alerts')
+      }
     } catch (err) {
-      console.error('Error fetching alerts:', err)
-      setError(err.message || 'Failed to load alerts. Please try again.')
+      setError(err.message || 'Could not fetch alerts. Please try again.')
     } finally {
       setLoading(false)
       setLoadingMore(false)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeFilter, page])
+
+  /* ── Reload on filter change ─────────────────────────── */
+  useEffect(() => {
+    setPage(1)
+    loadAlerts(true)
   }, [activeFilter])
 
-  /* ── Fetch stats ──────────────────────────────────────── */
-  const loadStats = useCallback(async () => {
-    try {
-      const res = await api.get('/alerts/stats')
-      setStats(res.data || null)
-    } catch {
-      // non-critical
-    }
-  }, [])
-
+  /* ── Load stats once on mount ────────────────────────── */
   useEffect(() => {
-    loadAlerts(true)
     loadStats()
-  }, [loadAlerts, loadStats])
+  }, [loadStats])
 
-  /* ── Resolve handler ──────────────────────────────────── */
+  /* ── Resolve an alert ────────────────────────────────── */
   async function handleResolve(alertId) {
     setResolving(alertId)
     try {
-      await api.patch(`/alerts/${alertId}/resolve`)
-      setAlerts(prev =>
-        prev.map(a => a._id === alertId ? { ...a, isResolved: true, isRead: true } : a)
-      )
-      loadStats()
+      const res = await api.patch(`/alerts/${alertId}/resolve`)
+      if (res.success) {
+        setAlerts(prev =>
+          prev.map(a =>
+            a._id === alertId
+              ? { ...a, isResolved: true, resolvedAt: new Date().toISOString() }
+              : a
+          )
+        )
+        // Refresh stats
+        loadStats()
+      } else {
+        throw new Error(res.message || 'Resolve failed')
+      }
     } catch (err) {
-      alert('Could not resolve alert: ' + (err.message || 'Unknown error'))
+      alert(err.message || 'Could not resolve alert.')
     } finally {
       setResolving(null)
     }
   }
 
-  /* ── Derived lists ────────────────────────────────────── */
-  const unresolved = alerts.filter(a => !a.isResolved)
-  const resolved   = alerts.filter(a =>  a.isResolved)
-  const displayed  = showResolved ? alerts : unresolved
+  /* ── Filtered list for display ───────────────────────── */
+  const displayed = alerts.filter(a => {
+    if (!showResolved && a.isResolved) return false
+    return true
+  })
 
-  /* ── Group alerts by class name ──────────────────────── */
-  const groupByClass = (list) => {
-    const groups = {}
-    list.forEach(a => {
-      const key = a.class?.name || 'Other / No Class'
-      if (!groups[key]) groups[key] = []
-      groups[key].push(a)
-    })
-    return groups
-  }
-  const unresolvedGroups = groupByClass(unresolved)
-  const resolvedGroups   = groupByClass(resolved)
+  // Group into unresolved vs resolved
+  const unresolved = displayed.filter(a => !a.isResolved)
+  const resolved = displayed.filter(a => a.isResolved)
+
+  // Group unresolved by class name
+  const unresolvedGroups = unresolved.reduce((acc, a) => {
+    const clsName = a.class?.name || 'No Class Assigned'
+    if (!acc[clsName]) acc[clsName] = []
+    acc[clsName].push(a)
+    return acc
+  }, {})
+
+  // Group resolved by class name
+  const resolvedGroups = resolved.reduce((acc, a) => {
+    const clsName = a.class?.name || 'No Class Assigned'
+    if (!acc[clsName]) acc[clsName] = []
+    acc[clsName].push(a)
+    return acc
+  }, {})
 
   /* ─── RENDER ──────────────────────────────────────────── */
   return (
@@ -314,9 +333,9 @@ export default function EarlyWarningAlerts() {
               <span className="material-symbols-outlined" style={{ fontSize: 28 }}>notifications_active</span>
             </div>
             <div>
-              <h2 className="text-headline-lg">Early Warning Alerts</h2>
+              <h2 className="text-headline-lg">{t('earlyWarning.title')}</h2>
               <p className="text-body-md ewa__subtitle">
-                AI-powered monitoring — identify students who need your attention before it's too late.
+                {t('earlyWarning.subtitle')}
               </p>
             </div>
           </div>
@@ -325,12 +344,12 @@ export default function EarlyWarningAlerts() {
           className="ewa-btn ewa-btn--refresh"
           onClick={() => { loadAlerts(true); loadStats() }}
           disabled={loading}
-          title="Refresh alerts"
+          title={t('earlyWarning.refresh')}
         >
           <span className={`material-symbols-outlined ${loading ? 'animate-spin' : ''}`} style={{ fontSize: 20 }}>
             refresh
           </span>
-          Refresh
+          {t('earlyWarning.refresh')}
         </button>
       </section>
 
@@ -341,35 +360,35 @@ export default function EarlyWarningAlerts() {
             <span className="material-symbols-outlined">warning</span>
             <div>
               <span className="ewa__stat-value">{stats.critical ?? 0}</span>
-              <span className="ewa__stat-label">Critical</span>
+              <span className="ewa__stat-label">{t('earlyWarning.filterCritical')}</span>
             </div>
           </div>
           <div className="ewa__stat-item ewa__stat-item--warning">
             <span className="material-symbols-outlined">assignment_late</span>
             <div>
               <span className="ewa__stat-value">{stats.warning ?? 0}</span>
-              <span className="ewa__stat-label">Warning</span>
+              <span className="ewa__stat-label">{t('earlyWarning.filterWarning')}</span>
             </div>
           </div>
           <div className="ewa__stat-item ewa__stat-item--info">
             <span className="material-symbols-outlined">info</span>
             <div>
               <span className="ewa__stat-value">{stats.info ?? 0}</span>
-              <span className="ewa__stat-label">Info</span>
+              <span className="ewa__stat-label">{t('earlyWarning.filterInfo')}</span>
             </div>
           </div>
           <div className="ewa__stat-item ewa__stat-item--unread">
             <span className="material-symbols-outlined">mark_email_unread</span>
             <div>
               <span className="ewa__stat-value">{stats.unread ?? 0}</span>
-              <span className="ewa__stat-label">Unread</span>
+              <span className="ewa__stat-label">{t('notif.unread', 'Unread')}</span>
             </div>
           </div>
           <div className="ewa__stat-item ewa__stat-item--total">
             <span className="material-symbols-outlined">list_alt</span>
             <div>
               <span className="ewa__stat-value">{total}</span>
-              <span className="ewa__stat-label">Total</span>
+              <span className="ewa__stat-label">{t('common.total', 'Total')}</span>
             </div>
           </div>
         </div>
@@ -378,7 +397,7 @@ export default function EarlyWarningAlerts() {
       {/* ── FILTER BAR ── */}
       <div className="ewa__toolbar">
         <div className="ewa__filters" role="tablist" aria-label="Filter alerts by type">
-          {TYPE_FILTERS.map(f => (
+          {typeFilters.map(f => (
             <button
               key={f.key}
               id={`filter-${f.key || 'all'}`}
@@ -404,7 +423,7 @@ export default function EarlyWarningAlerts() {
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>
               {showResolved ? 'visibility_off' : 'visibility'}
             </span>
-            {showResolved ? 'Hide Resolved' : `Show Resolved (${resolved.length})`}
+            {showResolved ? t('earlyWarning.hideResolved') : t('earlyWarning.showResolved', { count: resolved.length })}
           </button>
         )}
       </div>
@@ -417,11 +436,11 @@ export default function EarlyWarningAlerts() {
       ) : error ? (
         <div className="ewa__state-box card-base ewa__state-box--error animate-fade-in">
           <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-error)' }}>error_outline</span>
-          <h3 className="text-title-lg">Something went wrong</h3>
+          <h3 className="text-title-lg">{t('earlyWarning.somethingWentWrong')}</h3>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>{error}</p>
           <button className="ewa-btn ewa-btn--primary" onClick={() => { loadAlerts(true); loadStats() }}>
             <span className="material-symbols-outlined" style={{ fontSize: 16 }}>refresh</span>
-            Try Again
+            {t('earlyWarning.tryAgain')}
           </button>
         </div>
       ) : displayed.length === 0 ? (
@@ -430,16 +449,16 @@ export default function EarlyWarningAlerts() {
           <h3 className="text-title-lg">
             {activeFilter
               ? `No ${activeFilter} alerts found`
-              : 'No active alerts — great job!'}
+              : t('earlyWarning.noActiveAlerts')}
           </h3>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
             {activeFilter
               ? 'Try a different filter or come back later.'
-              : 'All students are on track. Keep monitoring for any changes.'}
+              : t('earlyWarning.allStudentsOnTrack')}
           </p>
           {activeFilter && (
             <button className="ewa-btn ewa-btn--outline" onClick={() => setActiveFilter('')}>
-              View All Alerts
+              {t('earlyWarning.viewAllAlerts')}
             </button>
           )}
         </div>
@@ -451,7 +470,7 @@ export default function EarlyWarningAlerts() {
             <div className="ewa__section-wrapper">
               <div className="ewa__section-label">
                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>pending_actions</span>
-                Pending ({unresolved.length}{hasMore ? '+' : ''})
+                {t('earlyWarning.pending', { count: `${unresolved.length}${hasMore ? '+' : ''}` })}
               </div>
               {Object.entries(unresolvedGroups).map(([className, classAlerts]) => (
                 <div key={`pending-${className}`} className="ewa__class-group">
@@ -467,6 +486,8 @@ export default function EarlyWarningAlerts() {
                         alert={a}
                         onResolve={handleResolve}
                         resolving={resolving}
+                        t={t}
+                        language={language}
                       />
                     ))}
                   </div>
@@ -480,7 +501,7 @@ export default function EarlyWarningAlerts() {
             <div className="ewa__section-wrapper">
               <div className="ewa__section-label ewa__section-label--resolved">
                 <span className="material-symbols-outlined" style={{ fontSize: 16 }}>task_alt</span>
-                Resolved ({resolved.length})
+                {t('earlyWarning.resolvedGroup', { count: resolved.length })}
               </div>
               {Object.entries(resolvedGroups).map(([className, classAlerts]) => (
                 <div key={`resolved-${className}`} className="ewa__class-group">
@@ -496,6 +517,8 @@ export default function EarlyWarningAlerts() {
                         alert={a}
                         onResolve={handleResolve}
                         resolving={resolving}
+                        t={t}
+                        language={language}
                       />
                     ))}
                   </div>
@@ -503,7 +526,6 @@ export default function EarlyWarningAlerts() {
               ))}
             </div>
           )}
-
 
           {/* Load More */}
           {hasMore && (
@@ -520,7 +542,7 @@ export default function EarlyWarningAlerts() {
               ) : (
                 <>
                   <span className="material-symbols-outlined" style={{ fontSize: 18 }}>expand_more</span>
-                  Load more ({total - alerts.length} remaining)
+                  {t('earlyWarning.loadMore', { count: total - alerts.length })}
                 </>
               )}
             </button>

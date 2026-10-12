@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import { playEnglishAudio, stopAudioPlayback } from '../../utils/speechAudio.js'
 import './WordLesson.css'
 
@@ -7,6 +8,7 @@ export default function WordLesson({
   onComplete,
   onBack
 }) {
+  const { t } = useLanguage()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [playingAudioType, setPlayingAudioType] = useState(null) // 'word' | 'example' | null
 
@@ -21,8 +23,8 @@ export default function WordLesson({
     return (
       <div className="word-lesson__empty card-base">
         <span className="material-symbols-outlined">menu_book</span>
-        <p>No vocabulary items found in this lesson.</p>
-        <button className="btn-primary" onClick={onBack}>Go back</button>
+        <p>{t('learning.noWordsFound', 'No vocabulary items found in this lesson.')}</p>
+        <button className="btn-primary" onClick={onBack}>{t('learning.goBack', 'Go back')}</button>
       </div>
     )
   }
@@ -39,7 +41,7 @@ export default function WordLesson({
                      currentWord.definitionVi ||
                      currentWord.definition ||
                      currentWord.meaning ||
-                     'No definition available.'
+                     t('learning.noWordsFound', 'No definition available.')
 
   // Extract collocations
   const collocations = (currentWord.collocations || [])
@@ -98,7 +100,7 @@ export default function WordLesson({
               key={w._id || w.word || idx}
               className={`word-lesson__step-dot ${idx === currentIndex ? 'word-lesson__step-dot--active' : ''} ${idx < currentIndex ? 'word-lesson__step-dot--done' : ''}`}
               onClick={() => selectWord(idx)}
-              aria-label={`Show word ${idx + 1}: ${w.word}`}
+              aria-label={t('learning.wordCounter', `Word ${idx + 1} of ${words.length}`, { current: idx + 1, total: words.length })}
               aria-current={idx === currentIndex ? 'step' : undefined}
               title={w.word}
             >
@@ -107,7 +109,7 @@ export default function WordLesson({
           ))}
         </div>
         <span className="word-lesson__counter text-label-md">
-          Word {currentIndex + 1} of {words.length}
+          {t('learning.wordCounter', `Word ${currentIndex + 1} of ${words.length}`, { current: currentIndex + 1, total: words.length })}
         </span>
       </div>
 
@@ -140,11 +142,11 @@ export default function WordLesson({
             type="button"
             className={`word-lesson__audio-btn ${playingAudioType === 'word' ? 'word-lesson__audio-btn--playing' : ''}`}
             onClick={() => handlePlayAudio(currentWord.word, 'word')}
-            title="Listen to pronunciation"
-            aria-label={`Listen to ${currentWord.word}`}
+            title={t('learning.listenPronunciation', 'Listen to pronunciation')}
+            aria-label={t('learning.listenPronunciation', 'Listen to pronunciation')}
           >
             <span className="material-symbols-outlined">
-              {playingAudioType === 'word' ? 'volume_up' : 'volume_up'}
+              volume_up
             </span>
           </button>
         </div>
@@ -155,7 +157,7 @@ export default function WordLesson({
         <div className="word-lesson__section">
           <div className="word-lesson__section-heading">
             <span className="material-symbols-outlined word-lesson__heading-icon">translate</span>
-            <span className="word-lesson__heading-label">Meaning & Definition</span>
+            <span className="word-lesson__heading-label">{t('learning.meaningDefinition', 'Meaning & Definition')}</span>
           </div>
           <p className="word-lesson__meaning">
             {definition}
@@ -167,7 +169,7 @@ export default function WordLesson({
           <div className="word-lesson__section">
             <div className="word-lesson__section-heading">
               <span className="material-symbols-outlined word-lesson__heading-icon">link</span>
-              <span className="word-lesson__heading-label">Common Collocations</span>
+              <span className="word-lesson__heading-label">{t('learning.commonCollocations', 'Common Collocations')}</span>
             </div>
             <div className="word-lesson__collocations">
               {collocations.map((col, idx) => (
@@ -185,7 +187,7 @@ export default function WordLesson({
           <div className="word-lesson__section">
             <div className="word-lesson__section-heading">
               <span className="material-symbols-outlined word-lesson__heading-icon">format_quote</span>
-              <span className="word-lesson__heading-label">Example in Context</span>
+              <span className="word-lesson__heading-label">{t('learning.exampleInContext', 'Example in Context')}</span>
             </div>
             <div className="word-lesson__example-callout">
               <p className="word-lesson__example-sentence">
@@ -200,10 +202,10 @@ export default function WordLesson({
                 type="button"
                 className={`word-lesson__example-audio-btn ${playingAudioType === 'example' ? 'word-lesson__example-audio-btn--playing' : ''}`}
                 onClick={() => handlePlayAudio(exampleSentence, 'example')}
-                title="Listen to example sentence"
+                title={t('learning.listenExample', 'Listen to example')}
               >
                 <span className="material-symbols-outlined">volume_up</span>
-                <span>Listen to example</span>
+                <span>{t('learning.listenExample', 'Listen to example')}</span>
               </button>
             </div>
           </div>
@@ -219,7 +221,7 @@ export default function WordLesson({
           disabled={currentIndex === 0}
         >
           <span className="material-symbols-outlined">arrow_back</span>
-          Previous Word
+          {t('learning.previousWord', 'Previous Word')}
         </button>
 
         <button
@@ -229,12 +231,12 @@ export default function WordLesson({
         >
           {isLastWord ? (
             <>
-              Start Practice
+              {t('learning.startPractice', 'Start Practice')}
               <span className="material-symbols-outlined">bolt</span>
             </>
           ) : (
             <>
-              Next Word
+              {t('learning.nextWord', 'Next Word')}
               <span className="material-symbols-outlined">arrow_forward</span>
             </>
           )}

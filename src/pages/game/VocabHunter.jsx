@@ -343,22 +343,22 @@ export default function VocabHunter() {
 
           <div>
             <label className="config-section-label">
-              1. {t('games.vocabSource', 'Nguồn từ vựng')}
+              1. {t('games.vocabSource', 'Vocabulary Source')}
             </label>
             <div className="speed-options-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <div
                 className={`speed-card ${vocabSource === 'library' ? 'speed-card--active' : ''}`}
                 onClick={() => setVocabSource('library')}
               >
-                <h4>📚 Thư viện của tôi</h4>
-                <span>{libraryCount !== null ? `${libraryCount} từ đã lưu` : 'Từ vựng cá nhân'}</span>
+                <h4>📚 {t('games.myLibrary')}</h4>
+                <span>{libraryCount !== null ? t('games.savedWordsCount', { count: libraryCount }) : t('games.personalVocab')}</span>
               </div>
               <div
                 className={`speed-card ${vocabSource === 'topic' ? 'speed-card--active' : ''}`}
                 onClick={() => setVocabSource('topic')}
               >
-                <h4>✨ Đề xuất theo chủ đề</h4>
-                <span>Khám phá từ mới</span>
+                <h4>✨ {t('games.topicCurated')}</h4>
+                <span>{t('games.discoverNewWords')}</span>
               </div>
             </div>
           </div>
@@ -366,7 +366,7 @@ export default function VocabHunter() {
           {vocabSource === 'topic' && (
             <div>
               <label className="config-section-label">
-                2. Chủ đề khám phá
+                2. {t('games.exploreTopic')}
               </label>
               <div className="game-topic-chips">
                 {GAME_CURATED_TOPICS.map((topic) => (
@@ -377,7 +377,7 @@ export default function VocabHunter() {
                     onClick={() => setSelectedTopic(topic.slug)}
                   >
                     <span className="material-symbols-outlined">{topic.icon}</span>
-                    <span>{topic.title}</span>
+                    <span>{topic.slug === 'all' ? t('games.allTopics') : topic.title}</span>
                   </button>
                 ))}
               </div>
@@ -394,21 +394,21 @@ export default function VocabHunter() {
                 onClick={() => setSpeedLevel('easy')}
               >
                 <h4>{t('games.easy', 'Practice')}</h4>
-                <span>1.0x Speed</span>
+                <span>{t('games.speedMultiplier', { speed: '1.0' })}</span>
               </div>
               <div
                 className={`speed-card ${speedLevel === 'medium' ? 'speed-card--active' : ''}`}
                 onClick={() => setSpeedLevel('medium')}
               >
                 <h4>{t('games.normal', 'Normal')}</h4>
-                <span>1.6x Speed</span>
+                <span>{t('games.speedMultiplier', { speed: '1.6' })}</span>
               </div>
               <div
                 className={`speed-card ${speedLevel === 'hard' ? 'speed-card--active' : ''}`}
                 onClick={() => setSpeedLevel('hard')}
               >
                 <h4>{t('games.hard', 'Expert')}</h4>
-                <span>2.4x Speed</span>
+                <span>{t('games.speedMultiplier', { speed: '2.4' })}</span>
               </div>
             </div>
           </div>

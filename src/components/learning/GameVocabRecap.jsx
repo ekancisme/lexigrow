@@ -1,16 +1,18 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import { fetchAllVocabularyWords } from '../../utils/fetchAllVocabularyWords.js'
 import './GameVocabRecap.css'
 
 export default function GameVocabRecap({
   words = [],
-  title = 'Từ vựng trong ván đấu',
+  title,
   sourceLabel = '',
   defaultTheme = 'Game Discovery',
   defaultCategory = 'daily',
   onWordAdded,
 }) {
+  const { t } = useLanguage()
   const [existingWords, setExistingWords] = useState(new Set())
   const [addedWords, setAddedWords] = useState(new Set())
   const [loadingWords, setLoadingWords] = useState(new Set())
@@ -104,12 +106,12 @@ export default function GameVocabRecap({
       const res = await api.post('/vocabulary', payload)
       if (res.success) {
         setAddedWords((prev) => new Set([...prev, norm]))
-        showToast(`Đã thêm "${item.word}" vào thư viện!`)
+        showToast(t('learning.addedToast', { word: item.word }))
         if (onWordAdded) onWordAdded(item)
       }
     } catch (err) {
       console.error('Failed to add word to library', err)
-      showToast(err.message || `Không thể thêm "${item.word}"`)
+      showToast(err.message || t('learning.addFailedToast', { word: item.word }))
     } finally {
       setLoadingWords((prev) => {
         const next = new Set(prev)
@@ -147,13 +149,13 @@ export default function GameVocabRecap({
         await loadLibrary()
         const insertedCount = Number.isFinite(res.count) ? res.count : createdWords.length
         showToast(insertedCount > 0
-          ? `Đã lưu ${insertedCount} từ mới vào thư viện! 🎉`
-          : 'Các từ này đã có trong thư viện.')
+          ? t('learning.batchSavedToast', { count: insertedCount })
+          : t('learning.wordsAlreadyInLibrary'))
         if (createdWords.length && onWordAdded) onWordAdded(createdWords)
       }
     } catch (err) {
       console.error('Batch add failed', err)
-      showToast(err.message || 'Không thể lưu từ vựng hàng loạt')
+      showToast(err.message || t('learning.batchSaveFailed'))
     } finally {
       setBatchLoading(false)
     }
@@ -171,19 +173,19 @@ export default function GameVocabRecap({
         <div className="game-vocab-recap__title-wrap">
           <div className="game-vocab-recap__badge">
             <span className="material-symbols-outlined">menu_book</span>
-            <span>{sourceLabel || 'Từ vựng trong game'}</span>
+            <span>{sourceLabel || t('learning.gameVocabBadge')}</span>
           </div>
-          <h3 className="game-vocab-recap__title">{title}</h3>
+          <h3 className="game-vocab-recap__title">{title || t('learning.recapTitle')}</h3>
           <p className="game-vocab-recap__subtitle" aria-live="polite">
             {!isLibraryLoaded
-              ? 'Đang kiểm tra thư viện từ vựng…'
+              ? t('learning.checkingLibrary')
               : libraryLoadError
-                ? 'Không thể kiểm tra thư viện. Hãy tải lại trước khi lưu từ.'
-                : `${uniqueWords.length} từ đã xuất hiện · ${newWords.length} từ mới có thể lưu vào Thư viện của bạn`}
+                ? t('learning.libraryCheckError')
+                : t('learning.wordsAppeared', { total: uniqueWords.length, newCount: newWords.length })}
           </p>
           {libraryLoadError && (
             <button className="game-vocab-recap__add-btn" onClick={loadLibrary}>
-              Thử tải lại thư viện
+              {t('learning.retryLibrary')}
             </button>
           )}
         </div>
@@ -198,19 +200,19 @@ export default function GameVocabRecap({
             {batchLoading ? (
               <>
                 <span className="material-symbols-outlined spin">progress_activity</span>
-                <span>Đang lưu...</span>
+                <span>{t('learning.savingWords')}</span>
               </>
             ) : (
               <>
                 <span className="material-symbols-outlined">bookmark_add</span>
-                <span>Lưu tất cả từ mới ({newWords.length})</span>
+                <span>{t('learning.saveAllNew', { count: newWords.length })}</span>
               </>
             )}
           </button>
         ) : isLibraryLoaded && !libraryLoadError ? (
           <div className="game-vocab-recap__all-saved-pill">
             <span className="material-symbols-outlined">check_circle</span>
-            <span>Tất cả từ đã có trong thư viện</span>
+            <span>{t('learning.allSavedInLibrary')}</span>
           </div>
         ) : null}
       </div>
@@ -241,7 +243,7 @@ export default function GameVocabRecap({
               </div>
 
               <div className="game-vocab-recap__definition">
-                {item.definition || item.meaningVi || item.meaning || 'Chưa có định nghĩa'}
+                {item.definition || item.meaningVi || item.meaning || t('learning.noDefinition')}
               </div>
 
               {(item.exampleSentence || (item.examples && item.examples[0])) && (
@@ -254,12 +256,12 @@ export default function GameVocabRecap({
                 {isExisting ? (
                   <span className="game-vocab-recap__status-badge game-vocab-recap__status-badge--existing">
                     <span className="material-symbols-outlined">check</span>
-                    <span>Đã có trong thư viện</span>
+                    <span>{t('learning.alreadyInLibrary')}</span>
                   </span>
                 ) : isJustAdded ? (
                   <span className="game-vocab-recap__status-badge game-vocab-recap__status-badge--added">
                     <span className="material-symbols-outlined">done_all</span>
-                    <span>Đã thêm vào thư viện</span>
+                    <span>{t('learning.addedToLibrary')}</span>
                   </span>
                 ) : (
                   <button
@@ -270,12 +272,12 @@ export default function GameVocabRecap({
                     {isLoading ? (
                       <>
                         <span className="material-symbols-outlined spin">progress_activity</span>
-                        <span>Đang thêm...</span>
+                        <span>{t('learning.addingWord')}</span>
                       </>
                     ) : (
                       <>
                         <span className="material-symbols-outlined">add</span>
-                        <span>Thêm vào thư viện</span>
+                        <span>{t('learning.addToLibrary')}</span>
                       </>
                     )}
                   </button>

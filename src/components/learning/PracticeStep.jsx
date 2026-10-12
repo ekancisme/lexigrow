@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import './PracticeStep.css'
 
 const safeLower = (val) => String(val ?? '').trim().toLowerCase()
@@ -13,6 +14,8 @@ const getWordMeaning = (w) =>
   ''
 
 export default function PracticeStep({ words = [], onComplete, onBack }) {
+  const { t } = useLanguage()
+
   // Generate interactive practice questions for all words
   const questions = useMemo(() => {
     if (!words || words.length === 0) return []
@@ -39,8 +42,8 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
         id: `mc_${w.word}_${idx}`,
         word: w.word,
         type: 'multiple_choice',
-        title: `What is the accurate meaning of "${w.word}"?`,
-        sentence: w.exampleSentence ? `Example: "${w.exampleSentence}"` : '',
+        title: t('learning.practiceTitleMC', `What is the accurate meaning of "${w.word}"?`, { word: w.word }),
+        sentence: w.exampleSentence ? `"${w.exampleSentence}"` : '',
         options: options,
         correctAnswer: correctMeaning,
         explanation: `${w.word} (${w.partOfSpeech || 'word'}): ${correctMeaning}`
@@ -57,30 +60,31 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
           id: `fib_${w.word}_${idx}`,
           word: w.word,
           type: 'fill_in_blank',
-          title: 'Choose the correct word for the blank:',
+          title: t('learning.practiceTitleFIB', 'Choose the correct word for the blank:'),
           sentence: maskedSentence,
           translation: w.exampleTranslation,
           options: wordOptions,
           correctAnswer: w.word,
-          explanation: `Complete sentence: "${w.exampleSentence}"`
+          explanation: `${w.word}: "${w.exampleSentence}"`
         })
       }
     })
 
     return list
-  }, [words])
+  }, [words, t])
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState(null)
   const [isAnswered, setIsAnswered] = useState(false)
-  const [correctCount, setCorrectCount] = useState(0)
-  const [streak, setStreak] = useState(0)
+  const [score, setScore] = useState(0)
 
   if (questions.length === 0) {
     return (
       <div className="practice-step__empty card-base">
-        <p>No practice questions available.</p>
-        <button className="btn-primary" onClick={onComplete}>Continue</button>
+        <p>{t('learning.noWordsFound', 'No practice questions available for this lesson.')}</p>
+        <button className="btn-primary" onClick={onComplete}>
+          {t('learning.proceedWriting', 'Proceed to Smart Writing')}
+        </button>
       </div>
     )
   }
@@ -88,65 +92,60 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
   const currentQ = questions[currentIndex]
   const isCorrect = isAnswered && safeLower(selectedAnswer) === safeLower(currentQ?.correctAnswer)
 
-  const handleSelectOption = (option) => {
+  const handleSelectOption = (opt) => {
     if (isAnswered) return
-    setSelectedAnswer(option)
+    setSelectedAnswer(opt)
     setIsAnswered(true)
 
-    const correct = safeLower(option) === safeLower(currentQ?.correctAnswer)
-    if (correct) {
-      setCorrectCount(prev => prev + 1)
-      setStreak(prev => prev + 1)
-    } else {
-      setStreak(0)
+    if (safeLower(opt) === safeLower(currentQ.correctAnswer)) {
+      setScore(prev => prev + 1)
     }
   }
 
   const handleNext = () => {
+    setSelectedAnswer(null)
+    setIsAnswered(false)
+
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(prev => prev + 1)
-      setSelectedAnswer(null)
-      setIsAnswered(false)
     } else {
       onComplete?.({
-        total: questions.length,
-        // correctCount already includes the current question: handleSelectOption
-        // increments it on answer, so adding isCorrect here double-counts.
-        correct: correctCount
+        score: score + (isCorrect ? 1 : 0),
+        total: questions.length
       })
     }
   }
 
   return (
     <div className="practice-step animate-fade-in">
-      {/* Top progress and streak */}
-      <div className="practice-step__header">
-        <div className="practice-step__progress-bar">
-          <div
-            className="practice-step__progress-fill"
-            style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
-          />
-        </div>
-        <div className="practice-step__meta-row">
-          <span className="text-label-md practice-step__counter">
-            Question {currentIndex + 1} / {questions.length}
+      {/* Progress header bar */}
+      <div className="practice-step__nav">
+        <div className="practice-step__progress-info">
+          <span className="practice-step__badge">
+            <span className="material-symbols-outlined">quiz</span>
+            <span>
+              {currentQ.type === 'multiple_choice' ? t('common.multipleChoice', 'Multiple Choice') : t('common.fillBlank', 'Fill in Blank')}
+            </span>
           </span>
-          {streak > 1 && (
-            <div className="practice-step__streak-badge">
-              <span className="material-symbols-outlined">local_fire_department</span>
-              <span>Streak x{streak}!</span>
-            </div>
-          )}
+          <span className="practice-step__counter text-label-md">
+            {currentIndex + 1} / {questions.length}
+          </span>
+        </div>
+        <div className="practice-step__bar">
+          <div
+            className="practice-step__bar-fill"
+            style={{ width: `${Math.round(((currentIndex + 1) / questions.length) * 100)}%` }}
+          />
         </div>
       </div>
 
-      {/* Question Card */}
+      {/* Main interactive practice card */}
       <div className="practice-step__card card-base">
-        <div className="practice-step__type-badge">
-          <span className="material-symbols-outlined">
-            {currentQ.type === 'multiple_choice' ? 'quiz' : 'edit_note'}
+        <div className="practice-step__card-header">
+          <span className="practice-step__target-word-pill">
+            <span className="material-symbols-outlined">school</span>
+            <span>{currentQ.word}</span>
           </span>
-          <span>{currentQ.type === 'multiple_choice' ? 'Vocabulary Quiz' : 'Contextual Fill-in-the-Blank'}</span>
         </div>
 
         <h3 className="practice-step__title">{currentQ.title}</h3>
@@ -206,14 +205,14 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
               </span>
               <div>
                 <p className="practice-step__feedback-status">
-                  {isCorrect ? 'Correct!' : 'Incorrect!'}
+                  {isCorrect ? t('learning.correct', 'Correct!') : t('learning.incorrect', 'Incorrect!')}
                 </p>
                 <p className="practice-step__feedback-exp">{currentQ.explanation}</p>
               </div>
             </div>
 
             <button className="btn-primary practice-step__btn-continue" onClick={handleNext}>
-              {currentIndex < questions.length - 1 ? 'Next Question' : 'Proceed to Smart Writing'}
+              {currentIndex < questions.length - 1 ? t('learning.nextQuestion', 'Next Question') : t('learning.proceedWriting', 'Proceed to Smart Writing')}
               <span className="material-symbols-outlined">arrow_forward</span>
             </button>
           </div>
@@ -223,7 +222,7 @@ export default function PracticeStep({ words = [], onComplete, onBack }) {
       <div className="practice-step__footer">
         <button className="btn-secondary" onClick={onBack}>
           <span className="material-symbols-outlined">arrow_back</span>
-          Review Vocabulary
+          {t('learning.reviewVocabulary', 'Review Vocabulary')}
         </button>
       </div>
     </div>

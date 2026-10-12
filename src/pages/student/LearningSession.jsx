@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import { isValidLearningEssayWordCount } from '../../utils/learningEssay.js'
 import WordLesson from '../../components/learning/WordLesson'
@@ -450,6 +451,7 @@ function AIGradingProgress({ stage = 1, progress = 15 }) {
 }
 
 export default function LearningSession() {
+  const { t } = useLanguage()
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const adaptive = searchParams.get('adaptive') === 'true'
@@ -685,11 +687,11 @@ export default function LearningSession() {
 
   const handleSubmitWriting = async () => {
     if (!isValidLearningEssayWordCount(wordCount)) {
-      alert('Please write 60–100 words before submitting for AI analysis.')
+      alert(t('learning.wordCountValidation'))
       return
     }
     if (!hasServerSession) {
-      setSubmitError('The learning session is offline. Your draft is saved in this browser; reconnect and start the session again before submitting for AI feedback.')
+      setSubmitError(t('learning.sessionOffline'))
       return
     }
 
@@ -910,10 +912,10 @@ export default function LearningSession() {
   }
 
   const stepsList = [
-    { key: 'lesson', label: '1. Explore Words', icon: 'school' },
-    { key: 'practice', label: '2. Quick Practice', icon: 'bolt' },
-    { key: 'writing', label: '3. Smart Writing', icon: 'edit_note' },
-    { key: 'feedback', label: '4. AI Feedback', icon: 'auto_awesome' }
+    { key: 'lesson', label: t('learning.step1'), icon: 'school' },
+    { key: 'practice', label: t('learning.step2'), icon: 'bolt' },
+    { key: 'writing', label: t('learning.step3'), icon: 'edit_note' },
+    { key: 'feedback', label: t('learning.step4'), icon: 'auto_awesome' }
   ]
 
   return (
@@ -926,7 +928,7 @@ export default function LearningSession() {
           </button>
           <div>
             <h2 className="learning-session__title">{learningSet.title}</h2>
-            <span className="learning-session__tag">Level {learningSet.level} · 10-Minute Session</span>
+            <span className="learning-session__tag">{t('learning.sessionDuration', { level: learningSet.level })}</span>
           </div>
         </div>
 
@@ -989,7 +991,7 @@ export default function LearningSession() {
           <div className="target-words-bar card-base">
             <div className="target-words-bar__header">
               <span className="material-symbols-outlined">flag</span>
-              <span className="target-words-bar__title">Target words to incorporate into your writing:</span>
+              <span className="target-words-bar__title">{t('learning.targetWordsPrompt')}</span>
             </div>
             <div className="target-words-bar__chips">
               {words.map(w => {
@@ -1015,9 +1017,9 @@ export default function LearningSession() {
             <div className="writing-prompt-card__header">
               <div className="writing-prompt-card__badge">
                 <span className="material-symbols-outlined">lightbulb</span>
-                <span>Writing Prompt / Đề bài</span>
+                <span>{t('learning.writingPromptBadge')}</span>
               </div>
-              <span className="writing-prompt-card__tag">Mục tiêu: 60–100 từ</span>
+              <span className="writing-prompt-card__tag">{t('learning.writingTargetLabel')}</span>
             </div>
             <p className="writing-prompt-card__text">{learningSet.promptTopic}</p>
           </div>
@@ -1048,19 +1050,19 @@ export default function LearningSession() {
               {draftSaveState && (
                 <p role="status" aria-live="polite" style={{ margin: '0 0 8px', color: draftSaveState === 'error' ? 'var(--color-error)' : 'var(--color-on-surface-variant)' }}>
                   {draftSaveState === 'saving'
-                    ? 'Đang lưu bản nháp…'
+                    ? t('learning.draftSaving')
                     : draftSaveState === 'saved'
-                    ? 'Bản nháp đã được lưu vào tài khoản'
+                    ? t('learning.draftSaved')
                     : draftSaveState === 'local'
-                    ? 'Bản nháp được lưu trên trình duyệt này'
+                    ? t('learning.draftLocal')
                     : draftSaveState === 'unsaved'
-                    ? 'Đang chuẩn bị lưu bản nháp…'
-                    : 'Chưa thể đồng bộ nháp lên server. Bản nháp vẫn được lưu an toàn trên trình duyệt này.'}
+                    ? t('learning.draftUnsaved')
+                    : t('learning.draftSyncError')}
                 </p>
               )}
               <textarea
                 className="writing-card__textarea"
-                placeholder="Start writing your paragraph in English here... (e.g. Every morning, my daily routine starts at 6:30 AM...)"
+                placeholder={t('learning.writePlaceholder')}
                 value={essayContent}
                 onChange={e => {
                   setEssayContent(e.target.value)
@@ -1081,10 +1083,10 @@ export default function LearningSession() {
                   <span className={`writing-card__count ${wordCount >= 60 && wordCount <= 100 ? 'writing-card__count--ideal' : ''}`}>
                     {wordCount}
                   </span>
-                  <span className="writing-card__limit"> / Target 60–100 words</span>
+                  <span className="writing-card__limit"> / {t('learning.writingTargetLabel')}</span>
                   {!isValidLearningEssayWordCount(wordCount) && (
                     <span role="status" aria-live="polite" style={{ marginLeft: 8 }}>
-                      Write between 60 and 100 words to submit.
+                      {t('learning.wordCountValidation')}
                     </span>
                   )}
                 </div>
@@ -1094,7 +1096,7 @@ export default function LearningSession() {
                     className="btn-secondary"
                     onClick={() => setCurrentStep('practice')}
                   >
-                    Back
+                    {t('common.back', 'Back')}
                   </button>
                   <button
                     className="btn-primary writing-card__btn-submit"
@@ -1104,11 +1106,11 @@ export default function LearningSession() {
                     {analyzing ? (
                       <>
                         <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                        AI is analyzing your writing...
+                        {t('learning.submittingAi')}
                       </>
                     ) : (
                       <>
-                        Submit for AI Analysis
+                        {t('learning.submitAiBtn')}
                         <span className="material-symbols-outlined">auto_awesome</span>
                       </>
                     )}
@@ -1135,7 +1137,7 @@ export default function LearningSession() {
             <div className="feedback-heatmap card-base" style={{ marginBottom: 24 }}>
               <h3 className="feedback-heatmap__title">
                 <span className="material-symbols-outlined">analytics</span>
-                Target Vocabulary Application (Rubric Check)
+                {t('learning.targetRubricCheck')}
               </h3>
               <div className="feedback-heatmap__grid">
                 {analysisResult.targetWordResults.map(res => {
@@ -1146,10 +1148,10 @@ export default function LearningSession() {
                     not_used: 'feedback-badge--neutral'
                   }
                   const statusLabels = {
-                    correct: 'Accurate in context',
-                    needs_improvement: 'Needs form/collocation refinement',
-                    incorrect: 'Inaccurate context usage',
-                    not_used: 'Not used'
+                    correct: t('learning.accurateInContext'),
+                    needs_improvement: t('learning.needsFormRefinement'),
+                    incorrect: t('learning.inaccurateContext'),
+                    not_used: t('learning.notUsed')
                   }
 
                   return (
@@ -1188,9 +1190,9 @@ export default function LearningSession() {
           ) : (
             <div className="card-base" role="alert" style={{ padding: 32, textAlign: 'center' }}>
               <p style={{ marginTop: 12, color: 'var(--color-error)' }}>
-                Không tìm thấy bài viết đã lưu để tải bảng đánh giá.
+                {t('learning.noSavedEssayFeedback')}
               </p>
-              <button className="btn-secondary" onClick={() => handleStepChange('writing')}>Quay lại bài viết</button>
+              <button className="btn-secondary" onClick={() => handleStepChange('writing')}>{t('learning.backToEssay')}</button>
             </div>
           )}
         </div>

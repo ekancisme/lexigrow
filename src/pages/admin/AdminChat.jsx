@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useChat } from '../../hooks/useChat.js'
 import { useAuth } from '../../contexts/AuthContext.jsx'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import chatService from '../../services/chat.service.js'
 import './AdminChat.css'
 
 const AdminChat = () => {
   const { user } = useAuth()
+  const { t, language, formatDateTime } = useLanguage()
   const [rooms, setRooms] = useState([])
   const [selectedRoom, setSelectedRoom] = useState(null)
   const [loadingRooms, setLoadingRooms] = useState(true)
@@ -41,13 +43,13 @@ const AdminChat = () => {
         }
         setRoomError(null)
       } catch (err) {
-        setRoomError(err.message || 'Không thể tải danh sách phòng chat.')
+        setRoomError(err.message || t('adminChat.loadRoomsError'))
       } finally {
         setLoadingRooms(false)
       }
     }
     fetchRooms()
-  }, [])
+  }, [t])
 
   // When room changes, mark as read and load history
   useEffect(() => {
@@ -73,25 +75,25 @@ const AdminChat = () => {
   }
 
   const formatTime = (dateString) => {
-    const date = new Date(dateString)
-    return date.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })
+    if (!dateString) return ''
+    return formatDateTime(dateString, language, { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })
   }
 
   const getRoomDisplayName = (room) => {
-    if (room === 'support') return 'Hỗ trợ chung'
+    if (room === 'support') return t('adminChat.support')
     if (room.startsWith('user:')) {
       const userId = room.replace('user:', '')
       const roomData = rooms.find(r => r.room === room)
       if (roomData && roomData.user) {
         return `${roomData.user.name} (${roomData.user.email})`
       }
-      return `Người dùng ${userId.slice(0, 8)}`
+      return t('adminChat.user', { id: userId.slice(0, 8) })
     }
     return room
   }
 
   if (loadingRooms) {
-    return <div className="admin-chat-loading">Đang tải phòng chat...</div>
+    return <div className="admin-chat-loading">{t('adminChat.loadingRooms')}</div>
   }
 
   if (roomError) {
@@ -101,10 +103,10 @@ const AdminChat = () => {
   return (
     <div className="admin-chat">
       <div className="admin-chat-sidebar">
-        <h3 className="admin-chat-sidebar-title">📬 Phòng chat</h3>
+        <h3 className="admin-chat-sidebar-title">📬 {t('adminChat.roomsTitle')}</h3>
         <div className="admin-chat-room-list">
           {rooms.length === 0 && (
-            <div className="admin-chat-empty-rooms">Chưa có phòng chat nào.</div>
+            <div className="admin-chat-empty-rooms">{t('adminChat.emptyRooms')}</div>
           )}
           {rooms.map((room) => (
             <button
@@ -136,19 +138,19 @@ const AdminChat = () => {
                 {getRoomDisplayName(selectedRoom)}
               </span>
               <span className={`admin-chat-status ${isConnected ? 'online' : 'offline'}`}>
-                {isConnected ? '● Trực tuyến' : '● Đang kết nối...'}
+                {isConnected ? t('adminChat.online') : t('adminChat.connecting')}
               </span>
             </div>
 
             <div className="admin-chat-messages">
               {isLoading && (
-                <div className="admin-chat-loading-msg">Đang tải tin nhắn...</div>
+                <div className="admin-chat-loading-msg">{t('adminChat.loadingMessages')}</div>
               )}
               {error && (
                 <div className="admin-chat-error-msg">{error}</div>
               )}
               {!isLoading && messages.length === 0 && !error && (
-                <div className="admin-chat-empty-msg">Chưa có tin nhắn trong phòng này.</div>
+                <div className="admin-chat-empty-msg">{t('adminChat.emptyMessages')}</div>
               )}
               {messages.map((msg) => {
                 const isOwn = msg.sender?._id === user?._id
@@ -158,7 +160,7 @@ const AdminChat = () => {
                     className={`admin-chat-msg ${isOwn ? 'own' : 'other'}`}
                   >
                     <div className="admin-chat-msg-sender">
-                      {msg.sender?.name || 'Hệ thống'}
+                      {msg.sender?.name || t('adminChat.system')}
                       {msg.sender?.role === 'admin' && ' ⭐'}
                     </div>
                     <div className="admin-chat-msg-content">
@@ -175,17 +177,17 @@ const AdminChat = () => {
               <input
                 type="text"
                 name="message"
-                placeholder="Nhập tin nhắn..."
+                placeholder={t('adminChat.inputPlaceholder')}
                 disabled={!isConnected}
                 className="admin-chat-input"
               />
               <button type="submit" disabled={!isConnected} className="admin-chat-send-btn">
-                Gửi
+                {t('adminChat.send')}
               </button>
             </form>
           </>
         ) : (
-          <div className="admin-chat-no-room">Chọn một phòng chat để bắt đầu.</div>
+          <div className="admin-chat-no-room">{t('adminChat.selectRoom')}</div>
         )}
       </div>
     </div>

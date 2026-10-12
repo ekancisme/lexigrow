@@ -2,23 +2,11 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import api from '../../services/api.js'
 import { useAuth } from '../../contexts/AuthContext.jsx'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import VocabularyTab from '../../components/common/VocabularyTab.jsx'
 import './ChildProgress.css'
 
-const TABS = [
-  { id: 'progress', label: 'Progress', icon: 'monitoring' },
-  { id: 'essays', label: 'Essays', icon: 'history_edu' },
-  { id: 'vocabulary', label: 'Vocabulary', icon: 'menu_book' },
-  { id: 'goals', label: 'Weekly goals', icon: 'flag' },
-  { id: 'alerts', label: 'Alerts', icon: 'warning' },
-]
-
-function formatDate(value) {
-  if (!value) return 'Not available'
-  return new Date(value).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-}
-
-function getEssayDeadline(essay) {
+function getEssayDeadline(essay, t, formatDate, language) {
   if (!essay.assignment?.dueDate) return null
 
   const dueAt = new Date(essay.assignment.dueDate)
@@ -27,14 +15,14 @@ function getEssayDeadline(essay) {
 
   return {
     label: submittedAt
-      ? isLate ? 'Submitted late' : 'Submitted on time'
-      : isLate ? 'Overdue' : 'Due',
+      ? isLate ? t('childProgress.submittedLate') : t('childProgress.submittedOnTime')
+      : isLate ? t('childProgress.overdue') : t('childProgress.due'),
     className: isLate ? 'is-late' : 'is-on-time',
-    date: formatDate(dueAt),
+    date: formatDate(dueAt, language),
   }
 }
 
-function GrowthChart({ weeks = [] }) {
+function GrowthChart({ weeks = [], formatDate, language }) {
   const maxCount = Math.max(1, ...weeks.map(week => week.count || 0))
 
   return (
@@ -47,7 +35,7 @@ function GrowthChart({ weeks = [] }) {
             <div className="child-progress__growth-track">
               <div className="child-progress__growth-bar" style={{ height: `${height}%` }} />
             </div>
-            <span className="child-progress__growth-label">{new Date(week.start).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })}</span>
+            <span className="child-progress__growth-label">{formatDate(week.start, language, { day: '2-digit', month: 'short' })}</span>
           </div>
         )
       })}
@@ -55,7 +43,7 @@ function GrowthChart({ weeks = [] }) {
   )
 }
 
-function Overview({ progress, essays, alerts, goals, onNavigate }) {
+function Overview({ progress, essays, alerts, goals, onNavigate, t, formatDate, language }) {
   const weeks = progress.weeklyVocabulary || []
   const wordsThisWeek = weeks.at(-1)?.count || 0
   const wordsLastWeek = weeks.at(-2)?.count || 0
@@ -78,30 +66,33 @@ function Overview({ progress, essays, alerts, goals, onNavigate }) {
     <div className="child-progress__overview">
       <section className={`child-progress__insight ${openAlerts.length > 0 || wordsThisWeek === 0 ? 'child-progress__insight--attention' : ''}`}>
         <span className="material-symbols-outlined">{openAlerts.length > 0 ? 'priority_high' : wordsThisWeek === 0 ? 'lightbulb' : 'trending_up'}</span>
-        <div><p>This week at a glance</p><h3>{insight}</h3></div>
-        <button onClick={() => onNavigate(openAlerts.length > 0 ? 'alerts' : 'goals')}>{openAlerts.length > 0 ? 'Review alerts' : 'View weekly goals'}<span className="material-symbols-outlined">arrow_forward</span></button>
+        <div><p>{t('childProgress.weekGlance')}</p><h3>{insight}</h3></div>
+        <button onClick={() => onNavigate(openAlerts.length > 0 ? 'alerts' : 'goals')}>
+          {openAlerts.length > 0 ? t('childProgress.reviewAlerts') : t('childProgress.viewGoals')}
+          <span className="material-symbols-outlined">arrow_forward</span>
+        </button>
       </section>
 
       <section className="child-progress__metrics" aria-label="Progress summary">
         <div className="child-progress__metric">
           <span className="material-symbols-outlined">dictionary</span>
           <strong>{progress.totalVocab}</strong>
-          <small>{wordsThisWeek} new this week</small>
+          <small>{t('childProgress.newThisWeek', { count: wordsThisWeek })}</small>
         </div>
         <div className="child-progress__metric">
           <span className="material-symbols-outlined">description</span>
           <strong>{progress.totalEssays}</strong>
-          <small>{essays[0] ? `Latest ${formatDate(essays[0].submittedAt || essays[0].createdAt)}` : 'No submissions yet'}</small>
+          <small>{essays[0] ? t('childProgress.latestSubmission', { date: formatDate(essays[0].submittedAt || essays[0].createdAt, language) }) : t('childProgress.noSubmissions')}</small>
         </div>
         <div className="child-progress__metric">
           <span className="material-symbols-outlined">analytics</span>
           <strong>{Number(progress.avgTTR || 0).toFixed(2)}</strong>
-          <small>{progress.avgTTR >= 0.6 ? 'Healthy vocabulary range' : 'Developing vocabulary range'}</small>
+          <small>{progress.avgTTR >= 0.6 ? t('childProgress.healthyRange') : t('childProgress.developingRange')}</small>
         </div>
         <div className="child-progress__metric">
           <span className="material-symbols-outlined">translate</span>
           <strong>{progress.englishLevel || 'N/A'}</strong>
-          <small>Current level</small>
+          <small>{t('childProgress.currentLevel')}</small>
         </div>
       </section>
 
@@ -109,53 +100,83 @@ function Overview({ progress, essays, alerts, goals, onNavigate }) {
         <section className="child-progress__section child-progress__section--growth">
           <div className="child-progress__section-heading">
             <div>
-              <h3>Vocabulary growth</h3>
-              <p>New words added in each seven-day period.</p>
+              <h3>{t('childProgress.vocabGrowth')}</h3>
+              <p>{t('childProgress.vocabGrowthPeriod')}</p>
             </div>
-            <span className={wordsChange >= 0 ? 'is-positive' : 'is-negative'}>{`${wordsChange >= 0 ? '+' : ''}${wordsChange} vs last week`}</span>
+            <span className={wordsChange >= 0 ? 'is-positive' : 'is-negative'}>{`${wordsChange >= 0 ? '+' : ''}${wordsChange} ${t('childProgress.wordsVsLastWeek')}`}</span>
           </div>
-          <GrowthChart weeks={weeks} />
+          <GrowthChart weeks={weeks} formatDate={formatDate} language={language} />
         </section>
 
         <aside className="child-progress__side-stack">
           <section className="child-progress__section child-progress__goal-preview">
-            <div className="child-progress__section-heading"><div><h3>Weekly goals</h3><p>{goals?.configured ? `${goals.completionRate}% complete` : 'No goals configured'}</p></div><button onClick={() => onNavigate('goals')}>View all</button></div>
+            <div className="child-progress__section-heading">
+              <div>
+                <h3>{t('childProgress.tabGoals')}</h3>
+                <p>{goals?.configured ? t('childProgress.complete', { rate: goals.completionRate }) : t('childProgress.noGoalsConfigured')}</p>
+              </div>
+              <button onClick={() => onNavigate('goals')}>{t('childProgress.viewAll')}</button>
+            </div>
             <div className="child-progress__goal-ring" style={{ '--goal-progress': `${goals?.completionRate || 0}%` }}><strong>{goals?.completionRate || 0}%</strong></div>
             {goals?.goals?.slice(0, 2).map(goal => <div className="child-progress__mini-goal" key={goal.label}><span>{goal.label}</span><strong>{goal.current}/{goal.target}</strong></div>)}
           </section>
           <section className="child-progress__section child-progress__latest-score">
-            <div><span>Latest essay score</span><strong>{latestScore !== undefined ? `${Number(latestScore).toFixed(1)}/10` : 'Not scored'}</strong></div>
+            <div>
+              <span>{t('childProgress.latestEssayScore')}</span>
+              <strong>{latestScore !== undefined ? `${Number(latestScore).toFixed(1)}/10` : t('childProgress.notScored')}</strong>
+            </div>
             <small className={(scoreChange || 0) >= 0 ? 'is-positive' : 'is-negative'}>{scoreChange === null ? 'A comparison will appear after two scored essays' : `${scoreChange >= 0 ? '+' : ''}${scoreChange} compared with the previous essay`}</small>
-            <button onClick={() => onNavigate('essays')}>Open essay history</button>
+            <button onClick={() => onNavigate('essays')}>{t('childProgress.openEssayHistory')}</button>
           </section>
         </aside>
       </div>
 
       <section className="child-progress__recent">
-        <div className="child-progress__section-heading"><div><h3>Recent activity</h3><p>Latest submissions and feedback status</p></div><button onClick={() => onNavigate('essays')}>View all essays</button></div>
-        {essays.slice(0, 3).map(essay => <button key={essay._id} onClick={() => onNavigate('essays')}><span className="material-symbols-outlined">description</span><span><strong>{essay.title}</strong><small>{formatDate(essay.submittedAt || essay.createdAt)} · {essay.status.replaceAll('_', ' ')}</small></span><strong>{essay.analysis ? `${Number(essay.analysis.overallScore).toFixed(1)}/10` : 'Pending'}</strong></button>)}
-        {essays.length === 0 && <p className="child-progress__recent-empty">No essay activity yet.</p>}
+        <div className="child-progress__section-heading">
+          <div>
+            <h3>{t('childProgress.recentActivity')}</h3>
+            <p>{t('childProgress.recentActivityDesc')}</p>
+          </div>
+          <button onClick={() => onNavigate('essays')}>{t('childProgress.viewAllEssays')}</button>
+        </div>
+        {essays.slice(0, 3).map(essay => (
+          <button key={essay._id} onClick={() => onNavigate('essays')}>
+            <span className="material-symbols-outlined">description</span>
+            <span>
+              <strong>{essay.title}</strong>
+              <small>{formatDate(essay.submittedAt || essay.createdAt, language)} · {essay.status.replaceAll('_', ' ')}</small>
+            </span>
+            <strong>{essay.analysis ? `${Number(essay.analysis.overallScore).toFixed(1)}/10` : t('childProgress.pendingScore')}</strong>
+          </button>
+        ))}
+        {essays.length === 0 && <p className="child-progress__recent-empty">{t('childProgress.noEssayActivity')}</p>}
       </section>
     </div>
   )
 }
 
-function EssayList({ essays, expandedEssayId, onToggle }) {
+function EssayList({ essays, expandedEssayId, onToggle, t, formatDate, language }) {
   if (essays.length === 0) {
-    return <div className="child-progress__empty"><span className="material-symbols-outlined">history_edu</span><strong>No essays yet</strong><p>Submitted essays will appear here.</p></div>
+    return (
+      <div className="child-progress__empty">
+        <span className="material-symbols-outlined">history_edu</span>
+        <strong>{t('childProgress.noEssays')}</strong>
+        <p>{t('childProgress.submittedEssaysAppear')}</p>
+      </div>
+    )
   }
 
   return (
     <div className="child-progress__timeline">
       {essays.map(essay => {
-        const deadline = getEssayDeadline(essay)
+        const deadline = getEssayDeadline(essay, t, formatDate, language)
         return (
           <article className={`child-progress__essay ${expandedEssayId === essay._id ? 'is-expanded' : ''}`} key={essay._id}>
-          <div className="child-progress__essay-date"><span>{formatDate(essay.submittedAt || essay.createdAt)}</span></div>
+          <div className="child-progress__essay-date"><span>{formatDate(essay.submittedAt || essay.createdAt, language)}</span></div>
           <div className="child-progress__essay-body">
             <div>
               <h3>{essay.title}</h3>
-              <p>{essay.assignment?.title || essay.theme || 'Independent writing'} · {essay.wordCount || 0} words</p>
+              <p>{essay.assignment?.title || essay.theme || t('childProgress.independentWriting')} · {t('childProgress.wordsUnit', { count: essay.wordCount || 0 })}</p>
               {deadline && (
                 <p className={`child-progress__essay-deadline ${deadline.className}`}>
                   <span className="material-symbols-outlined" aria-hidden="true">event</span>
@@ -165,20 +186,20 @@ function EssayList({ essays, expandedEssayId, onToggle }) {
             </div>
             <div className="child-progress__essay-meta">
               <span className={`child-progress__status child-progress__status--${essay.status}`}>{essay.status.replace('_', ' ')}</span>
-              <strong>{essay.analysis ? `${Number(essay.analysis.overallScore || 0).toFixed(1)}/10` : 'Not scored'}</strong>
+              <strong>{essay.analysis ? `${Number(essay.analysis.overallScore || 0).toFixed(1)}/10` : t('childProgress.notScored')}</strong>
               <button onClick={() => onToggle(essay._id)} aria-expanded={expandedEssayId === essay._id} aria-label={`${expandedEssayId === essay._id ? 'Hide' : 'Show'} details for ${essay.title}`}><span className="material-symbols-outlined">{expandedEssayId === essay._id ? 'expand_less' : 'expand_more'}</span></button>
             </div>
           </div>
           {expandedEssayId === essay._id && (
             <div className="child-progress__essay-details">
-              <div><span>Assignment</span><strong>{essay.assignment?.title || 'Independent writing'}</strong></div>
-              <div><span>Due date</span><strong>{deadline?.date || 'No deadline'}</strong></div>
-              <div><span>Submitted</span><strong>{formatDate(essay.submittedAt)}</strong></div>
-              <div><span>Writing length</span><strong>{essay.wordCount || 0} words</strong></div>
-              <div><span>Grammar</span><strong>{essay.analysis ? `${Number(essay.analysis.scores?.grammarAccuracy || 0).toFixed(1)}/10` : 'Pending'}</strong></div>
-              <div><span>Vocabulary diversity</span><strong>{essay.analysis ? Number(essay.analysis.scores?.vocabularyDiversity || 0).toFixed(2) : 'Pending'}</strong></div>
-              <div><span>Learning status</span><strong>{essay.analysis?.learningPatterns?.learningStatus?.replaceAll('_', ' ') || 'Not available'}</strong></div>
-              <div><span>Reading time</span><strong>{essay.readingTime || 1} min</strong></div>
+              <div><span>{t('childProgress.assignmentLabel')}</span><strong>{essay.assignment?.title || t('childProgress.independentWriting')}</strong></div>
+              <div><span>{t('childProgress.dueDateLabel')}</span><strong>{deadline?.date || t('childProgress.noDeadline')}</strong></div>
+              <div><span>{t('childProgress.submittedLabel')}</span><strong>{formatDate(essay.submittedAt, language)}</strong></div>
+              <div><span>{t('childProgress.writingLength')}</span><strong>{t('childProgress.wordsUnit', { count: essay.wordCount || 0 })}</strong></div>
+              <div><span>{t('childProgress.grammarScore')}</span><strong>{essay.analysis ? `${Number(essay.analysis.scores?.grammarAccuracy || 0).toFixed(1)}/10` : t('childProgress.pendingScore')}</strong></div>
+              <div><span>{t('childProgress.vocabDiversity')}</span><strong>{essay.analysis ? Number(essay.analysis.scores?.vocabularyDiversity || 0).toFixed(2) : t('childProgress.pendingScore')}</strong></div>
+              <div><span>{t('childProgress.learningStatus')}</span><strong>{essay.analysis?.learningPatterns?.learningStatus?.replaceAll('_', ' ') || t('childProgress.notAvailable')}</strong></div>
+              <div><span>{t('childProgress.readingTime')}</span><strong>{t('childProgress.minUnit', { min: essay.readingTime || 1 })}</strong></div>
               {essay.analysis?.learningPatterns?.feedback && <p>{essay.analysis.learningPatterns.feedback}</p>}
             </div>
           )}
@@ -189,9 +210,15 @@ function EssayList({ essays, expandedEssayId, onToggle }) {
   )
 }
 
-function AlertList({ alerts, onNavigate, onMarkViewed, markingAlertId }) {
+function AlertList({ alerts, onNavigate, onMarkViewed, markingAlertId, t, formatDate, language }) {
   if (alerts.length === 0) {
-    return <div className="child-progress__empty"><span className="material-symbols-outlined">verified</span><strong>No active concerns</strong><p>Learning alerts and their resolution status will appear here.</p></div>
+    return (
+      <div className="child-progress__empty">
+        <span className="material-symbols-outlined">verified</span>
+        <strong>{t('childProgress.noAlerts')}</strong>
+        <p>Learning alerts and their resolution status will appear here.</p>
+      </div>
+    )
   }
 
   return (
@@ -202,14 +229,22 @@ function AlertList({ alerts, onNavigate, onMarkViewed, markingAlertId }) {
           <div>
             <div className="child-progress__alert-heading">
               <h3>{alert.metric.replaceAll('_', ' ')}</h3>
-              <div>{!alert.isViewed && <span className="child-progress__new-label">New</span>}<span>{alert.isResolved ? 'Resolved' : 'Needs attention'}</span></div>
+              <div>
+                {!alert.isViewed && <span className="child-progress__new-label">{t('childProgress.newBadge')}</span>}
+                <span>{alert.isResolved ? t('childProgress.resolvedBadge') : t('childProgress.needsAttentionBadge')}</span>
+              </div>
             </div>
             <p>{alert.detail}</p>
-            <small>{formatDate(alert.createdAt)}</small>
+            <small>{formatDate(alert.createdAt, language)}</small>
             <div className="child-progress__alert-actions">
-              {!alert.isViewed && <button className="child-progress__mark-viewed" onClick={() => onMarkViewed(alert)} disabled={markingAlertId === alert._id}><span className="material-symbols-outlined">done</span>{markingAlertId === alert._id ? 'Saving...' : 'Mark as viewed'}</button>}
-              {!alert.isResolved && alert.metric !== 'vocabulary_stagnation' && <button onClick={() => onNavigate('essays')}>Review essays</button>}
-              {!alert.isResolved && alert.metric === 'vocabulary_stagnation' && <button onClick={() => onNavigate('vocabulary')}>Review vocabulary</button>}
+              {!alert.isViewed && (
+                <button className="child-progress__mark-viewed" onClick={() => onMarkViewed(alert)} disabled={markingAlertId === alert._id}>
+                  <span className="material-symbols-outlined">done</span>
+                  {markingAlertId === alert._id ? t('childProgress.saving') : t('childProgress.markAsViewed')}
+                </button>
+              )}
+              {!alert.isResolved && alert.metric !== 'vocabulary_stagnation' && <button onClick={() => onNavigate('essays')}>{t('childProgress.reviewEssays')}</button>}
+              {!alert.isResolved && alert.metric === 'vocabulary_stagnation' && <button onClick={() => onNavigate('vocabulary')}>{t('childProgress.reviewVocabulary')}</button>}
             </div>
           </div>
         </article>
@@ -218,18 +253,42 @@ function AlertList({ alerts, onNavigate, onMarkViewed, markingAlertId }) {
   )
 }
 
-function GoalList({ goals }) {
+function GoalList({ goals, t, formatDate, language }) {
   if (!goals?.configured) {
-    return <div className="child-progress__empty"><span className="material-symbols-outlined">flag</span><strong>No weekly goals yet</strong><p>Goals set by the student or teacher will appear here.</p></div>
+    return (
+      <div className="child-progress__empty">
+        <span className="material-symbols-outlined">flag</span>
+        <strong>{t('childProgress.noGoals')}</strong>
+        <p>Goals set by the student or teacher will appear here.</p>
+      </div>
+    )
   }
 
   return (
     <div className="child-progress__goals">
-      <header><div><p>Current week</p><h3>{formatDate(goals.weekStart)} – {formatDate(goals.weekEnd)}</h3></div><strong>{goals.completionRate}% complete</strong></header>
+      <header>
+        <div>
+          <p>Current week</p>
+          <h3>{formatDate(goals.weekStart, language)} – {formatDate(goals.weekEnd, language)}</h3>
+        </div>
+        <strong>{t('childProgress.complete', { rate: goals.completionRate })}</strong>
+      </header>
       <div className="child-progress__goal-list">
         {goals.goals.map(goal => {
           const percentage = goal.target > 0 ? Math.min(100, Math.round(goal.current / goal.target * 100)) : 0
-          return <article key={goal.label}><span className="material-symbols-outlined">{goal.icon || 'flag'}</span><div><div><h4>{goal.label}</h4><strong>{goal.current} / {goal.target}</strong></div><div className="child-progress__goal-bar"><span style={{ width: `${percentage}%` }} /></div><small>{percentage}% complete</small></div></article>
+          return (
+            <article key={goal.label}>
+              <span className="material-symbols-outlined">{goal.icon || 'flag'}</span>
+              <div>
+                <div>
+                  <h4>{goal.label}</h4>
+                  <strong>{goal.current} / {goal.target}</strong>
+                </div>
+                <div className="child-progress__goal-bar"><span style={{ width: `${percentage}%` }} /></div>
+                <small>{t('childProgress.complete', { rate: percentage })}</small>
+              </div>
+            </article>
+          )
         })}
       </div>
     </div>
@@ -240,6 +299,16 @@ export default function ChildProgress({ view = 'progress' }) {
   const { id } = useParams()
   const navigate = useNavigate()
   const { updateUser, selectParentChild } = useAuth()
+  const { t, language, formatDate } = useLanguage()
+
+  const tabs = [
+    { id: 'progress', label: t('childProgress.tabProgress'), icon: 'monitoring' },
+    { id: 'essays', label: t('childProgress.tabEssays'), icon: 'history_edu' },
+    { id: 'vocabulary', label: t('childProgress.tabVocab'), icon: 'menu_book' },
+    { id: 'goals', label: t('childProgress.tabGoals'), icon: 'flag' },
+    { id: 'alerts', label: t('childProgress.tabAlerts'), icon: 'warning' },
+  ]
+
   const [children, setChildren] = useState([])
   const [progress, setProgress] = useState(null)
   const [essays, setEssays] = useState([])
@@ -312,11 +381,18 @@ export default function ChildProgress({ view = 'progress' }) {
   }
 
   if (loading) {
-    return <div className="child-progress__state"><span className="material-symbols-outlined animate-spin">progress_activity</span><p>Loading student progress...</p></div>
+    return <div className="child-progress__state"><span className="material-symbols-outlined animate-spin">progress_activity</span><p>{t('childProgress.loadingProgress')}</p></div>
   }
 
   if (error || !progress) {
-    return <div className="child-progress__state child-progress__state--error"><span className="material-symbols-outlined">error_outline</span><h2>Progress unavailable</h2><p>{error}</p><button onClick={() => navigate('/parent/dashboard')}>Back to dashboard</button></div>
+    return (
+      <div className="child-progress__state child-progress__state--error">
+        <span className="material-symbols-outlined">error_outline</span>
+        <h2>{t('childProgress.progressUnavailable')}</h2>
+        <p>{error}</p>
+        <button onClick={() => navigate('/parent/dashboard')}>{t('childProgress.backToDashboard')}</button>
+      </div>
+    )
   }
 
   return (
@@ -333,7 +409,7 @@ export default function ChildProgress({ view = 'progress' }) {
           </div>
         </div>
         <label className="child-progress__selector">
-          <span>Viewing student</span>
+          <span>{t('childProgress.viewingStudent')}</span>
           <select value={id} onChange={event => {
             selectParentChild(event.target.value)
             navigate(`/parent/children/${event.target.value}/${view}`)
@@ -344,7 +420,7 @@ export default function ChildProgress({ view = 'progress' }) {
       </header>
 
       <nav className="child-progress__tabs" aria-label="Student progress views">
-        {TABS.map(tab => (
+        {tabs.map(tab => (
           <button key={tab.id} className={view === tab.id ? 'is-active' : ''} onClick={() => navigateToView(tab.id)}>
             <span className="material-symbols-outlined">{tab.icon}</span>
             {tab.label}
@@ -354,11 +430,11 @@ export default function ChildProgress({ view = 'progress' }) {
       </nav>
 
       <main className="child-progress__content">
-        {view === 'progress' && <Overview progress={progress} essays={essays} alerts={alerts} goals={goals} onNavigate={navigateToView} />}
-        {view === 'essays' && <EssayList essays={essays} expandedEssayId={expandedEssayId} onToggle={essayId => setExpandedEssayId(current => current === essayId ? null : essayId)} />}
+        {view === 'progress' && <Overview progress={progress} essays={essays} alerts={alerts} goals={goals} onNavigate={navigateToView} t={t} formatDate={formatDate} language={language} />}
+        {view === 'essays' && <EssayList essays={essays} expandedEssayId={expandedEssayId} onToggle={essayId => setExpandedEssayId(current => current === essayId ? null : essayId)} t={t} formatDate={formatDate} language={language} />}
         {view === 'vocabulary' && <VocabularyTab apiBase={`/parent/children/${id}/vocabulary`} />}
-        {view === 'goals' && <GoalList goals={goals} />}
-        {view === 'alerts' && <AlertList alerts={alerts} onNavigate={navigateToView} onMarkViewed={handleMarkAlertViewed} markingAlertId={markingAlertId} />}
+        {view === 'goals' && <GoalList goals={goals} t={t} formatDate={formatDate} language={language} />}
+        {view === 'alerts' && <AlertList alerts={alerts} onNavigate={navigateToView} onMarkViewed={handleMarkAlertViewed} markingAlertId={markingAlertId} t={t} formatDate={formatDate} language={language} />}
       </main>
     </div>
   )

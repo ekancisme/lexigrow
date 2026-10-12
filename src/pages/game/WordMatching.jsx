@@ -222,22 +222,22 @@ export default function WordMatching() {
 
           <div>
             <label className="config-section-label">
-              1. {t('games.vocabSource', 'Nguồn từ vựng')}
+              1. {t('games.vocabSource', 'Vocabulary Source')}
             </label>
             <div className="speed-options-grid" style={{ gridTemplateColumns: 'repeat(2, 1fr)' }}>
               <div
                 className={`speed-card ${vocabSource === 'library' ? 'speed-card--active' : ''}`}
                 onClick={() => setVocabSource('library')}
               >
-                <h4>📚 Thư viện của tôi</h4>
-                <span>{libraryCount !== null ? `${libraryCount} từ đã lưu` : 'Từ vựng cá nhân'}</span>
+                <h4>📚 {t('games.myLibrary')}</h4>
+                <span>{libraryCount !== null ? t('games.savedWordsCount', { count: libraryCount }) : t('games.personalVocab')}</span>
               </div>
               <div
                 className={`speed-card ${vocabSource === 'topic' ? 'speed-card--active' : ''}`}
                 onClick={() => setVocabSource('topic')}
               >
-                <h4>✨ Đề xuất theo chủ đề</h4>
-                <span>Khám phá từ mới</span>
+                <h4>✨ {t('games.topicCurated')}</h4>
+                <span>{t('games.discoverNewWords')}</span>
               </div>
             </div>
           </div>
@@ -245,7 +245,7 @@ export default function WordMatching() {
           {vocabSource === 'topic' && (
             <div>
               <label className="config-section-label">
-                2. Chủ đề khám phá
+                2. {t('games.exploreTopic')}
               </label>
               <div className="game-topic-chips">
                 {GAME_CURATED_TOPICS.map((topic) => (
@@ -256,7 +256,7 @@ export default function WordMatching() {
                     onClick={() => setSelectedTopic(topic.slug)}
                   >
                     <span className="material-symbols-outlined">{topic.icon}</span>
-                    <span>{topic.title}</span>
+                    <span>{topic.slug === 'all' ? t('games.allTopics') : topic.title}</span>
                   </button>
                 ))}
               </div>
@@ -272,21 +272,21 @@ export default function WordMatching() {
                 className={`speed-card ${pairCount === 4 ? 'speed-card--active' : ''}`}
                 onClick={() => setPairCount(4)}
               >
-                <h4>4 Pairs</h4>
+                <h4>{t('games.pairsCount', { count: 4 })}</h4>
                 <span>8 Cards (2x4)</span>
               </div>
               <div
                 className={`speed-card ${pairCount === 6 ? 'speed-card--active' : ''}`}
                 onClick={() => setPairCount(6)}
               >
-                <h4>6 Pairs</h4>
+                <h4>{t('games.pairsCount', { count: 6 })}</h4>
                 <span>12 Cards (3x4)</span>
               </div>
               <div
                 className={`speed-card ${pairCount === 8 ? 'speed-card--active' : ''}`}
                 onClick={() => setPairCount(8)}
               >
-                <h4>8 Pairs</h4>
+                <h4>{t('games.pairsCount', { count: 8 })}</h4>
                 <span>16 Cards (4x4)</span>
               </div>
             </div>

@@ -1,9 +1,11 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import './SessionCompletionModal.css'
 
 export default function SessionCompletionModal({ sessionData = {}, onClose, onStartNext }) {
   const navigate = useNavigate()
+  const { t } = useLanguage()
 
   useEffect(() => {
     // Optional audio sound effect or vibration
@@ -29,9 +31,9 @@ export default function SessionCompletionModal({ sessionData = {}, onClose, onSt
           <span className="material-symbols-outlined completion-modal__icon">military_tech</span>
         </div>
 
-        <h2 className="completion-modal__title">Awesome! Session Complete!</h2>
+        <h2 className="completion-modal__title">{t('learning.sessionComplete')}</h2>
         <p className="completion-modal__desc">
-          You have successfully completed today's 10-minute session and applied your target vocabulary into authentic writing.
+          {t('learning.sessionCompleteDesc')}
         </p>
 
         {/* Stats strip */}
@@ -39,8 +41,8 @@ export default function SessionCompletionModal({ sessionData = {}, onClose, onSt
           <div className="completion-modal__stat-item">
             <span className="material-symbols-outlined completion-modal__stat-icon">local_fire_department</span>
             <div>
-              <span className="completion-modal__stat-value">+1 Day</span>
-              <span className="completion-modal__stat-label">Streak Maintained</span>
+              <span className="completion-modal__stat-value">+1 {t('learning.dayUnit')}</span>
+              <span className="completion-modal__stat-label">{t('learning.streakMaintained')}</span>
             </div>
           </div>
 
@@ -48,15 +50,15 @@ export default function SessionCompletionModal({ sessionData = {}, onClose, onSt
             <span className="material-symbols-outlined completion-modal__stat-icon">workspace_premium</span>
             <div>
               <span className="completion-modal__stat-value">+50 XP</span>
-              <span className="completion-modal__stat-label">Earned XP</span>
+              <span className="completion-modal__stat-label">{t('learning.earnedXp')}</span>
             </div>
           </div>
 
           <div className="completion-modal__stat-item">
             <span className="material-symbols-outlined completion-modal__stat-icon">yard</span>
             <div>
-              <span className="completion-modal__stat-value">+{words.length || 3} Sprouts</span>
-              <span className="completion-modal__stat-label">Growth Garden</span>
+              <span className="completion-modal__stat-value">{t('learning.sproutsCount', { count: words.length || 3 })}</span>
+              <span className="completion-modal__stat-label">{t('learning.growthGarden')}</span>
             </div>
           </div>
         </div>
@@ -64,7 +66,7 @@ export default function SessionCompletionModal({ sessionData = {}, onClose, onSt
         {/* Words Learned */}
         {words.length > 0 && (
           <div className="completion-modal__words-box">
-            <span className="completion-modal__words-title">Applied Vocabulary Words:</span>
+            <span className="completion-modal__words-title">{t('learning.appliedWords')}</span>
             <div className="completion-modal__chips">
               {words.map((w, idx) => (
                 <span key={idx} className="completion-modal__word-chip">
@@ -85,7 +87,7 @@ export default function SessionCompletionModal({ sessionData = {}, onClose, onSt
               style={{ background: 'linear-gradient(135deg, var(--color-primary), #4f46e5)' }}
             >
               <span className="material-symbols-outlined">auto_stories</span>
-              Luyện viết bài tiếp theo (Chủ đề mới)
+              {t('learning.nextTopic')}
             </button>
           )}
 
@@ -94,7 +96,7 @@ export default function SessionCompletionModal({ sessionData = {}, onClose, onSt
             onClick={() => navigate('/student/progress')}
           >
             <span className="material-symbols-outlined">yard</span>
-            Xem Vườn Từ Vựng
+            {t('learning.viewGarden')}
           </button>
 
           <button
@@ -104,7 +106,7 @@ export default function SessionCompletionModal({ sessionData = {}, onClose, onSt
               else navigate('/student/dashboard')
             }}
           >
-            Về Dashboard
+            {t('learning.returnDashboard')}
           </button>
         </div>
       </div>

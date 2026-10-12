@@ -146,7 +146,7 @@ export default function GameHub() {
           <button
             className="game-hub-back-btn"
             onClick={() => navigate('/student/vocabulary')}
-            title="Return to Library"
+            title={t('games.returnToLibrary')}
           >
             <span className="material-symbols-outlined">arrow_back</span>
             <span>{t('games.wordLibrary', 'Word Library')}</span>
@@ -164,7 +164,7 @@ export default function GameHub() {
               <span>{earnedXP.toLocaleString(language === 'vi' ? 'vi-VN' : 'en-US')} <span className="hud-pill__label">XP</span></span>
             </div>
 
-            <div className="hud-pill hud-pill--hearts" title="Life Energy 5/5">
+            <div className="hud-pill hud-pill--hearts" title={t('games.lifeEnergy', { count: '5/5' })}>
               <span className="material-symbols-outlined hud-pill__icon">favorite</span>
               <span>5/5</span>
             </div>
@@ -208,10 +208,10 @@ export default function GameHub() {
         <section>
           <div className="arcade-section-header">
             <h3>
-              <span>Arcade Arena Modes</span>
-              <span className="arcade-count-chip">4 Available</span>
+              <span>{t('games.arcadeArenaModes')}</span>
+              <span className="arcade-count-chip">{t('games.availableModes')}</span>
             </h3>
-            <p>Select a specialized game mode to train speed, grammar, morphology, or auditory recall.</p>
+            <p>{t('games.selectModeDesc')}</p>
           </div>
 
           <div className="arcade-cards-grid">
@@ -279,8 +279,8 @@ export default function GameHub() {
               <span className="material-symbols-outlined">sports_esports</span>
             </div>
             <div className="strip-item-info">
-              <span className="strip-item-label">Daily Quest Goal</span>
-              <div className="strip-item-value">{solvedQuest} / {totalQuest} Words Solved</div>
+              <span className="strip-item-label">{t('games.dailyQuestGoal')}</span>
+              <div className="strip-item-value">{t('games.wordsSolved', { solved: solvedQuest, total: totalQuest })}</div>
               <div className="strip-item-track">
                 <div className="strip-item-fill" style={{ width: `${questPercent}%` }} />
               </div>

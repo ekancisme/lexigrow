@@ -46,7 +46,7 @@ export default function QuestGardenCard({ garden = false }) {
                 {t('quest.dailyBadge', 'DAILY VOCABULARY QUEST')}
               </span>
               <span style={{ fontFamily: 'JetBrains Mono, monospace', fontSize: '11px', color: 'var(--color-on-surface-variant)' }}>
-                · {t('quest.dayStatus', `Today · ${percent}% Solved`)}
+                · {t('quest.dayStatus', { percent })}
               </span>
             </div>
 
@@ -62,10 +62,10 @@ export default function QuestGardenCard({ garden = false }) {
             <div className="sprout-progress-box">
               <div className="sprout-progress-labels">
                 <span>
-                  Sprout Progress: <strong>{solvedCount} / {totalCount} Clues Solved</strong>
+                  {t('quest.sproutProgressLabel')} <strong>{t('quest.cluesSolvedCount', { solved: solvedCount, total: totalCount })}</strong>
                 </span>
                 <span style={{ color: 'var(--color-success, #16A34A)', fontWeight: 700 }}>
-                  {fireflies > 0 ? `+${fireflies * 20} Fireflies` : '+120 Firefly XP'}
+                  {fireflies > 0 ? t('quest.firefliesCount', { count: fireflies * 20 }) : t('quest.fireflyXp')}
                 </span>
               </div>
               <div className="sprout-progress-track">
@@ -79,7 +79,7 @@ export default function QuestGardenCard({ garden = false }) {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', color: 'var(--color-on-surface-variant)' }}>
             <span className="material-symbols-outlined" style={{ fontSize: '16px', color: 'var(--color-success, #16A34A)' }}>grade</span>
-            <span>Reward: +80 XP & 1 Sprout</span>
+            <span>{t('quest.rewardSprout')}</span>
           </div>
           <Link
             className="arcade-btn-3d arcade-btn--tertiary"

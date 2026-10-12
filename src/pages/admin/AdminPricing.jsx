@@ -4,7 +4,7 @@ import paymentService from '../../services/payment.service.js'
 import './AdminPricing.css'
 
 export default function AdminPricing() {
-  const { t } = useLanguage()
+  const { t, language, formatCurrency, formatDate, formatDateTime } = useLanguage()
   const [activeTab, setActiveTab] = useState('plans') // 'plans' | 'transactions' | 'subscriptions'
   const [plans, setPlans] = useState([])
   const [transactions, setTransactions] = useState([])
@@ -120,7 +120,7 @@ export default function AdminPricing() {
           <div>
             <div className="text-label-md" style={{ color: 'var(--color-on-surface-variant)' }}>Total PayOS Revenue</div>
             <div className="text-headline-sm" style={{ fontWeight: 800, color: '#16a34a' }}>
-              {revenueStats.totalRevenue.toLocaleString('en-US')} VND
+              {formatCurrency(revenueStats.totalRevenue, language, 'VND')}
             </div>
           </div>
         </div>
@@ -208,8 +208,8 @@ export default function AdminPricing() {
                       </span>
                     </td>
                     <td><span className="admin-pricing__tier-tag">{p.tier.toUpperCase()}</span></td>
-                    <td><strong>{p.monthlyPrice.toLocaleString('en-US')} VND</strong></td>
-                    <td><strong>{p.yearlyPrice.toLocaleString('en-US')} VND</strong></td>
+                    <td><strong>{formatCurrency(p.monthlyPrice, language, 'VND')}</strong></td>
+                    <td><strong>{formatCurrency(p.yearlyPrice, language, 'VND')}</strong></td>
                     <td>
                       {p.targetRole === 'teacher' ? (
                         <span style={{ color: '#0284c7', fontWeight: 600 }}>{p.maxSponsoredStudents} students</span>
@@ -271,13 +271,13 @@ export default function AdminPricing() {
                     </td>
                     <td>{tx.planName}</td>
                     <td>{tx.billingCycle === 'yearly' ? '1 Year' : '1 Month'}</td>
-                    <td><strong style={{ color: '#16a34a' }}>{tx.amount.toLocaleString('en-US')} VND</strong></td>
+                    <td><strong style={{ color: '#16a34a' }}>{formatCurrency(tx.amount, language, 'VND')}</strong></td>
                     <td>
                       <span className={`admin-pricing__status-badge ${tx.status.toLowerCase()}`}>
                         {tx.status}
                       </span>
                     </td>
-                    <td>{new Date(tx.createdAt).toLocaleString('en-US')}</td>
+                    <td>{formatDateTime(tx.createdAt, language)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -316,8 +316,8 @@ export default function AdminPricing() {
                     <td>{sub.targetRole}</td>
                     <td>{sub.plan?.name || sub.planSlug}</td>
                     <td><span className="admin-pricing__tier-tag">{sub.tier.toUpperCase()}</span></td>
-                    <td>{new Date(sub.startDate).toLocaleDateString('en-US')}</td>
-                    <td><strong>{new Date(sub.endDate).toLocaleDateString('en-US')}</strong></td>
+                    <td>{formatDate(sub.startDate, language)}</td>
+                    <td><strong>{formatDate(sub.endDate, language)}</strong></td>
                     <td>
                       <span className={`admin-pricing__status-badge ${sub.status}`}>
                         {sub.status.toUpperCase()}

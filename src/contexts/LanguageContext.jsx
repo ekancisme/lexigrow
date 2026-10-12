@@ -1,6 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import en from '../locales/en.json'
 import vi from '../locales/vi.json'
+import {
+  formatDate,
+  formatTime,
+  formatDateTime,
+  formatRelativeTime,
+  formatNumber,
+  formatCurrency
+} from '../utils/formatters.js'
 
 const translations = { en, vi }
 
@@ -79,8 +87,29 @@ export function LanguageProvider({ children }) {
     return result
   }, [language])
 
+  const formatDateValue = useCallback((date, options) => formatDate(date, language, options), [language])
+  const formatTimeValue = useCallback((date, options) => formatTime(date, language, options), [language])
+  const formatDateTimeValue = useCallback((date, options) => formatDateTime(date, language, options), [language])
+  const formatRelativeTimeValue = useCallback((date) => formatRelativeTime(date, language), [language])
+  const formatNumberValue = useCallback((num, options) => formatNumber(num, language, options), [language])
+  const formatCurrencyValue = useCallback((amount, currency) => formatCurrency(amount, language, currency), [language])
+
+  const value = {
+    language,
+    setLanguage,
+    toggleLanguage,
+    t,
+    locale: language === 'vi' ? 'vi-VN' : 'en-US',
+    formatDate: formatDateValue,
+    formatTime: formatTimeValue,
+    formatDateTime: formatDateTimeValue,
+    formatRelativeTime: formatRelativeTimeValue,
+    formatNumber: formatNumberValue,
+    formatCurrency: formatCurrencyValue
+  }
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage, t }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   )

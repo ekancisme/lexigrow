@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api'
 import './AdminPages.css'
 
 export default function AdminAuditLogs() {
+  const { formatDate, formatTime, language } = useLanguage()
   const [logs, setLogs] = useState([])
   const [loading, setLoading] = useState(true)
   const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 10, pages: 1 })
@@ -343,8 +345,8 @@ export default function AdminAuditLogs() {
                       {/* Created Time */}
                       <td style={{ padding: '16px 20px', fontSize: '13px', color: 'var(--color-on-surface-variant)', verticalAlign: 'middle' }}>
                         <div>
-                          <p>{new Date(log.createdAt).toLocaleDateString()}</p>
-                          <p style={{ fontSize: '11px', color: 'var(--color-outline)' }}>{new Date(log.createdAt).toLocaleTimeString()}</p>
+                          <p>{formatDate(log.createdAt, language)}</p>
+                          <p style={{ fontSize: '11px', color: 'var(--color-outline)' }}>{formatTime(log.createdAt, language)}</p>
                         </div>
                       </td>
                     </tr>
