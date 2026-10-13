@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import api from '../../services/api.js'
+import paymentService from '../../services/payment.service.js'
 import './StudentHome.css'
 
 const featuredTopics = [
@@ -30,6 +31,7 @@ export default function StudentHome() {
   const { user } = useAuth()
   const [announcements, setAnnouncements] = useState([])
   const [activeAnnouncement, setActiveAnnouncement] = useState(0)
+  const [featuredPlan, setFeaturedPlan] = useState(null)
 
   useEffect(() => {
     let current = true
@@ -46,6 +48,19 @@ export default function StudentHome() {
       })
     return () => { current = false }
   }, [user])
+
+  useEffect(() => {
+    let current = true
+    paymentService.getPlans('student')
+      .then(response => {
+        const plans = Array.isArray(response) ? response : (Array.isArray(response?.data) ? response.data : [])
+        const paidPlans = plans.filter(plan => Number(plan.monthlyPrice) > 0)
+        const plan = paidPlans.find(item => item.tier === 'pro') || paidPlans[0]
+        if (current) setFeaturedPlan(plan || null)
+      })
+      .catch(() => { if (current) setFeaturedPlan(null) })
+    return () => { current = false }
+  }, [])
 
   const visibleAnnouncements = user ? announcements : []
   const currentAnnouncementIndex = Math.min(activeAnnouncement, Math.max(visibleAnnouncements.length - 1, 0))
@@ -100,7 +115,7 @@ export default function StudentHome() {
           </ul>
         </div>
         <figure className="student-home__hero-visual">
-          <img className="student-home__intro-image" src="/assets/editorial/home/study-hero.jpg" alt={language === 'vi' ? 'Sách tiếng Anh học thuật, vở ghi từ vựng và bài viết đang được luyện tập trên bàn học trong thư viện' : 'English academic books, a vocabulary notebook, and a writing exercise arranged on a study desk in a library'} width="1400" height="933" fetchPriority="high" />
+          <img className="student-home__intro-image" src="/assets/editorial/home/study-hero-v2.jpg" alt={language === 'vi' ? 'Sách tiếng Anh học thuật, vở ghi từ vựng và bài viết đang được luyện tập trên bàn học trong thư viện' : 'English academic books, a vocabulary notebook, and a writing exercise arranged on a study desk in a library'} width="1400" height="933" fetchPriority="high" />
           <figcaption><span className="material-symbols-outlined" aria-hidden="true">menu_book</span><span>{t('homePage.heroCaption')}</span></figcaption>
         </figure>
       </section>
@@ -160,16 +175,42 @@ export default function StudentHome() {
         </ol>
       </section>
 
+      {featuredPlan && <section className="student-home__pricing" aria-labelledby="student-home-pricing-title">
+        <div className="student-home__section-heading">
+          <div>
+            <p className="student-home__eyebrow">{t('homePage.pricingEyebrow')}</p>
+            <h2 id="student-home-pricing-title">{t('homePage.pricingTitle')}</h2>
+            <p>{t('homePage.pricingDescription')}</p>
+          </div>
+          <Link className="student-home__section-link" to="/pricing">{t('homePage.pricingAllPlans')}<span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span></Link>
+        </div>
+        <article className="student-home__pricing-card">
+          <div className="student-home__pricing-copy">
+            <span className="student-home__pricing-label"><span className="material-symbols-outlined" aria-hidden="true">workspace_premium</span>{t('homePage.pricingFeatured')}</span>
+            <h3>{featuredPlan.name}</h3>
+            <p>{t('homePage.pricingPlanDescription')}</p>
+            <div className="student-home__pricing-price">
+              <strong>{new Intl.NumberFormat(language === 'vi' ? 'vi-VN' : 'en-US').format(Number(featuredPlan.monthlyPrice))}</strong>
+              <span>VND {t('pricing.perMonth')}</span>
+            </div>
+            <Link className="student-home__button student-home__button--primary" to="/pricing">{t('homePage.pricingAction')}<span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span></Link>
+          </div>
+          <div className="student-home__pricing-visual" aria-hidden="true">
+            <div className="student-home__pricing-orbit">
+              <span className="student-home__pricing-center material-symbols-outlined">workspace_premium</span>
+              <span className="student-home__pricing-bubble student-home__pricing-bubble--ai"><span className="material-symbols-outlined">auto_awesome</span>{t('homePage.pricingBenefitAi')}</span>
+              <span className="student-home__pricing-bubble student-home__pricing-bubble--review"><span className="material-symbols-outlined">update</span>{t('homePage.pricingBenefitReview')}</span>
+              <span className="student-home__pricing-bubble student-home__pricing-bubble--growth"><span className="material-symbols-outlined">trending_up</span>{t('homePage.pricingBenefitGrowth')}</span>
+            </div>
+          </div>
+        </article>
+      </section>}
+
       <section className="student-home__closing" aria-labelledby="student-home-closing-title">
         <div><p className="student-home__eyebrow">{t('homePage.closingEyebrow')}</p><h2 id="student-home-closing-title">{t('homePage.closingTitle')}</h2><p>{t('homePage.closingDescription')}</p></div>
         <div className="student-home__actions"><Link className="student-home__button student-home__button--primary" to="/student/explore">{t('homePage.exploreAction')}<span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span></Link><Link className="student-home__button student-home__button--secondary" to={user ? '/student/dashboard' : '/login'}>{user ? t('homePage.dashboardAction') : t('homePage.loginAction')}</Link></div>
       </section>
 
-      <footer className="student-home__footer">
-        <Link to="/student/home" className="student-home__footer-brand"><img src="/assets/brand/lexigrow-emblem.png" alt="" width="22" height="22" /><span>LexiGrow</span></Link>
-        <p>{t('homePage.footerCopy')}</p>
-        <Link to={user ? '/settings' : '/login'}>{user ? t('homePage.helpLink') : t('homePage.loginAction')}</Link>
-      </footer>
     </div>
   )
 }

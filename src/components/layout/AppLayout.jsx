@@ -5,6 +5,7 @@ import ParentBottomNav from './ParentBottomNav'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import ChatWidget from '../chat/ChatWidget'
 import AnnouncementPopup from '../common/AnnouncementPopup.jsx'
+import SiteFooter from './SiteFooter.jsx'
 import './AppLayout.css'
 
 // Routes that need full-bleed layout (no padding, no max-width)
@@ -43,6 +44,7 @@ export default function AppLayout({ role, children }) {
             {children || <Outlet />}
           </Suspense>
         </main>
+        <SiteFooter />
       </div>
       {resolvedRole === 'parent' && (
         <ParentBottomNav childId={selectedChildId} onMore={() => setMobileMenuRoute(location.key)} />

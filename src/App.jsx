@@ -9,6 +9,7 @@ const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'))
 
 /* Layout */
 import AppLayout from './components/layout/AppLayout'
+import StandaloneLayout from './components/layout/StandaloneLayout.jsx'
 
 /* Student Pages */
 const StudentDashboard = lazy(() => import('./pages/student/StudentDashboard'))
@@ -171,10 +172,10 @@ function App() {
       }>
       <Routes>
         {/* Auth routes & Onboarding (no sidebar) */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/student/onboarding" element={<Onboarding />} />
+        <Route path="/login" element={<StandaloneLayout><Login /></StandaloneLayout>} />
+        <Route path="/register" element={<StandaloneLayout><Register /></StandaloneLayout>} />
+        <Route path="/forgot-password" element={<StandaloneLayout><ForgotPassword /></StandaloneLayout>} />
+        <Route path="/student/onboarding" element={<StandaloneLayout><Onboarding /></StandaloneLayout>} />
         <Route path="/onboarding" element={<Navigate to="/student/onboarding" replace />} />
 
         {/* Student & Public Home routes */}

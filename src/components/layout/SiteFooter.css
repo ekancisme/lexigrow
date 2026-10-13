@@ -1,0 +1,79 @@
+.site-footer {
+  width: 100%;
+  margin-top: auto;
+  padding: 34px max(var(--margin-desktop), calc((100vw - var(--container-max-width, 1280px)) / 2)) 16px;
+  border-top: 1px solid var(--color-outline-variant, #e2e8f0);
+  color: var(--color-on-surface-variant, #475569);
+  background: var(--color-surface-container-low, #f8fafc);
+  box-sizing: border-box;
+}
+
+.site-footer__inner,
+.site-footer__bottom {
+  width: min(100%, var(--container-max-width, 1280px));
+  margin-inline: auto;
+}
+
+.site-footer__inner {
+  display: flex;
+  justify-content: space-between;
+  gap: 48px;
+  padding-bottom: 28px;
+}
+
+.site-footer__brand-block { max-width: 340px; }
+.site-footer__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--color-on-surface, #0f172a);
+  font-size: 17px;
+  font-weight: 700;
+  text-decoration: none;
+}
+.site-footer__brand img { flex: 0 0 auto; object-fit: contain; }
+.site-footer__brand-block p {
+  margin: 12px 0 0;
+  font-size: 13px;
+  line-height: 1.65;
+}
+.site-footer__links { display: flex; gap: clamp(38px, 8vw, 112px); }
+.site-footer__group { display: grid; align-content: start; gap: 10px; min-width: 116px; }
+.site-footer__group h2 {
+  margin: 0 0 3px;
+  color: var(--color-on-surface, #0f172a);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.site-footer__group a {
+  width: fit-content;
+  color: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  text-decoration: none;
+}
+.site-footer__group a:hover { color: var(--color-primary); text-decoration: underline; text-underline-offset: 3px; }
+.site-footer :is(a, button):focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; border-radius: 3px; }
+.site-footer__bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-outline-variant, #e2e8f0);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.standalone-layout { min-height: 100vh; display: flex; flex-direction: column; }
+.standalone-layout > :first-child { flex: 1 0 auto; }
+
+@media (max-width: 720px) {
+  .site-footer { padding: 28px var(--margin-mobile, 16px) 14px; }
+  .site-footer__inner { flex-direction: column; gap: 26px; padding-bottom: 22px; }
+  .site-footer__links { justify-content: flex-start; gap: clamp(28px, 12vw, 72px); }
+}
+@media (max-width: 420px) {
+  .site-footer__bottom { flex-direction: column; gap: 3px; }
+}

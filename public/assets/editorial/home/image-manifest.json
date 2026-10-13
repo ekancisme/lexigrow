@@ -3,7 +3,7 @@
   "generation": "The environment and technology images came with the Stitch design. The hero was generated specifically for LexiGrow with OpenAI ImageGen.",
   "licenseNote": "Generated design assets; no stock-photo author attribution was supplied by Stitch.",
   "images": {
-    "study-hero.jpg": {
+    "study-hero-v2.jpg": {
       "source": "OpenAI ImageGen, created for the LexiGrow home page",
       "alt": {
         "en": "English study books, a vocabulary notebook, and a writing exercise on a desk in a university library",

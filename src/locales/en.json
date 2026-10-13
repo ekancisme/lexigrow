@@ -1141,6 +1141,16 @@
     "methodTitle": "From first encounter to confident use",
     "methodIntro": "LexiGrow connects vocabulary practice with writing, so learning has a clear next step.",
     "methodAction": "Find a topic to start",
+    "pricingEyebrow": "Find your learning plan",
+    "pricingTitle": "Get more from learning with LexiGrow",
+    "pricingDescription": "Choose a plan for your learning goals and explore the benefits available to you.",
+    "pricingFeatured": "Featured student plan",
+    "pricingPlanDescription": "More tools to practise writing, get feedback, and follow your progress.",
+    "pricingAction": "View plan and benefits",
+    "pricingAllPlans": "Compare all plans",
+    "pricingBenefitAi": "AI writing feedback",
+    "pricingBenefitReview": "Spaced review",
+    "pricingBenefitGrowth": "Progress tracking",
     "stepExploreTitle": "Explore",
     "stepExploreBody": "Meet useful words inside a topic and see how they are used.",
     "stepPracticeTitle": "Practise",
@@ -1148,8 +1158,19 @@
     "stepWriteTitle": "Apply",
     "stepWriteBody": "Bring target vocabulary into your own writing.",
     "stepReviewTitle": "Reflect",
-    "stepReviewBody": "Read feedback and revisit words as you progress.",
-    "footerCopy": "Vocabulary, practice, and writing in one learning space.",
-    "helpLink": "Account settings"
+    "stepReviewBody": "Read feedback and revisit words as you progress."
+  },
+  "siteFooter": {
+    "label": "LexiGrow footer",
+    "navigation": "Footer links",
+    "tagline": "Learn vocabulary in context, practise with guidance, and write with confidence.",
+    "learnHeading": "Explore",
+    "home": "Home",
+    "pricing": "Learning plans",
+    "accountHeading": "Account",
+    "settings": "Account settings",
+    "login": "Sign in",
+    "register": "Create account",
+    "rights": "All rights reserved."
   }
 }
