@@ -4,6 +4,12 @@ import api from '../services/api.js'
 import { connectSocket, disconnectSocket } from '../services/socket.js'
 
 const AuthContext = createContext(null)
+const MIN_AUTH_LOADING_MS = 3000
+
+const waitForMinimumAuthLoading = async (startedAt) => {
+  const remaining = MIN_AUTH_LOADING_MS - (Date.now() - startedAt)
+  if (remaining > 0) await new Promise((resolve) => setTimeout(resolve, remaining))
+}
 
 function getStoredParentChildId(user) {
   if (!user?._id || user.role !== 'parent') return ''
@@ -54,6 +60,7 @@ export function AuthProvider({ children }) {
 
   // 1. Login function
   const login = async (email, password) => {
+    const startedAt = Date.now()
     setLoading(true)
     try {
       const data = await api.post('/auth/login', { email, password })
@@ -62,23 +69,27 @@ export function AuthProvider({ children }) {
       setSelectedParentChildId(getStoredParentChildId(data.user) || data.user.children?.[0]?._id || '')
       return data.user
     } finally {
+      await waitForMinimumAuthLoading(startedAt)
       setLoading(false)
     }
   }
 
   // 2. Register function
   const register = async (formData) => {
+    const startedAt = Date.now()
     setLoading(true)
     try {
       const data = await api.post('/auth/register', formData)
       return data
     } finally {
+      await waitForMinimumAuthLoading(startedAt)
       setLoading(false)
     }
   }
 
   // Email Verification function
   const verifyEmail = async (email, code) => {
+    const startedAt = Date.now()
     setLoading(true)
     try {
       const data = await api.post('/auth/verify-email', { email, code })
@@ -90,6 +101,7 @@ export function AuthProvider({ children }) {
       setSelectedParentChildId(getStoredParentChildId(data.user) || data.user.children?.[0]?._id || '')
       return data.user
     } finally {
+      await waitForMinimumAuthLoading(startedAt)
       setLoading(false)
     }
   }
@@ -120,6 +132,7 @@ export function AuthProvider({ children }) {
 
   // 4. Google Login
   const loginWithGoogle = async (googlePayload) => {
+    const startedAt = Date.now()
     setLoading(true)
     try {
       const payload = typeof googlePayload === 'string' ? { code: googlePayload } : googlePayload
@@ -129,6 +142,7 @@ export function AuthProvider({ children }) {
       setSelectedParentChildId(getStoredParentChildId(data.user) || data.user.children?.[0]?._id || '')
       return data.user
     } finally {
+      await waitForMinimumAuthLoading(startedAt)
       setLoading(false)
     }
   }

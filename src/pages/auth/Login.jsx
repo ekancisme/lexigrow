@@ -50,10 +50,10 @@ export default function Login() {
   }, [location.state])
 
   useEffect(() => {
-    if (isAuthenticated && user) {
+    if (isAuthenticated && user && !loading) {
       navigate(getRoleHome(user.role, user))
     }
-  }, [isAuthenticated, user, navigate])
+  }, [isAuthenticated, user, loading, navigate])
 
 
   async function handleSubmit(e) {
