@@ -65,7 +65,7 @@ const PricingPage = lazy(() => import('./pages/pricing/PricingPage'))
 const PaymentSuccess = lazy(() => import('./pages/pricing/PaymentSuccess'))
 const PaymentCancel = lazy(() => import('./pages/pricing/PaymentCancel'))
 
-/* Eduvia Showcase Pages */
+/* LexiGrow Public Showcase Pages */
 const AboutUs = lazy(() => import('./pages/public/AboutUs'))
 const CourseDetails = lazy(() => import('./pages/public/CourseDetails'))
 const TeachersPage = lazy(() => import('./pages/public/TeachersPage'))
@@ -274,7 +274,7 @@ function App() {
           <Route path="announcements" element={<AdminAnnouncements />} />
         </Route>
 
-        {/* Eduvia Public Showcase Routes */}
+        {/* LexiGrow Public Routes */}
         <Route path="/about" element={<AppLayout><AboutUs /></AppLayout>} />
         <Route path="/courses" element={<AppLayout><Explore /></AppLayout>} />
         <Route path="/course" element={<AppLayout><CourseDetails /></AppLayout>} />

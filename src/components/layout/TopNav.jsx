@@ -85,7 +85,10 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
     }}>
       <div className="topnav__bar">
         <Link to={role === 'student' ? '/student/home' : `/${role}/dashboard`} className="topnav__brand" onClick={closeNavigation} aria-label={t('headerNavigation.homeLabel')}>
-          <img src="/assets/eduvia/Logo.png" alt="Eduvia" width="138" height="38" className="topnav__brand-img-logo" />
+          <span className="topnav__brand-mark">
+            <img src="/assets/brand/lexigrow-emblem.png" alt="" width="32" height="32" className="topnav__brand-img" />
+          </span>
+          <span className="topnav__brand-name">LexiGrow</span>
         </Link>
         <div id="topnav-main-navigation" className={`topnav__navigation ${menuOpen ? 'is-open' : ''}`}>
           <HeaderNavigation role={role} openId={openId} setOpenId={setOpenId} onNavigate={closeNavigation} />

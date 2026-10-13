@@ -21,23 +21,26 @@ export default function SiteFooter() {
   }
 
   return (
-    <footer className="eduvia-footer" aria-label="Eduvia Site Footer">
+    <footer className="eduvia-footer" aria-label="LexiGrow Site Footer">
       <div className="eduvia-footer__inner">
         {/* Column 1: Brand & Contact Info */}
         <div className="eduvia-footer__col eduvia-footer__col--brand">
-          <Link to={homePath} className="eduvia-footer__logo">
-            <img src="/assets/eduvia/Logo-1.png" alt="Eduvia" width="138" height="38" className="eduvia-footer__brand-img" />
+          <Link to={homePath} className="eduvia-footer__logo" aria-label="LexiGrow">
+            <span className="eduvia-footer__logo-mark">
+              <img src="/assets/brand/lexigrow-emblem.png" alt="" width="34" height="34" className="eduvia-footer__brand-img" />
+            </span>
+            <span className="eduvia-footer__logo-text">LexiGrow</span>
           </Link>
 
           <p className="eduvia-footer__text">
             {language === 'vi'
-              ? 'Liên hệ chúng tôi trong giờ làm việc Thứ 2 - Thứ 6 (8:00 - 18:00). Đội ngũ Eduvia luôn sẵn sàng đồng hành cùng bạn.'
-              : 'Feel free to call us in working hours Mon - Fri (8:00 - 16:00). Our team will be happy to help answer your queries.'}
+              ? 'Liên hệ chúng tôi trong giờ làm việc Thứ 2 - Thứ 6 (8:00 - 18:00). Đội ngũ LexiGrow luôn sẵn sàng đồng hành cùng bạn.'
+              : 'Feel free to contact us in working hours Mon - Fri (8:00 - 18:00). The LexiGrow team is always happy to support your queries.'}
           </p>
 
-          <a href="tel:+13330000000" className="eduvia-footer__phone">
+          <a href="tel:+842473008888" className="eduvia-footer__phone">
             <span className="material-symbols-outlined">call</span>
-            <span>+1 (333) 000-0000</span>
+            <span>+84 (24) 7300 8888</span>
           </a>
 
           <div className="eduvia-footer__socials" aria-label="Social media">
@@ -120,7 +123,7 @@ export default function SiteFooter() {
       <div className="eduvia-footer__bottom">
         <div className="eduvia-footer__bottom-inner">
           <p className="eduvia-footer__copy-text">
-            Copyright © {new Date().getFullYear()} LexiGrow · Design inspired by Eduvia
+            Copyright © {new Date().getFullYear()} LexiGrow. All rights reserved.
           </p>
           <div className="eduvia-footer__legal-links">
             <Link to="/pricing">Terms of Use</Link>

@@ -118,40 +118,40 @@ const PLAN_DESCRIPTIONS = {
 
 const FAQ_ITEMS = [
   {
-    qVi: 'Tôi cần trình độ tiếng Anh nào để bắt đầu học trên Eduvia / LexiGrow?',
-    qEn: 'What level do I need to start learning at Eduvia?',
+    qVi: 'Tôi cần trình độ tiếng Anh nào để bắt đầu học trên LexiGrow?',
+    qEn: 'What level do I need to start learning at LexiGrow?',
     aVi: 'Nền tảng hỗ trợ từ trình độ người mới bắt đầu (A1/A2) đến nâng cao (B2/C1). Hệ thống sẽ tự động điều chỉnh độ khó bài đọc và từ vựng theo kết quả luyện tập của bạn.',
-    aEn: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus egestas vitae laoreet.'
+    aEn: 'The platform accommodates learners from absolute beginner (A1/A2) to advanced (B2/C1). Adaptive algorithms tailor reading passages and vocabulary difficulty to your progress.'
   },
   {
     qVi: 'Các lớp học và bài luyện tập là tự học hay tương tác trực tiếp?',
     qEn: 'Are the classes self-paced or live?',
     aVi: 'Bạn có thể tự học theo lộ trình 24/7 với phản hồi tức thì từ AI, đồng thời tham gia các phòng luyện viết và thảo luận cùng cộng đồng học viên.',
-    aEn: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus egestas vitae laoreet.'
+    aEn: 'You can learn self-paced 24/7 with immediate AI assistance, and participate in collaborative essay writing and interactive study sessions.'
   },
   {
     qVi: 'Thời lượng của mỗi khóa học thường kéo dài bao lâu?',
     qEn: 'How long does each course usually take?',
     aVi: 'Mỗi lộ trình được chia thành các vòng học vi mô từ 10-15 phút/ngày, giúp bạn hoàn thành một cấp độ sau 4-6 tuần học kiên trì.',
-    aEn: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus egestas vitae laoreet.'
+    aEn: 'Each pathway is structured into bite-sized 10-15 minute daily modules, enabling you to complete a full milestone in 4-6 weeks of consistent practice.'
   },
   {
     qVi: 'Nền tảng hỗ trợ những phương thức thanh toán nào?',
     qEn: 'What payment methods are supported?',
     aVi: 'Hệ thống hỗ trợ quét mã VietQR tự động qua tất cả các ứng dụng ngân hàng Việt Nam (PayOS), kích hoạt gói ngay sau vài giây.',
-    aEn: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus egestas vitae laoreet.'
+    aEn: 'We support automated VietQR instant transfers through PayOS across all major Vietnamese banking apps, activating your plan in seconds.'
   },
   {
     qVi: 'Tôi có nhận được chứng nhận sau khi hoàn thành khóa học không?',
     qEn: 'Do I get a certificate after finishing a course?',
     aVi: 'Có! Khi hoàn thành đầy đủ các bài tập từ vựng, viết luận và bài kiểm tra tiến độ, bạn sẽ nhận được chứng nhận hoàn thành chuẩn CEFR.',
-    aEn: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus egestas vitae laoreet.'
+    aEn: 'Yes! Upon completing all required vocabulary modules, writing prompts, and benchmark tests, you receive an accredited LexiGrow digital certificate.'
   },
   {
     qVi: 'Nếu tôi chưa tự tin nói và viết tiếng Anh thì có theo kịp không?',
     qEn: 'What if I’m not confident speaking English yet?',
     aVi: 'Đừng lo lắng! AI đóng vai trò như một người bạn đồng hành kiên nhẫn, không phán xét, luôn giải thích cặn kẽ và khuyến khích bạn tiến bộ từng ngày.',
-    aEn: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus egestas vitae laoreet.'
+    aEn: 'No worries! Our AI acts as a patient, judgment-free learning partner that provides gentle guidance, clear explanations, and daily encouragement.'
   }
 ]
 
@@ -257,7 +257,9 @@ export default function PricingPage() {
             <h2 className="eduvia-section-title">Choose Plans That Fit Your Learning</h2>
           </div>
           <p className="eduvia-section-desc">
-            Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus. Nibh malesuada donec eu congue auctor turpis. Sit leo pharetra id magna nisi mauris.
+            {language === 'vi'
+              ? 'Các gói học được thiết kế linh hoạt, phù hợp với học viên tự học, người luyện thi chứng chỉ và giáo viên quản lý lớp học.'
+              : 'Flexible learning packages designed for self-study learners, exam candidates, and educator classrooms.'}
           </p>
         </div>
 
@@ -357,8 +359,8 @@ export default function PricingPage() {
                       ))}
                     </ul>
                     <div className="eduvia-price-card__footer-note">
-                      <strong>{isFeatured ? 'Most popular plan' : 'Best for starters'}</strong>
-                      <p>Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus.</p>
+                      <strong>{isFeatured ? (language === 'vi' ? 'Gói phổ biến nhất' : 'Most popular plan') : (language === 'vi' ? 'Phù hợp người mới bắt đầu' : 'Best for starters')}</strong>
+                      <p>{language === 'vi' ? 'Tiếp cận các học phần nâng cao, tính năng ôn tập thông minh và hỗ trợ xuyên suốt.' : 'Access advanced modules, intelligent revision tools, and continuous learning support.'}</p>
                     </div>
                   </div>
                 </div>
@@ -370,25 +372,27 @@ export default function PricingPage() {
         {/* ── WHY CHOOSE US SECTION WITH VIDEO MOCKUP ── */}
         <section className="eduvia-why-section" style={{ marginTop: 80 }}>
           <div className="eduvia-center-header">
-            <span className="eduvia-kicker eduvia-kicker--purple">Why Choose Eduvia</span>
-            <h2 className="eduvia-section-title">Learn English Faster With Better Guidance</h2>
+            <span className="eduvia-kicker eduvia-kicker--purple">{language === 'vi' ? 'Tại sao chọn LexiGrow' : 'Why Choose LexiGrow'}</span>
+            <h2 className="eduvia-section-title">
+              {language === 'vi' ? 'Học tiếng Anh nhanh hơn với phương pháp khoa học' : 'Learn English Faster With Better Guidance'}
+            </h2>
           </div>
 
           <div className="eduvia-why-cards">
             <div className="eduvia-why-card">
-              <span className="eduvia-why-card__icon"><span className="material-symbols-outlined">menu_book</span></span>
-              <h3>High Quality English Learning System</h3>
-              <p>Pretium lectus mauris commodo viverra orci. Ut dapibus vestibulum mollis neque rutrum risus duis.</p>
+              <span className="eduvia-why-card__icon"><span className="material-symbols-outlined">auto_fix_high</span></span>
+              <h3>{language === 'vi' ? 'Trợ lý AI chấm bài viết tức thì' : 'Real-Time AI Writing Evaluation'}</h3>
+              <p>{language === 'vi' ? 'Chấm điểm 4 tiêu chí chuẩn IELTS, phân tích lỗi ngữ pháp và đề xuất từ vựng học thuật.' : 'Evaluates essays against official criteria, catches subtle errors, and suggests academic collocations.'}</p>
             </div>
             <div className="eduvia-why-card">
-              <span className="eduvia-why-card__icon"><span className="material-symbols-outlined">menu_book</span></span>
-              <h3>High Quality English Learning System</h3>
-              <p>Pretium lectus mauris commodo viverra orci. Ut dapibus vestibulum mollis neque rutrum risus duis.</p>
+              <span className="eduvia-why-card__icon"><span className="material-symbols-outlined">psychology</span></span>
+              <h3>{language === 'vi' ? 'Spaced Repetition System (SRS)' : 'Spaced Repetition System'}</h3>
+              <p>{language === 'vi' ? 'Thuật toán lặp lại ngắt quãng tính toán chu kỳ vàng, khắc sâu từ vựng vào trí nhớ dài hạn.' : 'Scientifically timed flashcard intervals prevent forgetting and ensure permanent word retention.'}</p>
             </div>
             <div className="eduvia-why-card">
-              <span className="eduvia-why-card__icon"><span className="material-symbols-outlined">menu_book</span></span>
-              <h3>High Quality English Learning System</h3>
-              <p>Pretium lectus mauris commodo viverra orci. Ut dapibus vestibulum mollis neque rutrum risus duis.</p>
+              <span className="eduvia-why-card__icon"><span className="material-symbols-outlined">eco</span></span>
+              <h3>{language === 'vi' ? 'Vườn tri thức & Học qua tương tác' : 'Growth Garden & Interactive Gamification'}</h3>
+              <p>{language === 'vi' ? 'Thử thách giải ô chữ Vocab Hunter, chăm sóc cây tri thức và tích lũy huy hiệu học tập.' : 'Daily challenges, vocabulary games, and growth metrics that maintain motivation and consistency.'}</p>
             </div>
           </div>
 
@@ -404,11 +408,13 @@ export default function PricingPage() {
         <section className="eduvia-steps-section" style={{ marginTop: 80 }}>
           <div className="eduvia-section-header">
             <div>
-              <span className="eduvia-kicker eduvia-kicker--mint">How It Works</span>
-              <h2 className="eduvia-section-title">Simple Steps To Start Learning</h2>
+              <span className="eduvia-kicker eduvia-kicker--mint">{language === 'vi' ? 'Quy trình học tập' : 'How It Works'}</span>
+              <h2 className="eduvia-section-title">{language === 'vi' ? 'Bốn bước đơn giản để bắt đầu' : 'Simple Steps To Start Learning'}</h2>
             </div>
             <p className="eduvia-section-desc">
-              Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus. Nibh malesuada donec eu congue auctor turpis. Sit leo pharetra id magna nisi mauris.
+              {language === 'vi'
+                ? 'Lộ trình rõ ràng, minh bạch giúp bạn làm quen nhanh chóng và đạt hiệu quả ngay từ buổi học đầu tiên.'
+                : 'A transparent roadmap designed to onboard you smoothly and drive measurable outcomes.'}
             </p>
           </div>
 
@@ -416,30 +422,30 @@ export default function PricingPage() {
             <div className="eduvia-step-card">
               <span className="eduvia-step-num">01</span>
               <span className="eduvia-step-dot" />
-              <h3>Choose Course</h3>
-              <p>Sit quis dui neque ullamcorper vitae est lorem nullam. Et lorem mattis viverra iaculis at varius.</p>
-              <Link to="/student/explore" className="eduvia-step-link">Start Here</Link>
+              <h3>{language === 'vi' ? 'Chọn Gói Học' : 'Choose Plan'}</h3>
+              <p>{language === 'vi' ? 'Lựa chọn gói tự học hoặc có người hướng dẫn phù hợp với ngân sách và mục tiêu của bạn.' : 'Pick a self-paced or mentored package aligned with your budget and learning objectives.'}</p>
+              <Link to="/pricing" className="eduvia-step-link">{language === 'vi' ? 'Bắt đầu' : 'Start Here'}</Link>
             </div>
             <div className="eduvia-step-card">
               <span className="eduvia-step-num">02</span>
               <span className="eduvia-step-dot" />
-              <h3>Join Class</h3>
-              <p>Sit quis dui neque ullamcorper vitae est lorem nullam. Et lorem mattis viverra iaculis at varius.</p>
-              <Link to="/student/explore" className="eduvia-step-link">Enroll Now</Link>
+              <h3>{language === 'vi' ? 'Thanh Toán PayOS' : 'Instant Activation'}</h3>
+              <p>{language === 'vi' ? 'Quét mã VietQR chuyển khoản nhanh, tài khoản được nâng cấp tự động chỉ sau 3 giây.' : 'Scan automated VietQR via banking app, instant confirmation and account unlock.'}</p>
+              <Link to="/pricing" className="eduvia-step-link">{language === 'vi' ? 'Kích hoạt ngay' : 'Enroll Now'}</Link>
             </div>
             <div className="eduvia-step-card">
               <span className="eduvia-step-num">03</span>
               <span className="eduvia-step-dot" />
-              <h3>Learn & Practice</h3>
-              <p>Sit quis dui neque ullamcorper vitae est lorem nullam. Et lorem mattis viverra iaculis at varius.</p>
-              <Link to="/student/writing" className="eduvia-step-link">Start Practice</Link>
+              <h3>{language === 'vi' ? 'Luyện Tập Hàng Ngày' : 'Learn & Practice'}</h3>
+              <p>{language === 'vi' ? 'Luyện viết luận, ôn thẻ từ vựng SRS và thực hành các bài tập phản xạ tương tác.' : 'Write essays, practice SRS flashcard reviews, and complete interactive skill modules.'}</p>
+              <Link to="/student/writing" className="eduvia-step-link">{language === 'vi' ? 'Luyện tập' : 'Start Practice'}</Link>
             </div>
             <div className="eduvia-step-card">
               <span className="eduvia-step-num">04</span>
               <span className="eduvia-step-dot" />
-              <h3>Track Progress</h3>
-              <p>Sit quis dui neque ullamcorper vitae est lorem nullam. Et lorem mattis viverra iaculis at varius.</p>
-              <Link to="/student/progress" className="eduvia-step-link">View Progress</Link>
+              <h3>{language === 'vi' ? 'Theo Dõi Tiến Bộ' : 'Track Progress'}</h3>
+              <p>{language === 'vi' ? 'Theo dõi biểu đồ điểm số, mức độ làm chủ từ vựng và nhận chứng chỉ LexiGrow.' : 'Inspect detailed score progression, vocabulary retention metrics, and earning certificates.'}</p>
+              <Link to="/student/progress" className="eduvia-step-link">{language === 'vi' ? 'Xem tiến độ' : 'View Progress'}</Link>
             </div>
           </div>
         </section>
@@ -447,17 +453,19 @@ export default function PricingPage() {
         {/* ── DARK CTA BANNER ── */}
         <section className="eduvia-dark-cta" style={{ marginTop: 80 }}>
           <div className="eduvia-dark-cta__inner">
-            <span className="eduvia-dark-cta__kicker">Why Choose Eduvia</span>
-            <h2>Begin Your English Journey With Confidence</h2>
+            <span className="eduvia-dark-cta__kicker">{language === 'vi' ? 'Tại sao chọn LexiGrow' : 'Why Choose LexiGrow'}</span>
+            <h2>{language === 'vi' ? 'Bắt đầu hành trình bứt phá tiếng Anh cùng LexiGrow' : 'Begin Your English Journey With Confidence'}</h2>
             <p>
-              Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus. Nibh malesuada donec eu congue auctor turpis. Sit leo pharetra id magna nisi mauris.
+              {language === 'vi'
+                ? 'Đầu tư cho năng lực tiếng Anh hôm nay để mở ra vô vàn cơ hội học tập và sự nghiệp trong tương lai cùng LexiGrow.'
+                : 'Invest in your English fluency today to unlock vast educational and career opportunities with LexiGrow.'}
             </p>
             <div className="eduvia-dark-cta__actions">
               <Link to={user ? '/student/dashboard' : '/register'} className="eduvia-btn eduvia-btn--lime">
-                Get Started
+                {language === 'vi' ? 'Bắt đầu ngay' : 'Get Started'}
               </Link>
               <Link to="/student/explore" className="eduvia-btn eduvia-btn--mint">
-                Explore Courses
+                {language === 'vi' ? 'Khám phá khóa học' : 'Explore Courses'}
               </Link>
             </div>
           </div>

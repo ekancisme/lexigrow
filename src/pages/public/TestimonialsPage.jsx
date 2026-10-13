@@ -6,49 +6,49 @@ const TESTIMONIALS = [
     name: 'Sarah M.',
     course: 'Speaking Course',
     rating: '4.8/5',
-    quote: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci. Congue erat nisi vitae eget nibh.',
+    quote: 'Phương pháp Spaced Repetition kết hợp cùng trợ lý phát âm AI đã giúp mình tự tin phản xạ tiếng Anh trôi chảy chỉ sau 3 tháng.',
   },
   {
     name: 'Daniel K.',
-    course: 'Speaking Course',
-    rating: '4.8/5',
-    quote: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci. Congue erat nisi vitae eget nibh.',
+    course: 'IELTS Writing',
+    rating: '4.9/5',
+    quote: 'Tính năng AI chấm bài viết chỉ ra chi tiết từng lỗi ngữ pháp và cách dùng từ vựng band 7.5+. Điểm Writing của mình tăng từ 5.5 lên 7.0!',
   },
   {
     name: 'Mia L.',
-    course: 'Speaking Course',
+    course: 'Daily Conversation',
     rating: '4.8/5',
-    quote: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci. Congue erat nisi vitae eget nibh.',
+    quote: 'Giao diện cực kỳ hiện đại, lộ trình học từng ngày trực quan. Các bài ôn flashcard và game Vocab Hunter tạo động lực học rất lớn.',
   },
   {
     name: 'Jonathan P.',
-    course: 'Speaking Course',
-    rating: '4.8/5',
-    quote: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci. Congue erat nisi vitae eget nibh.',
+    course: 'Business English',
+    rating: '4.9/5',
+    quote: 'Khóa học tiếng Anh thương mại rất sát với công việc thực tế. Báo cáo tiến độ chi tiết giúp mình duy trì kỷ luật học tập hàng ngày.',
   },
   {
     name: 'Aisha R.',
     course: 'IELTS Prep',
-    rating: '4.8/5',
-    quote: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci. Congue erat nisi vitae eget nibh.',
+    rating: '5.0/5',
+    quote: 'Hệ thống bài tập phân loại theo khung CEFR và tiêu chí IELTS rõ ràng. Mình đã đạt mục tiêu 7.5 IELTS ngay trong lần thi đầu tiên.',
   },
   {
     name: 'Kevin S.',
-    course: 'Writing Course',
+    course: 'Academic Writing',
     rating: '4.8/5',
-    quote: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci. Congue erat nisi vitae eget nibh.',
+    quote: 'Trước đây viết luận tiếng Anh là nỗi sợ lớn, nhưng nhờ gợi ý từ vựng và phân tích mạch lạc của LexiGrow, mình tự tin hoàn thành bài luận đại học.',
   },
   {
     name: 'Hana T.',
-    course: 'Vocabulary Course',
-    rating: '4.8/5',
-    quote: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci. Congue erat nisi vitae eget nibh.',
+    course: 'Vocabulary Mastery',
+    rating: '4.9/5',
+    quote: 'Nhớ hơn 1,200 từ vựng chuyên ngành nhờ thuật toán Spaced Repetition của LexiGrow. Rất đáng trải nghiệm cho mọi người!',
   },
   {
     name: 'Leo D.',
     course: 'TOEFL Prep',
     rating: '4.8/5',
-    quote: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci. Congue erat nisi vitae eget nibh.',
+    quote: 'Các bài kiểm tra định kỳ và đánh giá năng lực giúp mình biết rõ điểm yếu cần củng cố. Đây là nền tảng học tiếng Anh tốt nhất mình từng dùng.',
   },
 ]
 
@@ -59,7 +59,7 @@ const FEATURED_TEACHERS = [
     image: '/assets/eduvia/image-19.jpg',
     courses: '12 Courses',
     students: '3,200+ Students',
-    desc: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci.',
+    desc: 'Hơn 10 năm kinh nghiệm giảng dạy tiếng Anh giao tiếp và xây dựng lộ trình bứt phá phản xạ ngôn ngữ tự nhiên.',
   },
   {
     name: 'Daniel Hughes',
@@ -67,7 +67,7 @@ const FEATURED_TEACHERS = [
     image: '/assets/eduvia/image-20.jpg',
     courses: '10 Courses',
     students: '2,900+ Students',
-    desc: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci.',
+    desc: 'Cố vấn chuyên sâu về cấu trúc ngữ pháp học thuật và phương pháp viết luận chuẩn mực cho các kỳ thi quốc tế IELTS/TOEFL.',
   },
   {
     name: 'Sophia Ramirez',
@@ -75,7 +75,7 @@ const FEATURED_TEACHERS = [
     image: '/assets/eduvia/image-21.jpg',
     courses: '8 Courses',
     students: '2,600+ Students',
-    desc: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci.',
+    desc: 'Chuyên gia huấn luyện phát âm chuẩn bảng ký hiệu IPA, ngữ điệu tự nhiên và sự tự tin khi thuyết trình tiếng Anh.',
   },
 ]
 
@@ -87,7 +87,7 @@ export default function TestimonialsPage() {
         <div className="eduvia-page-header__inner">
           <h1 className="eduvia-page-header__title">Testimonials</h1>
           <p className="eduvia-page-header__desc">
-            Cras nisi suspendisse sit semper. Massa erat volutpat volutpat id suspendisse tristique cras a consequat.
+            Lắng nghe chia sẻ và kết quả học tập thực tế từ các học viên đã đồng hành và tiến bộ vượt bậc cùng LexiGrow.
           </p>
           <div className="eduvia-page-header__crumbs">
             <Link to="/student/home">Home</Link>
@@ -106,7 +106,7 @@ export default function TestimonialsPage() {
               <h2 className="eduvia-section-title">Real Stories From Our English Learners</h2>
             </div>
             <p className="eduvia-section-header__desc">
-              Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus. Nibh malesuada donec eu congue auctor turpis. Sit leo pharetra id magna nisi mauris.
+              Những trải nghiệm chân thực từ người học đã tự tin giao tiếp và nâng cao band điểm cùng LexiGrow.
             </p>
           </div>
 
@@ -143,28 +143,28 @@ export default function TestimonialsPage() {
             <span className="eduvia-features-bar__icon"><span className="material-symbols-outlined">menu_book</span></span>
             <div className="eduvia-features-bar__text">
               <h3>Quick Progress</h3>
-              <p>Fast Learning Method</p>
+              <p>Lộ trình học tập tăng tốc</p>
             </div>
           </div>
           <div className="eduvia-features-bar__item">
             <span className="eduvia-features-bar__icon"><span className="material-symbols-outlined">group</span></span>
             <div className="eduvia-features-bar__text">
               <h3>Peer Learning</h3>
-              <p>Supportive Study Community</p>
+              <p>Cộng đồng học viên tích cực</p>
             </div>
           </div>
           <div className="eduvia-features-bar__item">
             <span className="eduvia-features-bar__icon"><span className="material-symbols-outlined">bolt</span></span>
             <div className="eduvia-features-bar__text">
               <h3>Instant Correction</h3>
-              <p>Smart Feedback System</p>
+              <p>Trợ lý AI chấm sửa tức thì</p>
             </div>
           </div>
           <div className="eduvia-features-bar__item">
             <span className="eduvia-features-bar__icon"><span className="material-symbols-outlined">calendar_today</span></span>
             <div className="eduvia-features-bar__text">
               <h3>Guided Routine</h3>
-              <p>Consistent Weekly Plan</p>
+              <p>Thói quen học tập bền vững</p>
             </div>
           </div>
         </section>
@@ -175,19 +175,19 @@ export default function TestimonialsPage() {
             <img src="/assets/eduvia/image-14.jpg" alt="Students studying together" className="eduvia-promo-card__bg-img" />
             <div className="eduvia-promo-badge-rating">
               <div className="eduvia-promo-badge-rating__score">4.9/5 ★</div>
-              <div className="eduvia-promo-badge-rating__label">Average Student Rating</div>
+              <div className="eduvia-promo-badge-rating__label">Đánh giá trung bình từ học viên</div>
             </div>
           </div>
 
           <div className="eduvia-promo-card eduvia-promo-card--navy">
             <div className="eduvia-promo-card__content">
               <span className="eduvia-pill-badge eduvia-pill-badge--green">Save Big</span>
-              <h2>Learn English With Special Offer</h2>
+              <h2>Nâng tầm tiếng Anh với ưu đãi đặc biệt</h2>
               <p>
-                Get exclusive discounts on selected English courses this month. Upgrade your skills at a lower price.
+                Đăng ký ngay hôm nay để nhận ưu đãi hấp dẫn cho các gói học tập cao cấp cùng LexiGrow.
               </p>
               <Link to="/pricing" className="eduvia-btn eduvia-btn--lime">
-                Claim Discount
+                Xem ưu đãi gói học
               </Link>
             </div>
             <div className="eduvia-promo-card__cutout">
@@ -240,10 +240,10 @@ export default function TestimonialsPage() {
             <span className="eduvia-kicker eduvia-kicker--green">Teaching Expertise</span>
             <h2 className="eduvia-section-title">Quality English Learning You Can Trust</h2>
             <p className="eduvia-section-desc">
-              Pretium lectus mauris commodo viverra orci. Ut dapibus vestibulum mollis neque. Rutrum risus duis vulputate phasellus.
+              Chương trình học tập tại LexiGrow được kiểm định kỹ lưỡng, kết hợp các phương pháp sư phạm hiện đại cùng phản hồi AI thông minh giúp học viên tiến bộ rõ rệt qua từng bài học.
             </p>
             <p className="eduvia-section-desc">
-              Pharetra pretium risus cursus commodo lacinia sagittis mauris. Consequat sed sed habitasse id consectetur. Mi ipsum sed blandit tincidunt neque placerat. Non egestas elementum ut scelerisque at lacus urna cras.
+              Từ phát âm phản xạ đến viết luận chuyên sâu, chúng tôi cam kết đem lại trải nghiệm học tập chuẩn mực, minh bạch về kết quả và bền vững theo thời gian.
             </p>
             <div className="eduvia-expertise-duo">
               <img src="/assets/eduvia/image-16.jpg" alt="Mentoring student" />
@@ -260,7 +260,7 @@ export default function TestimonialsPage() {
               <h2 className="eduvia-section-title">Dedicated Teachers For Better Learning</h2>
             </div>
             <p className="eduvia-section-header__desc">
-              Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus. Nibh malesuada donec eu congue auctor turpis. Sit leo pharetra id magna nisi mauris.
+              Đội ngũ giảng viên tâm huyết luôn sẵn sàng đồng hành, chia sẻ kiến thức và định hướng cho bạn trên con đường chinh phục tiếng Anh.
             </p>
           </div>
 

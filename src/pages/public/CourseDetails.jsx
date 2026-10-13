@@ -41,7 +41,7 @@ export default function CourseDetails() {
         <div className="eduvia-page-header__inner">
           <h1 className="eduvia-page-header__title">Course Details</h1>
           <p className="eduvia-page-header__desc">
-            Cras nisi suspendisse sit semper. Massa erat volutpat volutpat id suspendisse tristique cras a consequat.
+            Khám phá chi tiết chương trình học tiếng Anh bài bản với lộ trình tinh gọn, học liệu chuẩn quốc tế và trợ lý AI đồng hành.
           </p>
           <div className="eduvia-page-header__crumbs">
             <Link to="/student/home">Home</Link>
@@ -64,10 +64,10 @@ export default function CourseDetails() {
             <h2 className="eduvia-course-headline">{courseTitle}</h2>
 
             <p className="eduvia-course-body">
-              At egestas bibendum sed auctor natoque vitae pulvinar in fringilla. Consequat non sapien velit donec neque. Pellentesque ornare nam purus ut vitae. Aliquet a ut bibendum ut risus cursus elementum. Vitae dignissim mi elementum eget faucibus.
+              Khóa học được thiết kế chuyên biệt nhằm giúp học viên xây dựng sự tự tin và phản xạ giao tiếp tự nhiên trong công việc, học tập và các kỳ thi quốc tế. Kết hợp giữa học liệu chuẩn CEFR và bài tập thực hành theo ngữ cảnh, bạn sẽ nhanh chóng vượt qua rào cản ngại nói và phát âm không chuẩn.
             </p>
             <p className="eduvia-course-body">
-              Pharetra pretium risus cursus commodo lacinia sagittis mauris. Consequat sed sed habitasse id consectetur. Mi ipsum sed blandit tincidunt neque placerat. Non egestas elementum ut scelerisque at lacus urna cras. Vitae aliquam sociis viverra amet cras egestas tortor quis. A in in sed cursus tempor id amet elit.
+              Mỗi bài học đều tích hợp công nghệ AI nhận diện ngữ pháp và chấm điểm bài viết tức thì, đi kèm thuật toán Spaced Repetition (SRS) giúp củng cố từ vựng bền vững vào trí nhớ dài hạn mà không lo tình trạng học trước quên sau.
             </p>
 
             <div className="eduvia-learn-box">
@@ -75,27 +75,27 @@ export default function CourseDetails() {
               <div className="eduvia-learn-grid">
                 <div className="eduvia-learn-item">
                   <span className="material-symbols-outlined">check</span>
-                  <span>Semper bibendum egestas dui aliquam sapien lorem purus.</span>
+                  <span>Phát âm chuẩn bảng ký hiệu IPA và ngữ điệu tự nhiên như người bản xứ.</span>
                 </div>
                 <div className="eduvia-learn-item">
                   <span className="material-symbols-outlined">check</span>
-                  <span>Semper bibendum egestas dui aliquam sapien lorem purus.</span>
+                  <span>Mở rộng hơn 1,500 từ vựng cốt lõi theo chủ đề với thuật toán Spaced Repetition.</span>
                 </div>
                 <div className="eduvia-learn-item">
                   <span className="material-symbols-outlined">check</span>
-                  <span>Semper bibendum egestas dui aliquam sapien lorem purus.</span>
+                  <span>Cải thiện cấu trúc ngữ pháp ứng dụng và độ chính xác trong giao tiếp hàng ngày.</span>
                 </div>
                 <div className="eduvia-learn-item">
                   <span className="material-symbols-outlined">check</span>
-                  <span>Semper bibendum egestas dui aliquam sapien lorem purus.</span>
+                  <span>Rèn luyện phản xạ hội thoại linh hoạt qua các tình huống phỏng vấn và thuyết trình.</span>
                 </div>
                 <div className="eduvia-learn-item">
                   <span className="material-symbols-outlined">check</span>
-                  <span>Semper bibendum egestas dui aliquam sapien lorem purus.</span>
+                  <span>Tiếp cận kho bài tập viết luận tương tác và nhận phản hồi tức thì từ trợ lý AI.</span>
                 </div>
                 <div className="eduvia-learn-item">
                   <span className="material-symbols-outlined">check</span>
-                  <span>Semper bibendum egestas dui aliquam sapien lorem purus.</span>
+                  <span>Theo dõi tiến độ học tập minh bạch qua bảng điều khiển và biểu đồ kỹ năng.</span>
                 </div>
               </div>
             </div>
@@ -140,7 +140,7 @@ export default function CourseDetails() {
               <h2 className="eduvia-section-title">Simple Steps To Start Learning</h2>
             </div>
             <p className="eduvia-section-header__desc">
-              Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus. Nibh malesuada donec eu congue auctor turpis. Sit leo pharetra id magna nisi mauris.
+              Bốn bước tinh gọn giúp bạn dễ dàng bắt đầu và đạt được mục tiêu tiếng Anh cùng LexiGrow.
             </p>
           </div>
 
@@ -150,7 +150,7 @@ export default function CourseDetails() {
               <span className="eduvia-step-dot" />
               <h3 className="eduvia-step-title">Choose Course</h3>
               <p className="eduvia-step-desc">
-                Sit quis dui neque ullamcorper vitae est lorem nullam. Et lorem mattis viverra iaculis at varius.
+                Lựa chọn học phần phù hợp với mục tiêu cá nhân và làm bài kiểm tra xác định trình độ ban đầu.
               </p>
               <Link to="/student/explore" className="eduvia-step-link">Start Here</Link>
             </div>
@@ -160,7 +160,7 @@ export default function CourseDetails() {
               <span className="eduvia-step-dot" />
               <h3 className="eduvia-step-title">Join Class</h3>
               <p className="eduvia-step-desc">
-                Sit quis dui neque ullamcorper vitae est lorem nullam. Et lorem mattis viverra iaculis at varius.
+                Kích hoạt lộ trình học tập, nhận tài liệu học chuẩn hóa và nhận sự đồng hành từ giáo viên.
               </p>
               <Link to="/pricing" className="eduvia-step-link">Enroll Now</Link>
             </div>
@@ -170,7 +170,7 @@ export default function CourseDetails() {
               <span className="eduvia-step-dot" />
               <h3 className="eduvia-step-title">Learn & Practice</h3>
               <p className="eduvia-step-desc">
-                Sit quis dui neque ullamcorper vitae est lorem nullam. Et lorem mattis viverra iaculis at varius.
+                Luyện viết luận, làm bài tập trắc nghiệm và ôn thẻ từ vựng ngắt quãng mỗi ngày cùng AI.
               </p>
               <Link to="/student/writing" className="eduvia-step-link">Start Practice</Link>
             </div>
@@ -180,7 +180,7 @@ export default function CourseDetails() {
               <span className="eduvia-step-dot" />
               <h3 className="eduvia-step-title">Track Progress</h3>
               <p className="eduvia-step-desc">
-                Sit quis dui neque ullamcorper vitae est lorem nullam. Et lorem mattis viverra iaculis at varius.
+                Xem chi tiết tỷ lệ nhớ từ, điểm chấm bài luận và nhận chứng chỉ hoàn thành sau khóa học.
               </p>
               <Link to="/student/progress" className="eduvia-step-link">View Progress</Link>
             </div>

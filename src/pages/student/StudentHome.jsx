@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import api from '../../services/api.js'
-import paymentService from '../../services/payment.service.js'
 import './StudentHome.css'
 
 const POPULAR_COURSES = [
@@ -93,56 +92,56 @@ const TESTIMONIALS = [
     course: 'Speaking Course',
     rating: '4.8/5',
     quoteVi: 'Nền tảng giúp mình tự tin phản xạ hơn hẳn chỉ sau 3 tuần. Phản hồi AI cực kỳ chi tiết và chỉ ra từng lỗi ngữ cảnh.',
-    quoteEn: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci.'
+    quoteEn: 'The platform boosted my speaking confidence in just 3 weeks. The real-time AI feedback was spot-on and caught nuanced context errors.'
   },
   {
     name: 'Daniel K.',
     course: 'Speaking Course',
     rating: '4.8/5',
     quoteVi: 'Học từ vựng qua flashcard ngắt quãng kết hợp viết luận giúp mình nhớ từ rất lâu mà không bị nhàm chán.',
-    quoteEn: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci.'
+    quoteEn: 'Learning vocabulary through spaced flashcards combined with essay writing helped me retain words permanently without burnout.'
   },
   {
     name: 'Mia L.',
     course: 'Speaking Course',
     rating: '4.8/5',
     quoteVi: 'Giao diện cực kỳ đẹp mắt, lộ trình từng bước rõ ràng. Các bài tập ngữ pháp và viết luận rất sát đề thi.',
-    quoteEn: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci.'
+    quoteEn: 'The interface is stunning and the guided roadmap is crystal clear. Exercises are directly relevant to real exam tasks.'
   },
   {
     name: 'Jonathan P.',
     course: 'Speaking Course',
     rating: '4.8/5',
     quoteVi: 'Được theo dõi tiến độ học và điểm tăng trưởng mỗi ngày giúp mình duy trì kỷ luật học tập đều đặn.',
-    quoteEn: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci.'
+    quoteEn: 'Tracking my daily learning momentum and vocabulary growth kept me consistent and disciplined throughout my studies.'
   },
   {
     name: 'Aisha R.',
     course: 'IELTS Prep',
     rating: '4.8/5',
     quoteVi: 'Hệ thống chấm luận 4 tiêu chí chuẩn IELTS giúp mình tăng từ band 6.0 lên 7.5 Writing trong 2 tháng.',
-    quoteEn: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci.'
+    quoteEn: 'The 4-criteria IELTS essay evaluation propelled my writing score from band 6.0 to 7.5 within just 2 months.'
   },
   {
     name: 'Kevin S.',
     course: 'Writing Course',
     rating: '4.8/5',
     quoteVi: 'Cách AI gợi ý cách diễn đạt nâng cao thay thế cho các từ cơ bản rất tự nhiên và học thuật.',
-    quoteEn: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci.'
+    quoteEn: 'The way the AI suggests natural academic collocations instead of simplistic words elevated my essay writing tremendously.'
   },
   {
     name: 'Elena T.',
     course: 'Vocabulary Course',
     rating: '4.8/5',
     quoteVi: 'Thử thách giải ô chữ Daily Quest và Vườn tri thức giúp mình không bao giờ quên luyện tập mỗi ngày.',
-    quoteEn: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci.'
+    quoteEn: 'Daily Quests and the Growth Garden make reviewing vocabulary so engaging that I never miss a day of practice.'
   },
   {
     name: 'Leo D.',
     course: 'TOEFL Prep',
     rating: '4.8/5',
     quoteVi: 'Chương trình học bài bản, giáo viên tận tình và kho bài tập phong phú nhất mình từng trải nghiệm.',
-    quoteEn: 'Duis sem quis eu faucibus et cras aliquet convallis. Viverra velit quis dui bibendum. Sodales semper et ac mauris. Blandit et ac eu scelerisque orci.'
+    quoteEn: 'Structured curriculum, dedicated mentors, and the most comprehensive practice platform I have experienced so far.'
   }
 ]
 
@@ -208,7 +207,7 @@ export default function StudentHome() {
               <span className="eduvia-hero__badge-icon">
                 <span className="material-symbols-outlined">menu_book</span>
               </span>
-              <span>Eduvia - English Online Course</span>
+              <span>{language === 'vi' ? 'LexiGrow · Nền tảng học tiếng Anh thông minh' : 'LexiGrow · AI-Powered English Learning'}</span>
             </div>
 
             <h1 id="eduvia-hero-title" className="eduvia-hero__title">
@@ -436,29 +435,29 @@ export default function StudentHome() {
       {/* ── SECTION 6: WHY CHOOSE LEXIGROW / VIDEO PLAYER ── */}
       <section className="eduvia-why-section" aria-labelledby="eduvia-why-title">
         <div className="eduvia-center-header">
-          <span className="eduvia-kicker eduvia-kicker--purple">Why Choose Eduvia</span>
+          <span className="eduvia-kicker eduvia-kicker--purple">{language === 'vi' ? 'Tại sao chọn LexiGrow' : 'Why Choose LexiGrow'}</span>
           <h2 id="eduvia-why-title" className="eduvia-section-title">
-            Learn English Faster With Better Guidance
+            {language === 'vi' ? 'Học tiếng Anh nhanh hơn với phương pháp chuẩn khoa học' : 'Learn English Faster With Better Guidance'}
           </h2>
         </div>
 
         <div className="eduvia-why-cards">
           <div className="eduvia-why-card">
-            <span className="eduvia-why-card__icon"><span className="material-symbols-outlined">menu_book</span></span>
-            <h3>High Quality English Learning System</h3>
-            <p>Structured curriculum designed by international ESL educators and linguistic experts.</p>
+            <span className="eduvia-why-card__icon"><span className="material-symbols-outlined">school</span></span>
+            <h3>{language === 'vi' ? 'Chương trình chuẩn hóa quốc tế' : 'Structured International Curriculum'}</h3>
+            <p>{language === 'vi' ? 'Lộ trình bài bản chuẩn khung CEFR và định dạng IELTS, giúp bạn học đúng trọng tâm.' : 'Structured curriculum designed by international ESL educators and linguistic experts.'}</p>
           </div>
 
           <div className="eduvia-why-card">
-            <span className="eduvia-why-card__icon"><span className="material-symbols-outlined">menu_book</span></span>
-            <h3>High Quality English Learning System</h3>
-            <p>Smart Spaced Repetition algorithms that track memory decay and prompt optimal reviews.</p>
+            <span className="eduvia-why-card__icon"><span className="material-symbols-outlined">psychology</span></span>
+            <h3>{language === 'vi' ? 'Ghi nhớ Spaced Repetition (SRS)' : 'Spaced Repetition System'}</h3>
+            <p>{language === 'vi' ? 'Thuật toán tính toán chu kỳ lặp lại ngắt quãng tối ưu, lưu trữ từ vựng vào trí nhớ dài hạn.' : 'Smart Spaced Repetition algorithms that track memory decay and prompt optimal reviews.'}</p>
           </div>
 
           <div className="eduvia-why-card">
-            <span className="eduvia-why-card__icon"><span className="material-symbols-outlined">menu_book</span></span>
-            <h3>High Quality English Learning System</h3>
-            <p>Cutting-edge AI essay evaluations with comprehensive grammatical and lexical suggestions.</p>
+            <span className="eduvia-why-card__icon"><span className="material-symbols-outlined">auto_fix_high</span></span>
+            <h3>{language === 'vi' ? 'Trợ lý AI chấm bài & phản hồi tức thì' : 'Real-Time AI Writing Evaluation'}</h3>
+            <p>{language === 'vi' ? 'Đánh giá ngữ pháp, từ vựng và gợi ý cải thiện cấu trúc câu chi tiết cho từng bài viết.' : 'Cutting-edge AI essay evaluations with comprehensive grammatical and lexical suggestions.'}</p>
           </div>
         </div>
 
@@ -498,23 +497,23 @@ export default function StudentHome() {
               <div className="eduvia-price-card__amount">
                 <strong>$19</strong><span>/month</span>
               </div>
-              <p>Pharetra auctor fusce dui id lectus nibh id non vestibulum. Aliquet a ipsum semper et lectus egestas vitae laoreet.</p>
+              <p>{language === 'vi' ? 'Gói khởi đầu hoàn hảo giúp rèn luyện từ vựng hàng ngày và xây dựng thói quen tự học vững chắc.' : 'The ideal starter pack to practice daily vocabulary and build solid learning habits.'}</p>
               <Link to="/pricing" className="eduvia-btn eduvia-btn--lime eduvia-btn--full">
-                Get Basic Plan
+                {language === 'vi' ? 'Chọn Gói Cơ Bản' : 'Get Basic Plan'}
               </Link>
             </div>
             <div className="eduvia-price-card__body">
-              <h4>Included:</h4>
+              <h4>{language === 'vi' ? 'Quyền lợi bao gồm:' : 'Included:'}</h4>
               <ul className="eduvia-price-card__checklist">
-                <li><span className="material-symbols-outlined">check</span> Beginner to Intermediate module</li>
-                <li><span className="material-symbols-outlined">check</span> Guided video lessons</li>
-                <li><span className="material-symbols-outlined">check</span> Practice worksheets</li>
-                <li><span className="material-symbols-outlined">check</span> Mobile app access</li>
-                <li><span className="material-symbols-outlined">check</span> Basic progress tracking</li>
+                <li><span className="material-symbols-outlined">check</span> {language === 'vi' ? 'Các học phần từ Cơ bản đến Trung cấp' : 'Beginner to Intermediate modules'}</li>
+                <li><span className="material-symbols-outlined">check</span> {language === 'vi' ? 'Bài học video có hướng dẫn' : 'Guided video lessons'}</li>
+                <li><span className="material-symbols-outlined">check</span> {language === 'vi' ? 'Phiếu bài tập luyện tập tương tác' : 'Interactive practice worksheets'}</li>
+                <li><span className="material-symbols-outlined">check</span> {language === 'vi' ? 'Học trên mọi thiết bị di động & web' : 'Mobile and web app access'}</li>
+                <li><span className="material-symbols-outlined">check</span> {language === 'vi' ? 'Báo cáo theo dõi tiến độ cơ bản' : 'Basic progress tracking'}</li>
               </ul>
               <div className="eduvia-price-card__footer-note">
-                <strong>Best for starters</strong>
-                <p>Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus.</p>
+                <strong>{language === 'vi' ? 'Phù hợp người mới bắt đầu' : 'Best for starters'}</strong>
+                <p>{language === 'vi' ? 'Tiếp cận các học phần nền tảng, ôn tập từ vựng hàng ngày với thuật toán SRS.' : 'Access foundational modules and review vocabulary daily with smart SRS.'}</p>
               </div>
             </div>
           </div>
@@ -526,23 +525,23 @@ export default function StudentHome() {
               <div className="eduvia-price-card__amount">
                 <strong>$39</strong><span>/month</span>
               </div>
-              <p>Pharetra auctor fusce dui id lectus nibh id non vestibulum. Aliquet a ipsum semper et lectus egestas vitae laoreet.</p>
+              <p>{language === 'vi' ? 'Trải nghiệm học tập toàn diện với luyện phát âm AI, bài trắc nghiệm thông minh và bộ thẻ ghi nhớ.' : 'Comprehensive learning with AI pronunciation coach, smart quizzes, and expansive flashcards.'}</p>
               <Link to="/pricing" className="eduvia-btn eduvia-btn--lime eduvia-btn--full">
-                Choose Standard
+                {language === 'vi' ? 'Chọn Gói Tiêu Chuẩn' : 'Choose Standard'}
               </Link>
             </div>
             <div className="eduvia-price-card__body">
-              <h4>Included:</h4>
+              <h4>{language === 'vi' ? 'Quyền lợi bao gồm:' : 'Included:'}</h4>
               <ul className="eduvia-price-card__checklist">
-                <li><span className="material-symbols-outlined">check</span> All Basic features</li>
-                <li><span className="material-symbols-outlined">check</span> Speaking practice sessions</li>
-                <li><span className="material-symbols-outlined">check</span> Pronunciation improvement tools</li>
-                <li><span className="material-symbols-outlined">check</span> Interactive quizzes</li>
-                <li><span className="material-symbols-outlined">check</span> Certificate of completion</li>
+                <li><span className="material-symbols-outlined">check</span> {language === 'vi' ? 'Toàn bộ tính năng gói Cơ bản' : 'All Basic features included'}</li>
+                <li><span className="material-symbols-outlined">check</span> {language === 'vi' ? 'Phòng luyện nói & phản xạ giao tiếp' : 'Speaking & fluency practice sessions'}</li>
+                <li><span className="material-symbols-outlined">check</span> {language === 'vi' ? 'Công cụ chỉnh âm chuẩn bản xứ' : 'Pronunciation improvement tools'}</li>
+                <li><span className="material-symbols-outlined">check</span> {language === 'vi' ? 'Kho bài test & câu đố tương tác' : 'Interactive quizzes & tests'}</li>
+                <li><span className="material-symbols-outlined">check</span> {language === 'vi' ? 'Chứng nhận hoàn thành khóa học' : 'Certificate of completion'}</li>
               </ul>
               <div className="eduvia-price-card__footer-note">
-                <strong>Most popular plan</strong>
-                <p>Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus.</p>
+                <strong>{language === 'vi' ? 'Gói phổ biến nhất' : 'Most popular plan'}</strong>
+                <p>{language === 'vi' ? 'Tối ưu cho học viên mong muốn cải thiện khả năng giao tiếp và tăng tốc độ học.' : 'Optimized for learners looking to boost conversation fluency and study velocity.'}</p>
               </div>
             </div>
           </div>
@@ -554,23 +553,23 @@ export default function StudentHome() {
               <div className="eduvia-price-card__amount">
                 <strong>$69</strong><span>/month</span>
               </div>
-              <p>Pharetra auctor fusce dui id lectus nibh id non vestibulum. Aliquet a ipsum semper et lectus egestas vitae laoreet.</p>
+              <p>{language === 'vi' ? 'Không giới hạn chấm bài viết luận AI, lộ trình cá nhân hóa chuyên sâu và hỗ trợ gia sư 1-1.' : 'Unlimited AI essay evaluations, personalized roadmap, and 1-on-1 tutoring sessions.'}</p>
               <Link to="/pricing" className="eduvia-btn eduvia-btn--lime eduvia-btn--full">
-                Get Premium
+                {language === 'vi' ? 'Chọn Gói Cao Cấp' : 'Get Premium'}
               </Link>
             </div>
             <div className="eduvia-price-card__body">
-              <h4>Included:</h4>
+              <h4>{language === 'vi' ? 'Quyền lợi bao gồm:' : 'Included:'}</h4>
               <ul className="eduvia-price-card__checklist">
-                <li><span className="material-symbols-outlined">check</span> All Standard features</li>
-                <li><span className="material-symbols-outlined">check</span> 1-on-1 tutor sessions</li>
-                <li><span className="material-symbols-outlined">check</span> Custom study roadmap</li>
-                <li><span className="material-symbols-outlined">check</span> Advanced exam preparation</li>
-                <li><span className="material-symbols-outlined">check</span> Priority student support</li>
+                <li><span className="material-symbols-outlined">check</span> {language === 'vi' ? 'Toàn bộ tính năng gói Tiêu chuẩn' : 'All Standard features included'}</li>
+                <li><span className="material-symbols-outlined">check</span> {language === 'vi' ? 'Buổi học kèm 1-1 với giảng viên' : '1-on-1 tutor coaching sessions'}</li>
+                <li><span className="material-symbols-outlined">check</span> {language === 'vi' ? 'Lộ trình học cá nhân hóa theo mục tiêu' : 'Customized study roadmap'}</li>
+                <li><span className="material-symbols-outlined">check</span> {language === 'vi' ? 'Luyện thi chứng chỉ chuyên sâu (IELTS/TOEIC)' : 'Advanced exam preparation'}</li>
+                <li><span className="material-symbols-outlined">check</span> {language === 'vi' ? 'Hỗ trợ ưu tiên 24/7 từ chuyên viên' : 'Priority 24/7 student support'}</li>
               </ul>
               <div className="eduvia-price-card__footer-note">
-                <strong>Full learning access</strong>
-                <p>Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus.</p>
+                <strong>{language === 'vi' ? 'Trải nghiệm học tập tối đa' : 'Full learning access'}</strong>
+                <p>{language === 'vi' ? 'Cam kết đầu ra và tối ưu hóa thời gian đạt mục tiêu điểm số của bạn.' : 'Guaranteed outcome and accelerated preparation for your official targets.'}</p>
               </div>
             </div>
           </div>
@@ -580,17 +579,19 @@ export default function StudentHome() {
       {/* ── SECTION 8: MIDNIGHT NAVY CTA BANNER ── */}
       <section className="eduvia-dark-cta" aria-label="Call to action">
         <div className="eduvia-dark-cta__inner">
-          <span className="eduvia-dark-cta__kicker">Why Choose Eduvia</span>
-          <h2>Begin Your English Journey With Confidence</h2>
+          <span className="eduvia-dark-cta__kicker">{language === 'vi' ? 'Tại sao chọn LexiGrow' : 'Why Choose LexiGrow'}</span>
+          <h2>{language === 'vi' ? 'Bắt đầu hành trình bứt phá tiếng Anh cùng LexiGrow' : 'Begin Your English Journey With Confidence'}</h2>
           <p>
-            Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus. Nibh malesuada donec eu congue auctor turpis. Sit leo pharetra id magna nisi mauris.
+            {language === 'vi'
+              ? 'Khám phá nền tảng học tiếng Anh hiện đại với lộ trình cá nhân hóa, trợ lý AI chấm bài tức thì và phương pháp Spaced Repetition khoa học.'
+              : 'Experience a modern learning platform with personalized study paths, real-time AI essay feedback, and proven Spaced Repetition algorithms.'}
           </p>
           <div className="eduvia-dark-cta__actions">
             <Link to={user ? '/student/dashboard' : '/register'} className="eduvia-btn eduvia-btn--lime">
-              Get Started
+              {language === 'vi' ? 'Bắt đầu ngay' : 'Get Started'}
             </Link>
             <Link to="/student/explore" className="eduvia-btn eduvia-btn--mint">
-              Explore Courses
+              {language === 'vi' ? 'Khám phá khóa học' : 'Explore Courses'}
             </Link>
           </div>
         </div>
@@ -600,13 +601,15 @@ export default function StudentHome() {
       <section className="eduvia-testimonials-section" aria-labelledby="eduvia-testi-title">
         <div className="eduvia-section-header">
           <div>
-            <span className="eduvia-kicker eduvia-kicker--green">Student Voices</span>
+            <span className="eduvia-kicker eduvia-kicker--green">{language === 'vi' ? 'Học viên chia sẻ' : 'Student Voices'}</span>
             <h2 id="eduvia-testi-title" className="eduvia-section-title">
-              Real Stories From Our English Learners
+              {language === 'vi' ? 'Câu chuyện thực tế từ học viên LexiGrow' : 'Real Stories From Our English Learners'}
             </h2>
           </div>
           <p className="eduvia-section-desc">
-            Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus. Nibh malesuada donec eu congue auctor turpis. Sit leo pharetra id magna nisi mauris.
+            {language === 'vi'
+              ? 'Hàng nghìn học viên đã đạt được bước tiến vượt bậc trong điểm số và phản xạ giao tiếp tự nhiên cùng LexiGrow.'
+              : 'Thousands of active learners have boosted their scores, fluency, and confidence with LexiGrow.'}
           </p>
         </div>
 

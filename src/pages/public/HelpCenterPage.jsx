@@ -4,28 +4,28 @@ import './HelpCenterPage.css'
 
 const FAQS = [
   {
-    q: 'What level do I need to start learning at Eduvia?',
-    a: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus.',
+    q: 'What level do I need to start learning at LexiGrow?',
+    a: 'Nền tảng hỗ trợ từ trình độ người mới bắt đầu (A1/A2) đến nâng cao (B2/C1). Bạn có thể làm bài kiểm tra đầu vào ngắn để hệ thống tự động gợi ý lộ trình phù hợp.',
   },
   {
     q: 'Are the classes self-paced or live?',
-    a: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus.',
+    a: 'LexiGrow hỗ trợ cả hai: các học phần tự học 24/7 với phản hồi tức thì từ AI, đi kèm các buổi hướng dẫn và tương tác cùng giảng viên chuyên môn.',
   },
   {
     q: 'How long does each course usually take?',
-    a: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus.',
+    a: 'Mỗi lộ trình được chia thành các bài học vi mô 15-20 phút/ngày, thường kéo dài từ 4 đến 8 tuần tùy thuộc vào mục tiêu và tốc độ học của bạn.',
   },
   {
     q: 'What payment methods are supported?',
-    a: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus.',
+    a: 'LexiGrow hỗ trợ thanh toán tự động qua mã VietQR (PayOS) từ tất cả ứng dụng ngân hàng tại Việt Nam, kích hoạt tài khoản ngay sau vài giây.',
   },
   {
     q: 'Do I get a certificate after finishing a course?',
-    a: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus.',
+    a: 'Có. Khi hoàn thành toàn bộ bài tập và vượt qua bài kiểm tra cuối khóa, bạn sẽ nhận được chứng nhận điện tử LexiGrow có mã xác thực theo chuẩn CEFR.',
   },
   {
     q: "What if I'm not confident speaking English yet?",
-    a: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus.',
+    a: 'Đừng lo lắng! Trợ lý AI nhận diện phát âm và phòng luyện phản xạ tương tác giúp bạn luyện nói trong môi trường an toàn, không phán xét trước khi giao tiếp thực tế.',
   },
 ]
 
@@ -45,7 +45,7 @@ export default function HelpCenterPage() {
         <div className="eduvia-page-header__inner">
           <h1 className="eduvia-page-header__title">Help Center</h1>
           <p className="eduvia-page-header__desc">
-            Cras nisi suspendisse sit semper. Massa erat volutpat volutpat id suspendisse tristique cras a consequat.
+            Tìm kiếm câu trả lời nhanh chóng cho các thắc mắc thường gặp và nhận sự hỗ trợ kịp thời từ đội ngũ LexiGrow.
           </p>
           <div className="eduvia-page-header__crumbs">
             <Link to="/student/home">Home</Link>
@@ -87,7 +87,7 @@ export default function HelpCenterPage() {
             <span className="eduvia-kicker eduvia-kicker--blue">Help Center</span>
             <h2 className="eduvia-section-title">Find Support For Every Need</h2>
             <p className="eduvia-section-header__desc">
-              Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus. Nibh malesuada donec eu congue auctor turpis. Sit leo pharetra id magna nisi mauris.
+              Chúng tôi cung cấp nhiều kênh hỗ trợ linh hoạt để đảm bảo trải nghiệm học tập của bạn luôn liền mạch và hiệu quả.
             </p>
           </div>
 
@@ -98,7 +98,7 @@ export default function HelpCenterPage() {
               </div>
               <h3 className="eduvia-channel-card__title">Live Chat</h3>
               <p className="eduvia-channel-card__desc">
-                Massa quam porta eget mauris ut. Elit consequat eget sed facilisis libero vulputate mattis. Ornare dui senectus neque sit augue feugiat.
+                Nhắn tin trực tiếp với chuyên viên tư vấn để được giải đáp thắc mắc về khóa học và lộ trình trong giờ làm việc.
               </p>
               <Link to="/contact" className="eduvia-btn eduvia-btn--navy">
                 Explore Help
@@ -111,7 +111,7 @@ export default function HelpCenterPage() {
               </div>
               <h3 className="eduvia-channel-card__title">Guide Book</h3>
               <p className="eduvia-channel-card__desc">
-                Massa quam porta eget mauris ut. Elit consequat eget sed facilisis libero vulputate mattis. Ornare dui senectus neque sit augue feugiat.
+                Tài liệu hướng dẫn sử dụng tính năng ôn từ vựng SRS, nộp bài viết luận và theo dõi biểu đồ tiến bộ chi tiết.
               </p>
               <Link to="/student/explore" className="eduvia-btn eduvia-btn--navy">
                 Read Guides
@@ -124,9 +124,9 @@ export default function HelpCenterPage() {
               </div>
               <h3 className="eduvia-channel-card__title">Call Support</h3>
               <p className="eduvia-channel-card__desc">
-                Massa quam porta eget mauris ut. Elit consequat eget sed facilisis libero vulputate mattis. Ornare dui senectus neque sit augue feugiat.
+                Đường dây nóng hỗ trợ kỹ thuật và giải quyết các vấn đề liên quan đến tài khoản hoặc thanh toán học phí.
               </p>
-              <a href="tel:+1234567890" className="eduvia-btn eduvia-btn--navy">
+              <a href="tel:+842473008888" className="eduvia-btn eduvia-btn--navy">
                 Call Now
               </a>
             </div>
@@ -139,7 +139,7 @@ export default function HelpCenterPage() {
             <span className="eduvia-kicker eduvia-kicker--green">Contact Us</span>
             <h2 className="eduvia-section-title">Connect With Our Support Team</h2>
             <p className="eduvia-section-desc">
-              Pretium lectus mauris commodo viverra orci. Ut dapibus vestibulum mollis neque. Rutrum risus duis vulputate phasellus.
+              Đội ngũ LexiGrow luôn sẵn sàng lắng nghe, tư vấn lộ trình và giải đáp mọi thắc mắc học tập của bạn.
             </p>
 
             <div className="eduvia-contact-info-list">
@@ -147,21 +147,21 @@ export default function HelpCenterPage() {
                 <span className="eduvia-contact-icon"><span className="material-symbols-outlined">mail</span></span>
                 <div>
                   <span className="eduvia-contact-label">Email Support</span>
-                  <strong>support@eduvia.com</strong>
+                  <strong>support@lexigrow.com</strong>
                 </div>
               </div>
               <div className="eduvia-contact-info-item">
                 <span className="eduvia-contact-icon"><span className="material-symbols-outlined">location_on</span></span>
                 <div>
                   <span className="eduvia-contact-label">Office Address</span>
-                  <strong>21 Harmony Street, London, UK</strong>
+                  <strong>Hà Nội, Việt Nam</strong>
                 </div>
               </div>
               <div className="eduvia-contact-info-item">
                 <span className="eduvia-contact-icon"><span className="material-symbols-outlined">call</span></span>
                 <div>
                   <span className="eduvia-contact-label">Phone Number</span>
-                  <strong>+1 234 567 890</strong>
+                  <strong>+84 (24) 7300 8888</strong>
                 </div>
               </div>
             </div>

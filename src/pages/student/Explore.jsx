@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
-import { TOPIC_VOCABULARY_ROUNDS, getTopicRound } from '../../data/topicVocabularyRounds.js'
 import './Explore.css'
 
 const EDUVIA_COURSES = [
@@ -177,7 +176,9 @@ export default function Explore() {
       <section className="eduvia-page-hero">
         <h1 className="eduvia-page-hero__title">Courses</h1>
         <p className="eduvia-page-hero__desc">
-          Cras nisi suspendisse sit semper. Massa erat volutpat volutpat id suspendisse tristique cras a consequat.
+          {language === 'vi'
+            ? 'Khám phá các khóa học tiếng Anh chuẩn quốc tế với bài tập tương tác, từ vựng SRS và trợ lý AI chấm bài.'
+            : 'Explore standardized English courses with interactive exercises, SRS vocabulary, and AI evaluation.'}
         </p>
         <div className="eduvia-breadcrumbs">
           <Link to="/student/home">Home</Link>
@@ -290,17 +291,19 @@ export default function Explore() {
         {/* ── DARK CTA BANNER ── */}
         <section className="eduvia-dark-cta" style={{ marginTop: 80 }}>
           <div className="eduvia-dark-cta__inner">
-            <span className="eduvia-dark-cta__kicker">Why Choose Eduvia</span>
-            <h2>Begin Your English Journey With Confidence</h2>
+            <span className="eduvia-dark-cta__kicker">{language === 'vi' ? 'Tại sao chọn LexiGrow' : 'Why Choose LexiGrow'}</span>
+            <h2>{language === 'vi' ? 'Bắt đầu hành trình bứt phá tiếng Anh cùng LexiGrow' : 'Begin Your English Journey With Confidence'}</h2>
             <p>
-              Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus. Nibh malesuada donec eu congue auctor turpis. Sit leo pharetra id magna nisi mauris.
+              {language === 'vi'
+                ? 'Nâng cao khả năng sử dụng tiếng Anh toàn diện với phương pháp Spaced Repetition khoa học và hệ thống phản hồi bài viết thời gian thực của LexiGrow.'
+                : 'Advance your English skills with proven Spaced Repetition methods and real-time writing feedback on LexiGrow.'}
             </p>
             <div className="eduvia-dark-cta__actions">
               <Link to="/register" className="eduvia-btn eduvia-btn--lime">
-                Get Started
+                {language === 'vi' ? 'Bắt đầu ngay' : 'Get Started'}
               </Link>
               <Link to="/pricing" className="eduvia-btn eduvia-btn--mint">
-                Choose Plan
+                {language === 'vi' ? 'Xem gói học' : 'Choose Plan'}
               </Link>
             </div>
           </div>

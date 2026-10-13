@@ -15,10 +15,38 @@
   padding: 0 24px;
   gap: 16px;
 }
-.topnav__brand { display: inline-flex; align-items: center; gap: 9px; flex-shrink: 0; color: var(--color-on-surface); font-size: 20px; font-weight: 700; }
+.topnav__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+  color: var(--color-on-surface);
+  font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  text-decoration: none;
+}
 .topnav__brand:hover { text-decoration: none; }
-.topnav__brand-mark { display: grid; place-items: center; width: 32px; height: 32px; border-radius: var(--radius-md); overflow: hidden; flex-shrink: 0; }
-.topnav__brand-img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.topnav__brand-mark {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.topnav__brand-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.topnav__brand-name {
+  color: inherit;
+  line-height: 1;
+}
 .topnav__navigation { flex: 0 1 auto; min-width: 0; margin-left: auto; }
 .header-navigation { display: flex; align-items: center; gap: 2px; }
 .header-navigation__home, .navigation-disclosure__trigger {
