@@ -201,8 +201,8 @@ export default function AboutUs() {
                 </div>
               </div>
             </div>
-            <Link to="/teachers" className="eduvia-btn eduvia-btn--mint">
-              Explore Expertise
+            <Link to="/student/explore" className="eduvia-btn eduvia-btn--mint">
+              Explore Courses
             </Link>
           </div>
 

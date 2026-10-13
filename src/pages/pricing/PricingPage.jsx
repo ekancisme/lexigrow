@@ -238,14 +238,16 @@ export default function PricingPage() {
     <div className="eduvia-pricing-page">
       {/* ── BREADCRUMB HERO BANNER (Sky pastel blue) ── */}
       <section className="eduvia-page-hero">
-        <h1 className="eduvia-page-hero__title">Pricing</h1>
+        <h1 className="eduvia-page-hero__title">{language === 'vi' ? 'Bảng giá & Gói học' : 'Pricing Plans'}</h1>
         <p className="eduvia-page-hero__desc">
-          Cras nisi suspendisse sit semper. Massa erat volutpat volutpat id suspendisse tristique cras a consequat.
+          {language === 'vi'
+            ? 'Lựa chọn gói đồng hành thông minh cùng AI để tối ưu hóa lộ trình học tiếng Anh, mở rộng vốn từ và nâng cao kỹ năng viết luận của bạn.'
+            : 'Choose the ideal AI-powered plan to accelerate your English vocabulary acquisition and master academic writing.'}
         </p>
         <div className="eduvia-breadcrumbs">
-          <Link to="/student/home">Home</Link>
+          <Link to="/student/home">{language === 'vi' ? 'Trang chủ' : 'Home'}</Link>
           <span className="eduvia-breadcrumbs__sep">·</span>
-          <span>Pricing</span>
+          <span>{language === 'vi' ? 'Bảng giá' : 'Pricing'}</span>
         </div>
       </section>
 

@@ -67,10 +67,6 @@ const PaymentCancel = lazy(() => import('./pages/pricing/PaymentCancel'))
 
 /* LexiGrow Public Showcase Pages */
 const AboutUs = lazy(() => import('./pages/public/AboutUs'))
-const CourseDetails = lazy(() => import('./pages/public/CourseDetails'))
-const TeachersPage = lazy(() => import('./pages/public/TeachersPage'))
-const TestimonialsPage = lazy(() => import('./pages/public/TestimonialsPage'))
-const HelpCenterPage = lazy(() => import('./pages/public/HelpCenterPage'))
 const ContactUsPage = lazy(() => import('./pages/public/ContactUsPage'))
 const NotFoundPage = lazy(() => import('./pages/public/NotFoundPage'))
 const TextTranslator = lazy(() => import('./components/common/TextTranslator'))
@@ -277,12 +273,6 @@ function App() {
         {/* LexiGrow Public Routes */}
         <Route path="/about" element={<AppLayout><AboutUs /></AppLayout>} />
         <Route path="/courses" element={<AppLayout><Explore /></AppLayout>} />
-        <Route path="/course" element={<AppLayout><CourseDetails /></AppLayout>} />
-        <Route path="/course/:id" element={<AppLayout><CourseDetails /></AppLayout>} />
-        <Route path="/teachers" element={<AppLayout><TeachersPage /></AppLayout>} />
-        <Route path="/testimonials" element={<AppLayout><TestimonialsPage /></AppLayout>} />
-        <Route path="/help" element={<AppLayout><HelpCenterPage /></AppLayout>} />
-        <Route path="/faq" element={<AppLayout><HelpCenterPage /></AppLayout>} />
         <Route path="/contact" element={<AppLayout><ContactUsPage /></AppLayout>} />
         <Route path="/404" element={<AppLayout><NotFoundPage /></AppLayout>} />
 

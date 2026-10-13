@@ -147,8 +147,8 @@ export default function ContactUsPage() {
               <span className="eduvia-kicker eduvia-kicker--green">Faqs</span>
               <h2 className="eduvia-section-title">Answers To Your Common Questions</h2>
             </div>
-            <Link to="/help" className="eduvia-btn eduvia-btn--mint">
-              View All FAQs
+            <Link to="/pricing" className="eduvia-btn eduvia-btn--mint">
+              View Pricing Plans
             </Link>
           </div>
 

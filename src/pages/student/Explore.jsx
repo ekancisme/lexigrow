@@ -174,16 +174,18 @@ export default function Explore() {
     <div className="eduvia-courses-page">
       {/* ── BREADCRUMB HERO BANNER (Matching 03_courses.png) ── */}
       <section className="eduvia-page-hero">
-        <h1 className="eduvia-page-hero__title">Courses</h1>
+        <h1 className="eduvia-page-hero__title">
+          {language === 'vi' ? 'Chủ đề & Luyện viết thông minh' : 'Smart Writing & Topics'}
+        </h1>
         <p className="eduvia-page-hero__desc">
           {language === 'vi'
-            ? 'Khám phá các khóa học tiếng Anh chuẩn quốc tế với bài tập tương tác, từ vựng SRS và trợ lý AI chấm bài.'
-            : 'Explore standardized English courses with interactive exercises, SRS vocabulary, and AI evaluation.'}
+            ? 'Chọn chủ đề bạn muốn rèn luyện, nắm vững từ vựng trọng tâm và chuyển tiếp ngay sang phòng viết luận cùng trợ lý AI LexiGrow.'
+            : 'Select a topic to master target vocabulary and transition into AI-powered Smart Writing.'}
         </p>
         <div className="eduvia-breadcrumbs">
-          <Link to="/student/home">Home</Link>
+          <Link to="/student/home">{language === 'vi' ? 'Trang chủ' : 'Home'}</Link>
           <span className="eduvia-breadcrumbs__sep">·</span>
-          <span>Courses</span>
+          <span>{language === 'vi' ? 'Chủ đề luyện viết' : 'Writing Topics'}</span>
         </div>
       </section>
 
@@ -191,8 +193,8 @@ export default function Explore() {
         {/* ── SECTION HEADER & SEARCH ── */}
         <div className="eduvia-section-header">
           <div>
-            <span className="eduvia-kicker eduvia-kicker--green">Popular Courses</span>
-            <h2 className="eduvia-section-title">Build English Skills With Expert Lessons</h2>
+            <span className="eduvia-kicker eduvia-kicker--green">{language === 'vi' ? 'Chủ đề nổi bật' : 'Writing Topics'}</span>
+            <h2 className="eduvia-section-title">{language === 'vi' ? 'Chọn chủ đề để học từ & viết luận' : 'Select A Topic To Learn & Write'}</h2>
           </div>
           <div className="eduvia-courses-search">
             <span className="material-symbols-outlined">search</span>
@@ -270,7 +272,7 @@ export default function Explore() {
                     className="eduvia-btn eduvia-btn--navy eduvia-btn--full"
                     onClick={() => navigate(`/student/writing?set=${course.slug}`)}
                   >
-                    {isDone ? (language === 'vi' ? 'Luyện tập lại' : 'Review Course') : (language === 'vi' ? 'Đăng ký học ngay' : 'Enroll Now')}
+                    {isDone ? (language === 'vi' ? 'Luyện viết lại' : 'Practice Writing Again') : (language === 'vi' ? 'Chọn chủ đề & Viết luận' : 'Select Topic & Write')}
                   </button>
                 </div>
               </article>

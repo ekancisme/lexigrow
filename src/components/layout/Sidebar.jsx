@@ -11,12 +11,12 @@ export default function Sidebar({ role = 'student', mobileOpen = false, onClose 
 
   const studentNavItems = [
     { icon: 'home', label: t('nav.today', 'Today'), path: '/student/dashboard' },
-    { icon: 'explore', label: t('nav.explore', 'Explore'), path: '/student/explore' },
-    { icon: 'edit_note', label: t('nav.smartWriting', 'Smart Writing'), path: '/student/writing' },
+    { icon: 'edit_note', label: t('nav.smartWriting', 'Smart Writing'), path: '/student/explore' },
     { icon: 'history_edu', label: t('nav.essayHistory', 'Essay History & Drafts'), path: '/student/essays' },
     { icon: 'menu_book', label: t('nav.myWords', 'My Words'), path: '/student/my-words' },
+    { icon: 'forest', label: t('nav.growthGarden', 'Growth Garden'), path: '/student/garden' },
+    { icon: 'monitoring', label: t('headerNavigation.progressOverview', 'Progress Overview'), path: '/student/progress' },
     { icon: 'school', label: t('nav.myClasses', 'My Classes'), path: '/student/class' },
-    { icon: 'forest', label: t('nav.growthGarden', 'Growth Garden'), path: '/student/progress' },
     { icon: 'workspace_premium', label: t('nav.upgradePlan', 'Upgrade Plan'), path: '/pricing' },
   ]
 

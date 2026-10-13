@@ -64,9 +64,8 @@ export default function SiteFooter() {
           <h3 className="eduvia-footer__heading">Company</h3>
           <ul className="eduvia-footer__links">
             <li><Link to="/about">{language === 'vi' ? 'Giới thiệu' : 'About Us'}</Link></li>
-            <li><Link to="/about">{language === 'vi' ? 'Sứ mệnh' : 'Our Mission'}</Link></li>
-            <li><Link to="/teachers">{language === 'vi' ? 'Giảng viên' : 'Teachers'}</Link></li>
-            <li><Link to="/testimonials">{language === 'vi' ? 'Đánh giá học viên' : 'Testimonials'}</Link></li>
+            <li><Link to="/about">{language === 'vi' ? 'Sứ mệnh & Giá trị' : 'Our Mission'}</Link></li>
+            <li><Link to="/pricing">{language === 'vi' ? 'Bảng giá & Gói học' : 'Pricing Plans'}</Link></li>
             <li><Link to="/contact">{language === 'vi' ? 'Liên hệ' : 'Contact Us'}</Link></li>
           </ul>
         </div>
@@ -79,7 +78,7 @@ export default function SiteFooter() {
             <li><Link to="/student/explore">{language === 'vi' ? 'Tiếng Anh trung cấp' : 'Intermediate English'}</Link></li>
             <li><Link to="/student/explore">{language === 'vi' ? 'Tiếng Anh nâng cao' : 'Advanced English'}</Link></li>
             <li><Link to="/student/explore">{language === 'vi' ? 'Tiếng Anh thương mại' : 'Business English'}</Link></li>
-            <li><Link to="/student/writing">{language === 'vi' ? 'Luyện thi chứng chỉ' : 'Exam Preparation'}</Link></li>
+            <li><Link to="/student/explore">{language === 'vi' ? 'Luyện viết luận AI' : 'AI Essay Writing'}</Link></li>
           </ul>
         </div>
 
@@ -87,11 +86,11 @@ export default function SiteFooter() {
         <div className="eduvia-footer__col">
           <h3 className="eduvia-footer__heading">Support</h3>
           <ul className="eduvia-footer__links">
-            <li><Link to="/help">{language === 'vi' ? 'Trung tâm trợ giúp' : 'Help Center'}</Link></li>
-            <li><Link to="/help">{language === 'vi' ? 'Câu hỏi thường gặp' : 'FAQs'}</Link></li>
-            <li><Link to="/help">{language === 'vi' ? 'Hướng dẫn học tập' : 'Student Guide'}</Link></li>
+            <li><Link to="/contact">{language === 'vi' ? 'Trung tâm hỗ trợ' : 'Help & Support'}</Link></li>
+            <li><Link to="/contact">{language === 'vi' ? 'Câu hỏi thường gặp' : 'FAQs'}</Link></li>
+            <li><Link to="/about">{language === 'vi' ? 'Phương pháp học tập' : 'Learning Methodology'}</Link></li>
             <li><Link to="/pricing">{language === 'vi' ? 'Chính sách hoàn tiền' : 'Refund Policy'}</Link></li>
-            <li><Link to="/contact">{language === 'vi' ? 'Liên hệ hỗ trợ' : 'Contact Support'}</Link></li>
+            <li><Link to="/contact">{language === 'vi' ? 'Gửi yêu cầu trợ giúp' : 'Submit Ticket'}</Link></li>
           </ul>
         </div>
 

@@ -125,6 +125,15 @@ export default function StudentDashboard() {
               >
                 {t('dashboard.exploreSets', 'Explore other topics')}
               </Button>
+
+              <Button
+                variant="secondary"
+                size="lg"
+                leftIcon="history_edu"
+                onClick={() => navigate('/student/essays')}
+              >
+                {isVi ? 'Xem lại bài viết & bản nháp' : 'Writing History & Drafts'}
+              </Button>
             </div>
           </section>
 
@@ -167,9 +176,14 @@ export default function StudentDashboard() {
               <CardTitle subtitle={t('dashboard.recentEssaysDesc', 'Track your completed essays and review feedback')}>
                 {t('dashboard.recentEssays', 'Recent Writing')}
               </CardTitle>
-              <Link to="/student/essays" style={{ color: 'var(--color-primary)', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>
-                {t('common.all', 'All Essays')} →
-              </Link>
+              <Button
+                variant="outline"
+                size="sm"
+                leftIcon="history_edu"
+                onClick={() => navigate('/student/essays')}
+              >
+                {isVi ? 'Xem bài viết & bản nháp' : 'View All Essays & Drafts'}
+              </Button>
             </CardHeader>
 
             <ResourceNotice resource={essaysResource} label={isVi ? 'bài viết gần đây' : 'recent writing'} />
@@ -177,9 +191,14 @@ export default function StudentDashboard() {
               <div className="student-dash__essays-empty">
                 <span className="material-symbols-outlined" style={{ fontSize: 40, opacity: 0.5 }}>edit_note</span>
                 <p>{t('dashboard.noEssays', 'No essays yet. Start your first writing exercise!')}</p>
-                <Button variant="primary" size="md" onClick={() => navigate('/student/writing')}>
-                  {t('dashboard.writeEssay', 'Write Paragraph Now')}
-                </Button>
+                <div style={{ display: 'flex', gap: 10, marginTop: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
+                  <Button variant="primary" size="md" onClick={() => navigate('/student/explore')}>
+                    {t('dashboard.writeEssay', 'Write Paragraph Now')}
+                  </Button>
+                  <Button variant="outline" size="md" leftIcon="history_edu" onClick={() => navigate('/student/essays')}>
+                    {isVi ? 'Xem lại bài viết & bản nháp' : 'Writing History & Drafts'}
+                  </Button>
+                </div>
               </div>
             ) : (
               <div className="student-dash__essays-list">

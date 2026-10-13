@@ -16,20 +16,9 @@ export default function HeaderNavigation({ role, openId, setOpenId, onNavigate }
   const child = user?.children?.find(entry => entry._id === childId)
   const item = (key, path, icon, extra = {}) => ({ label: t(key), path, icon, ...extra })
   const childItem = (key, view, icon, extra = {}) => item(key, childId ? `/parent/children/${childId}/${view}` : '/parent/dashboard', icon, { disabled: !childId, ...extra })
-  const pagesItems = [
-    { label: language === 'vi' ? 'Giảng viên' : 'Teachers', path: '/teachers', icon: 'school' },
-    { label: language === 'vi' ? 'Đánh giá học viên' : 'Testimonials', path: '/testimonials', icon: 'reviews' },
-    { label: language === 'vi' ? 'Bảng giá & Gói học' : 'Pricing Plans', path: '/pricing', icon: 'payments' },
-    { label: language === 'vi' ? 'Trung tâm trợ giúp' : 'Help Center', path: '/help', icon: 'help' },
-    { label: language === 'vi' ? 'Chi tiết khóa học' : 'Course Details', path: '/course/speaking-skills', icon: 'menu_book' },
-  ]
-
   const studentWorkspaceItems = [
     item('nav.dashboard', '/student/dashboard', 'dashboard'),
-    item('nav.smartWriting', '/student/writing', 'edit_note', { aliases: ['/student/write', '/student/write-essay', '/student/feedback'] }),
-    item('headerNavigation.flashcards', '/student/vocabulary/review', 'style'),
-    item('headerNavigation.games', '/student/game', 'sports_esports'),
-    item('headerNavigation.dailyQuest', '/student/game/daily-quest', 'grid_on'),
+    item('nav.smartWriting', '/student/explore', 'edit_note', { aliases: ['/student/writing', '/student/write', '/student/write-essay', '/student/feedback'] }),
     item('nav.myWords', '/student/my-words', 'menu_book', { aliases: ['/student/vocabulary'] }),
     item('nav.growthGarden', '/student/garden', 'forest'),
     item('headerNavigation.progressOverview', '/student/progress', 'monitoring'),
@@ -38,7 +27,6 @@ export default function HeaderNavigation({ role, openId, setOpenId, onNavigate }
 
   const groupsByRole = {
     student: [
-      { id: 'pages', label: language === 'vi' ? 'Trang' : 'Pages', items: pagesItems },
       ...(user ? [{ id: 'workspace', label: language === 'vi' ? 'Góc học tập' : 'My Learning', items: studentWorkspaceItems }] : []),
     ],
     teacher: [
@@ -82,23 +70,9 @@ export default function HeaderNavigation({ role, openId, setOpenId, onNavigate }
           <NavLink to="/about" className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
             {language === 'vi' ? 'Giới thiệu' : 'About Us'}
           </NavLink>
-          <NavLink to="/student/explore" className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
-            {language === 'vi' ? 'Khóa học' : 'Courses'}
+          <NavLink to="/pricing" className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
+            {language === 'vi' ? 'Bảng giá' : 'Pricing'}
           </NavLink>
-          <NavigationDisclosure label={language === 'vi' ? 'Trang' : 'Pages'} active={activeGroup === 'pages'} open={openId === 'pages'}
-            onOpen={() => setOpenId('pages')} onClose={() => setOpenId(current => current === 'pages' ? null : current)}
-            onToggle={() => setOpenId(current => current === 'pages' ? null : 'pages')}>
-            <ul className="header-navigation__links">
-              {pagesItems.map((navItem, index) => (
-                <li key={`${navItem.path}-${index}`}>
-                  <NavLink to={navItem.path} className={({ isActive }) => `header-navigation__link ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
-                    <span className="material-symbols-outlined" aria-hidden="true">{navItem.icon}</span>
-                    <span>{navItem.label}</span>
-                  </NavLink>
-                </li>
-              ))}
-            </ul>
-          </NavigationDisclosure>
           <NavLink to="/contact" className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
             {language === 'vi' ? 'Liên hệ' : 'Contact Us'}
           </NavLink>
