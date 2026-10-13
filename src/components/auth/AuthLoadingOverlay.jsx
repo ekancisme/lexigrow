@@ -1,7 +1,8 @@
+import { createPortal } from 'react-dom'
 import './AuthLoadingOverlay.css'
 
 export default function AuthLoadingOverlay({ title, description }) {
-  return (
+  return createPortal(
     <div className="auth-loading" role="status" aria-live="polite" aria-atomic="true">
       <div className="auth-loading__card">
         <div className="auth-loading__loader" aria-hidden="true">
@@ -15,6 +16,7 @@ export default function AuthLoadingOverlay({ title, description }) {
         <strong className="auth-loading__title">{title}</strong>
         <p className="auth-loading__description">{description}</p>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
