@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import AuthLoadingOverlay from '../../components/auth/AuthLoadingOverlay.jsx'
+import AuthThemeToggle from '../../components/auth/AuthThemeToggle.jsx'
 import './Login.css'
 
 function getRoleHome(role, user) {
@@ -117,6 +118,7 @@ export default function Login() {
 
   return (
     <div className="login-page" aria-busy={loading}>
+      <AuthThemeToggle />
       <div className="login__particles" aria-hidden="true">
         {PARTICLES.map((style, i) => (
           <span key={i} className="login__particle" style={style} />

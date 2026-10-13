@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import AuthLoadingOverlay from '../../components/auth/AuthLoadingOverlay.jsx'
+import AuthThemeToggle from '../../components/auth/AuthThemeToggle.jsx'
 import './Register.css'
 
 export default function Register() {
@@ -148,6 +149,7 @@ export default function Register() {
 
   return (
     <div className="register-page" aria-busy={loading || isVerifying}>
+      <AuthThemeToggle />
       <main className="register__main">
         {/* Brand */}
         <div className="register__brand">
