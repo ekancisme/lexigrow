@@ -67,28 +67,35 @@
 .topnav__account-summary p { font-size: 12px; line-height: 1.5; margin-top: 4px; color: var(--color-on-surface-variant); }
 .topnav__logout { margin-top: 6px; color: var(--color-error); }
 .topnav__menu-btn, .topnav__mobile-tools { display: none; }
+.topnav__brand-img-logo {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
 .topnav__login-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  min-height: 38px;
-  padding: 0 16px;
-  background: var(--color-primary);
-  color: var(--color-on-primary, #fff) !important;
-  border-radius: var(--radius-md, 8px);
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 24px;
+  background: #051A2E;
+  color: #FFFFFF !important;
+  border-radius: 99px;
+  font-family: 'Urbanist', -apple-system, sans-serif;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
-  transition: background-color .16s ease;
+  transition: all .2s ease;
   white-space: nowrap;
 }
 .topnav__login-btn:hover {
-  background: var(--color-primary-hover);
+  background: #0E2A47;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(5, 26, 46, 0.15);
   text-decoration: none;
-  color: var(--color-on-primary, #fff) !important;
-}
-.topnav__login-btn .material-symbols-outlined {
-  font-size: 18px;
+  color: #FFFFFF !important;
 }
 
 @media (max-width: 1279px) {

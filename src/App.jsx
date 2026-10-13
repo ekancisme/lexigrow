@@ -64,6 +64,15 @@ const AdminAnnouncements = lazy(() => import('./pages/admin/AdminAnnouncements')
 const PricingPage = lazy(() => import('./pages/pricing/PricingPage'))
 const PaymentSuccess = lazy(() => import('./pages/pricing/PaymentSuccess'))
 const PaymentCancel = lazy(() => import('./pages/pricing/PaymentCancel'))
+
+/* Eduvia Showcase Pages */
+const AboutUs = lazy(() => import('./pages/public/AboutUs'))
+const CourseDetails = lazy(() => import('./pages/public/CourseDetails'))
+const TeachersPage = lazy(() => import('./pages/public/TeachersPage'))
+const TestimonialsPage = lazy(() => import('./pages/public/TestimonialsPage'))
+const HelpCenterPage = lazy(() => import('./pages/public/HelpCenterPage'))
+const ContactUsPage = lazy(() => import('./pages/public/ContactUsPage'))
+const NotFoundPage = lazy(() => import('./pages/public/NotFoundPage'))
 const TextTranslator = lazy(() => import('./components/common/TextTranslator'))
 import { useAuth } from './contexts/AuthContext.jsx'
 
@@ -182,13 +191,13 @@ function App() {
         <Route path="/student" element={<AppLayout role="student" />}>
           <Route index element={<StudentHome />} />
           <Route path="home" element={<StudentHome />} />
+          <Route path="explore" element={<Explore />} />
 
           {/* Protected student routes */}
           <Route element={<RoleProtectedRoute allowedRoles={['student']} />}>
             <Route path="dashboard" element={<StudentDashboard />} />
             <Route path="write-essay" element={<WriteEssay />} />
             <Route path="write" element={<WriteEssay />} />
-            <Route path="explore" element={<Explore />} />
             <Route path="writing" element={<LearningSession />} />
             <Route path="garden" element={<GrowthGarden />} />
             <Route path="my-words" element={<VocabularyLibrary />} />
@@ -265,26 +274,30 @@ function App() {
           <Route path="announcements" element={<AdminAnnouncements />} />
         </Route>
 
+        {/* Eduvia Public Showcase Routes */}
+        <Route path="/about" element={<AppLayout><AboutUs /></AppLayout>} />
+        <Route path="/courses" element={<AppLayout><Explore /></AppLayout>} />
+        <Route path="/course" element={<AppLayout><CourseDetails /></AppLayout>} />
+        <Route path="/course/:id" element={<AppLayout><CourseDetails /></AppLayout>} />
+        <Route path="/teachers" element={<AppLayout><TeachersPage /></AppLayout>} />
+        <Route path="/testimonials" element={<AppLayout><TestimonialsPage /></AppLayout>} />
+        <Route path="/help" element={<AppLayout><HelpCenterPage /></AppLayout>} />
+        <Route path="/faq" element={<AppLayout><HelpCenterPage /></AppLayout>} />
+        <Route path="/contact" element={<AppLayout><ContactUsPage /></AppLayout>} />
+        <Route path="/404" element={<AppLayout><NotFoundPage /></AppLayout>} />
+
         {/* Pricing & Payment Routes */}
-        <Route path="/pricing" element={<AppLayout />}>
-          <Route index element={<PricingPage />} />
-        </Route>
-        <Route path="/payment/success" element={<AppLayout />}>
-          <Route index element={<PaymentSuccess />} />
-        </Route>
-        <Route path="/payment/cancel" element={<AppLayout />}>
-          <Route index element={<PaymentCancel />} />
-        </Route>
+        <Route path="/pricing" element={<AppLayout><PricingPage /></AppLayout>} />
+        <Route path="/payment/success" element={<AppLayout><PaymentSuccess /></AppLayout>} />
+        <Route path="/payment/cancel" element={<AppLayout><PaymentCancel /></AppLayout>} />
 
         {/* Shared routes */}
-        <Route path="/settings" element={<AppLayout />}>
-          <Route index element={<ProfileSettings />} />
-        </Route>
+        <Route path="/settings" element={<AppLayout role="student"><ProfileSettings /></AppLayout>} />
 
-        {/* Default redirect */}
+        {/* Default redirect & 404 */}
         <Route path="/home" element={<Navigate to="/student/home" replace />} />
         <Route path="/" element={<RootRoute />} />
-        <Route path="*" element={<Navigate to="/student/home" replace />} />
+        <Route path="*" element={<AppLayout><NotFoundPage /></AppLayout>} />
       </Routes>
       </Suspense>
       <TextTranslator />

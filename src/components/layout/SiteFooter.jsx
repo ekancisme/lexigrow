@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
@@ -5,40 +6,128 @@ import './SiteFooter.css'
 
 export default function SiteFooter() {
   const { user } = useAuth()
-  const { t } = useLanguage()
+  const { language } = useLanguage()
+  const [email, setEmail] = useState('')
+  const [subscribed, setSubscribed] = useState(false)
   const homePath = !user || user.role === 'student' ? '/student/home' : `/${user.role}/dashboard`
 
+  const handleSubscribe = (e) => {
+    e.preventDefault()
+    if (email.trim()) {
+      setSubscribed(true)
+      setEmail('')
+      setTimeout(() => setSubscribed(false), 4000)
+    }
+  }
+
   return (
-    <footer className="site-footer" aria-label={t('siteFooter.label')}>
-      <div className="site-footer__inner">
-        <div className="site-footer__brand-block">
-          <Link to={homePath} className="site-footer__brand">
-            <img src="/assets/brand/lexigrow-emblem.png" alt="" width="28" height="28" />
-            <span>LexiGrow</span>
+    <footer className="eduvia-footer" aria-label="Eduvia Site Footer">
+      <div className="eduvia-footer__inner">
+        {/* Column 1: Brand & Contact Info */}
+        <div className="eduvia-footer__col eduvia-footer__col--brand">
+          <Link to={homePath} className="eduvia-footer__logo">
+            <img src="/assets/eduvia/Logo-1.png" alt="Eduvia" width="138" height="38" className="eduvia-footer__brand-img" />
           </Link>
-          <p>{t('siteFooter.tagline')}</p>
+
+          <p className="eduvia-footer__text">
+            {language === 'vi'
+              ? 'Liên hệ chúng tôi trong giờ làm việc Thứ 2 - Thứ 6 (8:00 - 18:00). Đội ngũ Eduvia luôn sẵn sàng đồng hành cùng bạn.'
+              : 'Feel free to call us in working hours Mon - Fri (8:00 - 16:00). Our team will be happy to help answer your queries.'}
+          </p>
+
+          <a href="tel:+13330000000" className="eduvia-footer__phone">
+            <span className="material-symbols-outlined">call</span>
+            <span>+1 (333) 000-0000</span>
+          </a>
+
+          <div className="eduvia-footer__socials" aria-label="Social media">
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="eduvia-footer__social-btn">
+              <span className="material-symbols-outlined">public</span>
+            </a>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="eduvia-footer__social-btn">
+              <span className="material-symbols-outlined">alternate_email</span>
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" className="eduvia-footer__social-btn">
+              <span className="material-symbols-outlined">work</span>
+            </a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="eduvia-footer__social-btn">
+              <span className="material-symbols-outlined">photo_camera</span>
+            </a>
+          </div>
         </div>
 
-        <nav className="site-footer__links" aria-label={t('siteFooter.navigation')}>
-          <div className="site-footer__group">
-            <h2>{t('siteFooter.learnHeading')}</h2>
-            <Link to={homePath}>{t('siteFooter.home')}</Link>
-            <Link to="/pricing">{t('siteFooter.pricing')}</Link>
-          </div>
-          <div className="site-footer__group">
-            <h2>{t('siteFooter.accountHeading')}</h2>
-            {user
-              ? <Link to="/settings">{t('siteFooter.settings')}</Link>
-              : <>
-                <Link to="/login">{t('siteFooter.login')}</Link>
-                <Link to="/register">{t('siteFooter.register')}</Link>
-              </>}
-          </div>
-        </nav>
+        {/* Column 2: Company */}
+        <div className="eduvia-footer__col">
+          <h3 className="eduvia-footer__heading">Company</h3>
+          <ul className="eduvia-footer__links">
+            <li><Link to="/about">{language === 'vi' ? 'Giới thiệu' : 'About Us'}</Link></li>
+            <li><Link to="/about">{language === 'vi' ? 'Sứ mệnh' : 'Our Mission'}</Link></li>
+            <li><Link to="/teachers">{language === 'vi' ? 'Giảng viên' : 'Teachers'}</Link></li>
+            <li><Link to="/testimonials">{language === 'vi' ? 'Đánh giá học viên' : 'Testimonials'}</Link></li>
+            <li><Link to="/contact">{language === 'vi' ? 'Liên hệ' : 'Contact Us'}</Link></li>
+          </ul>
+        </div>
+
+        {/* Column 3: Courses */}
+        <div className="eduvia-footer__col">
+          <h3 className="eduvia-footer__heading">Courses</h3>
+          <ul className="eduvia-footer__links">
+            <li><Link to="/student/explore">{language === 'vi' ? 'Tiếng Anh nền tảng' : 'Beginner English'}</Link></li>
+            <li><Link to="/student/explore">{language === 'vi' ? 'Tiếng Anh trung cấp' : 'Intermediate English'}</Link></li>
+            <li><Link to="/student/explore">{language === 'vi' ? 'Tiếng Anh nâng cao' : 'Advanced English'}</Link></li>
+            <li><Link to="/student/explore">{language === 'vi' ? 'Tiếng Anh thương mại' : 'Business English'}</Link></li>
+            <li><Link to="/student/writing">{language === 'vi' ? 'Luyện thi chứng chỉ' : 'Exam Preparation'}</Link></li>
+          </ul>
+        </div>
+
+        {/* Column 4: Support */}
+        <div className="eduvia-footer__col">
+          <h3 className="eduvia-footer__heading">Support</h3>
+          <ul className="eduvia-footer__links">
+            <li><Link to="/help">{language === 'vi' ? 'Trung tâm trợ giúp' : 'Help Center'}</Link></li>
+            <li><Link to="/help">{language === 'vi' ? 'Câu hỏi thường gặp' : 'FAQs'}</Link></li>
+            <li><Link to="/help">{language === 'vi' ? 'Hướng dẫn học tập' : 'Student Guide'}</Link></li>
+            <li><Link to="/pricing">{language === 'vi' ? 'Chính sách hoàn tiền' : 'Refund Policy'}</Link></li>
+            <li><Link to="/contact">{language === 'vi' ? 'Liên hệ hỗ trợ' : 'Contact Support'}</Link></li>
+          </ul>
+        </div>
+
+        {/* Column 5: Newsletter */}
+        <div className="eduvia-footer__col eduvia-footer__col--newsletter">
+          <h3 className="eduvia-footer__heading">Subscribe To Newsletter</h3>
+          <form className="eduvia-footer__form" onSubmit={handleSubscribe}>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder={language === 'vi' ? 'Nhập email của bạn...' : 'Enter your email...'}
+              required
+              className="eduvia-footer__input"
+            />
+            <button type="submit" className="eduvia-btn eduvia-btn--lime eduvia-footer__submit">
+              {subscribed ? '✓ Subscribed' : 'Subscribe'}
+            </button>
+          </form>
+          {subscribed && (
+            <p className="eduvia-footer__subscribed-msg">
+              {language === 'vi' ? 'Cảm ơn bạn đã đăng ký nhận bản tin!' : 'Thank you for subscribing!'}
+            </p>
+          )}
+        </div>
       </div>
-      <div className="site-footer__bottom">
-        <span>© {new Date().getFullYear()} LexiGrow</span>
-        <span>{t('siteFooter.rights')}</span>
+
+      {/* Bottom Copyright & Legal Links */}
+      <div className="eduvia-footer__bottom">
+        <div className="eduvia-footer__bottom-inner">
+          <p className="eduvia-footer__copy-text">
+            Copyright © {new Date().getFullYear()} LexiGrow · Design inspired by Eduvia
+          </p>
+          <div className="eduvia-footer__legal-links">
+            <Link to="/pricing">Terms of Use</Link>
+            <span>·</span>
+            <Link to="/pricing">Privacy Policy</Link>
+          </div>
+        </div>
       </div>
     </footer>
   )

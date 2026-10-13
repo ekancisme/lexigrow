@@ -10,6 +10,18 @@ import './AppLayout.css'
 
 // Routes that need full-bleed layout (no padding, no max-width)
 const FULL_BLEED_ROUTES = [
+  '/student/home',
+  '/student/explore',
+  '/courses',
+  '/course',
+  '/about',
+  '/teachers',
+  '/testimonials',
+  '/help',
+  '/faq',
+  '/contact',
+  '/pricing',
+  '/404',
   '/student/vocabulary/review',
 ]
 

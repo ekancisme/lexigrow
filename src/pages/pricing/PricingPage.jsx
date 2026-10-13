@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import paymentService from '../../services/payment.service.js'
@@ -7,306 +7,86 @@ import './PricingPage.css'
 
 const FEATURE_TRANSLATIONS = {
   // Free Features
-  '3 AI essay reviews & scores daily': {
-    en: '3 AI essay reviews & scores daily',
-    vi: '3 bài chấm & sửa luận AI mỗi ngày',
-  },
-  '3 bài chấm & sửa luận AI mỗi ngày': {
-    en: '3 AI essay reviews & scores daily',
-    vi: '3 bài chấm & sửa luận AI mỗi ngày',
-  },
-  'Join up to 1 classroom': {
-    en: 'Join up to 1 classroom',
-    vi: 'Tham gia tối đa 1 lớp học',
-  },
-  'Tham gia tối đa 1 lớp học': {
-    en: 'Join up to 1 classroom',
-    vi: 'Tham gia tối đa 1 lớp học',
-  },
-  'Access 3 foundation vocabulary decks': {
-    en: 'Access 3 foundation vocabulary decks',
-    vi: 'Truy cập 3 bộ từ vựng nền tảng',
-  },
-  'Truy cập 3 bộ từ vựng nền tảng': {
-    en: 'Access 3 foundation vocabulary decks',
-    vi: 'Truy cập 3 bộ từ vựng nền tảng',
-  },
-  'Standard Spaced Repetition (SRS) Flashcards': {
-    en: 'Standard Spaced Repetition (SRS) Flashcards',
-    vi: 'Thẻ ghi nhớ lặp lại ngắt quãng (SRS) tiêu chuẩn',
-  },
-  'Thẻ ghi nhớ lặp lại ngắt quãng (SRS) tiêu chuẩn': {
-    en: 'Standard Spaced Repetition (SRS) Flashcards',
-    vi: 'Thẻ ghi nhớ lặp lại ngắt quãng (SRS) tiêu chuẩn',
-  },
+  '3 AI essay reviews & scores daily': { en: '3 AI essay reviews & scores daily', vi: '3 bài chấm & sửa luận AI mỗi ngày' },
+  '3 bài chấm & sửa luận AI mỗi ngày': { en: '3 AI essay reviews & scores daily', vi: '3 bài chấm & sửa luận AI mỗi ngày' },
+  'Join up to 1 classroom': { en: 'Join up to 1 classroom', vi: 'Tham gia tối đa 1 lớp học' },
+  'Tham gia tối đa 1 lớp học': { en: 'Join up to 1 classroom', vi: 'Tham gia tối đa 1 lớp học' },
+  'Access 3 foundation vocabulary decks': { en: 'Access 3 foundation vocabulary decks', vi: 'Truy cập 3 bộ từ vựng nền tảng' },
+  'Truy cập 3 bộ từ vựng nền tảng': { en: 'Access 3 foundation vocabulary decks', vi: 'Truy cập 3 bộ từ vựng nền tảng' },
+  'Standard Spaced Repetition (SRS) Flashcards': { en: 'Standard Spaced Repetition (SRS) Flashcards', vi: 'Thẻ ghi nhớ lặp lại ngắt quãng (SRS) tiêu chuẩn' },
+  'Thẻ ghi nhớ lặp lại ngắt quãng (SRS) tiêu chuẩn': { en: 'Standard Spaced Repetition (SRS) Flashcards', vi: 'Thẻ ghi nhớ lặp lại ngắt quãng (SRS) tiêu chuẩn' },
 
   // Student Plus
-  '15 bài chấm & sửa luận AI mỗi ngày': {
-    en: '15 AI essay reviews & scores daily',
-    vi: '15 bài chấm & sửa luận AI mỗi ngày',
-  },
-  '15 AI essay reviews & scores daily': {
-    en: '15 AI essay reviews & scores daily',
-    vi: '15 bài chấm & sửa luận AI mỗi ngày',
-  },
-  'Mở khóa toàn bộ Flashcard SRS & Vườn Tri Thức': {
-    en: 'Unlock all SRS Flashcards & Knowledge Garden',
-    vi: 'Mở khóa toàn bộ Flashcard SRS & Vườn Tri Thức',
-  },
-  'Unlock all SRS Flashcards & Knowledge Garden': {
-    en: 'Unlock all SRS Flashcards & Knowledge Garden',
-    vi: 'Mở khóa toàn bộ Flashcard SRS & Vườn Tri Thức',
-  },
-  'Tham gia không giới hạn số lớp học': {
-    en: 'Join unlimited classrooms',
-    vi: 'Tham gia không giới hạn số lớp học',
-  },
-  'Join unlimited classrooms': {
-    en: 'Join unlimited classrooms',
-    vi: 'Tham gia không giới hạn số lớp học',
-  },
-  'Theo dõi chi tiết biểu đồ từ vựng chủ động': {
-    en: 'Detailed active vocabulary growth chart',
-    vi: 'Theo dõi chi tiết biểu đồ từ vựng chủ động',
-  },
-  'Detailed active vocabulary growth chart': {
-    en: 'Detailed active vocabulary growth chart',
-    vi: 'Theo dõi chi tiết biểu đồ từ vựng chủ động',
-  },
-  'Hỗ trợ phản hồi AI chuẩn khung CEFR A2-B2': {
-    en: 'AI feedback aligned with CEFR A2-B2',
-    vi: 'Hỗ trợ phản hồi AI chuẩn khung CEFR A2-B2',
-  },
-  'AI feedback aligned with CEFR A2-B2': {
-    en: 'AI feedback aligned with CEFR A2-B2',
-    vi: 'Hỗ trợ phản hồi AI chuẩn khung CEFR A2-B2',
-  },
+  '15 bài chấm & sửa luận AI mỗi ngày': { en: '15 AI essay reviews & scores daily', vi: '15 bài chấm & sửa luận AI mỗi ngày' },
+  '15 AI essay reviews & scores daily': { en: '15 AI essay reviews & scores daily', vi: '15 bài chấm & sửa luận AI mỗi ngày' },
+  'Mở khóa toàn bộ Flashcard SRS & Vườn Tri Thức': { en: 'Unlock all SRS Flashcards & Knowledge Garden', vi: 'Mở khóa toàn bộ Flashcard SRS & Vườn Tri Thức' },
+  'Unlock all SRS Flashcards & Knowledge Garden': { en: 'Unlock all SRS Flashcards & Knowledge Garden', vi: 'Mở khóa toàn bộ Flashcard SRS & Vườn Tri Thức' },
+  'Tham gia không giới hạn số lớp học': { en: 'Join unlimited classrooms', vi: 'Tham gia không giới hạn số lớp học' },
+  'Join unlimited classrooms': { en: 'Join unlimited classrooms', vi: 'Tham gia không giới hạn số lớp học' },
+  'Theo dõi chi tiết biểu đồ từ vựng chủ động': { en: 'Detailed active vocabulary growth chart', vi: 'Theo dõi chi tiết biểu đồ từ vựng chủ động' },
+  'Detailed active vocabulary growth chart': { en: 'Detailed active vocabulary growth chart', vi: 'Theo dõi chi tiết biểu đồ từ vựng chủ động' },
+  'Hỗ trợ phản hồi AI chuẩn khung CEFR A2-B2': { en: 'AI feedback aligned with CEFR A2-B2', vi: 'Hỗ trợ phản hồi AI chuẩn khung CEFR A2-B2' },
+  'AI feedback aligned with CEFR A2-B2': { en: 'AI feedback aligned with CEFR A2-B2', vi: 'Hỗ trợ phản hồi AI chuẩn khung CEFR A2-B2' },
 
   // Student Pro
-  'Không giới hạn bài viết luận & phân tích AI': {
-    en: 'Unlimited essay writing & AI analysis',
-    vi: 'Không giới hạn bài viết luận & phân tích AI',
-  },
-  'Unlimited essay writing & AI analysis': {
-    en: 'Unlimited essay writing & AI analysis',
-    vi: 'Không giới hạn bài viết luận & phân tích AI',
-  },
-  'Đánh giá 4 tiêu chí chuẩn IELTS Band 8.5+': {
-    en: 'Evaluation on 4 IELTS Band 8.5+ criteria',
-    vi: 'Đánh giá 4 tiêu chí chuẩn IELTS Band 8.5+',
-  },
-  'Evaluation on 4 IELTS Band 8.5+ criteria': {
-    en: 'Evaluation on 4 IELTS Band 8.5+ criteria',
-    vi: 'Đánh giá 4 tiêu chí chuẩn IELTS Band 8.5+',
-  },
-  'Gợi ý nâng cấp từ vựng Collocations & Ngữ pháp nâng cao': {
-    en: 'Advanced Collocations & Grammar recommendations',
-    vi: 'Gợi ý nâng cấp từ vựng Collocations & Ngữ pháp nâng cao',
-  },
-  'Advanced Collocations & Grammar recommendations': {
-    en: 'Advanced Collocations & Grammar recommendations',
-    vi: 'Gợi ý nâng cấp từ vựng Collocations & Ngữ pháp nâng cao',
-  },
-  'So sánh tiến độ giữa các bản sửa (Revision Compare)': {
-    en: 'Revision progress comparison timeline',
-    vi: 'So sánh tiến độ giữa các bản sửa (Revision Compare)',
-  },
-  'Revision progress comparison timeline': {
-    en: 'Revision progress comparison timeline',
-    vi: 'So sánh tiến độ giữa các bản sửa (Revision Compare)',
-  },
-  'Xuất báo cáo học tập PDF chuyên nghiệp': {
-    en: 'Export professional learning PDF reports',
-    vi: 'Xuất báo cáo học tập PDF chuyên nghiệp',
-  },
-  'Export professional learning PDF reports': {
-    en: 'Export professional learning PDF reports',
-    vi: 'Xuất báo cáo học tập PDF chuyên nghiệp',
-  },
-  'Ưu tiên tốc độ phản hồi AI siêu tốc': {
-    en: 'Ultra-fast priority AI response queue',
-    vi: 'Ưu tiên tốc độ phản hồi AI siêu tốc',
-  },
-  'Ultra-fast priority AI response queue': {
-    en: 'Ultra-fast priority AI response queue',
-    vi: 'Ưu tiên tốc độ phản hồi AI siêu tốc',
-  },
+  'Không giới hạn bài viết luận & phân tích AI': { en: 'Unlimited essay writing & AI analysis', vi: 'Không giới hạn bài viết luận & phân tích AI' },
+  'Unlimited essay writing & AI analysis': { en: 'Unlimited essay writing & AI analysis', vi: 'Không giới hạn bài viết luận & phân tích AI' },
+  'Đánh giá 4 tiêu chí chuẩn IELTS Band 8.5+': { en: 'Evaluation on 4 IELTS Band 8.5+ criteria', vi: 'Đánh giá 4 tiêu chí chuẩn IELTS Band 8.5+' },
+  'Evaluation on 4 IELTS Band 8.5+ criteria': { en: 'Evaluation on 4 IELTS Band 8.5+ criteria', vi: 'Đánh giá 4 tiêu chí chuẩn IELTS Band 8.5+' },
+  'Lộ trình mục tiêu từ vựng chuyên sâu (CEFR B2-C1)': { en: 'In-depth targeted vocabulary roadmap (B2-C1)', vi: 'Lộ trình mục tiêu từ vựng chuyên sâu (CEFR B2-C1)' },
+  'In-depth targeted vocabulary roadmap (B2-C1)': { en: 'In-depth targeted vocabulary roadmap (B2-C1)', vi: 'Lộ trình mục tiêu từ vựng chuyên sâu (CEFR B2-C1)' },
+  'Ưu tiên hàng đợi AI (Tốc độ phản hồi < 3s)': { en: 'Priority AI queue (Response < 3s)', vi: 'Ưu tiên hàng đợi AI (Tốc độ phản hồi < 3s)' },
+  'Priority AI queue (Response < 3s)': { en: 'Priority AI queue (Response < 3s)', vi: 'Ưu tiên hàng đợi AI (Tốc độ phản hồi < 3s)' },
+  'Huy hiệu Pro độc quyền trên bảng xếp hạng': { en: 'Exclusive Pro badge on leaderboard', vi: 'Huy hiệu Pro độc quyền trên bảng xếp hạng' },
+  'Exclusive Pro badge on leaderboard': { en: 'Exclusive Pro badge on leaderboard', vi: 'Huy hiệu Pro độc quyền trên bảng xếp hạng' },
 
   // Student Ultra
-  'Toàn bộ quyền lợi của gói Student Pro': {
-    en: 'All benefits of Student Pro plan',
-    vi: 'Toàn bộ quyền lợi của gói Student Pro',
-  },
-  'All benefits of Student Pro plan': {
-    en: 'All benefits of Student Pro plan',
-    vi: 'Toàn bộ quyền lợi của gói Student Pro',
-  },
-  'Trợ lý Gia sư AI 1-on-1 tương tác đàm thoại trực tiếp': {
-    en: '1-on-1 interactive conversational AI Tutor',
-    vi: 'Trợ lý Gia sư AI 1-on-1 tương tác đàm thoại trực tiếp',
-  },
-  '1-on-1 interactive conversational AI Tutor': {
-    en: '1-on-1 interactive conversational AI Tutor',
-    vi: 'Trợ lý Gia sư AI 1-on-1 tương tác đàm thoại trực tiếp',
-  },
-  'Phân tích phong cách diễn đạt & Tính mạch lạc chuyên sâu': {
-    en: 'Deep discourse style & coherence analysis',
-    vi: 'Phân tích phong cách diễn đạt & Tính mạch lạc chuyên sâu',
-  },
-  'Deep discourse style & coherence analysis': {
-    en: 'Deep discourse style & coherence analysis',
-    vi: 'Phân tích phong cách diễn đạt & Tính mạch lạc chuyên sâu',
-  },
-  'Luyện viết theo chủ đề bài thi thực chiến': {
-    en: 'Practice writing on actual exam topics',
-    vi: 'Luyện viết theo chủ đề bài thi thực chiến',
-  },
-  'Practice writing on actual exam topics': {
-    en: 'Practice writing on actual exam topics',
-    vi: 'Luyện viết theo chủ đề bài thi thực chiến',
-  },
-  'Băng thông AI ưu tiên cao nhất, không nghẽn giờ cao điểm': {
-    en: 'Highest priority AI bandwidth, zero peak-hour queue',
-    vi: 'Băng thông AI ưu tiên cao nhất, không nghẽn giờ cao điểm',
-  },
-  'Highest priority AI bandwidth, zero peak-hour queue': {
-    en: 'Highest priority AI bandwidth, zero peak-hour queue',
-    vi: 'Băng thông AI ưu tiên cao nhất, không nghẽn giờ cao điểm',
-  },
-  'Hỗ trợ kỹ thuật 24/7 từ chuyên viên học thuật': {
-    en: '24/7 academic & technical priority support',
-    vi: 'Hỗ trợ kỹ thuật 24/7 từ chuyên viên học thuật',
-  },
-  '24/7 academic & technical priority support': {
-    en: '24/7 academic & technical priority support',
-    vi: 'Hỗ trợ kỹ thuật 24/7 từ chuyên viên học thuật',
-  },
+  'Tất cả quyền lợi của gói Pro': { en: 'All Pro plan benefits', vi: 'Tất cả quyền lợi của gói Pro' },
+  'All Pro plan benefits': { en: 'All Pro plan benefits', vi: 'Tất cả quyền lợi của gói Pro' },
+  'Gia sư AI 1-on-1 tương tác thời gian thực': { en: '1-on-1 Real-time Interactive AI Tutor', vi: 'Gia sư AI 1-on-1 tương tác thời gian thực' },
+  '1-on-1 Real-time Interactive AI Tutor': { en: '1-on-1 Real-time Interactive AI Tutor', vi: 'Gia sư AI 1-on-1 tương tác thời gian thực' },
+  'Phân tích ngữ điệu và phát âm nâng cao': { en: 'Advanced intonation & pronunciation feedback', vi: 'Phân tích ngữ điệu và phát âm nâng cao' },
+  'Advanced intonation & pronunciation feedback': { en: 'Advanced intonation & pronunciation feedback', vi: 'Phân tích ngữ điệu và phát âm nâng cao' },
+  'Tư vấn chiến lược học tập từ chuyên gia': { en: 'Strategic study consulting from experts', vi: 'Tư vấn chiến lược học tập từ chuyên gia' },
+  'Strategic study consulting from experts': { en: 'Strategic study consulting from experts', vi: 'Tư vấn chiến lược học tập từ chuyên gia' },
+  'Hỗ trợ ưu tiên 24/7 qua kênh VIP': { en: '24/7 VIP priority support channel', vi: 'Hỗ trợ ưu tiên 24/7 qua kênh VIP' },
+  '24/7 VIP priority support channel': { en: '24/7 VIP priority support channel', vi: 'Hỗ trợ ưu tiên 24/7 qua kênh VIP' },
 
   // Teacher Plus
-  'Bảo trợ miễn phí cho tối đa 30 học sinh (dùng quyền Plus)': {
-    en: 'Sponsor up to 30 students for free (Plus benefits)',
-    vi: 'Bảo trợ miễn phí cho tối đa 30 học sinh (dùng quyền Plus)',
-  },
-  'Sponsor up to 30 students for free (Plus benefits)': {
-    en: 'Sponsor up to 30 students for free (Plus benefits)',
-    vi: 'Bảo trợ miễn phí cho tối đa 30 học sinh (dùng quyền Plus)',
-  },
-  'Tạo tối đa 3 lớp học trực tuyến': {
-    en: 'Create up to 3 online classrooms',
-    vi: 'Tạo tối đa 3 lớp học trực tuyến',
-  },
-  'Create up to 3 online classrooms': {
-    en: 'Create up to 3 online classrooms',
-    vi: 'Tạo tối đa 3 lớp học trực tuyến',
-  },
-  'Giao bài tập kèm từ khóa mục tiêu không giới hạn': {
-    en: 'Unlimited target vocabulary assignment creation',
-    vi: 'Giao bài tập kèm từ khóa mục tiêu không giới hạn',
-  },
-  'Unlimited target vocabulary assignment creation': {
-    en: 'Unlimited target vocabulary assignment creation',
-    vi: 'Giao bài tập kèm từ khóa mục tiêu không giới hạn',
-  },
-  'Theo dõi tình trạng nộp bài và chấm điểm thủ công': {
-    en: 'Submission tracking & manual grading override',
-    vi: 'Theo dõi tình trạng nộp bài và chấm điểm thủ công',
-  },
-  'Submission tracking & manual grading override': {
-    en: 'Submission tracking & manual grading override',
-    vi: 'Theo dõi tình trạng nộp bài và chấm điểm thủ công',
-  },
-  'Học sinh trong lớp không cần mua gói dịch vụ': {
-    en: 'Classroom students do not need to buy subscriptions',
-    vi: 'Học sinh trong lớp không cần mua gói dịch vụ',
-  },
-  'Classroom students do not need to buy subscriptions': {
-    en: 'Classroom students do not need to buy subscriptions',
-    vi: 'Học sinh trong lớp không cần mua gói dịch vụ',
-  },
+  'Bảo trợ miễn phí cho tối đa 25 học sinh': { en: 'Sponsor up to 25 students for free', vi: 'Bảo trợ miễn phí cho tối đa 25 học sinh' },
+  'Sponsor up to 25 students for free': { en: 'Sponsor up to 25 students for free', vi: 'Bảo trợ miễn phí cho tối đa 25 học sinh' },
+  'Tạo tối đa 3 lớp học trực tuyến': { en: 'Create up to 3 online classrooms', vi: 'Tạo tối đa 3 lớp học trực tuyến' },
+  'Create up to 3 online classrooms': { en: 'Create up to 3 online classrooms', vi: 'Tạo tối đa 3 lớp học trực tuyến' },
+  'Giao bài tập kèm từ khóa mục tiêu không giới hạn': { en: 'Unlimited target vocabulary assignment creation', vi: 'Giao bài tập kèm từ khóa mục tiêu không giới hạn' },
+  'Unlimited target vocabulary assignment creation': { en: 'Unlimited target vocabulary assignment creation', vi: 'Giao bài tập kèm từ khóa mục tiêu không giới hạn' },
+  'Theo dõi tình trạng nộp bài và chấm điểm thủ công': { en: 'Submission tracking & manual grading override', vi: 'Theo dõi tình trạng nộp bài và chấm điểm thủ công' },
+  'Submission tracking & manual grading override': { en: 'Submission tracking & manual grading override', vi: 'Theo dõi tình trạng nộp bài và chấm điểm thủ công' },
+  'Học sinh trong lớp không cần mua gói dịch vụ': { en: 'Classroom students do not need to buy subscriptions', vi: 'Học sinh trong lớp không cần mua gói dịch vụ' },
+  'Classroom students do not need to buy subscriptions': { en: 'Classroom students do not need to buy subscriptions', vi: 'Học sinh trong lớp không cần mua gói dịch vụ' },
 
   // Teacher Pro
-  'Bảo trợ miễn phí cho tối đa 100 học sinh (dùng quyền Pro)': {
-    en: 'Sponsor up to 100 students for free (Pro benefits)',
-    vi: 'Bảo trợ miễn phí cho tối đa 100 học sinh (dùng quyền Pro)',
-  },
-  'Sponsor up to 100 students for free (Pro benefits)': {
-    en: 'Sponsor up to 100 students for free (Pro benefits)',
-    vi: 'Bảo trợ miễn phí cho tối đa 100 học sinh (dùng quyền Pro)',
-  },
-  'Tạo tối đa 10 lớp học trực tuyến': {
-    en: 'Create up to 10 online classrooms',
-    vi: 'Tạo tối đa 10 lớp học trực tuyến',
-  },
-  'Create up to 10 online classrooms': {
-    en: 'Create up to 10 online classrooms',
-    vi: 'Tạo tối đa 10 lớp học trực tuyến',
-  },
-  'Tùy biến System Prompt AI theo yêu cầu giảng dạy': {
-    en: 'Customizable AI System Prompts for pedagogy',
-    vi: 'Tùy biến System Prompt AI theo yêu cầu giảng dạy',
-  },
-  'Customizable AI System Prompts for pedagogy': {
-    en: 'Customizable AI System Prompts for pedagogy',
-    vi: 'Tùy biến System Prompt AI theo yêu cầu giảng dạy',
-  },
-  'Hệ thống Cảnh báo sớm (EWS) tự động phát hiện học sinh tụt dốc': {
-    en: 'Early Warning System (EWS) detecting at-risk students',
-    vi: 'Hệ thống Cảnh báo sớm (EWS) tự động phát hiện học sinh tụt dốc',
-  },
-  'Early Warning System (EWS) detecting at-risk students': {
-    en: 'Early Warning System (EWS) detecting at-risk students',
-    vi: 'Hệ thống Cảnh báo sớm (EWS) tự động phát hiện học sinh tụt dốc',
-  },
-  'Xuất báo cáo phổ điểm và phân tích năng lực cả lớp': {
-    en: 'Export class-wide score distribution & competency reports',
-    vi: 'Xuất báo cáo phổ điểm và phân tích năng lực cả lớp',
-  },
-  'Export class-wide score distribution & competency reports': {
-    en: 'Export class-wide score distribution & competency reports',
-    vi: 'Xuất báo cáo phổ điểm và phân tích năng lực cả lớp',
-  },
+  'Bảo trợ miễn phí cho tối đa 100 học sinh (dùng quyền Pro)': { en: 'Sponsor up to 100 students for free (Pro benefits)', vi: 'Bảo trợ miễn phí cho tối đa 100 học sinh (dùng quyền Pro)' },
+  'Sponsor up to 100 students for free (Pro benefits)': { en: 'Sponsor up to 100 students for free (Pro benefits)', vi: 'Bảo trợ miễn phí cho tối đa 100 học sinh (dùng quyền Pro)' },
+  'Tạo tối đa 10 lớp học trực tuyến': { en: 'Create up to 10 online classrooms', vi: 'Tạo tối đa 10 lớp học trực tuyến' },
+  'Create up to 10 online classrooms': { en: 'Create up to 10 online classrooms', vi: 'Tạo tối đa 10 lớp học trực tuyến' },
+  'Tùy biến System Prompt AI theo yêu cầu giảng dạy': { en: 'Customizable AI System Prompts for pedagogy', vi: 'Tùy biến System Prompt AI theo yêu cầu giảng dạy' },
+  'Customizable AI System Prompts for pedagogy': { en: 'Customizable AI System Prompts for pedagogy', vi: 'Tùy biến System Prompt AI theo yêu cầu giảng dạy' },
+  'Hệ thống Cảnh báo sớm (EWS) tự động phát hiện học sinh tụt dốc': { en: 'Early Warning System (EWS) detecting at-risk students', vi: 'Hệ thống Cảnh báo sớm (EWS) tự động phát hiện học sinh tụt dốc' },
+  'Early Warning System (EWS) detecting at-risk students': { en: 'Early Warning System (EWS) detecting at-risk students', vi: 'Hệ thống Cảnh báo sớm (EWS) tự động phát hiện học sinh tụt dốc' },
+  'Xuất báo cáo phổ điểm và phân tích năng lực cả lớp': { en: 'Export class-wide score distribution & competency reports', vi: 'Xuất báo cáo phổ điểm và phân tích năng lực cả lớp' },
+  'Export class-wide score distribution & competency reports': { en: 'Export class-wide score distribution & competency reports', vi: 'Xuất báo cáo phổ điểm và phân tích năng lực cả lớp' },
 
   // Teacher Ultra
-  'Bảo trợ miễn phí cho tối đa 300 học sinh (dùng quyền Ultra)': {
-    en: 'Sponsor up to 300 students for free (Ultra benefits)',
-    vi: 'Bảo trợ miễn phí cho tối đa 300 học sinh (dùng quyền Ultra)',
-  },
-  'Sponsor up to 300 students for free (Ultra benefits)': {
-    en: 'Sponsor up to 300 students for free (Ultra benefits)',
-    vi: 'Bảo trợ miễn phí cho tối đa 300 học sinh (dùng quyền Ultra)',
-  },
-  'Không giới hạn số lượng lớp học': {
-    en: 'Unlimited online classrooms',
-    vi: 'Không giới hạn số lượng lớp học',
-  },
-  'Unlimited online classrooms': {
-    en: 'Unlimited online classrooms',
-    vi: 'Không giới hạn số lượng lớp học',
-  },
-  'Báo cáo phân tích chuyên sâu cấp độ tổ chức/khoa': {
-    en: 'Deep organizational & faculty analytics reports',
-    vi: 'Báo cáo phân tích chuyên sâu cấp độ tổ chức/khoa',
-  },
-  'Deep organizational & faculty analytics reports': {
-    en: 'Deep organizational & faculty analytics reports',
-    vi: 'Báo cáo phân tích chuyên sâu cấp độ tổ chức/khoa',
-  },
-  'API tích hợp hệ thống quản lý học tập (LMS Integration)': {
-    en: 'LMS Integration API for institutions',
-    vi: 'API tích hợp hệ thống quản lý học tập (LMS Integration)',
-  },
-  'LMS Integration API for institutions': {
-    en: 'LMS Integration API for institutions',
-    vi: 'API tích hợp hệ thống quản lý học tập (LMS Integration)',
-  },
-  'Hỗ trợ thiết kế Prompt & Đào tạo giáo viên 1-on-1': {
-    en: '1-on-1 Prompt engineering & teacher onboarding',
-    vi: 'Hỗ trợ thiết kế Prompt & Đào tạo giáo viên 1-on-1',
-  },
-  '1-on-1 Prompt engineering & teacher onboarding': {
-    en: '1-on-1 Prompt engineering & teacher onboarding',
-    vi: 'Hỗ trợ thiết kế Prompt & Đào tạo giáo viên 1-on-1',
-  },
+  'Bảo trợ miễn phí cho tối đa 300 học sinh (dùng quyền Ultra)': { en: 'Sponsor up to 300 students for free (Ultra benefits)', vi: 'Bảo trợ miễn phí cho tối đa 300 học sinh (dùng quyền Ultra)' },
+  'Sponsor up to 300 students for free (Ultra benefits)': { en: 'Sponsor up to 300 students for free (Ultra benefits)', vi: 'Bảo trợ miễn phí cho tối đa 300 học sinh (dùng quyền Ultra)' },
+  'Không giới hạn số lượng lớp học': { en: 'Unlimited online classrooms', vi: 'Không giới hạn số lượng lớp học' },
+  'Unlimited online classrooms': { en: 'Unlimited online classrooms', vi: 'Không giới hạn số lượng lớp học' },
+  'Báo cáo phân tích chuyên sâu cấp độ tổ chức/khoa': { en: 'Deep organizational & faculty analytics reports', vi: 'Báo cáo phân tích chuyên sâu cấp độ tổ chức/khoa' },
+  'Deep organizational & faculty analytics reports': { en: 'Deep organizational & faculty analytics reports', vi: 'Báo cáo phân tích chuyên sâu cấp độ tổ chức/khoa' },
+  'API tích hợp hệ thống quản lý học tập (LMS Integration)': { en: 'LMS Integration API for institutions', vi: 'API tích hợp hệ thống quản lý học tập (LMS Integration)' },
+  'LMS Integration API for institutions': { en: 'LMS Integration API for institutions', vi: 'API tích hợp hệ thống quản lý học tập (LMS Integration)' },
+  'Hỗ trợ thiết kế Prompt & Đào tạo giáo viên 1-on-1': { en: '1-on-1 Prompt engineering & teacher onboarding', vi: 'Hỗ trợ thiết kế Prompt & Đào tạo giáo viên 1-on-1' },
+  '1-on-1 Prompt engineering & teacher onboarding': { en: '1-on-1 Prompt engineering & teacher onboarding', vi: 'Hỗ trợ thiết kế Prompt & Đào tạo giáo viên 1-on-1' },
 }
 
 const PLAN_DESCRIPTIONS = {
@@ -336,67 +116,98 @@ const PLAN_DESCRIPTIONS = {
   },
 }
 
-const BADGE_TRANSLATIONS = {
-  'Phổ biến nhất': { vi: 'Phổ biến nhất', en: 'Most Popular' },
-  'Most Popular': { vi: 'Phổ biến nhất', en: 'Most Popular' },
-  'Đỉnh cao AI': { vi: 'Đỉnh cao AI', en: 'Top AI Value' },
-  'Top AI Value': { vi: 'Đỉnh cao AI', en: 'Top AI Value' },
-}
+const FAQ_ITEMS = [
+  {
+    qVi: 'Tôi cần trình độ tiếng Anh nào để bắt đầu học trên Eduvia / LexiGrow?',
+    qEn: 'What level do I need to start learning at Eduvia?',
+    aVi: 'Nền tảng hỗ trợ từ trình độ người mới bắt đầu (A1/A2) đến nâng cao (B2/C1). Hệ thống sẽ tự động điều chỉnh độ khó bài đọc và từ vựng theo kết quả luyện tập của bạn.',
+    aEn: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus egestas vitae laoreet.'
+  },
+  {
+    qVi: 'Các lớp học và bài luyện tập là tự học hay tương tác trực tiếp?',
+    qEn: 'Are the classes self-paced or live?',
+    aVi: 'Bạn có thể tự học theo lộ trình 24/7 với phản hồi tức thì từ AI, đồng thời tham gia các phòng luyện viết và thảo luận cùng cộng đồng học viên.',
+    aEn: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus egestas vitae laoreet.'
+  },
+  {
+    qVi: 'Thời lượng của mỗi khóa học thường kéo dài bao lâu?',
+    qEn: 'How long does each course usually take?',
+    aVi: 'Mỗi lộ trình được chia thành các vòng học vi mô từ 10-15 phút/ngày, giúp bạn hoàn thành một cấp độ sau 4-6 tuần học kiên trì.',
+    aEn: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus egestas vitae laoreet.'
+  },
+  {
+    qVi: 'Nền tảng hỗ trợ những phương thức thanh toán nào?',
+    qEn: 'What payment methods are supported?',
+    aVi: 'Hệ thống hỗ trợ quét mã VietQR tự động qua tất cả các ứng dụng ngân hàng Việt Nam (PayOS), kích hoạt gói ngay sau vài giây.',
+    aEn: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus egestas vitae laoreet.'
+  },
+  {
+    qVi: 'Tôi có nhận được chứng nhận sau khi hoàn thành khóa học không?',
+    qEn: 'Do I get a certificate after finishing a course?',
+    aVi: 'Có! Khi hoàn thành đầy đủ các bài tập từ vựng, viết luận và bài kiểm tra tiến độ, bạn sẽ nhận được chứng nhận hoàn thành chuẩn CEFR.',
+    aEn: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus egestas vitae laoreet.'
+  },
+  {
+    qVi: 'Nếu tôi chưa tự tin nói và viết tiếng Anh thì có theo kịp không?',
+    qEn: 'What if I’m not confident speaking English yet?',
+    aVi: 'Đừng lo lắng! AI đóng vai trò như một người bạn đồng hành kiên nhẫn, không phán xét, luôn giải thích cặn kẽ và khuyến khích bạn tiến bộ từng ngày.',
+    aEn: 'Sociis varius nisl eu ipsum faucibus. Ac semper nisl turpis diam libero id ante nullam. Tellus egestas vitae laoreet.'
+  }
+]
 
 export default function PricingPage() {
   const { user, isAuthenticated } = useAuth()
   const { t, language } = useLanguage()
   const navigate = useNavigate()
 
-  const [billingCycle, setBillingCycle] = useState('monthly') // 'monthly' | 'yearly'
-  const [activeTab, setActiveTab] = useState(user?.role === 'teacher' ? 'teacher' : 'student')
   const [plans, setPlans] = useState([])
   const [currentTierInfo, setCurrentTierInfo] = useState(null)
+  const [activeTab, setActiveTab] = useState('student') // 'student' | 'teacher'
+  const [billingCycle, setBillingCycle] = useState('monthly') // 'monthly' | 'yearly'
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [processingSlug, setProcessingSlug] = useState(null)
-  const [error, setError] = useState('')
 
   useEffect(() => {
-    fetchData()
-  }, [])
+    let isMounted = true
+    const fetchData = async () => {
+      try {
+        setLoading(true)
+        const plansData = await paymentService.getPlans()
+        if (isMounted) {
+          setPlans(Array.isArray(plansData) ? plansData : plansData.data || [])
+        }
 
-  async function fetchData() {
-    try {
-      setLoading(true)
-      const resPlans = await paymentService.getPlans()
-      const plansList = Array.isArray(resPlans) ? resPlans : (resPlans?.data || [])
-      setPlans(plansList)
-
-      if (isAuthenticated) {
-        const resTier = await paymentService.getMySubscription()
-        const tierObj = resTier?.data || (resTier?.tier ? resTier : null)
-        setCurrentTierInfo(tierObj)
+        if (isAuthenticated) {
+          const subData = await paymentService.getMySubscription()
+          if (isMounted && subData.success && subData.data) {
+            setCurrentTierInfo(subData.data)
+          }
+        }
+      } catch (err) {
+        if (isMounted) setError(err.message || t('pricing.fetchError', 'Could not load subscription plans.'))
+      } finally {
+        if (isMounted) setLoading(false)
       }
-    } catch (err) {
-      console.error('Error loading pricing data:', err)
-      setError(t('pricing.loadingError', 'Unable to load pricing plans. Please try again later.'))
-    } finally {
-      setLoading(false)
     }
-  }
+    fetchData()
+    return () => { isMounted = false }
+  }, [isAuthenticated, t])
 
-  async function handleSubscribe(planSlug) {
+  const handleSubscribe = async (planSlug) => {
     if (!isAuthenticated) {
-      navigate('/login', {
-        state: { infoMessage: t('pricing.loginPrompt', 'Please log in to upgrade your subscription plan.') },
-      })
+      navigate('/login', { state: { from: '/pricing', infoMessage: t('pricing.loginRequired', 'Please log in to purchase a plan.') } })
       return
     }
 
     try {
       setProcessingSlug(planSlug)
-      setError('')
-      const res = await paymentService.createPaymentLink(planSlug, billingCycle)
-      if (res.data?.checkoutUrl) {
-        // Redirect to PayOS VietQR payment page
+      setError(null)
+      const res = await paymentService.createCheckoutSession(planSlug, billingCycle)
+      if (res.success && res.data?.checkoutUrl) {
         window.location.href = res.data.checkoutUrl
       } else {
-        setError(t('pricing.checkoutError', 'Did not receive checkout link from PayOS. Please try again.'))
+        throw new Error(res.message || t('pricing.checkoutError', 'Error creating PayOS payment link.'))
       }
     } catch (err) {
       setError(err.message || t('pricing.checkoutError', 'Error creating PayOS payment link.'))
@@ -408,9 +219,7 @@ export default function PricingPage() {
   const getTranslatedFeature = (feat) => {
     if (!feat) return ''
     const match = FEATURE_TRANSLATIONS[feat]
-    if (match && match[language]) {
-      return match[language]
-    }
+    if (match && match[language]) return match[language]
     return feat
   }
 
@@ -421,318 +230,264 @@ export default function PricingPage() {
     return plan.description
   }
 
-  const getTranslatedBadge = (badge) => {
-    if (!badge) return ''
-    if (BADGE_TRANSLATIONS[badge] && BADGE_TRANSLATIONS[badge][language]) {
-      return BADGE_TRANSLATIONS[badge][language]
-    }
-    return badge
-  }
-
   const studentPlans = plans.filter((p) => p.targetRole === 'student')
   const teacherPlans = plans.filter((p) => p.targetRole === 'teacher')
+  const activePlans = activeTab === 'student' ? studentPlans : teacherPlans
 
   return (
-    <div className="pricing-page">
-      {/* Header Banner */}
-      <section className="pricing__header">
-        <div className="pricing__badge">
-          <span className="pricing__badge-dot" />
-          <span className="material-symbols-outlined pricing__badge-icon">verified_user</span>
-          <span className="pricing__badge-text">{t('pricing.badgeText', 'Automated 24/7 payment via VietQR PayOS')}</span>
-          <span className="pricing__badge-pill">{t('pricing.sslSecured', 'SSL Secured')}</span>
-        </div>
-        <div className="pricing__header-layout">
-          <div className="pricing__header-copy">
-            <h1 className="pricing__title">{t('pricing.title', 'Choose the Right Learning Plan')}</h1>
-            <p className="pricing__subtitle">
-              {t(
-                'pricing.headerSubtitle',
-                'In-depth IELTS-standard essay scoring, unlock the complete Knowledge Garden, and accelerate language reflexes.'
-              )}
-            </p>
-          </div>
-
-        {/* Current Tier Alert if user is subscribed or sponsored */}
-        {currentTierInfo && currentTierInfo.tier !== 'free' && (
-          <div className="pricing__current-tier-alert">
-            <span className="material-symbols-outlined">workspace_premium</span>
-            <div>
-              <strong>{t('pricing.currentPlanAlert', 'Your current plan')}: </strong>
-              <span className="pricing__tier-tag">{currentTierInfo.tier.toUpperCase()}</span>
-
-              {/* Sponsored by teacher */}
-              {currentTierInfo.source === 'teacher_sponsored' && currentTierInfo.sponsoredByTeacher?.name && (
-                <span className="pricing__plan-source">
-                  {' '}({t('pricing.sponsoredPlanDetail', 'Sponsored by Teacher {name} ({tier})', {
-                    name: currentTierInfo.sponsoredByTeacher.name,
-                    tier: currentTierInfo.tier.toUpperCase(),
-                  })})
-                </span>
-              )}
-
-              {/* Personal subscription — show plan name if available */}
-              {currentTierInfo.source === 'personal_subscription' && currentTierInfo.planName && (
-                <span className="pricing__plan-source">
-                  {' '}({currentTierInfo.planName})
-                </span>
-              )}
-
-              {/* Expiry date */}
-              {currentTierInfo.expiresAt && (
-                <span className="pricing__expire-text">
-                  {' '}—{' '}{t('pricing.expiresOn', 'Valid until')}{' '}
-                  {new Date(currentTierInfo.expiresAt).toLocaleDateString(
-                    language === 'vi' ? 'vi-VN' : 'en-US',
-                    { day: 'numeric', month: 'numeric', year: 'numeric' }
-                  )}
-                </span>
-              )}
-            </div>
-          </div>
-        )}
-
-        <div className="pricing__header-controls">
-        {/* Target Audience Tabs */}
-        <div className="pricing__role-tabs">
-          <button
-            type="button"
-            className={`pricing__role-tab ${activeTab === 'student' ? 'active' : ''}`}
-            onClick={() => setActiveTab('student')}
-          >
-            <span className="material-symbols-outlined">school</span>
-            <span>{t('pricing.forStudents', 'For Students / Individuals')}</span>
-          </button>
-          <button
-            type="button"
-            className={`pricing__role-tab ${activeTab === 'teacher' ? 'active' : ''}`}
-            onClick={() => setActiveTab('teacher')}
-          >
-            <span className="material-symbols-outlined">co_present</span>
-            <span>{t('pricing.forTeachers', 'For Teachers & Institutions')}</span>
-          </button>
-        </div>
-
-        {/* Billing Cycle Switcher */}
-        <div className="pricing__cycle-toggle-wrap">
-          <span className={billingCycle === 'monthly' ? 'active' : ''}>{t('pricing.monthly', 'Monthly')}</span>
-          <button
-            type="button"
-            className={`pricing__toggle-btn ${billingCycle === 'yearly' ? 'yearly' : ''}`}
-            onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
-            aria-label="Toggle billing cycle"
-          >
-            <div className="pricing__toggle-knob" />
-          </button>
-          <span className={billingCycle === 'yearly' ? 'active' : ''}>
-            {t('pricing.yearly', 'Yearly')} <span className="pricing__discount-pill">{t('pricing.save20', 'Save ~20%')}</span>
-          </span>
-        </div>
-        </div>
+    <div className="eduvia-pricing-page">
+      {/* ── BREADCRUMB HERO BANNER (Sky pastel blue) ── */}
+      <section className="eduvia-page-hero">
+        <h1 className="eduvia-page-hero__title">Pricing</h1>
+        <p className="eduvia-page-hero__desc">
+          Cras nisi suspendisse sit semper. Massa erat volutpat volutpat id suspendisse tristique cras a consequat.
+        </p>
+        <div className="eduvia-breadcrumbs">
+          <Link to="/student/home">Home</Link>
+          <span className="eduvia-breadcrumbs__sep">·</span>
+          <span>Pricing</span>
         </div>
       </section>
 
-      {error && (
-        <div className="pricing__error-alert">
-          <span className="material-symbols-outlined">error</span>
-          <span>{error}</span>
-        </div>
-      )}
-
-      {/* Teacher Sponsorship Benefit Notice */}
-      {activeTab === 'teacher' && (
-        <div className="pricing__teacher-notice">
-          <span className="material-symbols-outlined">diversity_3</span>
+      <div className="eduvia-pricing-container">
+        {/* Section Header */}
+        <div className="eduvia-section-header">
           <div>
-            <strong>{t('pricing.teacherBenefitTitle', 'Teacher Student Sponsorship Benefit:')}</strong>
-            <p>
-              {t(
-                'pricing.teacherBenefitDesc',
-                'When educators subscribe to a Teacher Plan, all students in your classes get premium features unlocked completely free up to the plan limit!'
-              )}
-            </p>
+            <span className="eduvia-kicker eduvia-kicker--green">Course Pricing</span>
+            <h2 className="eduvia-section-title">Choose Plans That Fit Your Learning</h2>
+          </div>
+          <p className="eduvia-section-desc">
+            Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus. Nibh malesuada donec eu congue auctor turpis. Sit leo pharetra id magna nisi mauris.
+          </p>
+        </div>
+
+        {/* Audience and Cycle Controls */}
+        <div className="eduvia-pricing-controls">
+          <div className="eduvia-role-pills">
+            <button
+              type="button"
+              className={`eduvia-role-pill ${activeTab === 'student' ? 'active' : ''}`}
+              onClick={() => setActiveTab('student')}
+            >
+              <span className="material-symbols-outlined">school</span>
+              <span>{language === 'vi' ? 'Học viên cá nhân' : 'For Students'}</span>
+            </button>
+            <button
+              type="button"
+              className={`eduvia-role-pill ${activeTab === 'teacher' ? 'active' : ''}`}
+              onClick={() => setActiveTab('teacher')}
+            >
+              <span className="material-symbols-outlined">co_present</span>
+              <span>{language === 'vi' ? 'Giáo viên & Lớp học' : 'For Teachers'}</span>
+            </button>
+          </div>
+
+          <div className="eduvia-cycle-toggle">
+            <span className={billingCycle === 'monthly' ? 'active' : ''}>{t('pricing.monthly', 'Hàng tháng')}</span>
+            <button
+              type="button"
+              className={`eduvia-toggle-btn ${billingCycle === 'yearly' ? 'yearly' : ''}`}
+              onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'yearly' : 'monthly')}
+              aria-label="Toggle billing cycle"
+            >
+              <span className="eduvia-toggle-knob" />
+            </button>
+            <span className={billingCycle === 'yearly' ? 'active' : ''}>
+              {t('pricing.yearly', 'Hàng năm')} <span className="eduvia-discount-pill">-20%</span>
+            </span>
           </div>
         </div>
-      )}
 
-      {/* Pricing Cards Grid */}
-      <section className="pricing__grid">
-        {loading ? (
-          <div className="pricing__loading">
-            <span className="material-symbols-outlined animate-spin">progress_activity</span>
-            <p>{t('pricing.loadingPlans', 'Loading pricing plans...')}</p>
+        {error && (
+          <div className="eduvia-error-alert">
+            <span className="material-symbols-outlined">error</span>
+            <span>{error}</span>
           </div>
-        ) : activeTab === 'student' ? (
-          <>
-            {/* FREE PLAN */}
-            <div className="pricing__card">
-              <div className="pricing__card-head">
-                <h3 className="pricing__card-name">{t('pricing.freePlan', 'Free Plan')}</h3>
-                <p className="pricing__card-desc">{t('pricing.freePlanDesc', 'Get started with contextual vocabulary acquisition.')}</p>
-                <div className="pricing__price-box">
-                  <div className="pricing__price-wrapper">
-                    <span className="pricing__price">0</span>
-                    <span className="pricing__currency">VND</span>
-                  </div>
-                  <span className="pricing__period">{t('pricing.perLifetime', '/ lifetime')}</span>
-                </div>
-              </div>
-              <ul className="pricing__features-list">
-                <li>
-                  <span className="material-symbols-outlined check">check_circle</span>
-                  <span>{t('pricing.freeFeature1', '3 AI essay reviews & scores daily')}</span>
-                </li>
-                <li>
-                  <span className="material-symbols-outlined check">check_circle</span>
-                  <span>{t('pricing.freeFeature2', 'Join up to 1 classroom')}</span>
-                </li>
-                <li>
-                  <span className="material-symbols-outlined check">check_circle</span>
-                  <span>{t('pricing.freeFeature3', 'Access 3 foundation vocabulary decks')}</span>
-                </li>
-                <li>
-                  <span className="material-symbols-outlined check">check_circle</span>
-                  <span>{t('pricing.freeFeature4', 'Standard Spaced Repetition (SRS) Flashcards')}</span>
-                </li>
-              </ul>
-              <button type="button" className="pricing__btn pricing__btn--outline" disabled>
-                {currentTierInfo?.tier === 'free' ? t('pricing.currentPlan', 'Current Plan') : t('pricing.defaultPlan', 'Default Plan')}
-              </button>
-            </div>
+        )}
 
-            {/* DYNAMIC STUDENT PLANS */}
-            {studentPlans.map((plan) => {
+        {/* ── 3 PRICING CARDS ── */}
+        {loading ? (
+          <div className="eduvia-pricing-loading">
+            <span className="material-symbols-outlined animate-spin">progress_activity</span>
+            <p>{t('common.loading', 'Đang tải bảng giá...')}</p>
+          </div>
+        ) : (
+          <div className="eduvia-pricing-cards">
+            {activePlans.map((plan, index) => {
               const price = billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice
-              const formattedPrice = price.toLocaleString('en-US')
-              const isCurrent = currentTierInfo?.tier === plan.tier && currentTierInfo?.source === 'personal_subscription'
-              const isPopular = plan.tier === 'pro' || !!plan.highlightBadge
+              const formattedPrice = price.toLocaleString(language === 'vi' ? 'vi-VN' : 'en-US')
+              const isCurrent = currentTierInfo?.tier === plan.tier
+              const isFeatured = plan.tier === 'pro' || index === 1
 
               return (
-                <div key={plan.slug} className={`pricing__card ${isPopular ? 'popular' : ''}`}>
-                  {plan.highlightBadge && (
-                    <div className="pricing__popular-badge">{getTranslatedBadge(plan.highlightBadge)}</div>
-                  )}
-                  <div className="pricing__card-head">
-                    <h3 className="pricing__card-name">{plan.name}</h3>
-                    <p className="pricing__card-desc">{getTranslatedDesc(plan)}</p>
-                    <div className="pricing__price-box">
-                      <div className="pricing__price-wrapper">
-                        <span className="pricing__price">{formattedPrice}</span>
-                        <span className="pricing__currency">VND</span>
-                      </div>
-                      <span className="pricing__period">
-                        {billingCycle === 'yearly' ? t('pricing.perYear', '/ year') : t('pricing.perMonth', '/ month')}
-                      </span>
+                <div key={plan.slug} className={`eduvia-price-card ${isFeatured ? 'eduvia-price-card--featured' : ''}`}>
+                  <div className={`eduvia-price-card__header ${isFeatured ? 'eduvia-price-card__header--green' : 'eduvia-price-card__header--purple'}`}>
+                    <span className="eduvia-price-card__plan-name">{plan.name.toUpperCase()}</span>
+                    <div className="eduvia-price-card__amount">
+                      <strong>{formattedPrice}</strong>
+                      <span>{billingCycle === 'yearly' ? 'VND/year' : 'VND/month'}</span>
+                    </div>
+                    <p>{getTranslatedDesc(plan)}</p>
+                    <button
+                      type="button"
+                      className="eduvia-btn eduvia-btn--lime eduvia-btn--full"
+                      onClick={() => handleSubscribe(plan.slug)}
+                      disabled={isCurrent || processingSlug === plan.slug}
+                    >
+                      {processingSlug === plan.slug ? (
+                        <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                      ) : isCurrent ? (
+                        t('pricing.currentPlan', 'Gói hiện tại')
+                      ) : isFeatured ? (
+                        t('pricing.chooseStandard', 'Choose Standard')
+                      ) : (
+                        t('pricing.getPlan', 'Get Plan')
+                      )}
+                    </button>
+                  </div>
+
+                  <div className="eduvia-price-card__body">
+                    <h4>Included:</h4>
+                    <ul className="eduvia-price-card__checklist">
+                      {plan.features.map((feat, idx) => (
+                        <li key={idx}>
+                          <span className="material-symbols-outlined">check</span>
+                          <span>{getTranslatedFeature(feat)}</span>
+                        </li>
+                      ))}
+                    </ul>
+                    <div className="eduvia-price-card__footer-note">
+                      <strong>{isFeatured ? 'Most popular plan' : 'Best for starters'}</strong>
+                      <p>Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus.</p>
                     </div>
                   </div>
-                  <ul className="pricing__features-list">
-                    {plan.features.map((feat, idx) => (
-                      <li key={idx}>
-                        <span className="material-symbols-outlined check">check_circle</span>
-                        <span>{getTranslatedFeature(feat)}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <button
-                    type="button"
-                    className={`pricing__btn ${isPopular ? 'pricing__btn--primary' : 'pricing__btn--secondary'}`}
-                    onClick={() => handleSubscribe(plan.slug)}
-                    disabled={isCurrent || processingSlug === plan.slug}
-                  >
-                    {processingSlug === plan.slug ? (
-                      <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                    ) : isCurrent ? (
-                      t('pricing.currentPlan', 'Current Plan')
-                    ) : (
-                      <>
-                        <span>{t('pricing.choosePlan', 'Upgrade with PayOS')}</span>
-                        <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
-                      </>
-                    )}
-                  </button>
                 </div>
               )
             })}
-          </>
-        ) : (
-          /* DYNAMIC TEACHER PLANS */
-          teacherPlans.map((plan) => {
-            const price = billingCycle === 'yearly' ? plan.yearlyPrice : plan.monthlyPrice
-            const formattedPrice = price.toLocaleString('en-US')
-            const isCurrent = currentTierInfo?.tier === plan.tier
-            const isPopular = plan.tier === 'pro' || !!plan.highlightBadge
-
-            return (
-              <div key={plan.slug} className={`pricing__card pricing__card--teacher ${isPopular ? 'popular' : ''}`}>
-                {plan.highlightBadge && (
-                  <div className="pricing__popular-badge">{getTranslatedBadge(plan.highlightBadge)}</div>
-                )}
-                <div className="pricing__card-head">
-                  <div className="pricing__sponsor-pill">
-                    <span className="material-symbols-outlined">group</span>
-                    <span>{t('pricing.sponsorStudents', 'Sponsor {count} Students', { count: plan.maxSponsoredStudents })}</span>
-                  </div>
-                  <h3 className="pricing__card-name">{plan.name}</h3>
-                  <p className="pricing__card-desc">{getTranslatedDesc(plan)}</p>
-                  <div className="pricing__price-box">
-                    <div className="pricing__price-wrapper">
-                      <span className="pricing__price">{formattedPrice}</span>
-                      <span className="pricing__currency">VND</span>
-                    </div>
-                    <span className="pricing__period">
-                      {billingCycle === 'yearly' ? t('pricing.perYear', '/ year') : t('pricing.perMonth', '/ month')}
-                    </span>
-                  </div>
-                </div>
-                <ul className="pricing__features-list">
-                  {plan.features.map((feat, idx) => (
-                    <li key={idx}>
-                      <span className="material-symbols-outlined check">check_circle</span>
-                      <span>{getTranslatedFeature(feat)}</span>
-                    </li>
-                  ))}
-                </ul>
-                <button
-                  type="button"
-                  className={`pricing__btn ${isPopular ? 'pricing__btn--primary' : 'pricing__btn--secondary'}`}
-                  onClick={() => handleSubscribe(plan.slug)}
-                  disabled={isCurrent || processingSlug === plan.slug}
-                >
-                  {processingSlug === plan.slug ? (
-                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                  ) : isCurrent ? (
-                    t('pricing.currentPlan', 'Current Plan')
-                  ) : (
-                    <>
-                      <span>{t('pricing.chooseTeacherPlan', 'Subscribe to Teacher Plan')}</span>
-                      <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            )
-          })
+          </div>
         )}
-      </section>
 
-      {/* FAQ Section */}
-      <section className="pricing__faq">
-        <h2 className="pricing__faq-title">{t('pricing.faqTitle', 'Frequently Asked Questions (FAQ)')}</h2>
-        <div className="pricing__faq-grid">
-          <div className="pricing__faq-item">
-            <h4>{t('pricing.faq1Q', 'How does payment via VietQR PayOS work?')}</h4>
-            <p>{t('pricing.faq1A', 'You select a plan, scan the dynamic VietQR code with any Vietnamese banking app, and your plan activates automatically within seconds.')}</p>
+        {/* ── WHY CHOOSE US SECTION WITH VIDEO MOCKUP ── */}
+        <section className="eduvia-why-section" style={{ marginTop: 80 }}>
+          <div className="eduvia-center-header">
+            <span className="eduvia-kicker eduvia-kicker--purple">Why Choose Eduvia</span>
+            <h2 className="eduvia-section-title">Learn English Faster With Better Guidance</h2>
           </div>
-          <div className="pricing__faq-item">
-            <h4>{t('pricing.faq2Q', 'What happens when a teacher upgrades?')}</h4>
-            <p>{t('pricing.faq2A', 'When a teacher purchases Pro/Ultra Teacher plans, all linked students in their classrooms automatically receive full Pro essay grading access.')}</p>
+
+          <div className="eduvia-why-cards">
+            <div className="eduvia-why-card">
+              <span className="eduvia-why-card__icon"><span className="material-symbols-outlined">menu_book</span></span>
+              <h3>High Quality English Learning System</h3>
+              <p>Pretium lectus mauris commodo viverra orci. Ut dapibus vestibulum mollis neque rutrum risus duis.</p>
+            </div>
+            <div className="eduvia-why-card">
+              <span className="eduvia-why-card__icon"><span className="material-symbols-outlined">menu_book</span></span>
+              <h3>High Quality English Learning System</h3>
+              <p>Pretium lectus mauris commodo viverra orci. Ut dapibus vestibulum mollis neque rutrum risus duis.</p>
+            </div>
+            <div className="eduvia-why-card">
+              <span className="eduvia-why-card__icon"><span className="material-symbols-outlined">menu_book</span></span>
+              <h3>High Quality English Learning System</h3>
+              <p>Pretium lectus mauris commodo viverra orci. Ut dapibus vestibulum mollis neque rutrum risus duis.</p>
+            </div>
           </div>
-          <div className="pricing__faq-item">
-            <h4>{t('pricing.faq3Q', 'Can I cancel or change plans anytime?')}</h4>
-            <p>{t('pricing.faq3A', 'Yes, your active subscription remains valid until the end of the billing period without any hidden fees.')}</p>
+
+          <div className="eduvia-video-container">
+            <img src="/assets/eduvia/image-13.jpg" alt="Student studying with headphones" className="eduvia-video-container__poster" />
+            <button type="button" className="eduvia-video-container__play-btn" aria-label="Play video">
+              <span className="material-symbols-outlined">play_arrow</span>
+            </button>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* ── 4 NUMBERED STEPS: SIMPLE STEPS TO START LEARNING ── */}
+        <section className="eduvia-steps-section" style={{ marginTop: 80 }}>
+          <div className="eduvia-section-header">
+            <div>
+              <span className="eduvia-kicker eduvia-kicker--mint">How It Works</span>
+              <h2 className="eduvia-section-title">Simple Steps To Start Learning</h2>
+            </div>
+            <p className="eduvia-section-desc">
+              Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus. Nibh malesuada donec eu congue auctor turpis. Sit leo pharetra id magna nisi mauris.
+            </p>
+          </div>
+
+          <div className="eduvia-steps-grid">
+            <div className="eduvia-step-card">
+              <span className="eduvia-step-num">01</span>
+              <span className="eduvia-step-dot" />
+              <h3>Choose Course</h3>
+              <p>Sit quis dui neque ullamcorper vitae est lorem nullam. Et lorem mattis viverra iaculis at varius.</p>
+              <Link to="/student/explore" className="eduvia-step-link">Start Here</Link>
+            </div>
+            <div className="eduvia-step-card">
+              <span className="eduvia-step-num">02</span>
+              <span className="eduvia-step-dot" />
+              <h3>Join Class</h3>
+              <p>Sit quis dui neque ullamcorper vitae est lorem nullam. Et lorem mattis viverra iaculis at varius.</p>
+              <Link to="/student/explore" className="eduvia-step-link">Enroll Now</Link>
+            </div>
+            <div className="eduvia-step-card">
+              <span className="eduvia-step-num">03</span>
+              <span className="eduvia-step-dot" />
+              <h3>Learn & Practice</h3>
+              <p>Sit quis dui neque ullamcorper vitae est lorem nullam. Et lorem mattis viverra iaculis at varius.</p>
+              <Link to="/student/writing" className="eduvia-step-link">Start Practice</Link>
+            </div>
+            <div className="eduvia-step-card">
+              <span className="eduvia-step-num">04</span>
+              <span className="eduvia-step-dot" />
+              <h3>Track Progress</h3>
+              <p>Sit quis dui neque ullamcorper vitae est lorem nullam. Et lorem mattis viverra iaculis at varius.</p>
+              <Link to="/student/progress" className="eduvia-step-link">View Progress</Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ── DARK CTA BANNER ── */}
+        <section className="eduvia-dark-cta" style={{ marginTop: 80 }}>
+          <div className="eduvia-dark-cta__inner">
+            <span className="eduvia-dark-cta__kicker">Why Choose Eduvia</span>
+            <h2>Begin Your English Journey With Confidence</h2>
+            <p>
+              Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus. Nibh malesuada donec eu congue auctor turpis. Sit leo pharetra id magna nisi mauris.
+            </p>
+            <div className="eduvia-dark-cta__actions">
+              <Link to={user ? '/student/dashboard' : '/register'} className="eduvia-btn eduvia-btn--lime">
+                Get Started
+              </Link>
+              <Link to="/student/explore" className="eduvia-btn eduvia-btn--mint">
+                Explore Courses
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* ── FAQ ACCORDION SECTION (ANSWERS TO YOUR COMMON QUESTIONS) ── */}
+        <section className="eduvia-faq-section" style={{ marginTop: 80 }}>
+          <div className="eduvia-section-header">
+            <div>
+              <span className="eduvia-kicker eduvia-kicker--mint">Faqs</span>
+              <h2 className="eduvia-section-title">Answers To Your Common Questions</h2>
+            </div>
+            <button type="button" className="eduvia-btn eduvia-btn--mint">
+              View All FAQs
+            </button>
+          </div>
+
+          <div className="eduvia-faq-grid">
+            {FAQ_ITEMS.map((item, idx) => (
+              <div className="eduvia-faq-item" key={idx}>
+                <div className="eduvia-faq-item__header">
+                  <span className="eduvia-faq-icon material-symbols-outlined">subdirectory_arrow_right</span>
+                  <h4>{language === 'vi' ? item.qVi : item.qEn}</h4>
+                </div>
+                <p>{language === 'vi' ? item.aVi : item.aEn}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
     </div>
   )
 }

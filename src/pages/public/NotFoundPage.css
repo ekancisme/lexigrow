@@ -1,0 +1,53 @@
+/* ==========================================================================
+   Eduvia 404 Page — Matching 10_404.png
+   ========================================================================== */
+
+.eduvia-404-page {
+  --eduvia-navy: #051A2E;
+  --eduvia-lime: #E9FA49;
+  --eduvia-mint: #1CB886;
+  --eduvia-purple: #9E89FB;
+  --eduvia-hero-bg: #DDE9FF;
+  --eduvia-surface: #F4F7FA;
+  --eduvia-pink: #FF09AD;
+  --eduvia-muted: #576C80;
+
+  background: var(--eduvia-hero-bg);
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+}
+
+.eduvia-404-hero {
+  max-width: 640px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.eduvia-404-code {
+  font-size: clamp(96px, 14vw, 150px);
+  font-weight: 800;
+  line-height: 1;
+  color: var(--eduvia-navy);
+  margin: 0;
+  letter-spacing: -0.04em;
+}
+
+.eduvia-404-title {
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 700;
+  color: var(--eduvia-purple);
+  margin: 0;
+}
+
+.eduvia-404-desc {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--eduvia-muted);
+  margin: 0 0 16px;
+}

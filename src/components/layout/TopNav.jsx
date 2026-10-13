@@ -19,7 +19,7 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
   const navigate = useNavigate()
   const { user, logout } = useAuth()
   const { theme, toggleTheme } = useTheme()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const openId = disclosure.route === location.key ? disclosure.id : null
   const setOpenId = next => setDisclosure(current => ({
     id: typeof next === 'function' ? next(current.route === location.key ? current.id : null) : next,
@@ -85,10 +85,7 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
     }}>
       <div className="topnav__bar">
         <Link to={role === 'student' ? '/student/home' : `/${role}/dashboard`} className="topnav__brand" onClick={closeNavigation} aria-label={t('headerNavigation.homeLabel')}>
-          <span className="topnav__brand-mark">
-            <img src="/assets/brand/lexigrow-emblem.png" alt="" width="28" height="28" className="topnav__brand-img" />
-          </span>
-          <span>LexiGrow</span>
+          <img src="/assets/eduvia/Logo.png" alt="Eduvia" width="138" height="38" className="topnav__brand-img-logo" />
         </Link>
         <div id="topnav-main-navigation" className={`topnav__navigation ${menuOpen ? 'is-open' : ''}`}>
           <HeaderNavigation role={role} openId={openId} setOpenId={setOpenId} onNavigate={closeNavigation} />
@@ -143,8 +140,7 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
             </>
           ) : (
             <Link to="/login" className="topnav__login-btn" onClick={closeNavigation}>
-              <span className="material-symbols-outlined" aria-hidden="true">login</span>
-              <span>{t('auth.loginBtn', 'Đăng nhập')}</span>
+              <span>{language === 'vi' ? 'Bắt đầu ngay' : 'Get Started'}</span>
             </Link>
           )}
           <button ref={menuButtonRef} type="button" className="topnav__icon-btn topnav__menu-btn" onClick={() => { setOpenId(null); onMenuToggle() }}

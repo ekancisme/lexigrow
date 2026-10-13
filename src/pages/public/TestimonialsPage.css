@@ -1,0 +1,276 @@
+/* ==========================================================================
+   Eduvia Testimonials Page — Matching 07_testimonials.png
+   ========================================================================== */
+
+.eduvia-testimonials-page {
+  --eduvia-navy: #051A2E;
+  --eduvia-lime: #E9FA49;
+  --eduvia-mint: #1CB886;
+  --eduvia-purple: #9E89FB;
+  --eduvia-hero-bg: #DDE9FF;
+  --eduvia-surface: #F4F7FA;
+  --eduvia-pink: #FF09AD;
+  --eduvia-muted: #576C80;
+  --eduvia-border: rgba(5, 26, 46, 0.08);
+}
+
+.eduvia-testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.eduvia-testi-card {
+  background: #FFFFFF;
+  border: 1px solid var(--eduvia-border);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: all 0.25s ease;
+}
+.eduvia-testi-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(5, 26, 46, 0.06);
+}
+.eduvia-testi-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.eduvia-testi-card__stars {
+  color: #F5A623;
+  letter-spacing: 2px;
+  font-size: 13px;
+}
+.eduvia-testi-card__score {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--eduvia-navy);
+}
+.eduvia-testi-card__quote {
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--eduvia-muted);
+  margin: 0;
+  flex: 1;
+}
+.eduvia-testi-card__bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 10px;
+  border-top: 1px solid var(--eduvia-border);
+}
+.eduvia-testi-card__name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--eduvia-navy);
+}
+.eduvia-testi-card__badge {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #6C52E5;
+  background: rgba(158, 137, 251, 0.15);
+  padding: 4px 10px;
+  border-radius: 99px;
+}
+
+/* ── VIDEO SHOWCASE BANNER ── */
+.eduvia-video-banner {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  aspect-ratio: 21 / 9;
+  background: #051A2E;
+}
+.eduvia-video-banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.85;
+}
+.eduvia-video-banner__overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(5, 26, 46, 0.25);
+}
+.eduvia-play-bubble {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--eduvia-purple);
+  color: #FFFFFF;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 12px 30px rgba(158, 137, 251, 0.5);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+.eduvia-play-bubble:hover {
+  transform: scale(1.1);
+}
+.eduvia-play-bubble .material-symbols-outlined {
+  font-size: 38px;
+}
+
+/* ── FEATURES BAR ── */
+.eduvia-features-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  padding: 24px 0;
+  border-top: 1px solid var(--eduvia-border);
+  border-bottom: 1px solid var(--eduvia-border);
+}
+.eduvia-features-bar__item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.eduvia-features-bar__icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(158, 137, 251, 0.15);
+  color: #6C52E5;
+  display: grid;
+  place-items: center;
+}
+.eduvia-features-bar__icon .material-symbols-outlined {
+  font-size: 22px;
+}
+.eduvia-features-bar__text h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--eduvia-navy);
+  margin: 0 0 4px;
+}
+.eduvia-features-bar__text p {
+  font-size: 13px;
+  color: var(--eduvia-muted);
+  margin: 0;
+}
+
+/* ── PROMO SPLIT ── */
+.eduvia-promo-split {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 32px;
+}
+.eduvia-promo-card {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  min-height: 380px;
+}
+.eduvia-promo-card--photo {
+  background: #E8EEF5;
+}
+.eduvia-promo-card__bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.eduvia-promo-badge-rating {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  background: var(--eduvia-purple);
+  color: #FFFFFF;
+  padding: 20px 24px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 10px 24px rgba(158, 137, 251, 0.35);
+}
+.eduvia-promo-badge-rating__score {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.eduvia-promo-badge-rating__label {
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.95;
+}
+
+.eduvia-promo-card--navy {
+  background: var(--eduvia-navy);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 48px 40px;
+}
+.eduvia-promo-card__content {
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+  z-index: 2;
+}
+.eduvia-pill-badge--green {
+  background: var(--eduvia-mint);
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 99px;
+}
+.eduvia-promo-card__content h2 {
+  font-size: clamp(28px, 3vw, 36px);
+  font-weight: 700;
+  line-height: 1.25;
+  margin: 0;
+  color: #FFFFFF;
+}
+.eduvia-promo-card__content p {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #B4C6D8;
+  margin: 0;
+}
+.eduvia-promo-card__cutout {
+  position: relative;
+  align-self: flex-end;
+  max-height: 360px;
+  margin-right: -20px;
+  margin-bottom: -48px;
+}
+.eduvia-promo-card__cutout img {
+  height: 360px;
+  width: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 1024px) {
+  .eduvia-testimonials-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .eduvia-features-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .eduvia-promo-split {
+    grid-template-columns: 1fr;
+  }
+  .eduvia-promo-card--navy {
+    flex-direction: column;
+    padding: 36px 28px;
+  }
+  .eduvia-promo-card__cutout {
+    align-self: center;
+    margin: 20px 0 0;
+  }
+}
+@media (max-width: 640px) {
+  .eduvia-testimonials-grid {
+    grid-template-columns: 1fr;
+  }
+  .eduvia-features-bar {
+    grid-template-columns: 1fr;
+  }
+}

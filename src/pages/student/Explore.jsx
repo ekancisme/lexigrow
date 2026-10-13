@@ -1,445 +1,311 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import { TOPIC_VOCABULARY_ROUNDS, getTopicRound } from '../../data/topicVocabularyRounds.js'
-import EditorialCoverImage from '../../components/common/EditorialCoverImage.jsx'
-import Button from '../../components/common/Button.jsx'
-import Badge from '../../components/common/Badge.jsx'
 import './Explore.css'
 
-const fallbackTopicSets = [
+const EDUVIA_COURSES = [
   {
     slug: 'daily-life',
+    tag: 'Speaking',
+    tagColor: 'green',
+    image: '/assets/eduvia/image-6.jpg',
+    rating: 5,
+    price: '$49',
     title: 'Daily Life & Routines',
-    titleVi: 'Sinh hoạt hàng ngày, đi lại & năng suất',
+    titleVi: 'Nâng cao kỹ năng giao tiếp tiếng Anh tự tin mỗi ngày',
     level: 'A2',
-    levelColor: 'a2',
-    icon: 'routine',
-    materialIcon: 'wb_sunny',
-    description: 'Master essential expressions for daily routines, commuting to work/school, and maintaining high productivity.',
+    lessons: '24 Lessons',
+    students: '4,800 Students',
+    timeEstimate: '10 mins',
+    desc: 'Master essential expressions for daily routines, commuting to work/school, and maintaining high productivity.',
     words: [
       { word: 'routine', meaning: 'Daily habits' },
       { word: 'commute', meaning: 'Travel to work/school' },
       { word: 'productive', meaning: 'High efficiency' },
       { word: 'efficient', meaning: 'Time-saving' }
-    ],
-    timeEstimate: '10 mins',
-    bgGradient: 'linear-gradient(135deg, #005bbf 0%, #1a73e8 100%)'
+    ]
   },
   {
-    slug: 'travel',
-    title: 'Travel & Exploration',
-    titleVi: 'Du lịch, lịch trình & trải nghiệm',
-    level: 'B1',
-    levelColor: 'b1',
-    icon: 'travel',
-    materialIcon: 'flight_takeoff',
-    description: 'Describe famous landmarks, detailed travel itineraries, and reserving hotel rooms.',
-    words: [
-      { word: 'itinerary', meaning: 'Trip schedule' },
-      { word: 'accommodation', meaning: 'Lodging' },
-      { word: 'landmark', meaning: 'Famous site' }
-    ],
+    slug: 'pronunciation-coach',
+    tag: 'Pronunciation',
+    tagColor: 'teal',
+    image: '/assets/eduvia/image-7.jpg',
+    rating: 5,
+    price: '$39',
+    title: 'Clear English Pronunciation',
+    titleVi: 'Làm chủ phát âm chuẩn quốc tế cùng hướng dẫn chuyên sâu',
+    level: 'A2',
+    lessons: '18 Lessons',
+    students: '3,200 Students',
     timeEstimate: '10 mins',
-    bgGradient: 'linear-gradient(135deg, #0d9488 0%, #14b8a6 100%)'
+    desc: 'Guided phonetics practice, intonation drills, and accent reduction coaching.',
+    words: [
+      { word: 'intonation', meaning: 'Pitch modulation' },
+      { word: 'articulation', meaning: 'Clear pronunciation' },
+      { word: 'syllable', meaning: 'Sound unit' }
+    ]
   },
   {
-    slug: 'hobbies',
-    title: 'Hobbies & Creative Arts',
-    titleVi: 'Sở thích, thư giãn & nghệ thuật',
+    slug: 'grammar-mastery',
+    tag: 'Grammar',
+    tagColor: 'green',
+    image: '/assets/eduvia/image-8.jpg',
+    rating: 5,
+    price: '$45',
+    title: 'Grammar in Action',
+    titleVi: 'Hệ thống hóa ngữ pháp tiếng Anh thực hành chuẩn xác',
     level: 'B1',
-    levelColor: 'b1',
-    icon: 'hobbies',
-    materialIcon: 'palette',
-    description: 'Express passion for photography, cooking, gardening, and work-life balance.',
+    lessons: '30 Lessons',
+    students: '5,600 Students',
+    timeEstimate: '12 mins',
+    desc: 'Understand sentence clauses, complex verb tenses, and academic cohesion.',
     words: [
-      { word: 'photography', meaning: 'Taking photos' },
-      { word: 'gardening', meaning: 'Plant care' },
-      { word: 'cooking', meaning: 'Culinary arts' }
-    ],
-    timeEstimate: '10 mins',
-    bgGradient: 'linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%)'
+      { word: 'conditional', meaning: 'Hypothetical' },
+      { word: 'passive', meaning: 'Subject receives action' },
+      { word: 'clause', meaning: 'Grammar unit' }
+    ]
+  },
+  {
+    slug: 'academic-writing',
+    tag: 'Writing',
+    tagColor: 'teal',
+    image: '/assets/eduvia/image-9.jpg',
+    rating: 5,
+    price: '$42',
+    title: 'Academic Writing & Essays',
+    titleVi: 'Luyện viết luận học thuật chuyên sâu và chấm sửa AI',
+    level: 'B2',
+    lessons: '20 Lessons',
+    students: '2,750 Students',
+    timeEstimate: '15 mins',
+    desc: 'Structured essay templates, topic sentences, and instant 4-criteria IELTS evaluation.',
+    words: [
+      { word: 'thesis', meaning: 'Main statement' },
+      { word: 'coherence', meaning: 'Logical flow' },
+      { word: 'counterargument', meaning: 'Opposing view' }
+    ]
   },
   {
     slug: 'technology',
-    title: 'Technology & Digital Era',
-    titleVi: 'Công nghệ, đổi mới & kết nối số',
+    tag: 'Vocabulary',
+    tagColor: 'teal',
+    image: '/assets/eduvia/image-10.jpg',
+    rating: 5,
+    price: '$35',
+    title: 'Technology & Innovation',
+    titleVi: 'Mở rộng vốn từ vựng phản xạ với phương pháp ghi nhớ SRS',
     level: 'B1',
-    levelColor: 'b1',
-    icon: 'tech',
-    materialIcon: 'smart_toy',
-    description: 'Discuss technological innovation, remote collaboration, accessibility, and AI revolution.',
+    lessons: '22 Lessons',
+    students: '4,100 Students',
+    timeEstimate: '10 mins',
+    desc: 'Discuss technological innovation, remote collaboration, accessibility, and AI.',
     words: [
       { word: 'innovation', meaning: 'Groundbreaking' },
       { word: 'collaboration', meaning: 'Teamwork' },
-      { word: 'accessible', meaning: 'Easy to reach' },
-      { word: 'revolutionize', meaning: 'Transform' }
-    ],
-    timeEstimate: '12 mins',
-    bgGradient: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)'
+      { word: 'accessible', meaning: 'Easy to reach' }
+    ]
   },
   {
     slug: 'environment',
+    tag: 'Business English',
+    tagColor: 'green',
+    image: '/assets/eduvia/image-11.jpg',
+    rating: 5,
+    price: '$55',
     title: 'Environment & Sustainability',
-    titleVi: 'Môi trường, sinh thái & phát triển bền vững',
+    titleVi: 'Tiếng Anh thương mại cho thuyết trình và đàm phán công việc',
     level: 'B2',
-    levelColor: 'b2',
-    icon: 'nature',
-    materialIcon: 'eco',
-    description: 'Discuss biodiversity, climate action, fragile ecosystems, and sustainable development.',
+    lessons: '26 Lessons',
+    students: '3,980 Students',
+    timeEstimate: '12 mins',
+    desc: 'Discuss biodiversity, climate action, fragile ecosystems, and corporate sustainability.',
     words: [
       { word: 'sustainable', meaning: 'Eco-friendly' },
       { word: 'biodiversity', meaning: 'Biological variety' },
       { word: 'ecosystem', meaning: 'Living network' }
-    ],
-    timeEstimate: '10 mins',
-    bgGradient: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)'
+    ]
   }
 ]
 
 export default function Explore() {
   const navigate = useNavigate()
-  const { t } = useLanguage()
-  const [selectedLevel, setSelectedLevel] = useState('ALL')
-  const [statusTab, setStatusTab] = useState('all') // 'all' | 'completed'
+  const { t, language } = useLanguage()
+  const [selectedTag, setSelectedTag] = useState('ALL')
   const [searchQuery, setSearchQuery] = useState('')
-  const [topicSets, setTopicSets] = useState(fallbackTopicSets)
   const [completedSlugs, setCompletedSlugs] = useState(new Set())
-  const [completedCounts, setCompletedCounts] = useState({})
 
   useEffect(() => {
     let isMounted = true
-
-    async function loadExploreData() {
+    async function loadHistory() {
       try {
-        const [setsRes, historyRes] = await Promise.allSettled([
-          api.get('/learning-sets'),
-          api.get('/sessions/history'),
-        ])
-
+        const historyRes = await api.get('/sessions/history')
         if (!isMounted) return
-
-        // 1. Process completed sessions
+        const historyData = historyRes.data?.data || historyRes.data
         const completed = new Set()
-        const countMap = {}
-        if (historyRes.status === 'fulfilled') {
-          const historyData = historyRes.value?.data?.data || historyRes.value?.data
-          if (historyData?.completedSlugCounts && Object.keys(historyData.completedSlugCounts).length > 0) {
-            Object.entries(historyData.completedSlugCounts).forEach(([slug, count]) => {
-              completed.add(slug)
-              countMap[slug] = count
-            })
-          } else {
-            const sessions = historyData?.recentSessions || []
-            for (const s of sessions) {
-              if (s.learningSetSlug) {
-                completed.add(s.learningSetSlug)
-                countMap[s.learningSetSlug] = (countMap[s.learningSetSlug] || 0) + 1
-              }
-            }
-          }
+        if (historyData?.completedSlugCounts) {
+          Object.keys(historyData.completedSlugCounts).forEach(slug => completed.add(slug))
+        } else if (historyData?.recentSessions) {
+          historyData.recentSessions.forEach(s => {
+            if (s.learningSetSlug) completed.add(s.learningSetSlug)
+          })
         }
         setCompletedSlugs(completed)
-        setCompletedCounts(countMap)
-
-        // 2. Process published learning sets from server
-        if (setsRes.status === 'fulfilled') {
-          const serverData = setsRes.value?.data
-          const rawSets = Array.isArray(serverData)
-            ? serverData
-            : Array.isArray(serverData?.data)
-              ? serverData.data
-              : []
-
-          if (rawSets.length > 0) {
-            const merged = rawSets.map((srv) => {
-              const preset = fallbackTopicSets.find((p) => p.slug === srv.slug) || {}
-              const items = (srv.items || []).map((item) => ({
-                word: item.word,
-                meaning: item.definitionVi || item.meaningVi || preset.words?.find((w) => w.word === item.word)?.meaning || 'Vocabulary target',
-              }))
-
-              return {
-                slug: srv.slug,
-                title: srv.title || preset.title || srv.slug,
-                titleVi: preset.titleVi || srv.category || srv.title,
-                level: srv.level || preset.level || 'B1',
-                levelColor: (srv.level || preset.level || 'B1').toLowerCase(),
-                materialIcon: preset.materialIcon || 'school',
-                description: srv.description || preset.description || '',
-                words: items.length > 0 ? items : (preset.words || []),
-                timeEstimate: preset.timeEstimate || '10 mins',
-                bgGradient: preset.bgGradient || 'linear-gradient(135deg, #005bbf 0%, #1a73e8 100%)',
-              }
-            })
-            setTopicSets(merged)
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching explore learning sets:', err)
+      } catch (e) {
+        // Fallback gracefully
       }
     }
-
-    loadExploreData()
-    return () => {
-      isMounted = false
-    }
+    loadHistory()
+    return () => { isMounted = false }
   }, [])
 
-  const processedSets = topicSets.map((topic) => {
-    const isCompleted = completedSlugs.has(topic.slug)
-    if (statusTab === 'all' && isCompleted) {
-      // In "All Progress" view, completed topics generate the next round of vocabulary
-      const completedCount = completedCounts[topic.slug] || 1
-      const totalRounds = TOPIC_VOCABULARY_ROUNDS[topic.slug]?.length || 3
-      const nextRoundNumber = (completedCount % totalRounds) + 1
-      const roundData = getTopicRound(topic.slug, nextRoundNumber)
-      if (roundData && roundData.words?.length) {
-        const newWords = roundData.words.map((w) => ({
-          word: w.word,
-          meaning: w.meaningVi || w.meaning || '',
-        }))
-        return {
-          ...topic,
-          isCompleted: true,
-          isNewRound: true,
-          roundNumber: nextRoundNumber,
-          displayWords: newWords,
-          displayDesc: roundData.promptTopic || topic.description,
-        }
-      }
-    }
-    return {
-      ...topic,
-      isCompleted,
-      isNewRound: false,
-      roundNumber: 1,
-      displayWords: topic.words,
-      displayDesc: topic.description,
-    }
-  })
-
-  const filteredSets = processedSets.filter((set) => {
-    if (statusTab === 'completed' && !set.isCompleted) {
-      return false
-    }
-    const matchesLevel = selectedLevel === 'ALL' || set.level === selectedLevel
-    const q = searchQuery.toLowerCase().trim()
-    if (!q) return matchesLevel
-
-    const matchesSearch =
-      set.title.toLowerCase().includes(q) ||
-      set.titleVi.toLowerCase().includes(q) ||
-      set.displayWords.some((w) => w.word.toLowerCase().includes(q) || (w.meaning && w.meaning.toLowerCase().includes(q))) ||
-      set.words.some((w) => w.word.toLowerCase().includes(q))
-    return matchesLevel && matchesSearch
+  const filteredCourses = EDUVIA_COURSES.filter(course => {
+    const matchesTag = selectedTag === 'ALL' || course.tag.toUpperCase() === selectedTag || course.level === selectedTag
+    const query = searchQuery.trim().toLowerCase()
+    const matchesSearch = !query ||
+      course.title.toLowerCase().includes(query) ||
+      course.titleVi.toLowerCase().includes(query) ||
+      course.tag.toLowerCase().includes(query) ||
+      course.words.some(w => w.word.toLowerCase().includes(query))
+    return matchesTag && matchesSearch
   })
 
   return (
-    <div className="explore animate-fade-in">
-      {/* Header & Filter Bar */}
-      <section className="explore__hero">
-        <div className="explore__hero-left">
-          <Badge variant="info" icon="explore" className="explore__badge">
-            {t('explore.badge', 'Thematic Vocabulary Sets Library')}
-          </Badge>
-          <h1 className="explore__title">{t('explore.title', 'Explore Target Vocabulary Sets')}</h1>
-          <p className="explore__desc">
-            {t('explore.desc', 'Pick your favorite topic to start a 10-minute learning loop: Explore Words ➔ Quick Quiz ➔ Smart Writing ➔ Detailed AI Feedback.')}
-          </p>
-        </div>
-
-        <div className="explore__search-bar">
-          <span className="material-symbols-outlined explore__search-icon">search</span>
-          <input
-            type="text"
-            className="explore__search-input"
-            aria-label={t('explore.searchPlaceholder', 'Search by topic or vocabulary word...')}
-            placeholder={t('explore.searchPlaceholder', 'Search by topic or vocabulary word...')}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+    <div className="eduvia-courses-page">
+      {/* ── BREADCRUMB HERO BANNER (Matching 03_courses.png) ── */}
+      <section className="eduvia-page-hero">
+        <h1 className="eduvia-page-hero__title">Courses</h1>
+        <p className="eduvia-page-hero__desc">
+          Cras nisi suspendisse sit semper. Massa erat volutpat volutpat id suspendisse tristique cras a consequat.
+        </p>
+        <div className="eduvia-breadcrumbs">
+          <Link to="/student/home">Home</Link>
+          <span className="eduvia-breadcrumbs__sep">·</span>
+          <span>Courses</span>
         </div>
       </section>
 
-      <section className="explore__catalog" aria-label={t('explore.title', 'Explore Target Vocabulary Sets')}>
-      {/* Level Filters & Status Tabs */}
-      <div className="explore__filter-row">
-        <div className="explore__filter-left">
-          <span className="explore__filter-label">{t('explore.filterLabel', 'Filter by proficiency:')}</span>
-          <div className="explore__level-buttons">
-            {['ALL', 'A2', 'B1', 'B2'].map((lvl) => (
-              <button
-                key={lvl}
-                className={`explore__lvl-btn ${selectedLevel === lvl ? 'explore__lvl-btn--active' : ''}`}
-                onClick={() => setSelectedLevel(lvl)}
-              >
-                {lvl === 'ALL' ? t('explore.allLevels', 'All Levels') : `${t('explore.level', 'Level')} ${lvl}`}
-              </button>
-            ))}
+      <div className="eduvia-courses-container">
+        {/* ── SECTION HEADER & SEARCH ── */}
+        <div className="eduvia-section-header">
+          <div>
+            <span className="eduvia-kicker eduvia-kicker--green">Popular Courses</span>
+            <h2 className="eduvia-section-title">Build English Skills With Expert Lessons</h2>
+          </div>
+          <div className="eduvia-courses-search">
+            <span className="material-symbols-outlined">search</span>
+            <input
+              type="search"
+              placeholder={language === 'vi' ? 'Tìm bài học, chủ đề, từ vựng...' : 'Search courses, topics, vocabulary...'}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
         </div>
 
-        <div className="explore__filter-right">
-          <div className="explore__status-tabs">
+        {/* ── CATEGORY FILTER PILLS ── */}
+        <div className="eduvia-courses-filter-pills" role="tablist">
+          {['ALL', 'Speaking', 'Pronunciation', 'Grammar', 'Writing', 'Vocabulary', 'Business English'].map(tag => (
             <button
+              key={tag}
               type="button"
-              className={`explore__status-tab-btn ${statusTab === 'all' ? 'explore__status-tab-btn--active' : ''}`}
-              onClick={() => setStatusTab('all')}
+              className={`eduvia-filter-pill ${selectedTag === tag ? 'active' : ''}`}
+              onClick={() => setSelectedTag(tag)}
             >
-              <span className="material-symbols-outlined">grid_view</span>
-              {t('explore.allProgressTab', 'Tất cả tiến độ')}
+              {tag === 'ALL' ? (language === 'vi' ? 'Tất cả' : 'All Courses') : tag}
             </button>
-            <button
-              type="button"
-              className={`explore__status-tab-btn explore__status-tab-btn--completed ${statusTab === 'completed' ? 'explore__status-tab-btn--active' : ''}`}
-              onClick={() => setStatusTab('completed')}
-            >
-              <span className="material-symbols-outlined">task_alt</span>
-              {t('explore.completedTab', 'Đã hoàn thành')}
-              {completedSlugs.size > 0 && (
-                <span className="explore__completed-counter">{completedSlugs.size}</span>
-              )}
-            </button>
-          </div>
+          ))}
         </div>
-      </div>
 
-      {/* Topic Cards Grid or Empty State */}
-      {filteredSets.length === 0 ? (
-        <div className="explore__empty-state card-base">
-          <div className="explore__empty-icon">
-            <span className="material-symbols-outlined">
-              {statusTab === 'completed' ? 'task_alt' : 'sentiment_dissatisfied'}
-            </span>
-          </div>
-          <h3 className="explore__empty-title">
-            {statusTab === 'completed'
-              ? t('explore.noCompletedTitle', 'Chưa có chủ đề nào hoàn thành')
-              : t('explore.noResultsTitle', 'Không tìm thấy bộ từ vựng phù hợp')}
-          </h3>
-          <p className="explore__empty-desc">
-            {statusTab === 'completed'
-              ? t('explore.noCompletedDesc', 'Hãy chọn một chủ đề trong tab Tất cả tiến độ để bắt đầu học và tích lũy từ vựng!')
-              : t('explore.noResultsDesc', 'Hãy thử tìm kiếm với từ khóa khác hoặc điều chỉnh bộ lọc trình độ.')}
-          </p>
-          {statusTab === 'completed' && (
-            <Button
-              variant="primary"
-              leftIcon="explore"
-              className="explore__empty-action"
-              onClick={() => {
-                setStatusTab('all')
-                setSelectedLevel('ALL')
-              }}
-            >
-              {t('explore.allProgressTab', 'Tất cả tiến độ')}
-            </Button>
-          )}
-        </div>
-      ) : (
-        <section className="explore__grid">
-          {filteredSets.map((topic) => {
-            const isCompletedView = statusTab === 'completed'
+        {/* ── 6 COURSES GRID ── */}
+        <div className="eduvia-courses-grid">
+          {filteredCourses.map(course => {
+            const isDone = completedSlugs.has(course.slug)
 
             return (
-              <article
-                key={topic.slug}
-                className={`topic-card ${isCompletedView ? 'topic-card--completed' : ''} ${topic.isNewRound ? 'topic-card--new-round' : ''}`}
-              >
-                <div className="topic-card__cover-wrap">
-                  <EditorialCoverImage
-                    topicSlug={topic.slug}
-                    fallbackTitle={topic.title}
-                    fallbackIcon={topic.materialIcon || 'school'}
-                    className="topic-card__cover"
-                  />
-                  <div className="topic-card__cover-badges">
-                    <span className={`topic-card__level-badge topic-card__level-badge--${topic.levelColor}`}>
-                      {topic.level}
-                    </span>
-                    <span className="topic-card__time">
-                      <span className="material-symbols-outlined">schedule</span>
-                      {topic.timeEstimate}
-                    </span>
-                  </div>
+              <article className="eduvia-course-card" key={course.slug}>
+                <div className="eduvia-course-card__image-wrap">
+                  <img src={course.image} alt="" className="eduvia-course-card__img" loading="lazy" />
+                  <span className={`eduvia-course-card__tag eduvia-course-card__tag--${course.tagColor}`}>
+                    {course.tag}
+                  </span>
                 </div>
 
-                <div className="topic-card__body">
-                  <div className="topic-card__meta-bar">
-                    {isCompletedView ? (
-                      <Badge variant="success" icon="check_circle">
-                        {t('explore.completed', 'Đã hoàn thành')}
-                      </Badge>
-                    ) : topic.isNewRound ? (
-                      <Badge variant="info" icon="auto_awesome">
-                        {t('explore.newWordsBadge', 'Bộ từ mới')} • {t('explore.roundLabel', 'Vòng')} {topic.roundNumber}
-                      </Badge>
-                    ) : null}
+                <div className="eduvia-course-card__body">
+                  <div className="eduvia-course-card__meta-top">
+                    <div className="eduvia-course-card__stars">★★★★★</div>
+                    <div className="eduvia-course-card__price">{course.price}</div>
                   </div>
 
-                  <div className="topic-card__content">
-                    <h3 className="topic-card__title">{topic.title}</h3>
-                    <h4 className="topic-card__sub">{topic.titleVi}</h4>
-                    <p className="topic-card__desc">{topic.displayDesc}</p>
+                  <h3 className="eduvia-course-card__title">
+                    <Link to={`/student/writing?set=${course.slug}`}>
+                      {language === 'vi' ? course.titleVi : course.title}
+                    </Link>
+                  </h3>
+
+                  <div className="eduvia-course-card__details">
+                    <span className="eduvia-course-card__detail-item">
+                      <span className="material-symbols-outlined eduvia-icon-purple">menu_book</span>
+                      <span>{course.lessons}</span>
+                    </span>
+                    <span className="eduvia-course-card__detail-item">
+                      <span className="material-symbols-outlined eduvia-icon-teal">person</span>
+                      <span>{course.students}</span>
+                    </span>
                   </div>
 
-                  {/* Target Words Preview with wrap-safe long text */}
-                  <div className="topic-card__words">
-                    <div className="topic-card__words-header">
-                      <span className="material-symbols-outlined topic-card__words-icon">format_list_bulleted</span>
-                      <span className="topic-card__words-label">
-                        {topic.displayWords.length} {t('explore.targetWordsLabel', 'Từ vựng mục tiêu')}:
+                  {/* Vocabulary preview chips */}
+                  <div className="eduvia-course-card__words">
+                    {course.words.slice(0, 3).map(w => (
+                      <span key={w.word} className="eduvia-word-tag">
+                        <strong>{w.word}</strong>: {w.meaning}
                       </span>
-                    </div>
-                    <div className="topic-card__chips">
-                      {topic.displayWords.map((w) => (
-                        <div key={w.word} className="topic-card__word-chip">
-                          <strong className="topic-card__word-term">{w.word}</strong>
-                          {w.meaning && <span className="topic-card__word-meaning">{w.meaning}</span>}
-                        </div>
-                      ))}
-                    </div>
+                    ))}
                   </div>
 
-                  <div className="topic-card__footer">
-                    {isCompletedView ? (
-                      <Button
-                        variant="secondary"
-                        fullWidth
-                        leftIcon="restart_alt"
-                        onClick={() => navigate(`/student/writing?set=${topic.slug}&force=true`)}
-                      >
-                        {t('explore.reviewSession', 'Luyện tập lại')} ({topic.timeEstimate})
-                      </Button>
-                    ) : topic.isNewRound ? (
-                      <Button
-                        variant="primary"
-                        fullWidth
-                        leftIcon="play_circle"
-                        onClick={() => navigate(`/student/writing?set=${topic.slug}&round=${topic.roundNumber}&advanceTopic=true`)}
-                      >
-                        {t('explore.startSession', 'Bắt đầu học')} ({topic.timeEstimate})
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="primary"
-                        fullWidth
-                        leftIcon="play_circle"
-                        onClick={() => navigate(`/student/writing?set=${topic.slug}`)}
-                      >
-                        {t('explore.startSession', 'Bắt đầu học')} ({topic.timeEstimate})
-                      </Button>
-                    )}
-                  </div>
+                  <button
+                    type="button"
+                    className="eduvia-btn eduvia-btn--navy eduvia-btn--full"
+                    onClick={() => navigate(`/student/writing?set=${course.slug}`)}
+                  >
+                    {isDone ? (language === 'vi' ? 'Luyện tập lại' : 'Review Course') : (language === 'vi' ? 'Đăng ký học ngay' : 'Enroll Now')}
+                  </button>
                 </div>
               </article>
             )
           })}
+        </div>
+
+        {/* ── VIDEO PLAYER BANNER (Matching 03_courses.png) ── */}
+        <section className="eduvia-courses-video-section" style={{ marginTop: 80 }}>
+          <div className="eduvia-video-container">
+            <img src="/assets/eduvia/image-13.jpg" alt="Students in study session" className="eduvia-video-container__poster" />
+            <button type="button" className="eduvia-video-container__play-btn" aria-label="Play video">
+              <span className="material-symbols-outlined">play_arrow</span>
+            </button>
+          </div>
         </section>
-      )}
-      </section>
+
+        {/* ── DARK CTA BANNER ── */}
+        <section className="eduvia-dark-cta" style={{ marginTop: 80 }}>
+          <div className="eduvia-dark-cta__inner">
+            <span className="eduvia-dark-cta__kicker">Why Choose Eduvia</span>
+            <h2>Begin Your English Journey With Confidence</h2>
+            <p>
+              Sed luctus velit vulputate augue viverra fermentum blandit rhoncus risus. Nibh malesuada donec eu congue auctor turpis. Sit leo pharetra id magna nisi mauris.
+            </p>
+            <div className="eduvia-dark-cta__actions">
+              <Link to="/register" className="eduvia-btn eduvia-btn--lime">
+                Get Started
+              </Link>
+              <Link to="/pricing" className="eduvia-btn eduvia-btn--mint">
+                Choose Plan
+              </Link>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   )
 }

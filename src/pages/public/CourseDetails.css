@@ -1,0 +1,326 @@
+/* ==========================================================================
+   Eduvia Course Details Page — Matching 04_course_details.png
+   ========================================================================== */
+
+.eduvia-course-details {
+  --eduvia-navy: #051A2E;
+  --eduvia-lime: #E9FA49;
+  --eduvia-mint: #1CB886;
+  --eduvia-purple: #9E89FB;
+  --eduvia-hero-bg: #DDE9FF;
+  --eduvia-surface: #F4F7FA;
+  --eduvia-pink: #FF09AD;
+  --eduvia-muted: #576C80;
+  --eduvia-border: rgba(5, 26, 46, 0.08);
+}
+
+/* ── MAIN DETAIL SPLIT ── */
+.eduvia-course-split {
+  display: grid;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 60px;
+  align-items: start;
+}
+
+.eduvia-course-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.eduvia-course-score {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--eduvia-navy);
+}
+.eduvia-stars {
+  color: #F5A623;
+  letter-spacing: 2px;
+  font-size: 14px;
+}
+.eduvia-course-review-count {
+  font-size: 14px;
+  color: var(--eduvia-muted);
+}
+
+.eduvia-course-headline {
+  font-size: clamp(32px, 3.8vw, 46px);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--eduvia-navy);
+  margin: 0 0 24px;
+}
+
+.eduvia-course-body {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--eduvia-muted);
+  margin: 0 0 20px;
+}
+
+/* What You'll Learn Box */
+.eduvia-learn-box {
+  margin-top: 36px;
+  padding: 32px;
+  background: var(--eduvia-surface);
+  border-radius: 24px;
+  border: 1px solid var(--eduvia-border);
+}
+.eduvia-learn-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--eduvia-navy);
+  margin: 0 0 20px;
+}
+.eduvia-learn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 24px;
+}
+.eduvia-learn-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--eduvia-navy);
+}
+.eduvia-learn-item .material-symbols-outlined {
+  color: var(--eduvia-mint);
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+/* ── STICKY SIDEBAR CARD ── */
+.eduvia-course-card-sticky {
+  position: sticky;
+  top: 100px;
+  background: #FFFFFF;
+  border-radius: 24px;
+  border: 1px solid var(--eduvia-border);
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(5, 26, 46, 0.08);
+}
+.eduvia-course-card-thumb {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #E8EEF5;
+}
+.eduvia-course-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.eduvia-badge-pill {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: var(--eduvia-mint);
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 99px;
+  letter-spacing: 0.02em;
+}
+
+.eduvia-course-card-details {
+  padding: 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.eduvia-course-facts {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.eduvia-course-facts li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 15px;
+  color: var(--eduvia-navy);
+}
+.eduvia-bullet-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--eduvia-mint);
+}
+.eduvia-btn--block {
+  width: 100%;
+}
+
+/* ── STEPS SECTION (01, 02, 03, 04) ── */
+.eduvia-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 28px;
+}
+.eduvia-step-card {
+  background: var(--eduvia-hero-bg);
+  border-radius: 24px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: transform 0.2s ease;
+}
+.eduvia-step-card:hover {
+  transform: translateY(-4px);
+}
+.eduvia-step-num {
+  font-size: 40px;
+  font-weight: 800;
+  color: var(--eduvia-navy);
+  line-height: 1;
+}
+.eduvia-step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--eduvia-purple);
+  margin: 12px 0 16px;
+}
+.eduvia-step-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--eduvia-navy);
+  margin: 0 0 10px;
+}
+.eduvia-step-desc {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--eduvia-muted);
+  margin: 0 0 16px;
+  flex: 1;
+}
+.eduvia-step-link {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--eduvia-mint);
+  text-decoration: none;
+}
+.eduvia-step-link:hover {
+  text-decoration: underline;
+}
+
+/* ── COURSES CARDS GRID ── */
+.eduvia-courses-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+}
+.eduvia-course-card {
+  background: #FFFFFF;
+  border: 1px solid var(--eduvia-border);
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s ease;
+}
+.eduvia-course-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(5, 26, 46, 0.08);
+}
+.eduvia-course-card__media {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: #E8EEF5;
+}
+.eduvia-course-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.eduvia-course-card__badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: var(--eduvia-mint);
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 99px;
+}
+.eduvia-course-card__body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+}
+.eduvia-course-card__meta-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.eduvia-course-card__stars {
+  color: #F5A623;
+  letter-spacing: 2px;
+  font-size: 14px;
+}
+.eduvia-course-card__price {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--eduvia-pink);
+}
+.eduvia-course-card__title {
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--eduvia-navy);
+  margin: 0;
+  min-height: 48px;
+}
+.eduvia-course-card__title a {
+  color: inherit;
+  text-decoration: none;
+}
+.eduvia-course-card__title a:hover {
+  color: var(--eduvia-mint);
+}
+.eduvia-course-card__meta-bottom {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--eduvia-muted);
+  padding-bottom: 6px;
+}
+.eduvia-course-card__meta-bottom span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.eduvia-course-card__meta-bottom .material-symbols-outlined {
+  font-size: 16px;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1024px) {
+  .eduvia-course-split {
+    grid-template-columns: 1fr;
+  }
+  .eduvia-steps-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .eduvia-courses-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .eduvia-learn-grid,
+  .eduvia-steps-grid,
+  .eduvia-courses-grid {
+    grid-template-columns: 1fr;
+  }
+}

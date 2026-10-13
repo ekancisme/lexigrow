@@ -6,7 +6,7 @@ import NavigationDisclosure from './NavigationDisclosure.jsx'
 
 export default function HeaderNavigation({ role, openId, setOpenId, onNavigate }) {
   const { user, selectedParentChildId, selectParentChild } = useAuth()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const location = useLocation()
   const navigate = useNavigate()
   const selectId = useId()
@@ -16,24 +16,30 @@ export default function HeaderNavigation({ role, openId, setOpenId, onNavigate }
   const child = user?.children?.find(entry => entry._id === childId)
   const item = (key, path, icon, extra = {}) => ({ label: t(key), path, icon, ...extra })
   const childItem = (key, view, icon, extra = {}) => item(key, childId ? `/parent/children/${childId}/${view}` : '/parent/dashboard', icon, { disabled: !childId, ...extra })
+  const pagesItems = [
+    { label: language === 'vi' ? 'Giảng viên' : 'Teachers', path: '/teachers', icon: 'school' },
+    { label: language === 'vi' ? 'Đánh giá học viên' : 'Testimonials', path: '/testimonials', icon: 'reviews' },
+    { label: language === 'vi' ? 'Bảng giá & Gói học' : 'Pricing Plans', path: '/pricing', icon: 'payments' },
+    { label: language === 'vi' ? 'Trung tâm trợ giúp' : 'Help Center', path: '/help', icon: 'help' },
+    { label: language === 'vi' ? 'Chi tiết khóa học' : 'Course Details', path: '/course/speaking-skills', icon: 'menu_book' },
+  ]
+
+  const studentWorkspaceItems = [
+    item('nav.dashboard', '/student/dashboard', 'dashboard'),
+    item('nav.smartWriting', '/student/writing', 'edit_note', { aliases: ['/student/write', '/student/write-essay', '/student/feedback'] }),
+    item('headerNavigation.flashcards', '/student/vocabulary/review', 'style'),
+    item('headerNavigation.games', '/student/game', 'sports_esports'),
+    item('headerNavigation.dailyQuest', '/student/game/daily-quest', 'grid_on'),
+    item('nav.myWords', '/student/my-words', 'menu_book', { aliases: ['/student/vocabulary'] }),
+    item('nav.growthGarden', '/student/garden', 'forest'),
+    item('headerNavigation.progressOverview', '/student/progress', 'monitoring'),
+    item('nav.myClasses', '/student/class', 'school'),
+  ]
+
   const groupsByRole = {
     student: [
-      { id: 'learning', label: t('headerNavigation.learning'), items: [
-        item('nav.explore', '/student/explore', 'explore'),
-        item('nav.smartWriting', '/student/writing', 'edit_note', { aliases: ['/student/write', '/student/write-essay', '/student/feedback'] }),
-        item('nav.essayHistory', '/student/essays', 'history_edu'),
-        item('nav.myWords', '/student/my-words', 'menu_book', { aliases: ['/student/vocabulary'] }),
-      ] },
-      { id: 'practice', label: t('headerNavigation.practice'), items: [
-        item('headerNavigation.flashcards', '/student/vocabulary/review', 'style'),
-        item('headerNavigation.games', '/student/game', 'sports_esports'),
-        item('headerNavigation.dailyQuest', '/student/game/daily-quest', 'grid_on'),
-      ] },
-      { id: 'progress', label: t('nav.progress'), items: [
-        item('headerNavigation.progressOverview', '/student/progress', 'monitoring'),
-        item('nav.growthGarden', '/student/garden', 'forest'),
-        item('nav.weeklyGoals', '/student/goals', 'flag'),
-      ] },
+      { id: 'pages', label: language === 'vi' ? 'Trang' : 'Pages', items: pagesItems },
+      ...(user ? [{ id: 'workspace', label: language === 'vi' ? 'Góc học tập' : 'My Learning', items: studentWorkspaceItems }] : []),
     ],
     teacher: [
       { id: 'teaching', label: t('headerNavigation.teaching'), items: [
@@ -68,17 +74,57 @@ export default function HeaderNavigation({ role, openId, setOpenId, onNavigate }
   const activeGroup = groups.find(group => group.items.some(navItem => navItem.path === location.pathname))?.id || groups.find(group => group.items.some(matches))?.id
   return (
     <nav className="header-navigation" aria-label={t('headerNavigation.primaryNavigation')}>
-      {role === 'student' ? <>
-        <NavLink to="/student/home" end className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
-          {t('nav.home')}
+      {role === 'student' ? (
+        <>
+          <NavLink to="/student/home" end className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
+            {language === 'vi' ? 'Trang chủ' : 'Home'}
+          </NavLink>
+          <NavLink to="/about" className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
+            {language === 'vi' ? 'Giới thiệu' : 'About Us'}
+          </NavLink>
+          <NavLink to="/student/explore" className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
+            {language === 'vi' ? 'Khóa học' : 'Courses'}
+          </NavLink>
+          <NavigationDisclosure label={language === 'vi' ? 'Trang' : 'Pages'} active={activeGroup === 'pages'} open={openId === 'pages'}
+            onOpen={() => setOpenId('pages')} onClose={() => setOpenId(current => current === 'pages' ? null : current)}
+            onToggle={() => setOpenId(current => current === 'pages' ? null : 'pages')}>
+            <ul className="header-navigation__links">
+              {pagesItems.map((navItem, index) => (
+                <li key={`${navItem.path}-${index}`}>
+                  <NavLink to={navItem.path} className={({ isActive }) => `header-navigation__link ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
+                    <span className="material-symbols-outlined" aria-hidden="true">{navItem.icon}</span>
+                    <span>{navItem.label}</span>
+                  </NavLink>
+                </li>
+              ))}
+            </ul>
+          </NavigationDisclosure>
+          <NavLink to="/contact" className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
+            {language === 'vi' ? 'Liên hệ' : 'Contact Us'}
+          </NavLink>
+          {user && (
+            <NavigationDisclosure label={language === 'vi' ? 'Góc học tập' : 'My Learning'} active={activeGroup === 'workspace'} open={openId === 'workspace'}
+              onOpen={() => setOpenId('workspace')} onClose={() => setOpenId(current => current === 'workspace' ? null : current)}
+              onToggle={() => setOpenId(current => current === 'workspace' ? null : 'workspace')}>
+              <ul className="header-navigation__links">
+                {studentWorkspaceItems.map((navItem, index) => (
+                  <li key={`${navItem.path}-${index}`}>
+                    <NavLink to={navItem.path} className={({ isActive }) => `header-navigation__link ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
+                      <span className="material-symbols-outlined" aria-hidden="true">{navItem.icon}</span>
+                      <span>{navItem.label}</span>
+                    </NavLink>
+                  </li>
+                ))}
+              </ul>
+            </NavigationDisclosure>
+          )}
+        </>
+      ) : (
+        <NavLink to={`/${role}/dashboard`} className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
+          {t('nav.overview')}
         </NavLink>
-        <NavLink to="/student/dashboard" end className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
-          {t('nav.dashboard')}
-        </NavLink>
-      </> : <NavLink to={`/${role}/dashboard`} className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
-        {t('nav.overview')}
-      </NavLink>}
-      {groups.map(group => (
+      )}
+      {role !== 'student' && groups.map(group => (
         <NavigationDisclosure key={group.id} label={group.label} active={activeGroup === group.id} open={openId === group.id}
           onOpen={() => setOpenId(group.id)} onClose={() => setOpenId(current => current === group.id ? null : current)}
           onToggle={() => setOpenId(current => current === group.id ? null : group.id)}>
@@ -106,7 +152,6 @@ export default function HeaderNavigation({ role, openId, setOpenId, onNavigate }
           </ul>
         </NavigationDisclosure>
       ))}
-      {role === 'student' && <NavLink to="/student/class" className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>{t('nav.myClasses')}</NavLink>}
     </nav>
   )
 }

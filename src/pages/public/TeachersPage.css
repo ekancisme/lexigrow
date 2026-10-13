@@ -1,0 +1,145 @@
+/* ==========================================================================
+   Eduvia Teachers Page — Matching 06_teachers.png
+   ========================================================================== */
+
+.eduvia-teachers-page {
+  --eduvia-navy: #051A2E;
+  --eduvia-lime: #E9FA49;
+  --eduvia-mint: #1CB886;
+  --eduvia-purple: #9E89FB;
+  --eduvia-hero-bg: #DDE9FF;
+  --eduvia-surface: #F4F7FA;
+  --eduvia-pink: #FF09AD;
+  --eduvia-muted: #576C80;
+  --eduvia-border: rgba(5, 26, 46, 0.08);
+}
+
+.eduvia-teachers-full-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+/* ── SUPPORT CONNECT & FORM (06_teachers / 08_help_center / 09_contact_us) ── */
+.eduvia-support-connect {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+.eduvia-support-connect__info {
+  display: flex;
+  flex-direction: column;
+}
+.eduvia-contact-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 24px;
+}
+.eduvia-contact-info-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.eduvia-contact-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(158, 137, 251, 0.2);
+  color: #6C52E5;
+  display: grid;
+  place-items: center;
+}
+.eduvia-contact-icon .material-symbols-outlined {
+  font-size: 22px;
+}
+.eduvia-contact-label {
+  display: block;
+  font-size: 13px;
+  color: var(--eduvia-muted);
+  margin-bottom: 2px;
+}
+.eduvia-contact-info-item strong {
+  font-size: 16px;
+  color: var(--eduvia-navy);
+}
+
+.eduvia-support-connect__form-wrap {
+  background: var(--eduvia-hero-bg);
+  padding: 40px;
+  border-radius: 28px;
+}
+.eduvia-connect-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.eduvia-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.eduvia-form-group label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--eduvia-navy);
+}
+.eduvia-form-group input,
+.eduvia-form-group textarea {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(5, 26, 46, 0.12);
+  background: #FFFFFF;
+  color: var(--eduvia-navy);
+  font-family: inherit;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+.eduvia-form-group input:focus,
+.eduvia-form-group textarea:focus {
+  outline: none;
+  border-color: var(--eduvia-navy);
+}
+
+/* ── PARTNERS ROW ── */
+.eduvia-partners-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  padding: 30px 20px;
+  border-top: 1px solid var(--eduvia-border);
+  border-bottom: 1px solid var(--eduvia-border);
+  flex-wrap: wrap;
+}
+.eduvia-partners-row img {
+  height: 38px;
+  width: auto;
+  opacity: 0.65;
+  transition: opacity 0.2s ease;
+}
+.eduvia-partners-row img:hover {
+  opacity: 1;
+}
+
+@media (max-width: 1024px) {
+  .eduvia-teachers-full-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .eduvia-support-connect {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+@media (max-width: 640px) {
+  .eduvia-teachers-full-grid {
+    grid-template-columns: 1fr;
+  }
+  .eduvia-partners-row {
+    justify-content: center;
+    gap: 24px;
+  }
+}

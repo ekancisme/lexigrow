@@ -1,535 +1,101 @@
 /* ==========================================================================
-   LexiGrow — Explore Catalog (Modern Academic / Editorial Learning)
-   Complies with Section 4.2 of design roadmap and long-text wrap requirements.
+   Eduvia Courses / Explore Page — Pixel-Perfect Matching 03_courses.png
    ========================================================================== */
 
-.explore {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  max-width: 1280px;
-  margin: 0 auto;
-  width: 100%;
-  container: explore / inline-size;
+.eduvia-courses-page {
+  font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #051A2E;
+  padding-bottom: 80px;
 }
 
-/* ── Hero / Catalog Header ── */
-.explore__hero {
-  padding: 28px 32px;
-  border-radius: var(--radius-xl, 16px);
-  background: var(--color-surface-container-lowest, #ffffff);
-  border: 1px solid var(--color-outline-variant, #e2e8f0);
-  box-shadow: var(--shadow-card, 0 1px 3px rgba(0, 0, 0, 0.05));
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 24px;
-  flex-wrap: wrap;
+.eduvia-courses-container {
+  width: min(100%, 1320px);
+  margin-inline: auto;
+  padding: 0 24px;
 }
 
-.explore__hero-left {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-width: 680px;
-}
-
-.explore__catalog {
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
-  padding: clamp(18px, 2.4vw, 28px);
-  border: 1px solid var(--color-outline-variant, #e2e8f0);
-  border-radius: 24px;
-  background: var(--color-surface-container-lowest, #fff);
-}
-
-.explore__badge {
-  align-self: flex-start;
-}
-
-.explore__title {
-  font-size: clamp(30px, 3.4vw, 42px);
-  font-weight: 700;
-  margin: 0;
-  color: var(--color-on-surface, #0f172a);
-  letter-spacing: -0.02em;
-}
-
-.explore__desc {
-  font-size: 14px;
-  color: var(--color-on-surface-variant, #475569);
-  margin: 0;
-  line-height: 1.55;
-}
-
-.explore__search-bar {
+.eduvia-courses-search {
   display: flex;
   align-items: center;
   gap: 10px;
-  background: var(--color-surface, #ffffff);
-  border: 1px solid var(--color-outline-variant, #cbd5e1);
-  padding: 10px 14px;
-  border-radius: var(--radius-md, 8px);
-  min-width: 300px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-  transition: border-color var(--transition-fast, 0.15s ease), box-shadow var(--transition-fast, 0.15s ease);
+  background: #FFFFFF;
+  border: 1px solid #E5EDF5;
+  border-radius: 99px;
+  padding: 12px 24px;
+  min-width: 320px;
+  box-shadow: 0 4px 16px rgba(5, 26, 46, 0.04);
+  transition: all 0.2s ease;
 }
-
-.explore__search-bar:focus-within {
-  border-color: var(--color-primary, #051A2E);
-  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.15);
+.eduvia-courses-search:focus-within {
+  border-color: #051A2E;
+  box-shadow: 0 6px 20px rgba(5, 26, 46, 0.08);
 }
-
-.explore__search-icon {
-  color: var(--color-outline, #64748b);
-  font-size: 20px;
-  flex-shrink: 0;
-}
-
-.explore__search-input {
-  background: transparent;
+.eduvia-courses-search input {
   border: none;
-  color: var(--color-on-surface, #0f172a);
-  font-size: 14px;
-  width: 100%;
+  background: transparent;
   outline: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: #051A2E;
+  width: 100%;
+}
+.eduvia-courses-search .material-symbols-outlined {
+  color: #576C80;
+  font-size: 20px;
 }
 
-.explore__search-input::placeholder {
-  color: var(--color-outline, #94a3b8);
-}
-
-/* ── Filter Row ── */
-.explore__filter-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.explore__filter-left {
+/* ── FILTER PILLS ── */
+.eduvia-courses-filter-pills {
   display: flex;
   align-items: center;
   gap: 12px;
   flex-wrap: wrap;
+  margin-bottom: 40px;
 }
 
-.explore__filter-label {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-on-surface-variant, #475569);
+.eduvia-filter-pill {
+  padding: 10px 22px;
+  border-radius: 99px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  border: 1px solid #E5EDF5;
+  background: #FFFFFF;
+  color: #051A2E;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.eduvia-filter-pill:hover {
+  border-color: #051A2E;
+}
+.eduvia-filter-pill.active {
+  background: #051A2E;
+  color: #FFFFFF;
+  border-color: #051A2E;
+  box-shadow: 0 4px 16px rgba(5, 26, 46, 0.12);
 }
 
-.explore__level-buttons {
+/* ── WORDS CHIPS PREVIEW ── */
+.eduvia-course-card__words {
   display: flex;
-  gap: 6px;
   flex-wrap: wrap;
-}
-
-.explore__lvl-btn {
-  padding: 6px 14px;
-  border-radius: 9999px;
-  border: 1px solid var(--color-outline-variant, #cbd5e1);
-  background: var(--color-surface, #ffffff);
-  color: var(--color-on-surface-variant, #475569);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-fast, 0.15s ease);
-}
-
-.explore__lvl-btn:hover {
-  border-color: var(--color-primary, #051A2E);
-  color: var(--color-primary, #051A2E);
-}
-
-.explore__lvl-btn--active {
-  background: var(--color-primary, #051A2E) !important;
-  color: #ffffff !important;
-  border-color: var(--color-primary, #051A2E) !important;
-}
-
-.explore__filter-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.explore__status-tabs {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 3px;
-  background: var(--color-surface-container-low, #f1f5f9);
-  border: 1px solid var(--color-outline-variant, #e2e8f0);
-  border-radius: var(--radius-md, 8px);
-}
-
-.explore__status-tab-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: none;
-  background: transparent;
-  color: var(--color-on-surface-variant, #475569);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-fast, 0.15s ease);
-  white-space: nowrap;
-}
-
-.explore__status-tab-btn .material-symbols-outlined {
-  font-size: 16px;
-}
-
-.explore__status-tab-btn:hover {
-  color: var(--color-primary, #051A2E);
-}
-
-.explore__status-tab-btn--active {
-  background: var(--color-surface, #ffffff) !important;
-  color: var(--color-primary, #051A2E) !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-}
-
-.explore__status-tab-btn--completed.explore__status-tab-btn--active {
-  color: #15803d !important;
-}
-
-.explore__completed-counter {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
-  border-radius: 999px;
-  background: #16a34a;
-  color: #ffffff;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 1;
-}
-
-/* ── 3-Column Responsive Topic Grid ── */
-.explore__grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-}
-
-@media (max-width: 1099px) {
-  .explore__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 679px) {
-  .explore__grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ── Topic Card ── */
-.topic-card {
-  border-radius: var(--radius-lg, 12px);
-  border: 1px solid var(--color-outline-variant, #e2e8f0);
-  background: var(--color-surface-container-lowest, #ffffff);
-  box-shadow: var(--shadow-card, 0 1px 3px rgba(0, 0, 0, 0.05));
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  transition: transform var(--transition-fast, 0.15s ease),
-              box-shadow var(--transition-fast, 0.15s ease),
-              border-color var(--transition-fast, 0.15s ease);
-}
-
-.topic-card:hover {
-  transform: translateY(-2px);
-  border-color: #cbd5e1;
-  box-shadow: var(--shadow-card-hover, 0 6px 16px -2px rgba(15, 23, 42, 0.08));
-}
-
-/* ── Cover Image Header ── */
-.topic-card__cover-wrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  background: var(--color-surface-container-low, #f1f5f9);
-  overflow: hidden;
-}
-
-.topic-card__cover {
-  width: 100%;
-  height: 100%;
-}
-
-.topic-card__cover-badges {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  right: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  pointer-events: none;
-}
-
-.topic-card__level-badge {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 3px 8px;
-  border-radius: 6px;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-}
-
-.topic-card__level-badge--a2 { background: #dcfce7; color: #15803d; }
-.topic-card__level-badge--b1 { background: #eff6ff; color: var(--color-primary, #051A2E); }
-.topic-card__level-badge--b2 { background: #fef3c7; color: #b45309; }
-
-.topic-card__time {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  background: rgba(15, 23, 42, 0.75);
-  color: #ffffff;
-  padding: 3px 8px;
-  border-radius: 6px;
-  backdrop-filter: blur(4px);
-}
-
-.topic-card__time .material-symbols-outlined {
-  font-size: 14px;
-}
-
-/* ── Card Body & Content ── */
-.topic-card__body {
-  padding: 18px 20px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  flex: 1;
-  min-width: 0;
-}
-
-.topic-card__meta-bar {
-  display: flex;
-  align-items: center;
   gap: 8px;
+  margin-bottom: 20px;
+}
+.eduvia-word-tag {
+  background: #F4F7FA;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  color: #4A5F73;
+}
+.eduvia-word-tag strong {
+  color: #051A2E;
 }
 
-.topic-card__content {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.topic-card__title {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--color-on-surface, #0f172a);
-  margin: 0;
-  line-height: 1.35;
-}
-
-.topic-card__sub {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-primary, #051A2E);
-  margin: 0;
-  line-height: 1.4;
-}
-
-.topic-card__desc {
-  font-size: 13px;
-  color: var(--color-on-surface-variant, #475569);
-  margin: 4px 0 0 0;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* ── Target Words Preview (Inherits long text unclipped wrap rule) ── */
-.topic-card__words {
-  background: var(--color-surface-container-low, #f8fafc);
-  border: 1px solid var(--color-outline-variant, #e2e8f0);
-  border-radius: var(--radius-md, 8px);
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: auto;
-  min-width: 0;
-}
-
-.topic-card__words-header {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.topic-card__words-icon {
-  font-size: 15px;
-  color: var(--color-outline, #64748b);
-}
-
-.topic-card__words-label {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--color-outline, #64748b);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.topic-card__chips {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  min-width: 0;
-}
-
-.topic-card__word-chip {
-  background: var(--color-surface, #ffffff);
-  border: 1px solid var(--color-outline-variant, #cbd5e1);
-  padding: 8px 10px;
-  border-radius: 6px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  width: 100%;
-  min-width: 0;
-  box-sizing: border-box;
-  white-space: normal;
-}
-
-.topic-card__word-term {
-  color: var(--color-on-surface, #0f172a);
-  font-weight: 600;
-  font-size: 12.5px;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-.topic-card__word-meaning {
-  color: var(--color-on-surface-variant, #475569);
-  font-size: 12px;
-  line-height: 1.45;
-  min-width: 0;
-  /* Crucial: Wrap naturally without ellipsis cutting off Vietnamese translation */
-  overflow-wrap: anywhere;
-  word-break: break-word;
-  white-space: normal;
-}
-
-@container explore (max-width: 760px) {
-  .explore__grid { grid-template-columns: minmax(0, 1fr); }
-}
-
-@container explore (min-width: 1120px) {
-  .explore__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-
-.topic-card__footer {
-  margin-top: 4px;
-}
-
-/* ── Card Status Modifiers ── */
-.topic-card--completed {
-  border-color: #86efac;
-}
-
-.topic-card--completed:hover {
-  border-color: #4ade80;
-}
-
-.topic-card--new-round {
-  border-color: #93c5fd;
-}
-
-/* ── Empty State ── */
-.explore__empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 56px 24px;
-  background: var(--color-surface-container-lowest, #ffffff);
-  border: 1px dashed var(--color-outline-variant, #cbd5e1);
-  border-radius: var(--radius-xl, 16px);
-  margin: 16px 0;
-  grid-column: 1 / -1;
-}
-
-.explore__empty-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-lg, 12px);
-  background: var(--color-surface-container-low, #f1f5f9);
-  color: var(--color-primary, #051A2E);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-}
-
-.explore__empty-icon .material-symbols-outlined {
-  font-size: 28px;
-}
-
-.explore__empty-title {
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--color-on-surface, #0f172a);
-  margin: 0 0 6px 0;
-}
-
-.explore__empty-desc {
-  font-size: 14px;
-  color: var(--color-on-surface-variant, #475569);
-  max-width: 440px;
-  margin: 0 0 20px 0;
-  line-height: 1.5;
-}
-
-.explore__empty-action {
-  min-width: 160px;
-}
-
-/* ── Dark Theme Refinements ── */
-[data-theme='dark'] .topic-card {
-  background: var(--color-surface-container-lowest, #0f172a);
-  border-color: var(--color-outline-variant, #334155);
-}
-
-[data-theme='dark'] .topic-card__words {
-  background: var(--color-surface-container-low, #1e293b);
-  border-color: var(--color-outline-variant, #334155);
-}
-
-[data-theme='dark'] .topic-card__word-chip {
-  background: var(--color-surface, #0f172a);
-  border-color: var(--color-outline-variant, #334155);
-}
-
-[data-theme='dark'] .explore__hero {
-  background: var(--color-surface-container-lowest, #0f172a);
-  border-color: var(--color-outline-variant, #334155);
-}
-
-[data-theme='dark'] .explore__search-bar {
-  background: var(--color-surface-container-low, #1e293b);
-  border-color: var(--color-outline-variant, #334155);
+@media (max-width: 768px) {
+  .eduvia-courses-search {
+    width: 100%;
+    min-width: 100%;
+  }
 }

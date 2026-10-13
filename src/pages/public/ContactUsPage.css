@@ -1,0 +1,24 @@
+/* ==========================================================================
+   Eduvia Contact Us Page — Matching 09_contact_us.png
+   ========================================================================== */
+
+.eduvia-contact-page {
+  --eduvia-navy: #051A2E;
+  --eduvia-lime: #E9FA49;
+  --eduvia-mint: #1CB886;
+  --eduvia-purple: #9E89FB;
+  --eduvia-hero-bg: #DDE9FF;
+  --eduvia-surface: #F4F7FA;
+  --eduvia-pink: #FF09AD;
+  --eduvia-muted: #576C80;
+  --eduvia-border: rgba(5, 26, 46, 0.08);
+}
+
+.eduvia-map-section {
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(5, 26, 46, 0.08);
+}
+.eduvia-map-container iframe {
+  display: block;
+}

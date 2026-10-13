@@ -1,0 +1,107 @@
+/* ==========================================================================
+   Eduvia Help Center Page — Matching 08_help_center.png
+   ========================================================================== */
+
+.eduvia-help-page {
+  --eduvia-navy: #051A2E;
+  --eduvia-lime: #E9FA49;
+  --eduvia-mint: #1CB886;
+  --eduvia-purple: #9E89FB;
+  --eduvia-hero-bg: #DDE9FF;
+  --eduvia-surface: #F4F7FA;
+  --eduvia-pink: #FF09AD;
+  --eduvia-muted: #576C80;
+  --eduvia-border: rgba(5, 26, 46, 0.08);
+}
+
+/* ── FAQS GRID (6 ITEMS IN 2 COLUMNS) ── */
+.eduvia-faqs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px 48px;
+}
+.eduvia-faq-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.eduvia-faq-arrow {
+  font-size: 20px;
+  color: var(--eduvia-purple);
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+.eduvia-faq-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.eduvia-faq-card__q {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--eduvia-navy);
+  line-height: 1.35;
+  margin: 0;
+}
+.eduvia-faq-card__a {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--eduvia-muted);
+  margin: 0;
+}
+
+/* ── SUPPORT CHANNELS (3 CARDS) ── */
+.eduvia-channels-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+.eduvia-channel-card {
+  background: var(--eduvia-hero-bg);
+  border-radius: 24px;
+  padding: 40px 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  transition: transform 0.25s ease;
+}
+.eduvia-channel-card:hover {
+  transform: translateY(-4px);
+}
+.eduvia-channel-card__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: var(--eduvia-purple);
+  color: #FFFFFF;
+  display: grid;
+  place-items: center;
+}
+.eduvia-channel-card__icon .material-symbols-outlined {
+  font-size: 30px;
+}
+.eduvia-channel-card__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--eduvia-navy);
+  margin: 0;
+}
+.eduvia-channel-card__desc {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--eduvia-muted);
+  margin: 0 0 8px;
+  flex: 1;
+}
+
+@media (max-width: 1024px) {
+  .eduvia-faqs-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .eduvia-channels-grid {
+    grid-template-columns: 1fr;
+  }
+}
