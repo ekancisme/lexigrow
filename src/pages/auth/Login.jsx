@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
+import AuthLoadingOverlay from '../../components/auth/AuthLoadingOverlay.jsx'
 import './Login.css'
 
 function getRoleHome(role, user) {
@@ -115,7 +116,7 @@ export default function Login() {
   }
 
   return (
-    <div className="login-page">
+    <div className="login-page" aria-busy={loading}>
       <div className="login__particles" aria-hidden="true">
         {PARTICLES.map((style, i) => (
           <span key={i} className="login__particle" style={style} />
@@ -198,7 +199,10 @@ export default function Login() {
             {/* Submit */}
             <button type="submit" className="login__submit" disabled={loading}>
               {loading ? (
-                <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                <>
+                  <span className="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>
+                  <span>{t('auth.loadingLogin', 'Signing in…')}</span>
+                </>
               ) : (
                 <>
                   <span>{t('auth.loginBtn', 'Login')}</span>
@@ -245,6 +249,13 @@ export default function Login() {
           </div>
         </div>
       </main>
+
+      {loading && (
+        <AuthLoadingOverlay
+          title={t('auth.loadingLogin', 'Signing in…')}
+          description={t('auth.loadingLoginDetail', 'Securely checking your account and preparing your session.')}
+        />
+      )}
 
     </div>
   )

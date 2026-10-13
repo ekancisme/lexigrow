@@ -407,6 +407,13 @@
   align-self: flex-start;
 }
 
+.admin-ai-settings__combo-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .admin-ai-settings__routes {
   min-width: 0;
   margin: 0;

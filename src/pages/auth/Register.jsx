@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
+import AuthLoadingOverlay from '../../components/auth/AuthLoadingOverlay.jsx'
 import './Register.css'
 
 export default function Register() {
@@ -146,7 +147,7 @@ export default function Register() {
   }
 
   return (
-    <div className="register-page">
+    <div className="register-page" aria-busy={loading || isVerifying}>
       <main className="register__main">
         {/* Brand */}
         <div className="register__brand">
@@ -201,7 +202,10 @@ export default function Register() {
 
               <button type="submit" className="register__submit" disabled={isVerifying}>
                 {isVerifying ? (
-                  <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                    <>
+                      <span className="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>
+                      <span>{t('auth.loadingVerify', 'Verifying your account…')}</span>
+                    </>
                 ) : (
                   <>
                     <span>Verify & Activate</span>
@@ -335,7 +339,10 @@ export default function Register() {
                 {/* Submit */}
                 <button type="submit" className="register__submit" disabled={loading}>
                   {loading ? (
-                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                    <>
+                      <span className="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>
+                      <span>{t('auth.loadingRegister', 'Creating your account…')}</span>
+                    </>
                   ) : (
                     <>
                       <span>{t('auth.registerBtn', 'Create Account')}</span>
@@ -372,6 +379,16 @@ export default function Register() {
           </p>
         </div>
       </main>
+      {(loading || isVerifying) && (
+        <AuthLoadingOverlay
+          title={isVerifying
+            ? t('auth.loadingVerify', 'Verifying your account…')
+            : t('auth.loadingRegister', 'Creating your account…')}
+          description={isVerifying
+            ? t('auth.loadingVerifyDetail', 'Please wait while we confirm your verification code.')
+            : t('auth.loadingRegisterDetail', 'Please wait while we create your account and send the verification email.')}
+        />
+      )}
     </div>
   )
 }

@@ -30,6 +30,7 @@ export default function AdminSettings({ section = 'all' }) {
   const [providerModels, setProviderModels] = useState([])
   const [modelCombos, setModelCombos] = useState([])
   const [comboDraft, setComboDraft] = useState({ name: '', routes: ['essay_analysis'], models: [], candidateToAdd: '', maxAttempts: 3, timeoutMs: 30000, maxCostUsd: '' })
+  const [editingComboId, setEditingComboId] = useState(null)
   const [showComboModal, setShowComboModal] = useState(false)
   const [addingCombo, setAddingCombo] = useState(false)
   const [comboError, setComboError] = useState('')
@@ -152,7 +153,7 @@ export default function AdminSettings({ section = 'all' }) {
 
   const resetComboDraft = () => setComboDraft({ name: '', routes: ['essay_analysis'], models: [], candidateToAdd: '', maxAttempts: 3, timeoutMs: 30000, maxCostUsd: '' })
 
-  const addCombo = async (event) => {
+  const saveCombo = async (event) => {
     event.preventDefault()
     if (!comboDraft.name.trim() || comboDraft.routes.length === 0 || comboDraft.models.length === 0) {
       setComboError('Enter a name, choose at least one route, and add at least one model candidate.')
@@ -161,22 +162,32 @@ export default function AdminSettings({ section = 'all' }) {
     setAddingCombo(true)
     setComboError('')
     try {
-      const res = await api.post('/admin/ai/providers/combos', {
+      const payload = {
         name: comboDraft.name.trim(),
         routes: comboDraft.routes,
         candidates: comboDraft.models.map((model) => ({ model })),
         maxAttempts: Number(comboDraft.maxAttempts),
         timeoutMs: Number(comboDraft.timeoutMs),
         maxCostUsd: comboDraft.maxCostUsd === '' ? null : Number(comboDraft.maxCostUsd),
-        active: true,
+        active: editingComboId
+          ? Boolean(modelCombos.find((combo) => combo._id === editingComboId)?.active)
+          : true,
+      }
+      const res = editingComboId
+        ? await api.patch(`/admin/ai/providers/combos/${editingComboId}`, payload)
+        : await api.post('/admin/ai/providers/combos', payload)
+      setModelCombos((current) => {
+        const savedCombo = res.data
+        const withoutEdited = current.filter((combo) => combo._id !== savedCombo._id)
+        const deactivatedConflicts = savedCombo.active
+          ? withoutEdited.map((combo) => combo.routes?.some((route) => savedCombo.routes?.includes(route)) ? { ...combo, active: false } : combo)
+          : withoutEdited
+        return [...deactivatedConflicts, savedCombo]
       })
-      setModelCombos((current) => [
-        ...current.map((combo) => combo.routes?.some((route) => comboDraft.routes.includes(route)) ? { ...combo, active: false } : combo),
-        res.data,
-      ])
       setShowComboModal(false)
       resetComboDraft()
-      setSuccessMsg('Model combo saved')
+      setEditingComboId(null)
+      setSuccessMsg(editingComboId ? 'Model combo updated' : 'Model combo saved')
     } catch (err) {
       setComboError(err.message || 'Could not save model combo')
     } finally {
@@ -216,6 +227,23 @@ export default function AdminSettings({ section = 'all' }) {
     setShowComboModal(false)
     setComboError('')
     resetComboDraft()
+    setEditingComboId(null)
+  }
+
+  const editCombo = (combo) => {
+    const orderedCandidates = [...(combo.candidates || [])].sort((a, b) => a.order - b.order)
+    setComboDraft({
+      name: combo.name || '',
+      routes: [...(combo.routes || [])],
+      models: orderedCandidates.map((candidate) => String(candidate.model?._id || candidate.model)),
+      candidateToAdd: '',
+      maxAttempts: combo.maxAttempts ?? 3,
+      timeoutMs: combo.timeoutMs ?? 30000,
+      maxCostUsd: combo.maxCostUsd ?? '',
+    })
+    setEditingComboId(combo._id)
+    setComboError('')
+    setShowComboModal(true)
   }
 
   const toggleProvider = async (account) => {
@@ -528,7 +556,7 @@ Rules:
               <h4>Model Combos</h4>
               <p>Each combo has an ordered model chain. The next model is tried after a temporary failure or quota error.</p>
             </div>
-            <button type="button" className="btn-primary" onClick={() => { resetComboDraft(); setComboError(''); setShowComboModal(true) }}>Add combo</button>
+            <button type="button" className="btn-primary" onClick={() => { resetComboDraft(); setEditingComboId(null); setComboError(''); setShowComboModal(true) }}>Add combo</button>
           </div>
 
           {modelCombos.length === 0 ? (
@@ -549,7 +577,10 @@ Rules:
                 <span className="admin-ai-settings__combo-routes">Routes: {(combo.routes || []).join(', ') || 'none'}</span>
                 <span className="admin-ai-settings__combo-models">{candidateNames.join('  →  ')}</span>
                 <span className="admin-ai-settings__combo-meta">Max attempts: {combo.maxAttempts} · Timeout: {combo.timeoutMs} ms{combo.maxCostUsd != null ? ` · Max cost: $${combo.maxCostUsd}` : ''}</span>
-                {!combo.active && <button type="button" className="btn-secondary admin-ai-settings__activate-button" onClick={() => activateCombo(combo)}>Activate for these routes</button>}
+                <div className="admin-ai-settings__combo-actions">
+                  <button type="button" className="btn-secondary" onClick={() => editCombo(combo)}>Edit</button>
+                  {!combo.active && <button type="button" className="btn-secondary admin-ai-settings__activate-button" onClick={() => activateCombo(combo)}>Activate for these routes</button>}
+                </div>
               </div>
             )
           })}
@@ -563,12 +594,12 @@ Rules:
               <form
                 role="dialog"
                 aria-modal="true"
-                aria-labelledby="add-combo-title"
-                onSubmit={addCombo}
+                aria-labelledby="combo-modal-title"
+                onSubmit={saveCombo}
                 className="admin-ai-settings__modal admin-ai-settings__modal--combo"
               >
                 <div className="admin-ai-settings__modal-heading">
-                  <h3 id="add-combo-title">Create model combo</h3>
+                  <h3 id="combo-modal-title">{editingComboId ? 'Edit model combo' : 'Create model combo'}</h3>
                   <p>Choose the routes, then add models in the exact order they should be tried.</p>
                 </div>
                 {comboError && <p role="alert" className="admin-ai-settings__form-error">{comboError}</p>}
@@ -625,7 +656,7 @@ Rules:
 
                 <div className="admin-ai-settings__modal-actions">
                   <button type="button" className="btn-secondary" disabled={addingCombo} onClick={closeComboModal}>Cancel</button>
-                  <button type="submit" className="btn-primary" disabled={addingCombo || !comboDraft.models.length || !comboDraft.routes.length}>{addingCombo ? 'Saving…' : 'Save and activate combo'}</button>
+                  <button type="submit" className="btn-primary" disabled={addingCombo || !comboDraft.models.length || !comboDraft.routes.length}>{addingCombo ? 'Saving…' : editingComboId ? 'Save changes' : 'Save and activate combo'}</button>
                 </div>
               </form>
             </div>
