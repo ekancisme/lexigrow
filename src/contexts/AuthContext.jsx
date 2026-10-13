@@ -4,7 +4,7 @@ import api from '../services/api.js'
 import { connectSocket, disconnectSocket } from '../services/socket.js'
 
 const AuthContext = createContext(null)
-const MIN_AUTH_LOADING_MS = 10000
+const MIN_AUTH_LOADING_MS = 5000
 
 const waitForMinimumAuthLoading = async (startedAt) => {
   const remaining = MIN_AUTH_LOADING_MS - (Date.now() - startedAt)
