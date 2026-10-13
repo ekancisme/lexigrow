@@ -51,3 +51,20 @@
   color: var(--eduvia-muted);
   margin: 0 0 16px;
 }
+
+/* ── DARK THEME SUPPORT ── */
+[data-theme='dark'] .eduvia-404-page {
+  --eduvia-navy: #F1F5F9;
+  --eduvia-hero-bg: #0E1420;
+  --eduvia-surface: #152333;
+  --eduvia-muted: #94A3B8;
+  background: #0E1420;
+  color: #F1F5F9;
+}
+[data-theme='dark'] .eduvia-404-code {
+  color: #F1F5F9;
+}
+[data-theme='dark'] .eduvia-404-desc {
+  color: #94A3B8;
+}
+

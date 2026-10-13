@@ -13,6 +13,8 @@
   --eduvia-surface: #F4F7FA;
   --eduvia-pink: #FF09AD;
   --eduvia-muted: #576C80;
+  --eduvia-text: #051A2E;
+  --eduvia-border: rgba(5, 26, 46, 0.08);
 
   --color-primary: #051A2E;
   --color-primary-hover: #123650;
@@ -210,6 +212,8 @@
   --eduvia-surface: #152333;
   --eduvia-pink: #FF62C6;
   --eduvia-muted: #AFC3D1;
+  --eduvia-text: #F1F5F9;
+  --eduvia-border: rgba(255, 255, 255, 0.08);
   --color-primary: #789DFF;
   --color-primary-hover: #93B3FF;
   --color-primary-active: #5E88F5;

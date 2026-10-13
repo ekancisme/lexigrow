@@ -14,8 +14,8 @@
   --eduvia-border: rgba(5, 26, 46, 0.08);
 
   width: 100%;
-  color: var(--eduvia-navy);
-  font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--color-on-surface, var(--eduvia-navy));
+  font-family: var(--font-family);
 }
 
 .eduvia-page-header {
@@ -487,3 +487,85 @@
     gap: 24px;
   }
 }
+
+/* ── DARK THEME SUPPORT ── */
+[data-theme='dark'] .eduvia-page {
+  --eduvia-navy: #F1F5F9;
+  --eduvia-hero-bg: #0F1D2E;
+  --eduvia-surface: #152333;
+  --eduvia-muted: #94A3B8;
+  --eduvia-border: rgba(255, 255, 255, 0.08);
+  color: var(--color-on-surface, #F1F5F9);
+}
+
+[data-theme='dark'] .eduvia-page-header__title,
+[data-theme='dark'] .eduvia-section-title,
+[data-theme='dark'] .eduvia-milestone-card__title,
+[data-theme='dark'] .eduvia-value-card__title,
+[data-theme='dark'] .eduvia-teacher-card__name,
+[data-theme='dark'] .eduvia-progress-bar-label {
+  color: #F1F5F9;
+}
+
+[data-theme='dark'] .eduvia-page-header__crumbs a {
+  color: #F1F5F9;
+}
+
+[data-theme='dark'] .eduvia-page-header__desc,
+[data-theme='dark'] .eduvia-section-desc,
+[data-theme='dark'] .eduvia-section-header__desc,
+[data-theme='dark'] .eduvia-milestone-card__desc,
+[data-theme='dark'] .eduvia-value-card__desc,
+[data-theme='dark'] .eduvia-teacher-card__desc,
+[data-theme='dark'] .eduvia-stat-lbl {
+  color: #94A3B8;
+}
+
+[data-theme='dark'] .eduvia-kicker--blue {
+  color: #789DFF;
+}
+
+[data-theme='dark'] .eduvia-stat-row {
+  border-top-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .eduvia-milestone-card,
+[data-theme='dark'] .eduvia-value-card,
+[data-theme='dark'] .eduvia-teacher-card {
+  background: #152333;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme='dark'] .eduvia-milestone-card__thumb,
+[data-theme='dark'] .eduvia-teacher-card__media {
+  background: #0E1726;
+}
+
+[data-theme='dark'] .eduvia-progress-bar-track {
+  background: #1E293B;
+}
+
+[data-theme='dark'] .eduvia-btn--lime {
+  color: #051A2E !important;
+}
+
+[data-theme='dark'] .eduvia-btn--navy {
+  background: #1E293B;
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+[data-theme='dark'] .eduvia-btn--navy:hover {
+  background: #2D3A50;
+}
+
+[data-theme='dark'] .eduvia-stat-tag--purple {
+  background: rgba(174, 155, 255, 0.18);
+  color: #C4B5FD;
+}
+
+[data-theme='dark'] .eduvia-stat-tag--green {
+  background: rgba(44, 205, 153, 0.18);
+  color: #6EE7B7;
+}
+

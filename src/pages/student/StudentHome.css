@@ -618,3 +618,43 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+/* ── DARK THEME SUPPORT ── */
+[data-theme='dark'] .student-home__announcement {
+  background: #152333;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+[data-theme='dark'] .student-home__announcement-controls button {
+  background: #0E1726;
+  color: #F1F5F9;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+[data-theme='dark'] .student-home__learning-card,
+[data-theme='dark'] .student-home__topic-card {
+  background: #152333;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
+}
+[data-theme='dark'] .student-home__learning-card:hover,
+[data-theme='dark'] .student-home__topic-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 10px 28px rgba(16, 185, 129, 0.2);
+}
+[data-theme='dark'] .student-home__topic-image-wrap {
+  background: #0E1726;
+}
+[data-theme='dark'] .student-home__level {
+  color: #FED7AA;
+  background: rgba(249, 115, 22, 0.18);
+}
+[data-theme='dark'] .student-home__closing {
+  background: #152333;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme='dark'] .student-home__button--secondary {
+  background: #1E293B;
+  color: #F1F5F9 !important;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+

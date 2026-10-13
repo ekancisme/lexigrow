@@ -14,8 +14,8 @@
   --eduvia-border: rgba(5, 26, 46, 0.08);
 
   width: 100%;
-  color: var(--eduvia-navy);
-  font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--color-on-surface, var(--eduvia-navy));
+  font-family: var(--font-family);
 }
 
 /* ── SUPPORT CONNECT & FORM ── */
@@ -62,6 +62,14 @@
 .eduvia-contact-info-item strong {
   font-size: 16px;
   color: var(--eduvia-navy);
+}
+.eduvia-contact-info-item a {
+  color: inherit;
+  text-decoration: none;
+}
+.eduvia-contact-info-item a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .eduvia-support-connect__form-wrap {
@@ -206,4 +214,80 @@
   .eduvia-support-connect__form-wrap {
     padding: 24px;
   }
+}
+
+/* ── DARK THEME SUPPORT ── */
+[data-theme='dark'] .eduvia-contact-page {
+  --eduvia-navy: #F1F5F9;
+  --eduvia-hero-bg: #152333;
+  --eduvia-surface: #152333;
+  --eduvia-muted: #94A3B8;
+  --eduvia-border: rgba(255, 255, 255, 0.08);
+  color: #F1F5F9;
+}
+
+[data-theme='dark'] .eduvia-support-connect__form-wrap {
+  background: #152333;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme='dark'] .eduvia-form-group label {
+  color: #F1F5F9;
+}
+
+[data-theme='dark'] .eduvia-form-group input,
+[data-theme='dark'] .eduvia-form-group select,
+[data-theme='dark'] .eduvia-form-group textarea {
+  background: #0E1726;
+  color: #F1F5F9;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-theme='dark'] .eduvia-form-group input:focus,
+[data-theme='dark'] .eduvia-form-group select:focus,
+[data-theme='dark'] .eduvia-form-group textarea:focus {
+  border-color: #10B981;
+}
+
+[data-theme='dark'] .eduvia-contact-icon {
+  background: #152333;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #789DFF;
+}
+
+[data-theme='dark'] .eduvia-contact-info-item strong {
+  color: #F1F5F9;
+}
+
+[data-theme='dark'] .eduvia-contact-label {
+  color: #94A3B8;
+}
+
+[data-theme='dark'] .eduvia-faq-card {
+  background: #152333;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+[data-theme='dark'] .eduvia-faq-card__q {
+  color: #F1F5F9;
+}
+
+[data-theme='dark'] .eduvia-faq-card__a {
+  color: #94A3B8;
+}
+
+[data-theme='dark'] .eduvia-partners-row {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+[data-theme='dark'] .eduvia-partners-row img {
+  opacity: 0.6;
+  filter: brightness(0.85) contrast(1.2);
+}
+[data-theme='dark'] .eduvia-partners-row img:hover {
+  opacity: 1;
+  filter: brightness(1) contrast(1);
 }

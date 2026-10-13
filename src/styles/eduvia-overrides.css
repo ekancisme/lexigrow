@@ -136,11 +136,7 @@ body {
 .eduvia-breadcrumbs a:hover {
   color: var(--color-primary, #10b981) !important;
 }
-.eduvia-refresh.app-layout:has(.student-home) .topnav {
-  background: var(--eduvia-hero);
-  border-bottom-color: transparent;
-  box-shadow: none;
-}
+
 
 .eduvia-refresh .topnav__bar { max-width: var(--eduvia-content-width); min-height: 72px; }
 .eduvia-refresh .topnav__brand { color: var(--color-on-surface); font-size: 21px; letter-spacing: -.035em; }
@@ -496,3 +492,107 @@ body {
     transition-duration: .01ms;
   }
 }
+
+/* ==========================================================================
+   Universal Dark Theme Overrides for Eduvia Layouts, Typography & Cards
+   ========================================================================== */
+[data-theme="dark"] .eduvia-page,
+[data-theme="dark"] .eduvia-pricing-page,
+[data-theme="dark"] .eduvia-courses-page,
+[data-theme="dark"] .eduvia-contact-page,
+[data-theme="dark"] .eduvia-404-page {
+  --eduvia-navy: #F1F5F9;
+  --eduvia-hero-bg: #0F1D2E;
+  --eduvia-surface: #152333;
+  --eduvia-muted: #94A3B8;
+  --eduvia-border: rgba(255, 255, 255, 0.08);
+  color: var(--color-on-surface, #F1F5F9);
+}
+
+[data-theme="dark"] :is(
+  .eduvia-section-title,
+  .eduvia-page-header__title,
+  .eduvia-page-hero__title,
+  .eduvia-milestone-card__title,
+  .eduvia-value-card__title,
+  .eduvia-teacher-card__name,
+  .eduvia-step-card h3,
+  .eduvia-faq-item h4,
+  .eduvia-faq-card__q,
+  .eduvia-why-card h3,
+  .hero-title
+) {
+  color: #F1F5F9 !important;
+}
+
+[data-theme="dark"] :is(
+  .eduvia-section-desc,
+  .eduvia-section-header__desc,
+  .eduvia-page-header__desc,
+  .eduvia-page-hero__desc,
+  .eduvia-milestone-card__desc,
+  .eduvia-value-card__desc,
+  .eduvia-teacher-card__desc,
+  .eduvia-step-card p,
+  .eduvia-faq-item p,
+  .eduvia-faq-card__a,
+  .eduvia-why-card p,
+  .eduvia-stat-lbl
+) {
+  color: #94A3B8 !important;
+}
+
+[data-theme="dark"] .eduvia-kicker--blue {
+  color: #789DFF !important;
+}
+
+[data-theme="dark"] .eduvia-btn--lime {
+  background: #E9FA49 !important;
+  color: #051A2E !important;
+}
+
+[data-theme="dark"] .eduvia-btn--navy {
+  background: #1E293B !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+[data-theme="dark"] .eduvia-btn--navy:hover {
+  background: #2D3A50 !important;
+}
+
+[data-theme="dark"] :is(
+  .eduvia-milestone-card,
+  .eduvia-value-card,
+  .eduvia-teacher-card,
+  .eduvia-price-card,
+  .eduvia-why-card,
+  .eduvia-faq-card,
+  .eduvia-course-card
+) {
+  background: #152333 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35) !important;
+}
+
+[data-theme="dark"] .topnav__login-btn,
+[data-theme="dark"] .eduvia-refresh .topnav__login-btn {
+  background: #1E293B !important;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+[data-theme="dark"] .topnav__login-btn:hover,
+[data-theme="dark"] .eduvia-refresh .topnav__login-btn:hover {
+  background: #2D3A50 !important;
+}
+
+[data-theme="dark"] .eduvia-refresh .hero-league-widget {
+  background: #152333 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  color: #F1F5F9 !important;
+}
+
+[data-theme="dark"] .eduvia-refresh .explore__search-bar {
+  background: #152333 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+

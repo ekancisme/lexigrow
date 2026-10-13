@@ -507,3 +507,69 @@
     width: 100%;
   }
 }
+
+/* ── DARK THEME SUPPORT ── */
+[data-theme="dark"] .eduvia-courses-page {
+  color: var(--color-on-surface, #F1F5F9);
+}
+
+[data-theme="dark"] .eduvia-courses-search {
+  background: #152333;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+[data-theme="dark"] .eduvia-courses-search input {
+  color: #F1F5F9;
+}
+[data-theme="dark"] .eduvia-courses-search .material-symbols-outlined {
+  color: #94A3B8;
+}
+
+[data-theme="dark"] .eduvia-filter-pill {
+  background: #152333;
+  color: #E2E8F0;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+[data-theme="dark"] .eduvia-filter-pill:hover {
+  border-color: #10B981;
+  color: #10B981;
+}
+
+[data-theme="dark"] .eduvia-course-card {
+  background: #152333;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+[data-theme="dark"] .eduvia-course-card:hover {
+  border-color: #10B981;
+  box-shadow: 0 16px 36px rgba(16, 185, 129, 0.2);
+}
+[data-theme="dark"] .eduvia-course-card__image-wrap {
+  background: #0E1726;
+}
+[data-theme="dark"] .eduvia-course-card__title a {
+  color: #F1F5F9;
+}
+[data-theme="dark"] .eduvia-course-card__desc {
+  color: #94A3B8;
+}
+[data-theme="dark"] .eduvia-word-tag {
+  background: #0E1726;
+  color: #94A3B8;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+[data-theme="dark"] .eduvia-word-tag strong {
+  color: #F1F5F9;
+}
+[data-theme="dark"] .eduvia-courses-page .eduvia-btn--navy {
+  background: #1E293B;
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+[data-theme="dark"] .eduvia-courses-page .eduvia-btn--navy:hover {
+  background: #2D3A50;
+}
+[data-theme="dark"] .eduvia-courses-page .eduvia-dark-cta {
+  background: #0F1D2E;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+

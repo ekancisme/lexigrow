@@ -3,8 +3,8 @@
    ========================================================================== */
 
 .eduvia-pricing-page {
-  font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
-  color: #051A2E;
+  font-family: var(--font-family);
+  color: var(--color-on-surface, #051A2E);
   padding-bottom: 80px;
 }
 
@@ -171,6 +171,186 @@
   margin-bottom: 24px;
 }
 
+/* ── 3 PRICING CARDS ── */
+.eduvia-pricing-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  margin-bottom: 60px;
+}
+
+.eduvia-price-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(5, 26, 46, 0.08);
+  border-radius: 24px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(5, 26, 46, 0.035);
+  transition: all 0.25s ease;
+}
+.eduvia-price-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(5, 26, 46, 0.08);
+}
+.eduvia-price-card--featured {
+  border: 2px solid #1CB886;
+  box-shadow: 0 12px 36px rgba(28, 184, 134, 0.15);
+  transform: translateY(-4px);
+}
+
+.eduvia-price-card__header {
+  padding: 32px 28px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-bottom: 1px solid rgba(5, 26, 46, 0.06);
+}
+.eduvia-price-card__header--purple {
+  background: #F4F0FF;
+}
+.eduvia-price-card__header--green {
+  background: #E8F9F3;
+}
+.eduvia-price-card__plan-name {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #051A2E;
+}
+.eduvia-price-card__amount {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.eduvia-price-card__amount strong {
+  font-size: 34px;
+  font-weight: 800;
+  color: #051A2E;
+  line-height: 1;
+}
+.eduvia-price-card__amount span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #576C80;
+}
+.eduvia-price-card__header p {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #576C80;
+  min-height: 40px;
+}
+
+.eduvia-price-card__body {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 20px;
+}
+.eduvia-price-card__body h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 750;
+  color: #051A2E;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.eduvia-price-card__checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+.eduvia-price-card__checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: #334155;
+}
+.eduvia-price-card__checklist .material-symbols-outlined {
+  color: #1CB886;
+  font-size: 18px;
+  flex-shrink: 0;
+  transform: translateY(2px);
+}
+
+.eduvia-price-card__footer-note {
+  margin-top: auto;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: #F8FAFC;
+  border: 1px solid rgba(5, 26, 46, 0.04);
+}
+.eduvia-price-card__footer-note strong {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #051A2E;
+  margin-bottom: 4px;
+}
+.eduvia-price-card__footer-note p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #576C80;
+}
+
+/* ── WHY CHOOSE US ── */
+.eduvia-center-header {
+  text-align: center;
+  max-width: 720px;
+  margin-inline: auto;
+  margin-bottom: 36px;
+}
+.eduvia-why-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+  margin: 36px 0 48px;
+}
+.eduvia-why-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(5, 26, 46, 0.08);
+  border-radius: 22px;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(5, 26, 46, 0.03);
+}
+.eduvia-why-card__icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(158, 137, 251, 0.15);
+  color: #9E89FB;
+  display: grid;
+  place-items: center;
+  margin-bottom: 6px;
+}
+.eduvia-why-card__icon .material-symbols-outlined {
+  font-size: 26px;
+}
+.eduvia-why-card h3 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+  color: #051A2E;
+}
+.eduvia-why-card p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #576C80;
+}
+
 /* ── 4 NUMBERED STEPS ── */
 .eduvia-steps-grid {
   display: grid;
@@ -286,3 +466,106 @@
     align-items: flex-start;
   }
 }
+
+/* ── DARK THEME SUPPORT ── */
+[data-theme='dark'] .eduvia-pricing-page {
+  color: var(--color-on-surface, #F1F5F9);
+}
+
+[data-theme='dark'] .eduvia-pricing-controls {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .eduvia-role-pill {
+  background: #152333;
+  color: #E2E8F0;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+[data-theme='dark'] .eduvia-role-pill:hover {
+  border-color: #10B981;
+}
+[data-theme='dark'] .eduvia-role-pill.active {
+  background: #10B981;
+  color: #FFFFFF;
+  border-color: #10B981;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+}
+
+[data-theme='dark'] .eduvia-cycle-toggle {
+  color: #94A3B8;
+}
+[data-theme='dark'] .eduvia-cycle-toggle .active {
+  color: #F1F5F9;
+}
+[data-theme='dark'] .eduvia-toggle-btn {
+  background: #1E293B;
+}
+[data-theme='dark'] .eduvia-toggle-btn.yearly {
+  background: #1CB886;
+}
+
+[data-theme='dark'] .eduvia-price-card {
+  background: #152333;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+[data-theme='dark'] .eduvia-price-card--featured {
+  border-color: #1CB886;
+  box-shadow: 0 12px 36px rgba(28, 184, 134, 0.25);
+}
+
+[data-theme='dark'] .eduvia-price-card__header {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+[data-theme='dark'] .eduvia-price-card__header--purple {
+  background: rgba(158, 137, 251, 0.12);
+}
+[data-theme='dark'] .eduvia-price-card__header--green {
+  background: rgba(28, 184, 134, 0.12);
+}
+
+[data-theme='dark'] .eduvia-price-card__plan-name,
+[data-theme='dark'] .eduvia-price-card__amount strong,
+[data-theme='dark'] .eduvia-price-card__body h4,
+[data-theme='dark'] .eduvia-price-card__footer-note strong {
+  color: #F1F5F9;
+}
+
+[data-theme='dark'] .eduvia-price-card__amount span,
+[data-theme='dark'] .eduvia-price-card__header p,
+[data-theme='dark'] .eduvia-price-card__footer-note p {
+  color: #94A3B8;
+}
+
+[data-theme='dark'] .eduvia-price-card__checklist li {
+  color: #CBD5E1;
+}
+
+[data-theme='dark'] .eduvia-price-card__footer-note {
+  background: #0E1726;
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+[data-theme='dark'] .eduvia-why-card {
+  background: #152333;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+[data-theme='dark'] .eduvia-why-card h3 {
+  color: #F1F5F9;
+}
+[data-theme='dark'] .eduvia-why-card p {
+  color: #94A3B8;
+}
+
+[data-theme='dark'] .eduvia-step-num,
+[data-theme='dark'] .eduvia-step-card h3,
+[data-theme='dark'] .eduvia-faq-item h4 {
+  color: #F1F5F9;
+}
+
+[data-theme='dark'] .eduvia-step-card p,
+[data-theme='dark'] .eduvia-faq-item p {
+  color: #94A3B8;
+}
+

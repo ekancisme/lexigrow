@@ -1,11 +1,11 @@
 /* ==========================================================================
-   Eduvia Site Footer — Pixel-Perfect Matching 01_home.png Footer
+   LexiGrow site footer
    ========================================================================== */
 
 .eduvia-footer {
   background-color: #051A2E;
   color: #D3E0EA;
-  font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-family);
   margin-top: 60px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -24,7 +24,7 @@
   margin-inline: auto;
   padding: 80px 24px 60px;
   display: grid;
-  grid-template-columns: 1.4fr 0.9fr 0.9fr 0.9fr 1.3fr;
+  grid-template-columns: 1.4fr 1fr 1fr 1.2fr;
   gap: 40px;
 }
 
@@ -87,30 +87,6 @@
   font-size: 20px;
 }
 
-.eduvia-footer__socials {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-.eduvia-footer__social-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  color: #FFFFFF !important;
-  display: grid;
-  place-items: center;
-  transition: all 0.2s ease;
-}
-.eduvia-footer__social-btn:hover {
-  background: #E9FA49;
-  color: #051A2E !important;
-  transform: translateY(-2px);
-}
-.eduvia-footer__social-btn .material-symbols-outlined { font-size: 18px; }
-
 /* ── LINKS COLUMNS ── */
 .eduvia-footer__heading {
   font-size: 17px;
@@ -132,47 +108,9 @@
 }
 
 /* ── NEWSLETTER COLUMN ── */
-.eduvia-footer__col--newsletter {
+.eduvia-footer__col--contact {
   display: flex;
   flex-direction: column;
-}
-
-.eduvia-footer__form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 4px;
-}
-
-.eduvia-footer__input {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 99px;
-  padding: 14px 22px;
-  font-size: 14px;
-  color: #FFFFFF;
-  font-family: inherit;
-  outline: none;
-  transition: border-color 0.2s ease, background 0.2s ease;
-}
-.eduvia-footer__input:focus {
-  border-color: #E9FA49;
-  background: rgba(255, 255, 255, 0.12);
-}
-.eduvia-footer__input::placeholder {
-  color: #728D9F;
-}
-
-.eduvia-footer__submit {
-  width: 100%;
-  padding: 14px 24px;
-}
-
-.eduvia-footer__subscribed-msg {
-  font-size: 13px;
-  color: #1CB886;
-  margin-top: 10px;
 }
 
 /* ── BOTTOM BAR ── */
@@ -213,7 +151,7 @@
   .eduvia-footer__col--brand {
     grid-column: span 2;
   }
-  .eduvia-footer__col--newsletter {
+  .eduvia-footer__col--contact {
     grid-column: span 2;
   }
 }
@@ -224,7 +162,7 @@
     padding: 60px 20px 40px;
   }
   .eduvia-footer__col--brand,
-  .eduvia-footer__col--newsletter {
+  .eduvia-footer__col--contact {
     grid-column: span 1;
   }
   .eduvia-footer__bottom-inner {
