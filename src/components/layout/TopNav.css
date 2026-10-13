@@ -30,7 +30,7 @@
   gap: 10px;
   flex-shrink: 0;
   color: var(--color-on-surface);
-  font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-family);
   font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -120,7 +120,7 @@
   background: #051A2E;
   color: #FFFFFF !important;
   border-radius: 99px;
-  font-family: 'Urbanist', -apple-system, sans-serif;
+  font-family: var(--font-family);
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;

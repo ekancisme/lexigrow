@@ -6,6 +6,12 @@ import './AdminUsers.css'
 /* ── Constants ──────────────────────────────────────────── */
 const ROLES = ['all', 'student', 'teacher', 'parent', 'admin']
 const STATUSES = ['all', 'active', 'suspended', 'pending_approval', 'rejected']
+const TEMP_PASSWORD_CHARACTERS = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789'
+
+function generateTemporaryPassword(length = 18) {
+  const randomValues = crypto.getRandomValues(new Uint8Array(length))
+  return Array.from(randomValues, value => TEMP_PASSWORD_CHARACTERS[value % TEMP_PASSWORD_CHARACTERS.length]).join('')
+}
 
 const ROLE_META = {
   student: { label: 'Student', icon: 'school', cls: 'role--student' },
@@ -50,10 +56,11 @@ function formatDate(d) {
 function UserModal({ user, onClose, onAction }) {
   const [newStatus, setNewStatus] = useState(user.accountStatus || 'active')
   const [newRole, setNewRole] = useState(user.role)
-  const [newPassword, setNewPassword] = useState('')
+  const [temporaryPassword, setTemporaryPassword] = useState('')
+  const [passwordCopyStatus, setPasswordCopyStatus] = useState('')
   const [statusNote, setStatusNote] = useState(user.statusNote || '')
   const [saving, setSaving] = useState(false)
-  const { showConfirm } = useModal()
+  const { showAlert, showConfirm } = useModal()
 
   async function applyStatusChange() {
     if (newStatus === user.accountStatus) return
@@ -77,16 +84,33 @@ function UserModal({ user, onClose, onAction }) {
     } finally { setSaving(false) }
   }
 
-  async function applyPasswordReset() {
-    if (!newPassword || newPassword.length < 6) return alert('Password must be at least 6 characters')
-    setSaving(true)
+  function applyPasswordReset() {
+    showConfirm(
+      'Reset user password?',
+      `Generate a new temporary password for ${user.name} (${user.email})? Their current password will stop working.`,
+      async () => {
+        setSaving(true)
+        try {
+          const password = generateTemporaryPassword()
+          await api.post(`/admin/users/${user._id}/reset-password`, { newPassword: password })
+          setTemporaryPassword(password)
+          setPasswordCopyStatus('')
+        } catch (err) {
+          showAlert('Could not reset password', err.message || 'Please try again.', 'error')
+        } finally {
+          setSaving(false)
+        }
+      }
+    )
+  }
+
+  async function copyTemporaryPassword() {
     try {
-      await api.post(`/admin/users/${user._id}/reset-password`, { newPassword })
-      setNewPassword('')
-      alert('Password reset successfully!')
-    } catch (err) {
-      alert(err.message)
-    } finally { setSaving(false) }
+      await navigator.clipboard.writeText(temporaryPassword)
+      setPasswordCopyStatus('Password copied.')
+    } catch {
+      setPasswordCopyStatus('Copy is unavailable. Select the password and copy it manually.')
+    }
   }
 
   async function handleDelete() {
@@ -208,18 +232,27 @@ function UserModal({ user, onClose, onAction }) {
                   <span className="material-symbols-outlined" style={{ fontSize: 16 }}>lock_reset</span>
                   Reset Password
                 </h4>
+                <p className="au-password-reset__description">
+                  Generate a temporary password for this user. Their current password will be replaced.
+                </p>
                 <div className="au-modal__row">
-                  <input
-                    className="au-input"
-                    type="password"
-                    placeholder="New password (min 6 chars)"
-                    value={newPassword}
-                    onChange={e => setNewPassword(e.target.value)}
-                  />
                   <button className="au-btn au-btn--warning" onClick={applyPasswordReset} disabled={saving}>
-                    Reset
+                    {saving ? 'Generating…' : 'Generate & Reset Password'}
                   </button>
                 </div>
+                {temporaryPassword && (
+                  <div className="au-password-result" role="status" aria-live="polite">
+                    <p>New temporary password for {user.name}:</p>
+                    <div className="au-password-result__value">
+                      <code>{temporaryPassword}</code>
+                      <button type="button" className="au-btn au-btn--secondary" onClick={copyTemporaryPassword}>
+                        Copy password
+                      </button>
+                    </div>
+                    <p className="au-password-result__hint">Share it with the user securely. It will disappear when this window closes.</p>
+                    {passwordCopyStatus && <p className="au-password-result__status">{passwordCopyStatus}</p>}
+                  </div>
+                )}
               </div>
 
               {/* Danger Zone */}

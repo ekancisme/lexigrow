@@ -51,7 +51,7 @@
 }
 
 .editorial-fallback-title {
-  font-family: var(--font-family, 'Urbanist', sans-serif);
+  font-family: var(--font-family);
   font-size: 14px;
   font-weight: 600;
   color: var(--color-on-surface, #0f172a);

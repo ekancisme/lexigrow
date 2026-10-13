@@ -9,7 +9,7 @@
 }
 
 /* ── SKY PASTEL PAGE HERO ── */
-.eduvia-page-hero {
+.eduvia-pricing-page .eduvia-page-hero {
   width: min(100% - 48px, 1320px);
   margin: 32px auto 60px;
   border-radius: 28px;
@@ -24,15 +24,15 @@
   box-shadow: 0 4px 24px rgba(5, 26, 46, 0.035);
 }
 
-.eduvia-page-hero__title {
-  font-size: clamp(40px, 5vw, 56px);
+.eduvia-pricing-page .eduvia-page-hero__title {
+  font-size: clamp(38px, 5vw, 56px);
   font-weight: 700;
   color: #051A2E;
   margin: 0;
   letter-spacing: -0.02em;
 }
 
-.eduvia-page-hero__desc {
+.eduvia-pricing-page .eduvia-page-hero__desc {
   font-size: 16px;
   color: #576C80;
   max-width: 580px;
@@ -40,7 +40,7 @@
   line-height: 1.6;
 }
 
-.eduvia-breadcrumbs {
+.eduvia-pricing-page .eduvia-breadcrumbs {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -49,14 +49,14 @@
   color: #576C80;
   margin-top: 4px;
 }
-.eduvia-breadcrumbs a {
+.eduvia-pricing-page .eduvia-breadcrumbs a {
   color: #051A2E;
   text-decoration: none;
 }
-.eduvia-breadcrumbs a:hover {
+.eduvia-pricing-page .eduvia-breadcrumbs a:hover {
   color: #1CB886;
 }
-.eduvia-breadcrumbs__sep {
+.eduvia-pricing-page .eduvia-breadcrumbs__sep {
   opacity: 0.6;
 }
 
@@ -64,6 +64,109 @@
   width: min(100%, 1320px);
   margin-inline: auto;
   padding: 0 24px;
+}
+
+/* ── COMMON HEADERS & KICKERS ── */
+.eduvia-kicker {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.eduvia-kicker--green { color: #1CB886; }
+.eduvia-kicker--mint { color: #1CB886; }
+.eduvia-kicker--purple { color: #9E89FB; }
+.eduvia-kicker--lime { color: #768E00; }
+
+.eduvia-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 32px;
+  margin-bottom: 40px;
+}
+
+.eduvia-section-title {
+  font-size: clamp(30px, 3.5vw, 44px);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: #051A2E;
+  margin: 0;
+}
+
+.eduvia-section-desc {
+  max-width: 500px;
+  font-size: 15.5px;
+  line-height: 1.6;
+  color: #576C80;
+  margin: 0;
+}
+
+.eduvia-center-header {
+  text-align: center;
+  max-width: 720px;
+  margin-inline: auto;
+  margin-bottom: 36px;
+}
+
+/* ── BUTTONS ── */
+.eduvia-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-radius: 99px;
+  font-family: var(--font-family);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 16px 32px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none !important;
+  white-space: nowrap;
+}
+.eduvia-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(5, 26, 46, 0.12);
+}
+.eduvia-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.eduvia-btn--lime {
+  background: #E9FA49;
+  color: #051A2E;
+}
+.eduvia-btn--lime:hover:not(:disabled) {
+  background: #def038;
+}
+
+.eduvia-btn--mint {
+  background: #1CB886;
+  color: #FFFFFF;
+}
+.eduvia-btn--mint:hover:not(:disabled) {
+  background: #179e73;
+}
+
+.eduvia-btn--navy {
+  background: #051A2E;
+  color: #FFFFFF;
+}
+.eduvia-btn--navy:hover:not(:disabled) {
+  background: #0d2a45;
+}
+
+.eduvia-btn--full {
+  width: 100%;
 }
 
 /* ── CONTROLS: AUDIENCE & CYCLE ── */
@@ -149,6 +252,7 @@
   background: rgba(28, 184, 134, 0.15);
   color: #1CB886;
   font-size: 11px;
+  font-weight: 750;
   padding: 2px 8px;
   border-radius: 99px;
 }
@@ -177,6 +281,7 @@
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 28px;
   margin-bottom: 60px;
+  align-items: stretch;
 }
 
 .eduvia-price-card {
@@ -212,6 +317,7 @@
 .eduvia-price-card__header--green {
   background: #E8F9F3;
 }
+
 .eduvia-price-card__plan-name {
   font-size: 13px;
   font-weight: 800;
@@ -251,7 +357,7 @@
 }
 .eduvia-price-card__body h4 {
   margin: 0;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 750;
   color: #051A2E;
   text-transform: uppercase;
@@ -303,11 +409,8 @@
 }
 
 /* ── WHY CHOOSE US ── */
-.eduvia-center-header {
-  text-align: center;
-  max-width: 720px;
-  margin-inline: auto;
-  margin-bottom: 36px;
+.eduvia-why-section {
+  margin-top: 80px;
 }
 .eduvia-why-cards {
   display: grid;
@@ -324,6 +427,11 @@
   flex-direction: column;
   gap: 12px;
   box-shadow: 0 4px 20px rgba(5, 26, 46, 0.03);
+  transition: all 0.25s ease;
+}
+.eduvia-why-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(5, 26, 46, 0.07);
 }
 .eduvia-why-card__icon {
   width: 48px;
@@ -351,27 +459,69 @@
   color: #576C80;
 }
 
+/* ── VIDEO PLAYER BANNER ── */
+.eduvia-video-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  max-height: 480px;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 12px 36px rgba(5, 26, 46, 0.08);
+  margin-top: 40px;
+}
+.eduvia-video-container__poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.eduvia-video-container__play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: #9E89FB;
+  color: #FFFFFF;
+  display: grid;
+  place-items: center;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 30px rgba(158, 137, 251, 0.5);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.eduvia-video-container__play-btn:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  background: #8b73f8;
+}
+.eduvia-video-container__play-btn .material-symbols-outlined {
+  font-size: 38px;
+}
+
 /* ── 4 NUMBERED STEPS ── */
+.eduvia-steps-section {
+  margin-top: 80px;
+}
 .eduvia-steps-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 32px;
   margin-top: 40px;
 }
-
 .eduvia-step-card {
   display: flex;
   flex-direction: column;
   position: relative;
 }
-
 .eduvia-step-num {
   font-size: 40px;
   font-weight: 800;
   color: #051A2E;
   line-height: 1;
 }
-
 .eduvia-step-dot {
   width: 10px;
   height: 10px;
@@ -379,14 +529,12 @@
   background: #9E89FB;
   margin: 14px 0 20px;
 }
-
 .eduvia-step-card h3 {
   font-size: 19px;
   font-weight: 700;
   color: #051A2E;
   margin: 0 0 10px;
 }
-
 .eduvia-step-card p {
   font-size: 14px;
   line-height: 1.6;
@@ -394,9 +542,8 @@
   margin: 0 0 16px;
   flex: 1;
 }
-
 .eduvia-step-link {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   color: #FF09AD !important;
   text-decoration: none;
@@ -405,33 +552,79 @@
   text-decoration: underline;
 }
 
+/* ── DARK CTA BANNER ── */
+.eduvia-dark-cta {
+  margin-top: 80px;
+  background: #051A2E;
+  border-radius: 28px;
+  padding: clamp(48px, 6vw, 76px) clamp(24px, 5vw, 60px);
+  text-align: center;
+  color: #FFFFFF;
+  box-shadow: 0 16px 40px rgba(5, 26, 46, 0.2);
+}
+.eduvia-dark-cta__inner {
+  max-width: 720px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.eduvia-dark-cta__kicker {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #E9FA49;
+}
+.eduvia-dark-cta__inner h2 {
+  font-size: clamp(28px, 3.8vw, 44px);
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+.eduvia-dark-cta__inner p {
+  font-size: 16px;
+  line-height: 1.65;
+  color: #9FB2C8;
+  margin: 0 0 10px;
+}
+.eduvia-dark-cta__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 /* ── FAQ GRID ── */
+.eduvia-faq-section {
+  margin-top: 80px;
+}
 .eduvia-faq-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 40px;
   margin-top: 36px;
 }
-
 .eduvia-faq-item {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
-
 .eduvia-faq-item__header {
   display: flex;
   align-items: flex-start;
   gap: 12px;
 }
-
 .eduvia-faq-icon {
   color: #9E89FB;
   font-size: 20px;
   transform: translateY(2px);
   flex-shrink: 0;
 }
-
 .eduvia-faq-item h4 {
   font-size: 17px;
   font-weight: 700;
@@ -439,7 +632,6 @@
   margin: 0;
   line-height: 1.4;
 }
-
 .eduvia-faq-item p {
   font-size: 14px;
   line-height: 1.65;
@@ -447,8 +639,21 @@
   margin: 0 0 0 32px;
 }
 
-/* ── RESPONSIVE ── */
+/* ── RESPONSIVE DESIGN ── */
 @media (max-width: 1024px) {
+  .eduvia-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .eduvia-pricing-cards {
+    grid-template-columns: 1fr;
+    max-width: 520px;
+    margin-inline: auto;
+  }
+  .eduvia-why-cards {
+    grid-template-columns: 1fr;
+  }
   .eduvia-steps-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -465,11 +670,40 @@
     flex-direction: column;
     align-items: flex-start;
   }
+  .eduvia-dark-cta__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .eduvia-dark-cta__actions .eduvia-btn {
+    width: 100%;
+  }
 }
 
 /* ── DARK THEME SUPPORT ── */
 [data-theme='dark'] .eduvia-pricing-page {
   color: var(--color-on-surface, #F1F5F9);
+}
+
+[data-theme='dark'] .eduvia-pricing-page .eduvia-page-hero {
+  background: #0f1d2e !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+[data-theme='dark'] .eduvia-pricing-page .eduvia-page-hero__title {
+  color: #F1F5F9;
+}
+[data-theme='dark'] .eduvia-pricing-page .eduvia-page-hero__desc,
+[data-theme='dark'] .eduvia-pricing-page .eduvia-breadcrumbs {
+  color: #94A3B8;
+}
+[data-theme='dark'] .eduvia-pricing-page .eduvia-breadcrumbs a {
+  color: #F1F5F9;
+}
+
+[data-theme='dark'] .eduvia-section-title {
+  color: #F1F5F9;
+}
+[data-theme='dark'] .eduvia-section-desc {
+  color: #94A3B8;
 }
 
 [data-theme='dark'] .eduvia-pricing-controls {
@@ -558,6 +792,10 @@
   color: #94A3B8;
 }
 
+[data-theme='dark'] .eduvia-video-container {
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+}
+
 [data-theme='dark'] .eduvia-step-num,
 [data-theme='dark'] .eduvia-step-card h3,
 [data-theme='dark'] .eduvia-faq-item h4 {
@@ -569,3 +807,8 @@
   color: #94A3B8;
 }
 
+[data-theme='dark'] .eduvia-dark-cta {
+  background: #0b1a2b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+}

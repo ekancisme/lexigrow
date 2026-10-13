@@ -10,7 +10,7 @@
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-family: var(--font-family, 'Urbanist', sans-serif);
+  font-family: var(--font-family);
   font-size: 14px;
 }
 

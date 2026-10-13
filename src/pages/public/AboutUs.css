@@ -134,7 +134,7 @@
   justify-content: center;
   gap: 10px;
   border-radius: 99px;
-  font-family: 'Urbanist', sans-serif;
+  font-family: var(--font-family);
   font-size: 15px;
   font-weight: 700;
   line-height: 1;

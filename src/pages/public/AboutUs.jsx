@@ -28,7 +28,7 @@ export default function AboutUs() {
       year: t('about.milestone4Year', '2026'),
       title: t('about.milestone4Title', 'Growth Garden & Gamified Habit Building'),
       desc: t('about.milestone4Desc', 'Launched Growth Garden, daily streaks, and arcade puzzle modes to cultivate long-term intrinsic study motivation.'),
-      image: '/assets/eduvia/image-13.jpg',
+      image: '/assets/lexigrow/educator-portrait-1.webp',
     },
   ]
 

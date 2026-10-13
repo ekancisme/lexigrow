@@ -3,7 +3,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-family: var(--font-family, 'Urbanist', sans-serif);
+  font-family: var(--font-family);
   font-weight: 500;
   border-radius: var(--radius-full, 9999px);
   border: 1px solid transparent;

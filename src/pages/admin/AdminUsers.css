@@ -439,6 +439,46 @@
 
 .au-modal__section { display: flex; flex-direction: column; gap: 10px; }
 
+.au-password-reset__description {
+  margin: 0;
+  color: var(--color-on-surface-variant);
+  font-size: var(--text-body-sm-size, 13px);
+  line-height: 1.5;
+}
+
+.au-password-result {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--color-success);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-container-low);
+}
+
+.au-password-result p { margin: 0; }
+.au-password-result__value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.au-password-result__value code {
+  overflow-wrap: anywhere;
+  color: var(--color-on-surface);
+  font-size: 15px;
+  font-weight: 700;
+  user-select: all;
+}
+.au-password-result__hint,
+.au-password-result__status {
+  color: var(--color-on-surface-variant);
+  font-size: var(--text-label-sm-size, 12px);
+  line-height: 1.45;
+}
+.au-password-result__status { font-weight: 700; }
+
 .au-modal__section-title {
   display: flex;
   align-items: center;

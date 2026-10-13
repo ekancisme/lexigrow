@@ -17,7 +17,7 @@
 
 .lexi-tab--underline {
   padding: 12px 0;
-  font-family: var(--font-family, 'Urbanist', sans-serif);
+  font-family: var(--font-family);
   font-size: 14px;
   font-weight: 500;
   color: var(--color-on-surface-variant, #64748b);
@@ -49,7 +49,7 @@
 .lexi-tab--pills {
   padding: 6px 16px;
   border-radius: var(--radius-full, 9999px);
-  font-family: var(--font-family, 'Urbanist', sans-serif);
+  font-family: var(--font-family);
   font-size: 13px;
   font-weight: 500;
   color: var(--color-on-surface-variant, #64748b);

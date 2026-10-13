@@ -58,7 +58,7 @@
   display: block;
 }
 .eduvia-footer__logo-text {
-  font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: var(--font-family);
   font-size: 24px;
   font-weight: 800;
   color: #FFFFFF;

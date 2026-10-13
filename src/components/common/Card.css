@@ -46,7 +46,7 @@
 }
 
 .lexi-card__title {
-  font-family: var(--font-family, 'Urbanist', sans-serif);
+  font-family: var(--font-family);
   font-size: var(--text-title-lg-size, 18px);
   font-weight: 600;
   color: var(--color-on-surface, #0f172a);

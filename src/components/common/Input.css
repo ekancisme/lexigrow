@@ -6,7 +6,7 @@
 }
 
 .lexi-field__label {
-  font-family: var(--font-family, 'Urbanist', sans-serif);
+  font-family: var(--font-family);
   font-size: 13px;
   font-weight: 500;
   color: var(--color-on-surface, #0f172a);
@@ -23,7 +23,7 @@
   width: 100%;
   height: 40px;
   padding: 0 14px;
-  font-family: var(--font-family, 'Urbanist', sans-serif);
+  font-family: var(--font-family);
   font-size: 14px;
   color: var(--color-on-surface, #0f172a);
   background-color: var(--color-surface-container-lowest, #ffffff);

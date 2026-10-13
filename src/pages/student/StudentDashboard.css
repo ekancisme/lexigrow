@@ -74,7 +74,7 @@
 }
 
 .student-dash__hero-title {
-  font-family: var(--font-family, 'Urbanist', sans-serif);
+  font-family: var(--font-family);
   font-size: 22px;
   font-weight: 700;
   color: var(--color-on-surface, #0f172a);
