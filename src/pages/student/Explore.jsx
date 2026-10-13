@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
+import { TOPIC_VOCABULARY_ROUNDS, getTopicRound } from '../../data/topicVocabularyRounds.js'
 import './Explore.css'
 
 const EDUVIA_COURSES = [
@@ -114,43 +115,122 @@ export default function Explore() {
   const navigate = useNavigate()
   const { language } = useLanguage()
   const [selectedTag, setSelectedTag] = useState('ALL')
+  const [statusTab, setStatusTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
-  const [completedSlugs, setCompletedSlugs] = useState(new Set())
+  const [topicSets, setTopicSets] = useState(EDUVIA_COURSES)
+  const [completedCounts, setCompletedCounts] = useState({})
+  const [recentSessions, setRecentSessions] = useState([])
 
   useEffect(() => {
     let isMounted = true
-    async function loadHistory() {
-      try {
-        const historyRes = await api.get('/sessions/history')
-        if (!isMounted) return
-        const historyData = historyRes.data?.data || historyRes.data
-        const completed = new Set()
-        if (historyData?.completedSlugCounts) {
-          Object.keys(historyData.completedSlugCounts).forEach(slug => completed.add(slug))
-        } else if (historyData?.recentSessions) {
-          historyData.recentSessions.forEach(s => {
-            if (s.learningSetSlug) completed.add(s.learningSetSlug)
+    async function loadExploreData() {
+      const [setsResult, historyResult] = await Promise.allSettled([
+        api.get('/learning-sets'),
+        api.get('/sessions/history'),
+      ])
+      if (!isMounted) return
+
+      if (setsResult.status === 'fulfilled') {
+        const responseData = setsResult.value?.data
+        const rawSets = Array.isArray(responseData)
+          ? responseData
+          : Array.isArray(responseData?.data) ? responseData.data : []
+        if (rawSets.length) {
+          const serverCourses = rawSets.map((set) => {
+            const preset = EDUVIA_COURSES.find((course) => course.slug === set.slug)
+            const words = (set.items || []).map((item) => ({
+              word: item.word,
+              meaning: item.definitionVi || item.meaningVi || item.definition || item.meaning || '',
+            })).filter((item) => item.word)
+            const categoryText = `${set.category || ''} ${set.title || ''} ${set.slug || ''}`.toLowerCase()
+            const tag = preset?.tag || (
+              /pronunciation|phonetic|phát âm/.test(categoryText) ? 'Pronunciation' :
+              /grammar|ngữ pháp/.test(categoryText) ? 'Grammar' :
+              /business|thương mại/.test(categoryText) ? 'Business English' :
+              /writing|essay|viết/.test(categoryText) ? 'Writing' :
+              /vocabulary|từ vựng/.test(categoryText) ? 'Vocabulary' : 'Speaking'
+            )
+            return {
+              ...(preset || {}),
+              slug: set.slug,
+              tag,
+              tagColor: preset?.tagColor || (['Speaking', 'Grammar'].includes(tag) ? 'green' : 'teal'),
+              title: set.title || preset?.title || set.slug,
+              titleVi: preset?.titleVi || set.titleVi || set.title || set.slug,
+              level: set.level || preset?.level || 'B1',
+              desc: set.description || preset?.desc || '',
+              descVi: set.descriptionVi || preset?.descVi || set.description || '',
+              words: words.length ? words : (preset?.words || []),
+              timeEstimate: preset?.timeEstimate || '10 mins',
+            }
           })
+          const serverCoursesBySlug = new Map(serverCourses.map((course) => [course.slug, course]))
+          const featuredCourses = EDUVIA_COURSES.map((course) => serverCoursesBySlug.get(course.slug) || course)
+          const featuredSlugs = new Set(featuredCourses.map((course) => course.slug))
+          setTopicSets([...featuredCourses, ...serverCourses.filter((course) => !featuredSlugs.has(course.slug))])
         }
-        setCompletedSlugs(completed)
-      } catch {
-        // Fallback gracefully
+      }
+
+      if (historyResult.status === 'fulfilled') {
+        const historyData = historyResult.value?.data?.data || historyResult.value?.data || {}
+        const counts = historyData.completedSlugCounts || {}
+        if (Object.keys(counts).length) {
+          setCompletedCounts(counts)
+        } else {
+          const recentCounts = {}
+          ;(historyData.recentSessions || []).forEach((session) => {
+            if (session.learningSetSlug) recentCounts[session.learningSetSlug] = (recentCounts[session.learningSetSlug] || 0) + 1
+          })
+          setCompletedCounts(recentCounts)
+        }
+        setRecentSessions(historyData.recentSessions || [])
       }
     }
-    loadHistory()
+    loadExploreData()
     return () => { isMounted = false }
   }, [])
 
-  const filteredCourses = EDUVIA_COURSES.filter(course => {
-    const matchesTag = selectedTag === 'ALL' || course.tag.toUpperCase() === selectedTag || course.level === selectedTag
+  const coursesWithProgress = topicSets.map((course) => {
+    const completedCount = Number(completedCounts[course.slug] || 0)
+    const isCompleted = completedCount > 0
+    const rounds = TOPIC_VOCABULARY_ROUNDS[course.slug]
+    const roundNumber = rounds?.length ? (completedCount % rounds.length) + 1 : completedCount + 1
+    const roundData = isCompleted ? getTopicRound(course.slug, roundNumber) : null
+    const learnedWords = new Set(recentSessions
+      .filter((session) => session.learningSetSlug === course.slug)
+      .flatMap((session) => session.targetWords || [])
+      .map((word) => (typeof word === 'string' ? word : word.word || '').toLowerCase()))
+    const freshWords = roundData?.words?.map((word) => ({
+      word: word.word,
+      meaning: word.meaningVi || word.meaning || '',
+    })) || course.words.filter((word) => !learnedWords.has(word.word.toLowerCase()))
+    return {
+      ...course,
+      isCompleted,
+      completedCount,
+      roundNumber,
+      isNewRound: isCompleted && statusTab !== 'completed',
+      displayWords: isCompleted && statusTab !== 'completed' && freshWords.length ? freshWords : course.words,
+      displayDesc: roundData?.promptTopic || (language === 'vi' ? course.descVi : course.desc),
+    }
+  })
+
+  const filteredCourses = coursesWithProgress.filter(course => {
+    const matchesTag = selectedTag === 'ALL' || course.tag.toLowerCase() === selectedTag.toLowerCase()
+    const matchesStatus = statusTab === 'all' || course.isCompleted
     const query = searchQuery.trim().toLowerCase()
     const matchesSearch = !query ||
       course.title.toLowerCase().includes(query) ||
       course.titleVi.toLowerCase().includes(query) ||
       course.tag.toLowerCase().includes(query) ||
-      course.words.some(w => w.word.toLowerCase().includes(query))
-    return matchesTag && matchesSearch
+      course.desc.toLowerCase().includes(query) ||
+      course.descVi.toLowerCase().includes(query) ||
+      course.level.toLowerCase().includes(query) ||
+      course.displayWords.some(w => `${w.word} ${w.meaning}`.toLowerCase().includes(query))
+    return matchesTag && matchesStatus && matchesSearch
   })
+
+  const completedCount = Object.values(completedCounts).filter((count) => Number(count) > 0).length
 
   return (
     <div className="eduvia-courses-page">
@@ -195,7 +275,7 @@ export default function Explore() {
         </div>
 
         {/* ── CATEGORY FILTER PILLS ── */}
-        <div className="eduvia-courses-filter-pills" role="tablist">
+        <div className="eduvia-courses-filter-pills" role="group" aria-label={language === 'vi' ? 'Lọc theo chuyên mục' : 'Filter by category'}>
           {[
             { id: 'ALL', labelVi: 'Tất cả chủ đề', labelEn: 'All Topics' },
             { id: 'Speaking', labelVi: 'Giao tiếp', labelEn: 'Speaking' },
@@ -209,6 +289,7 @@ export default function Explore() {
               key={tag.id}
               type="button"
               className={`eduvia-filter-pill ${selectedTag === tag.id ? 'active' : ''}`}
+              aria-pressed={selectedTag === tag.id}
               onClick={() => setSelectedTag(tag.id)}
             >
               {language === 'vi' ? tag.labelVi : tag.labelEn}
@@ -216,18 +297,40 @@ export default function Explore() {
           ))}
         </div>
 
-        {/* ── 6 TOPICS GRID ── */}
-        <div className="eduvia-courses-grid">
+        <div className="eduvia-courses-filter-pills eduvia-courses-filter-pills--status" role="group" aria-label={language === 'vi' ? 'Lọc theo tiến độ' : 'Filter by progress'}>
+          <button type="button" className={`eduvia-filter-pill ${statusTab === 'all' ? 'active' : ''}`} aria-pressed={statusTab === 'all'} onClick={() => setStatusTab('all')}>
+            {language === 'vi' ? 'Tất cả tiến độ' : 'All progress'}
+          </button>
+          <button type="button" className={`eduvia-filter-pill ${statusTab === 'completed' ? 'active' : ''}`} aria-pressed={statusTab === 'completed'} onClick={() => setStatusTab('completed')}>
+            {language === 'vi' ? 'Đã hoàn thành' : 'Completed'}{completedCount > 0 ? ` (${completedCount})` : ''}
+          </button>
+        </div>
+
+        {filteredCourses.length === 0 ? (
+          <div className="eduvia-courses-empty" role="status">
+            <span className="material-symbols-outlined" aria-hidden="true">{statusTab === 'completed' && completedCount === 0 ? 'task_alt' : 'search_off'}</span>
+            <h3>{statusTab === 'completed' && completedCount === 0
+              ? (language === 'vi' ? 'Chưa có chủ đề hoàn thành' : 'No completed topics yet')
+              : (language === 'vi' ? 'Không tìm thấy chủ đề phù hợp' : 'No matching topics found')}</h3>
+            <p>{statusTab === 'completed' && completedCount === 0
+              ? (language === 'vi' ? 'Hoàn thành một chủ đề để xem lại tiến độ tại đây.' : 'Complete a topic to see your progress here.')
+              : (language === 'vi' ? 'Thử từ khóa khác hoặc chọn một chuyên mục khác.' : 'Try another search term or category.')}</p>
+            {statusTab === 'completed' && <button type="button" className="eduvia-filter-pill active" onClick={() => setStatusTab('all')}>{language === 'vi' ? 'Xem tất cả chủ đề' : 'View all topics'}</button>}
+          </div>
+        ) : <div className="eduvia-courses-grid">
           {filteredCourses.map(course => {
-            const isDone = completedSlugs.has(course.slug)
+            const isDone = course.isCompleted
+            const targetRound = course.isNewRound ? `&round=${course.roundNumber}&forceSet=true` : ''
+            const writingUrl = `/student/writing?set=${encodeURIComponent(course.slug)}${targetRound}`
 
             return (
               <article className="eduvia-course-card" key={course.slug}>
                 <div className="eduvia-course-card__image-wrap">
                   <img src={course.image} alt={course.title} className="eduvia-course-card__img" loading="lazy" />
                   <span className={`eduvia-course-card__tag eduvia-course-card__tag--${course.tagColor}`}>
-                    {course.tag}
+                    {language === 'vi' ? ({ Speaking: 'Giao tiếp', Pronunciation: 'Phát âm', Grammar: 'Ngữ pháp', Writing: 'Viết luận', Vocabulary: 'Từ vựng', 'Business English': 'Tiếng Anh thương mại' }[course.tag] || course.tag) : course.tag}
                   </span>
+                  {course.isCompleted && <span className="eduvia-course-card__completed">{language === 'vi' ? 'Đã hoàn thành' : 'Completed'}</span>}
                   <span className="eduvia-course-card__level-badge">
                     {course.level}
                   </span>
@@ -241,23 +344,25 @@ export default function Explore() {
                     </span>
                     <span className="eduvia-course-card__badge-words">
                       <span className="material-symbols-outlined">style</span>
-                      {course.words.length} {language === 'vi' ? 'từ vựng' : 'words'}
+                      {course.displayWords.length} {language === 'vi' ? 'từ vựng' : 'words'}
                     </span>
                   </div>
 
                   <h3 className="eduvia-course-card__title">
-                    <Link to={`/student/writing?set=${course.slug}`}>
+                    <Link to={writingUrl}>
                       {language === 'vi' ? course.titleVi : course.title}
                     </Link>
                   </h3>
 
                   <p className="eduvia-course-card__desc">
-                    {language === 'vi' ? course.descVi : course.desc}
+                    {course.displayDesc}
                   </p>
+
+                  {course.isNewRound && <span className="eduvia-course-card__round-badge">{language === 'vi' ? 'Bộ từ mới' : 'New words'} · {language === 'vi' ? 'Phiên' : 'Session'} {course.roundNumber}</span>}
 
                   {/* Vocabulary preview chips */}
                   <div className="eduvia-course-card__words">
-                    {course.words.slice(0, 3).map(w => (
+                    {course.displayWords.slice(0, 3).map(w => (
                       <span key={w.word} className="eduvia-word-tag">
                         <strong>{w.word}</strong>: {w.meaning}
                       </span>
@@ -267,16 +372,22 @@ export default function Explore() {
                   <button
                     type="button"
                     className="eduvia-btn eduvia-btn--navy eduvia-btn--full"
-                    onClick={() => navigate(`/student/writing?set=${course.slug}`)}
+                    onClick={() => navigate(statusTab === 'completed' ? `/student/writing?set=${encodeURIComponent(course.slug)}&forceSet=true` : writingUrl)}
                   >
-                    <span>{isDone ? (language === 'vi' ? 'Luyện viết lại' : 'Practice Writing Again') : (language === 'vi' ? 'Chọn chủ đề & Viết luận' : 'Select Topic & Write')}</span>
+                    <span>{statusTab === 'completed'
+                      ? (language === 'vi' ? 'Luyện lại chủ đề' : 'Practice topic again')
+                      : course.isNewRound
+                        ? (language === 'vi' ? `Bắt đầu phiên ${course.roundNumber}` : `Start session ${course.roundNumber}`)
+                        : isDone
+                          ? (language === 'vi' ? 'Luyện viết lại' : 'Practice Writing Again')
+                          : (language === 'vi' ? 'Chọn chủ đề & Viết luận' : 'Select Topic & Write')}</span>
                     <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
                   </button>
                 </div>
               </article>
             )
           })}
-        </div>
+        </div>}
 
         {/* ── VIDEO PLAYER BANNER ── */}
         <section className="eduvia-courses-video-section">

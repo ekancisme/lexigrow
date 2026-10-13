@@ -184,8 +184,17 @@ export default function GrowthGardenWidget() {
                 return (
                   <div
                     key={topic.slug}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={isSelected}
                     className={`plant-card card-base plant-card--${topic.stage} ${isSelected ? 'plant-card--selected' : ''}`}
                     onClick={() => setSelectedTopic(topic)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        setSelectedTopic(topic)
+                      }
+                    }}
                   >
                     <div className="plant-card__icon-wrap">
                       <span className="material-symbols-outlined">{topic.icon}</span>

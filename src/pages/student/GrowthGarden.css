@@ -145,6 +145,11 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
+.plant-card:focus-visible {
+  outline: 3px solid var(--color-primary, #051A2E);
+  outline-offset: 2px;
+}
+
 .plant-card--selected {
   border-color: #16a34a !important;
   background: #f0fdf4 !important;

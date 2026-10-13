@@ -45,7 +45,8 @@ const StudentAnalyticsDetail = lazy(() => import('./pages/teacher/StudentAnalyti
 const ManualFeedbackReview = lazy(() => import('./pages/teacher/ManualFeedbackReview'))
 const EarlyWarningAlerts = lazy(() => import('./pages/teacher/EarlyWarningAlerts'))
 const SystemPromptsManagement = lazy(() => import('./pages/teacher/SystemPromptsManagement'))
-const ProfileSettings = lazy(() => import('./pages/teacher/ProfileSettings'))
+const Profile = lazy(() => import('./pages/student/Profile'))
+const WebSettings = lazy(() => import('./pages/settings/WebSettings'))
 const AssignmentDetail = lazy(() => import('./pages/teacher/AssignmentDetail'))
 const AssignmentManagement = lazy(() => import('./pages/teacher/AssignmentManagement'))
 
@@ -282,7 +283,8 @@ function App() {
         <Route path="/payment/cancel" element={<AppLayout><PaymentCancel /></AppLayout>} />
 
         {/* Shared routes */}
-        <Route path="/settings" element={<AppLayout role="student"><ProfileSettings /></AppLayout>} />
+        <Route path="/profile" element={<AppLayout role="student"><Profile /></AppLayout>} />
+        <Route path="/settings" element={<AppLayout role="student"><WebSettings /></AppLayout>} />
 
         {/* Default redirect & 404 */}
         <Route path="/home" element={<Navigate to="/student/home" replace />} />

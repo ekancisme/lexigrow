@@ -126,11 +126,15 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
             <>
               <NotificationBell />
               <NavigationDisclosure className="topnav__account" align="end" triggerLabel={t('headerNavigation.account')}
-                label={<><span className="topnav__avatar" aria-hidden="true">{user?.name?.trim()?.[0]?.toUpperCase() || 'L'}</span><span className="topnav__account-label">{t('headerNavigation.account')}</span></>}
+                label={<>{user?.avatar ? <img src={user.avatar} alt="" className="topnav__avatar topnav__avatar--image" /> : <span className="topnav__avatar" aria-hidden="true">{user?.name?.trim()?.[0]?.toUpperCase() || 'L'}</span>}<span className="topnav__account-label">{t('headerNavigation.account')}</span></>}
                 open={openId === 'account'} onOpen={() => setOpenId('account')}
                 onClose={() => setOpenId(current => current === 'account' ? null : current)}
                 onToggle={() => setOpenId(current => current === 'account' ? null : 'account')}>
-                <div className="topnav__account-summary"><strong>{user?.name || t('headerNavigation.account')}</strong><p>{subtitle}</p></div>
+                <Link to="/profile" className="topnav__account-summary" onClick={closeNavigation}>
+                  <strong>{user?.name || t('headerNavigation.account')}</strong>
+                  <p>{subtitle}</p>
+                </Link>
+                <Link to="/profile" className="header-navigation__link" onClick={closeNavigation}><span className="material-symbols-outlined" aria-hidden="true">person</span>{t('nav.profile', 'Profile')}</Link>
                 <Link to="/settings" className="header-navigation__link" onClick={closeNavigation}><span className="material-symbols-outlined" aria-hidden="true">settings</span>{t('nav.settings')}</Link>
                 {role !== 'admin' && <Link to="/pricing" className="header-navigation__link" onClick={closeNavigation}>
                   <span className="material-symbols-outlined" aria-hidden="true">workspace_premium</span>

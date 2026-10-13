@@ -1,0 +1,36 @@
+/* ==========================================================================
+   Standalone Layout (Auth Pages: Login, Register, Forgot Password)
+   Eliminates white background gaps above SiteFooter
+   ========================================================================== */
+
+.standalone-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--eduvia-hero, #DDE9FF);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.standalone-layout :is(.login-page, .register-page, .forgot-password-page) {
+  flex: 1 0 auto;
+  min-height: auto;
+  background: transparent !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(40px, 6vw, 72px) var(--margin-mobile, 16px);
+}
+
+.standalone-layout .eduvia-footer {
+  margin-top: 0 !important;
+  border-top: 1px solid rgba(5, 26, 46, 0.08);
+}
+
+[data-theme="dark"] .standalone-layout {
+  background: #0f1d2e;
+}
+
+[data-theme="dark"] .standalone-layout .eduvia-footer {
+  border-top-color: rgba(255, 255, 255, 0.08);
+}

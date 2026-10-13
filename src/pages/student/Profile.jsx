@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import api from '../../services/api.js'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useModal } from '../../contexts/ModalContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
-import './ProfileSettings.css'
+import './Profile.css'
 
 const INTEREST_MAP = {
   'travel': { labelVi: 'Du lịch & Khám phá', labelEn: 'Travel & Exploration', icon: 'flight_takeoff' },
@@ -19,7 +19,7 @@ const INTEREST_MAP = {
   'society': { labelVi: 'Xã hội & Tin tức', labelEn: 'Global News & Society', icon: 'public' }
 }
 
-export default function ProfileSettings() {
+export default function Profile() {
   const navigate = useNavigate()
   const { user: authUser, updateUser } = useAuth()
   const { showAlert, showConfirm } = useModal()
@@ -31,15 +31,10 @@ export default function ProfileSettings() {
   const [institution, setInstitution] = useState('')
   const [englishLevel, setEnglishLevel] = useState('B2')
   const [learningProfile, setLearningProfile] = useState(null)
-  const [notifications, setNotifications] = useState({ email: true, push: true, weekly: false })
+  const [avatar, setAvatar] = useState('')
+  const avatarInputRef = useRef(null)
   const [loading, setLoading] = useState(true)
   const [savingProfile, setSavingProfile] = useState(false)
-  const [savingNotifs, setSavingNotifs] = useState(false)
-
-  // Security password fields
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [updatingPassword, setUpdatingPassword] = useState(false)
   const [linkCode, setLinkCode] = useState(null)
   const [generatingLinkCode, setGeneratingLinkCode] = useState(false)
   const [linkCodeSecondsLeft, setLinkCodeSecondsLeft] = useState(0)
@@ -53,19 +48,13 @@ export default function ProfileSettings() {
     async function loadProfile() {
       try {
         const res = await api.get('/profile')
-        const user = res.data
+        const user = res?.data?.data || res?.data || res
         setName(user.name || '')
         setEmail(user.email || '')
         setInstitution(user.institution || '')
         setEnglishLevel(user.englishLevel || 'B2')
+        setAvatar(user.avatar || '')
         setLearningProfile(user.learningProfile || authUser?.learningProfile || null)
-        if (user.notifications) {
-          setNotifications({
-            email: user.notifications.email ?? true,
-            push: user.notifications.push ?? true,
-            weekly: user.notifications.weekly ?? false,
-          })
-        }
       } catch (err) {
         console.error('Error fetching profile:', err)
       } finally {
@@ -115,9 +104,10 @@ export default function ProfileSettings() {
         email,
         institution,
         englishLevel,
+        avatar,
       })
       if (updateUser) {
-        updateUser(res.data)
+        updateUser(res?.data?.data || res?.data || res)
       }
       showAlert(t('profileSettings.profileSaved', 'Profile updated successfully!'), '', 'success')
     } catch (err) {
@@ -127,39 +117,21 @@ export default function ProfileSettings() {
     }
   }
 
-  async function handleToggleNotification(key) {
-    const updated = { ...notifications, [key]: !notifications[key] }
-    setNotifications(updated)
-    setSavingNotifs(true)
-    try {
-      await api.put('/profile/notifications', updated)
-    } catch (err) {
-      console.error('Error saving notification preferences:', err)
-    } finally {
-      setSavingNotifs(false)
-    }
-  }
-
-  async function handleUpdatePassword(e) {
-    e.preventDefault()
-    if (!currentPassword || !newPassword) {
-      showAlert('Vui lòng nhập đầy đủ mật khẩu', 'Please fill out both password fields.', 'warning')
+  function handleAvatarChange(event) {
+    const file = event.target.files?.[0]
+    if (!file) return
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 1024 * 1024) {
+      showAlert(
+        isVi ? 'Ảnh không hợp lệ' : 'Invalid image',
+        isVi ? 'Chọn ảnh JPG, PNG hoặc WebP có dung lượng tối đa 1 MB.' : 'Choose a JPG, PNG or WebP image up to 1 MB.',
+        'warning'
+      )
+      event.target.value = ''
       return
     }
-    setUpdatingPassword(true)
-    try {
-      await api.put('/profile/password', {
-        currentPassword,
-        newPassword,
-      })
-      showAlert(t('profileSettings.passwordUpdated', 'Password updated successfully!'), '', 'success')
-      setCurrentPassword('')
-      setNewPassword('')
-    } catch (err) {
-      showAlert('Lỗi đổi mật khẩu', err.message, 'error')
-    } finally {
-      setUpdatingPassword(false)
-    }
+    const reader = new FileReader()
+    reader.onload = () => setAvatar(String(reader.result || ''))
+    reader.readAsDataURL(file)
   }
 
   async function handleGenerateLinkCode() {
@@ -249,9 +221,9 @@ export default function ProfileSettings() {
             <span className="material-symbols-outlined">manage_accounts</span>
           </div>
           <div>
-            <h1 className="profile-settings__title">{t('profileSettings.title', 'Profile & Roadmap Settings')}</h1>
+            <h1 className="profile-settings__title">{t('profileSettings.title', 'My Profile')}</h1>
             <p className="profile-settings__subtitle">
-              {t('profileSettings.subtitle', 'Manage your account details, AI learning roadmap, and system preferences')}
+              {t('profileSettings.subtitle', 'Manage your personal details, learning roadmap and linked guardians')}
             </p>
           </div>
         </div>
@@ -260,7 +232,7 @@ export default function ProfileSettings() {
       <div className="profile-settings__layout">
         {/* SECTION 1: AI Learning Roadmap (Highlighted for Students & Learners) */}
         {(authUser?.role === 'student' || lp?.onboardingCompleted || lp?.targetLevel) && (
-          <section className="settings-card settings-card--roadmap">
+          <section className="settings-card settings-card--roadmap profile-settings__roadmap">
             <div className="roadmap-card-header">
               <div className="roadmap-card-header__left">
                 <div className="roadmap-header-badge">
@@ -433,7 +405,7 @@ export default function ProfileSettings() {
         )}
 
         {/* SECTION 3: Personal Information */}
-        <section className="settings-card">
+        <section className="settings-card profile-settings__personal">
           <div className="settings-card-header-simple">
             <span className="material-symbols-outlined card-header-icon">badge</span>
             <h3 className="settings-card-title">{t('profileSettings.personalInfo', 'Personal Information')}</h3>
@@ -442,19 +414,27 @@ export default function ProfileSettings() {
           <div className="profile-settings__avatar-section">
             <div className="profile-settings__avatar-wrap">
               <div className="profile-settings__avatar">
-                <span className="material-symbols-outlined">person</span>
+                {avatar
+                  ? <img src={avatar} alt={isVi ? 'Ảnh đại diện hiện tại' : 'Current profile avatar'} />
+                  : <span className="material-symbols-outlined" aria-hidden="true">person</span>}
               </div>
               <div className="profile-settings__avatar-info">
                 <strong className="avatar-user-name">{name || 'User'}</strong>
                 <span className="avatar-user-role">{authUser?.role?.toUpperCase() || 'STUDENT'}</span>
+                <input ref={avatarInputRef} className="profile-settings__avatar-input" type="file" accept="image/jpeg,image/png,image/webp" onChange={handleAvatarChange} aria-label={isVi ? 'Chọn ảnh đại diện' : 'Choose profile avatar'} tabIndex={-1} />
+                <button type="button" className="profile-settings__avatar-button" onClick={() => avatarInputRef.current?.click()}>
+                  <span className="material-symbols-outlined" aria-hidden="true">photo_camera</span>
+                  {isVi ? 'Đổi ảnh đại diện' : 'Change avatar'}
+                </button>
               </div>
             </div>
           </div>
 
           <div className="profile-settings__form-grid">
             <div className="profile-settings__field">
-              <label className="text-label-md">{t('profileSettings.fullName', 'Full Name')}</label>
+              <label className="text-label-md" htmlFor="profile-name">{t('profileSettings.fullName', 'Full Name')}</label>
               <input
+                id="profile-name"
                 type="text"
                 className="profile-settings__input"
                 value={name}
@@ -463,8 +443,9 @@ export default function ProfileSettings() {
               />
             </div>
             <div className="profile-settings__field">
-              <label className="text-label-md">{t('profileSettings.email', 'Email Address')}</label>
+              <label className="text-label-md" htmlFor="profile-email">{t('profileSettings.email', 'Email Address')}</label>
               <input
+                id="profile-email"
                 type="email"
                 className="profile-settings__input"
                 value={email}
@@ -473,8 +454,9 @@ export default function ProfileSettings() {
               />
             </div>
             <div className="profile-settings__field">
-              <label className="text-label-md">{t('profileSettings.institution', 'Institution / School')}</label>
+              <label className="text-label-md" htmlFor="profile-institution">{t('profileSettings.institution', 'Institution / School')}</label>
               <input
+                id="profile-institution"
                 type="text"
                 className="profile-settings__input"
                 value={institution}
@@ -483,8 +465,9 @@ export default function ProfileSettings() {
               />
             </div>
             <div className="profile-settings__field">
-              <label className="text-label-md">{t('profileSettings.englishLevel', 'Current English Level')}</label>
+              <label className="text-label-md" htmlFor="profile-english-level">{t('profileSettings.englishLevel', 'Current English Level')}</label>
               <select
+                id="profile-english-level"
                 className="profile-settings__input"
                 value={englishLevel}
                 onChange={e => setEnglishLevel(e.target.value)}
@@ -521,94 +504,6 @@ export default function ProfileSettings() {
           </div>
         </section>
 
-        {/* SECTION 4: Notifications Preferences */}
-        <section className="settings-card">
-          <div className="settings-card-header-simple">
-            <span className="material-symbols-outlined card-header-icon">notifications</span>
-            <h3 className="settings-card-title">{t('profileSettings.notificationsTitle', 'Notification Preferences')} {savingNotifs && '(saving...)'}</h3>
-          </div>
-
-          <div className="notification-toggles-list">
-            {[
-              { key: 'email', label: t('profileSettings.emailNotifs', 'Email Notifications'), desc: t('profileSettings.emailNotifsDesc', 'Receive email alerts for learning reminders and classroom activity'), icon: 'mail' },
-              { key: 'push', label: t('profileSettings.pushNotifs', 'Browser Notifications'), desc: t('profileSettings.pushNotifsDesc', 'Get instant push notifications on your device'), icon: 'campaign' },
-              { key: 'weekly', label: t('profileSettings.weeklyNotifs', 'Weekly Digest'), desc: t('profileSettings.weeklyNotifsDesc', 'Receive a weekly summary email with progress and new words'), icon: 'calendar_month' },
-            ].map(item => (
-              <div key={item.key} className="profile-settings__toggle-row">
-                <div className="toggle-row__info">
-                  <span className="material-symbols-outlined toggle-info-icon">{item.icon}</span>
-                  <div>
-                    <p className="toggle-label">{item.label}</p>
-                    <p className="toggle-desc">{item.desc}</p>
-                  </div>
-                </div>
-                <label className="profile-settings__toggle">
-                  <input
-                    type="checkbox"
-                    checked={notifications[item.key] || false}
-                    onChange={() => handleToggleNotification(item.key)}
-                  />
-                  <span className="profile-settings__toggle-slider" />
-                </label>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* SECTION 5: Security & Password */}
-        <section className="settings-card">
-          <div className="settings-card-header-simple">
-            <span className="material-symbols-outlined card-header-icon">lock</span>
-            <h3 className="settings-card-title">{t('profileSettings.securityTitle', 'Security & Password')}</h3>
-          </div>
-
-          <form onSubmit={handleUpdatePassword} className="security-password-form">
-            <div className="profile-settings__form-grid">
-              <div className="profile-settings__field">
-                <label className="text-label-md">{t('profileSettings.currentPassword', 'Current Password')}</label>
-                <input
-                  type="password"
-                  className="profile-settings__input"
-                  placeholder="••••••••"
-                  value={currentPassword}
-                  onChange={e => setCurrentPassword(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="profile-settings__field">
-                <label className="text-label-md">{t('profileSettings.newPassword', 'New Password')}</label>
-                <input
-                  type="password"
-                  className="profile-settings__input"
-                  placeholder="••••••••"
-                  value={newPassword}
-                  onChange={e => setNewPassword(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="profile-settings__actions-bar">
-              <button
-                type="submit"
-                className="btn btn--outline profile-settings__save-btn"
-                disabled={updatingPassword}
-              >
-                {updatingPassword ? (
-                  <>
-                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                    <span>Updating...</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="material-symbols-outlined">key</span>
-                    <span>{t('profileSettings.updatePassword', 'Update Password')}</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </form>
-        </section>
       </div>
     </div>
   )

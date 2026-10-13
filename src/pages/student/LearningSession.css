@@ -809,6 +809,28 @@
   border-color: var(--color-outline-variant, #334155);
 }
 
+[data-theme='dark'] .ai-grading-loader__title {
+  color: #F8FAFC !important;
+}
+[data-theme='dark'] .ai-grading-loader__subtitle {
+  color: #94A3B8 !important;
+}
+[data-theme='dark'] .ai-grading-loader__bar-label {
+  color: #CBD5E1 !important;
+}
+[data-theme='dark'] .ai-grading-loader__bar-val {
+  color: #789DFF !important;
+}
+[data-theme='dark'] .ai-grading-loader__bar-track {
+  background: #1E293B !important;
+}
+[data-theme='dark'] .ai-grading-loader__bar-fill {
+  background: #789DFF !important;
+}
+[data-theme='dark'] .ai-grading-loader__step-circle {
+  background: #1E293B !important;
+  color: #94A3B8 !important;
+}
 [data-theme='dark'] .ai-grading-loader__step {
   background: var(--color-surface-container-low, #1e293b);
   border-color: var(--color-outline-variant, #334155);
@@ -830,6 +852,10 @@
 
 [data-theme='dark'] .ai-grading-loader__step--done .ai-grading-loader__step-title {
   color: var(--color-on-surface, #f8fafc);
+}
+
+[data-theme='dark'] .ai-grading-loader__step-title {
+  color: #F8FAFC !important;
 }
 
 [data-theme='dark'] .ai-grading-loader__step-desc {
