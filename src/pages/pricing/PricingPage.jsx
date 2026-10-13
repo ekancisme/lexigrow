@@ -203,9 +203,9 @@ export default function PricingPage() {
     try {
       setProcessingSlug(planSlug)
       setError(null)
-      const res = await paymentService.createCheckoutSession(planSlug, billingCycle)
+      const res = await paymentService.createPaymentLink(planSlug, billingCycle)
       if (res.success && res.data?.checkoutUrl) {
-        window.location.href = res.data.checkoutUrl
+        window.location.assign(res.data.checkoutUrl)
       } else {
         throw new Error(res.message || t('pricing.checkoutError', 'Error creating PayOS payment link.'))
       }
