@@ -10,6 +10,14 @@
         "vi": "Sách học tiếng Anh, sổ ghi từ vựng và bài luyện viết trên bàn học trong thư viện đại học"
       }
     },
+    "study-hero.jpg": {
+      "source": "Legacy URL alias of study-hero-v2.jpg (OpenAI ImageGen)",
+      "aliasOf": "study-hero-v2.jpg",
+      "alt": {
+        "en": "English study books, a vocabulary notebook, and a writing exercise on a desk in a university library",
+        "vi": "Sách học tiếng Anh, sổ ghi từ vựng và bài luyện viết trên bàn học trong thư viện đại học"
+      }
+    },
     "environment.jpg": {
       "alt": {
         "en": "Green landscapes and renewable energy representing environmental study",
