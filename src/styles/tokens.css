@@ -4,60 +4,69 @@
    ============================================ */
 
 :root {
-  /* ── Color Palette (Modern Academic - Deep Cobalt) ── */
-  --color-primary: #1E40AF;
-  --color-primary-hover: #1D4ED8;
-  --color-primary-active: #1E3A8A;
-  --color-primary-container: #2563EB;
-  --color-primary-fixed: #DBEAFE;
-  --color-primary-fixed-dim: #BFDBFE;
+  /* ── Eduvia-inspired LexiGrow palette ── */
+  --eduvia-navy: #051A2E;
+  --eduvia-lime: #E9FA49;
+  --eduvia-mint: #1CB886;
+  --eduvia-purple: #9E89FB;
+  --eduvia-hero: #DDE9FF;
+  --eduvia-surface: #F4F7FA;
+  --eduvia-pink: #FF09AD;
+  --eduvia-muted: #576C80;
+
+  --color-primary: #051A2E;
+  --color-primary-hover: #123650;
+  --color-primary-active: #001323;
+  --color-primary-container: #1CB886;
+  --color-primary-fixed: #DDE9FF;
+  --color-primary-fixed-dim: #C9DCF1;
   --color-on-primary: #FFFFFF;
-  --color-on-primary-container: #FFFFFF;
+  --color-on-primary-container: #051A2E;
   --color-on-primary-fixed: #1E3A8A;
   --color-on-primary-fixed-variant: #1E40AF;
   --color-inverse-primary: #93C5FD;
 
-  --color-secondary: #3D608E;
-  --color-secondary-container: #A9CBFF;
-  --color-secondary-fixed: #D4E3FF;
-  --color-secondary-fixed-dim: #A6C8FD;
-  --color-on-secondary: #FFFFFF;
-  --color-on-secondary-container: #325683;
-  --color-on-secondary-fixed: #001C3A;
-  --color-on-secondary-fixed-variant: #234875;
+  --color-secondary: #1CB886;
+  --color-secondary-container: #D5F4E8;
+  --color-secondary-fixed: #D5F4E8;
+  --color-secondary-fixed-dim: #B7E9D5;
+  --color-on-secondary: #051A2E;
+  --color-on-secondary-container: #07573F;
+  --color-on-secondary-fixed: #063D2F;
+  --color-on-secondary-fixed-variant: #12664B;
 
-  --color-tertiary: #525F70;
-  --color-tertiary-container: #6A7889;
-  --color-tertiary-fixed: #D6E4F8;
-  --color-tertiary-fixed-dim: #BAC8DB;
-  --color-on-tertiary: #FFFFFF;
-  --color-on-tertiary-container: #FFFFFF;
-  --color-on-tertiary-fixed: #0F1D2B;
-  --color-on-tertiary-fixed-variant: #3B4858;
+  --color-tertiary: #9E89FB;
+  --color-tertiary-container: #E9E4FF;
+  --color-tertiary-fixed: #E9E4FF;
+  --color-tertiary-fixed-dim: #D8CFFF;
+  --color-on-tertiary: #051A2E;
+  --color-on-tertiary-container: #251A58;
+  --color-on-tertiary-fixed: #251A58;
+  --color-on-tertiary-fixed-variant: #4B3B8D;
 
   --color-error: #BA1A1A;
   --color-error-container: #FFDAD6;
   --color-on-error: #FFFFFF;
   --color-on-error-container: #93000A;
 
-  --color-surface: #F8F9FA;
-  --color-surface-dim: #E2E8F0;
-  --color-surface-bright: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-surface-dim: #E8EEF4;
+  --color-surface-bright: #FFFFFF;
   --color-surface-container-lowest: #FFFFFF;
-  --color-surface-container-low: #F1F5F9;
-  --color-surface-container: #E2E8F0;
-  --color-surface-container-high: #CBD5E1;
-  --color-surface-container-highest: #94A3B8;
-  --color-surface-variant: #E2E8F0;
-  --color-surface-tint: #005BC0;
+  --color-surface-container-low: #F4F7FA;
+  --color-surface-container: #EAF0F6;
+  --color-surface-container-high: #DCE6EF;
+  --color-surface-container-highest: #B7C6D4;
+  --color-surface-variant: #EAF0F6;
+  --color-surface-tint: #1CB886;
 
-  --color-on-surface: #0F172A;
-  --color-on-surface-variant: #475569;
-  --color-on-background: #0F172A;
-  --color-background: #F8F9FA;
+  --color-on-surface: #051A2E;
+  --color-on-surface-variant: #576C80;
+  --color-on-background: #051A2E;
+  --color-background: #F4F7FA;
 
-  --color-outline: #64748B;
-  --color-outline-variant: #E2E8F0;
+  --color-outline: #576C80;
+  --color-outline-variant: #DFE7EE;
 
   --color-inverse-surface: #1E293B;
   --color-inverse-on-surface: #F8FAFC;
@@ -71,7 +80,7 @@
   --color-danger-bg: rgba(186, 26, 26, 0.1);
 
   /* ── Typography ── */
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
   /* Display */
   --text-display-size: 48px;
@@ -162,10 +171,10 @@
 
   /* ── Border Radius ── */
   --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
-  --radius-xl: 16px;
-  --radius-2xl: 24px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-2xl: 28px;
   --radius-full: 9999px;
 
   /* ── Shadows ── */
@@ -193,6 +202,14 @@
 }
 
 [data-theme='dark'] {
+  --eduvia-navy: #071B2D;
+  --eduvia-lime: #E9FA49;
+  --eduvia-mint: #2CCD99;
+  --eduvia-purple: #AE9BFF;
+  --eduvia-hero: #152B40;
+  --eduvia-surface: #152333;
+  --eduvia-pink: #FF62C6;
+  --eduvia-muted: #AFC3D1;
   --color-primary: #789DFF;
   --color-primary-hover: #93B3FF;
   --color-primary-active: #5E88F5;

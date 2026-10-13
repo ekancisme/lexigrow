@@ -66,7 +66,7 @@ export default function ClassManagement() {
     <div className="class-mgmt">
       <section className="class-mgmt__header">
         <div>
-          <h2 className="text-headline-lg">{t('classMgmt.title', 'Class Management')}</h2>
+          <h1 className="text-headline-lg">{t('classMgmt.title', 'Class Management')}</h1>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
             {t('classMgmt.subtitle', 'Create, edit, and manage your classes and student rosters')}
           </p>

@@ -1,7 +1,7 @@
 .lexi-card {
   background-color: var(--color-surface-container-lowest, #ffffff);
   border: 1px solid var(--color-outline-variant, #e2e8f0);
-  border-radius: var(--radius-lg, 12px);
+  border-radius: var(--radius-lg, 20px);
   position: relative;
   overflow: hidden;
   transition: all var(--transition-fast, 150ms ease);
@@ -46,7 +46,7 @@
 }
 
 .lexi-card__title {
-  font-family: var(--font-family, 'Inter', sans-serif);
+  font-family: var(--font-family, 'Urbanist', sans-serif);
   font-size: var(--text-title-lg-size, 18px);
   font-weight: 600;
   color: var(--color-on-surface, #0f172a);

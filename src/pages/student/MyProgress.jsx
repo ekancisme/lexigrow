@@ -85,7 +85,7 @@ export default function MyProgress() {
       {/* Header with Navigation Tabs */}
       <section className="my-progress__header">
         <div>
-          <h2 className="text-headline-lg">{t('progress.title', 'Progress & Knowledge Garden')}</h2>
+          <h1 className="text-headline-lg">{t('progress.title', 'Progress & Knowledge Garden')}</h1>
           <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>
             {t('progress.subtitle', 'Track vocabulary progression: From recognition (SRS) to autonomous application in authentic writing (Mastered).')}
           </p>

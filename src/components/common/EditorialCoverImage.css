@@ -46,12 +46,12 @@
 
 .editorial-fallback-icon {
   font-size: 32px;
-  color: var(--color-primary, #005bbf);
+  color: var(--color-primary, #051A2E);
   margin-bottom: 8px;
 }
 
 .editorial-fallback-title {
-  font-family: var(--font-family, 'Inter', sans-serif);
+  font-family: var(--font-family, 'Urbanist', sans-serif);
   font-size: 14px;
   font-weight: 600;
   color: var(--color-on-surface, #0f172a);

@@ -123,7 +123,7 @@ export default function ParentDashboard() {
       <header className="parent-dashboard__header">
         <div>
           <p className="parent-dashboard__eyebrow">{t('header.parentWorkspace', 'Parent workspace')}</p>
-          <h2 className="text-headline-lg">{t('parent.dashboardTitle', 'Family overview')}</h2>
+          <h1 className="text-headline-lg">{t('parent.dashboardTitle', 'Family overview')}</h1>
           <p className="text-body-md">{t('parent.dashboardSubtitle', 'See what changed this week and where your support matters most.')}</p>
         </div>
         <button type="button" className="parent-dashboard__link-button" onClick={openLinkModal}>

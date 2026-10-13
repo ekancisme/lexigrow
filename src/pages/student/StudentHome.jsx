@@ -116,12 +116,22 @@ export default function StudentHome() {
         </div>
         <figure className="student-home__hero-visual">
           <img className="student-home__intro-image" src="/assets/editorial/home/study-hero-v2.jpg" alt={language === 'vi' ? 'Sách tiếng Anh học thuật, vở ghi từ vựng và bài viết đang được luyện tập trên bàn học trong thư viện' : 'English academic books, a vocabulary notebook, and a writing exercise arranged on a study desk in a library'} width="1400" height="933" fetchPriority="high" />
+          <div className="student-home__hero-badges" aria-label={t('homePage.learningAreas')}>
+            {[
+              ['travel_explore', 'heroPointTopics', 'blue'],
+              ['edit_note', 'heroPointWriting', 'green'],
+              ['update', 'heroPointReview', 'purple'],
+            ].map(([icon, key, tone]) => <span className={`student-home__hero-badge student-home__hero-badge--${tone}`} key={key}>
+              <span className="material-symbols-outlined" aria-hidden="true">{icon}</span>
+              {t(`homePage.${key}`)}
+            </span>)}
+          </div>
           <figcaption><span className="material-symbols-outlined" aria-hidden="true">menu_book</span><span>{t('homePage.heroCaption')}</span></figcaption>
         </figure>
       </section>
 
       <section className="student-home__method-intro" aria-labelledby="student-home-method-intro-title">
-        <div>
+        <div className="student-home__method-heading">
           <p className="student-home__eyebrow">{t('homePage.methodEyebrow')}</p>
           <h2 id="student-home-method-intro-title">{t('homePage.methodTitle')}</h2>
           <p>{t('homePage.methodIntro')}</p>

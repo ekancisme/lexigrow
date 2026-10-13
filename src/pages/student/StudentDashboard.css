@@ -74,7 +74,7 @@
 }
 
 .student-dash__hero-title {
-  font-family: var(--font-family, 'Inter', sans-serif);
+  font-family: var(--font-family, 'Urbanist', sans-serif);
   font-size: 22px;
   font-weight: 700;
   color: var(--color-on-surface, #0f172a);
@@ -84,7 +84,7 @@
 }
 
 .student-dash__hero-words {
-  color: var(--color-primary, #1e40af);
+  color: var(--color-primary, #051A2E);
   font-weight: 600;
   background-color: var(--color-primary-fixed, #dbeafe);
   padding: 2px 8px;
@@ -159,7 +159,7 @@
 
 .student-dash__essay-icon {
   font-size: 20px;
-  color: var(--color-primary, #1e40af);
+  color: var(--color-primary, #051A2E);
   flex-shrink: 0;
 }
 
@@ -168,9 +168,12 @@
   font-weight: 600;
   color: var(--color-on-surface, #0f172a);
   margin: 0;
-  white-space: nowrap;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
   overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
+  line-height: 1.35;
   max-width: 100%;
 }
 
@@ -256,7 +259,7 @@
   margin: 8px 0 2px 0;
   font-size: 16px;
   font-weight: 700;
-  color: var(--color-primary, #1e40af);
+  color: var(--color-primary, #051A2E);
 }
 
 .student-dash__srs-subtitle {

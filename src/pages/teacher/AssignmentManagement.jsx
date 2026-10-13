@@ -253,7 +253,7 @@ export default function AssignmentManagement() {
       {/* Header */}
       <div className="am__header">
         <div>
-          <h2 className="text-headline-lg">Assignment Management</h2>
+          <h1 className="text-headline-lg">Assignment Management</h1>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
             Create, monitor, and manage writing prompts across all your active classes.
           </p>

@@ -6,7 +6,7 @@
 }
 
 .lexi-field__label {
-  font-family: var(--font-family, 'Inter', sans-serif);
+  font-family: var(--font-family, 'Urbanist', sans-serif);
   font-size: 13px;
   font-weight: 500;
   color: var(--color-on-surface, #0f172a);
@@ -23,7 +23,7 @@
   width: 100%;
   height: 40px;
   padding: 0 14px;
-  font-family: var(--font-family, 'Inter', sans-serif);
+  font-family: var(--font-family, 'Urbanist', sans-serif);
   font-size: 14px;
   color: var(--color-on-surface, #0f172a);
   background-color: var(--color-surface-container-lowest, #ffffff);
@@ -39,7 +39,7 @@
 
 .lexi-input:focus {
   outline: none;
-  border-color: var(--color-primary, #1e40af);
+  border-color: var(--color-primary, #051A2E);
   box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.12);
 }
 

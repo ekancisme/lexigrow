@@ -244,7 +244,7 @@ export default function Explore() {
           <Badge variant="info" icon="explore" className="explore__badge">
             {t('explore.badge', 'Thematic Vocabulary Sets Library')}
           </Badge>
-          <h2 className="explore__title">{t('explore.title', 'Explore Target Vocabulary Sets')}</h2>
+          <h1 className="explore__title">{t('explore.title', 'Explore Target Vocabulary Sets')}</h1>
           <p className="explore__desc">
             {t('explore.desc', 'Pick your favorite topic to start a 10-minute learning loop: Explore Words ➔ Quick Quiz ➔ Smart Writing ➔ Detailed AI Feedback.')}
           </p>
@@ -255,6 +255,7 @@ export default function Explore() {
           <input
             type="text"
             className="explore__search-input"
+            aria-label={t('explore.searchPlaceholder', 'Search by topic or vocabulary word...')}
             placeholder={t('explore.searchPlaceholder', 'Search by topic or vocabulary word...')}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -262,6 +263,7 @@ export default function Explore() {
         </div>
       </section>
 
+      <section className="explore__catalog" aria-label={t('explore.title', 'Explore Target Vocabulary Sets')}>
       {/* Level Filters & Status Tabs */}
       <div className="explore__filter-row">
         <div className="explore__filter-left">
@@ -437,6 +439,7 @@ export default function Explore() {
           })}
         </section>
       )}
+      </section>
     </div>
   )
 }

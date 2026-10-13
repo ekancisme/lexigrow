@@ -169,7 +169,7 @@ export default function VocabularyLibrary() {
       {/* Header */}
       <section className="vocab-lib__header">
         <div>
-          <h2 className="text-headline-lg">{t('vocabLib.title', 'Vocabulary Library')}</h2>
+          <h1 className="text-headline-lg">{t('vocabLib.title', 'Vocabulary Library')}</h1>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
             {t('vocabLib.subtitle', 'Expand your lexicon. Add words manually or write essays to discover new vocabulary.')}
           </p>

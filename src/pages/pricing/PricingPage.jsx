@@ -442,13 +442,16 @@ export default function PricingPage() {
           <span className="pricing__badge-text">{t('pricing.badgeText', 'Automated 24/7 payment via VietQR PayOS')}</span>
           <span className="pricing__badge-pill">{t('pricing.sslSecured', 'SSL Secured')}</span>
         </div>
-        <h1 className="pricing__title">{t('pricing.title', 'Choose the Right Learning Plan')}</h1>
-        <p className="pricing__subtitle">
-          {t(
-            'pricing.headerSubtitle',
-            'In-depth IELTS-standard essay scoring, unlock the complete Knowledge Garden, and accelerate language reflexes.'
-          )}
-        </p>
+        <div className="pricing__header-layout">
+          <div className="pricing__header-copy">
+            <h1 className="pricing__title">{t('pricing.title', 'Choose the Right Learning Plan')}</h1>
+            <p className="pricing__subtitle">
+              {t(
+                'pricing.headerSubtitle',
+                'In-depth IELTS-standard essay scoring, unlock the complete Knowledge Garden, and accelerate language reflexes.'
+              )}
+            </p>
+          </div>
 
         {/* Current Tier Alert if user is subscribed or sponsored */}
         {currentTierInfo && currentTierInfo.tier !== 'free' && (
@@ -489,6 +492,7 @@ export default function PricingPage() {
           </div>
         )}
 
+        <div className="pricing__header-controls">
         {/* Target Audience Tabs */}
         <div className="pricing__role-tabs">
           <button
@@ -523,6 +527,8 @@ export default function PricingPage() {
           <span className={billingCycle === 'yearly' ? 'active' : ''}>
             {t('pricing.yearly', 'Yearly')} <span className="pricing__discount-pill">{t('pricing.save20', 'Save ~20%')}</span>
           </span>
+        </div>
+        </div>
         </div>
       </section>
 

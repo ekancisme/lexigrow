@@ -141,7 +141,7 @@
 
 .plant-card:hover {
   transform: translateY(-4px);
-  border-color: var(--color-primary, #005bbf);
+  border-color: var(--color-primary, #051A2E);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
@@ -156,7 +156,7 @@
   height: 44px;
   border-radius: 50%;
   background: var(--color-surface-container-high, #e2e8f0);
-  color: var(--color-primary, #005bbf);
+  color: var(--color-primary, #051A2E);
   display: flex;
   align-items: center;
   justify-content: center;

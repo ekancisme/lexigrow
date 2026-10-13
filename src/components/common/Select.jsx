@@ -15,7 +15,7 @@ export default function Select({
 }) {
   const generatedId = useId()
   const fallbackId = `lexi-select-${generatedId.replace(/:/g, '')}`
-  const selectId = id || (label ? `lexi-select-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : fallbackId)
+  const selectId = id || fallbackId
 
   const errorId = error ? `${selectId}-error` : undefined
   const helperId = helperText ? `${selectId}-helper` : undefined

@@ -45,7 +45,7 @@
 
 .my-progress__tab-btn--active {
   background: var(--color-surface, #ffffff);
-  color: var(--color-primary, #005bbf);
+  color: var(--color-primary, #051A2E);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -73,7 +73,7 @@
 
 .vocab-pyramid__icon {
   font-size: 28px;
-  color: var(--color-primary, #1e40af);
+  color: var(--color-primary, #051A2E);
 }
 
 .vocab-pyramid__title {
@@ -141,7 +141,7 @@
 .pyramid-tier--retained {
   background: #eff6ff;
   border: 1px solid #bfdbfe;
-  color: #1e40af;
+  color: var(--color-primary, #051A2E);
 }
 
 .pyramid-tier--saved {
@@ -173,7 +173,7 @@
   height: 44px;
   border-radius: var(--radius-md, 8px);
   background: var(--color-surface-container-high, #e2e8f0);
-  color: var(--color-primary, #1e40af);
+  color: var(--color-primary, #051A2E);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -215,7 +215,7 @@
 .my-progress__cat-count {
   font-size: 14px;
   font-weight: 800;
-  color: var(--color-primary, #005bbf);
+  color: var(--color-primary, #051A2E);
 }
 
 /* ── Evidence Wall ── */

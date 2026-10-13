@@ -184,10 +184,10 @@ export default function StudentDashboard() {
             ) : (
               <div className="student-dash__essays-list">
                 {recentEssays.map((essay) => (
-                  <div
+                  <Link
                     key={essay._id}
                     className="student-dash__essay-item"
-                    onClick={() => navigate(essay.status === 'draft' ? `/student/writing?id=${essay._id}` : `/student/feedback?id=${essay._id}`)}
+                    to={essay.status === 'draft' ? `/student/writing?id=${essay._id}` : `/student/feedback?id=${essay._id}`}
                   >
                     <div className="student-dash__essay-left">
                       <span className="material-symbols-outlined student-dash__essay-icon">article</span>
@@ -206,7 +206,7 @@ export default function StudentDashboard() {
                     >
                       {essay.status === 'evaluated' ? t('essayHistory.statusGraded', 'AI Evaluated') : t('essayHistory.statusDraft', 'Draft')}
                     </Badge>
-                  </div>
+                  </Link>
                 ))}
               </div>
             ))}

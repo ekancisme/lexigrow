@@ -28,7 +28,7 @@
   height: 44px;
   border-radius: 12px;
   background: var(--color-primary-fixed, #d8e2ff);
-  color: var(--color-primary, #005bbf);
+  color: var(--color-primary, #051A2E);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,7 +72,7 @@
 
 .rev-comp__toggle-btn--active {
   background: var(--color-surface, #ffffff);
-  color: var(--color-primary, #005bbf);
+  color: var(--color-primary, #051A2E);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
 
@@ -199,6 +199,6 @@
 
 .rev-comp__editor-textarea:focus {
   outline: none;
-  border-color: var(--color-primary, #005bbf);
+  border-color: var(--color-primary, #051A2E);
   box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
 }

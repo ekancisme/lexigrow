@@ -392,9 +392,9 @@ export default function WriteEssay() {
       {/* Header */}
       <section className="write-essay__header">
         <div>
-          <h2 className="text-headline-lg">
+          <h1 className="text-headline-lg">
             {assignmentData ? `Assignment: ${assignmentData.title}` : t('writing.title', 'Smart Writing Lab')}
-          </h2>
+          </h1>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
             {assignmentData
               ? `Writing for class: ${assignmentData.classId?.name || 'your class'}`

@@ -15,7 +15,7 @@ const Input = forwardRef(function Input({
 }, ref) {
   const generatedId = useId()
   const fallbackId = `lexi-input-${generatedId.replace(/:/g, '')}`
-  const inputId = id || (label ? `lexi-input-${label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : fallbackId)
+  const inputId = id || fallbackId
 
   const errorId = error ? `${inputId}-error` : undefined
   const helperId = helperText ? `${inputId}-helper` : undefined

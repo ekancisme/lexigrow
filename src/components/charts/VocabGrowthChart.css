@@ -2,7 +2,23 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
   margin-bottom: var(--spacing-xl);
+}
+
+.vocab-chart__header > h3 { min-width: 0; overflow-wrap: anywhere; }
+.vocab-chart__tabs { flex-wrap: wrap; }
+.vocab-chart__svg { display: block; min-width: 0; }
+.vocab-chart { container: vocab-chart / inline-size; min-width: 0; }
+
+@container vocab-chart (max-width: 440px) {
+  .vocab-chart__header { align-items: flex-start; flex-direction: column; }
+  .vocab-chart__tabs { width: 100%; }
+  .vocab-chart__tab { flex: 1; min-width: 0; }
+  .vocab-chart__svg { height: 190px; }
+  .vocab-chart__labels { gap: 8px; overflow: hidden; font-size: 11px; }
+  .vocab-chart__labels > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 }
 
 .vocab-chart__tabs {

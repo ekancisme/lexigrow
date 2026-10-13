@@ -144,13 +144,13 @@
 
 .sidebar__link--active {
   background: var(--color-primary-fixed, #dbeafe);
-  color: var(--color-primary, #1e40af);
+  color: var(--color-primary, #051A2E);
   font-weight: 600;
-  border-left-color: var(--color-primary, #1e40af);
+  border-left-color: var(--color-primary, #051A2E);
 }
 
 .sidebar__link--active .material-symbols-outlined {
-  color: var(--color-primary, #1e40af);
+  color: var(--color-primary, #051A2E);
   border-color: transparent;
   background: transparent;
 }
@@ -187,7 +187,7 @@
 .sidebar__cta-btn {
   width: 100%;
   padding: 12px var(--spacing-md);
-  background: var(--color-primary, #1e40af);
+  background: var(--color-primary, #051A2E);
   color: var(--color-on-primary, #ffffff);
   border-radius: var(--radius-md, 8px);
   font-size: var(--text-label-md-size);

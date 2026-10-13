@@ -54,9 +54,10 @@ export default function TeacherDashboard() {
 
   return (
     <div className="teacher-dash">
-      <section className="teacher-dash__header">
+      <section className="teacher-dash__overview" aria-label={t('teacher.dashboardTitle', 'Teacher dashboard overview')}>
+      <header className="teacher-dash__header">
         <div>
-          <h2 className="text-headline-lg">{t('teacher.dashboardTitle', 'Welcome to Teacher Dashboard')}</h2>
+          <h1 className="text-headline-lg">{t('teacher.dashboardTitle', 'Welcome to Teacher Dashboard')}</h1>
           <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
             {t('teacher.dashboardSubtitle', 'Here is your classroom growth summary for today.')}
           </p>
@@ -66,14 +67,15 @@ export default function TeacherDashboard() {
             {t('nav.classes', 'Manage Classes')}
           </button>
         </div>
-      </section>
+      </header>
 
-      <section className="teacher-dash__stats">
+      <section className="teacher-dash__stats" aria-label={t('teacher.dashboardTitle', 'Classroom summary')}>
         <StatCard label={t('teacher.activeClasses', 'Total Classes')} value={totalClasses} icon="class" color="primary" />
         <StatCard label={t('teacher.totalStudents', 'Total Students')} value={totalStudents} icon="group" color="secondary" />
         <StatCard label={t('teacher.lowRisk', 'Growing')} value={growing} icon="trending_up" color="primary" progress={growingPct} />
         <StatCard label={t('teacher.mediumRisk', 'Stagnating')} value={stagnating} icon="trending_flat" color="tertiary" progress={stagnatingPct} />
         <StatCard label={t('teacher.highRisk', 'Declining')} value={declining} icon="trending_down" color="error" progress={decliningPct} />
+      </section>
       </section>
 
       <div className="teacher-dash__body">

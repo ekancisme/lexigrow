@@ -101,7 +101,7 @@ export default function AdminDashboard() {
       {/* Header */}
       <div className="admin-page__header">
         <div>
-          <h2 className="admin-page__title">{t('adminDashboard.title', 'LexiGrow Administration System')}</h2>
+          <h1 className="admin-page__title">{t('adminDashboard.title', 'LexiGrow Administration System')}</h1>
           <p className="admin-page__subtitle">{t('adminDashboard.subtitle', 'Main Administration Dashboard')}</p>
         </div>
       </div>

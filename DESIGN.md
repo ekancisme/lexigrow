@@ -99,3 +99,32 @@ Shell đang sử dụng `TopNav.jsx`, `HeaderNavigation.jsx` và `NavigationDisc
 - Home dùng `GET /announcements/active` để lấy nội dung banner do admin quản lý; tiêu đề, mô tả, ảnh, CTA dùng bản dịch theo ngôn ngữ hiện tại. Carousel chuyển thủ công và không tự đổi slide.
 - Ảnh chủ đề trên Home lấy từ `image-manifest.json` và `EditorialCoverImage`; ảnh thông báo dùng URL trong announcement hiện có. Tất cả tiêu đề và mô tả Home nằm trong `homePage` ở hai locale EN/VI.
 - Bố cục editorial dùng ảnh tỷ lệ cố định, phân cách bằng khoảng trắng/đường viền, và thu về một cột trên màn hình nhỏ. CTA giữ nguyên route học hiện tại.
+
+## 8. Current editorial rebuild (2026-10-13)
+
+This section records the current implementation and supersedes older palette and radius values above where they differ. It extends the existing Modern Academic / Editorial direction with the confirmed Eduvia visual reference; all learning content and workflows remain LexiGrow's.
+
+### Current palette and type
+
+- Urbanist is the interface and heading typeface. Material Symbols Outlined remains the icon system.
+- Navy `#051A2E` anchors navigation and primary structure; lime `#E9FA49` highlights the main call to action; mint `#1CB886` signals progress and positive actions; lavender `#9E89FB` adds secondary emphasis; pale blue `#DDE9FF` marks featured panels; `#F4F7FA` is the soft surface.
+- Dark theme keeps semantic roles with darker surfaces and lighter accent values. Keep text contrast readable in progress, loader, and disabled states.
+- Main content uses a 1240px maximum width. Major cards use 18–24px radii; primary controls and filter tabs use pill shapes. Use quiet borders and restrained shadows.
+
+### Page structure
+
+- **Student home:** learning-led hero, topic collections, writing/review/game actions, a concise learning sequence, and a direct next step.
+- **Explore:** a distinct title/search hero followed by proficiency and completion filters and a responsive topic catalog. Keep long word meanings wrap-safe.
+- **Writing session:** keep prompt and target words in a supporting brief beside the writing editor on wide screens; stack them on narrow screens. Retain the five-step LexiGrow learning flow.
+- **Pricing:** present the plan message, audience/billing controls, plan cards, and FAQs in separate hierarchy levels; preserve existing plan data and PayOS actions.
+- **Role workspaces:** student progress, teacher classroom management, parent child progress, and admin operations each get a clear page overview and task-specific sections. Do not force these workspaces into the same dashboard grid.
+- **Game and garden:** retain LexiGrow's arcade and growth visuals; use the shared type, spacing, focus, and surface tokens around them.
+- **Shared shell:** top navigation, role navigation, mobile parent navigation, and the LexiGrow footer appear across authenticated and standalone layouts.
+
+### Product behavior and content
+
+The reference site contributes layout and visual hierarchy only. Do not copy its courses, teachers, testimonials, prices, or claims. Keep LexiGrow's copy, vocabulary, images, role permissions, SRS, AI feedback, daily quest, games, classes, and PayOS contracts. Presentation changes must not alter API contracts or learning state transitions.
+
+### Release checks
+
+For a meaningful visual change, build the production client, run the applicable tests, check the changed route set in a browser with test fixtures, and inspect desktop and mobile screenshots. Check English/Vietnamese strings, light/dark surfaces, keyboard behavior, and horizontal overflow where the changed surface uses them. Record unverified states and existing lint warnings in the release report; do not infer complete functional coverage from a successful build alone.

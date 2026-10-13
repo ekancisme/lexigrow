@@ -999,6 +999,8 @@ export default function LearningSession() {
           <AIGradingProgress stage={analyzingStage} progress={analyzingProgress} />
         ) : (
           <div className="writing-flow animate-fade-in">
+          <div className="writing-flow__workspace">
+          <aside className="writing-flow__brief" aria-label={t('learning.writingPromptBadge')}>
           {/* Target Words Bar */}
           <div className="target-words-bar card-base">
             <div className="target-words-bar__header">
@@ -1035,9 +1037,10 @@ export default function LearningSession() {
             </div>
             <p className="writing-prompt-card__text">{learningSet.promptTopic}</p>
           </div>
+          </aside>
 
           {/* Editor Workspace Card (Khu vực viết bài riêng biệt) */}
-          <div className="writing-card card-base">
+          <main className="writing-card card-base">
             <div className="writing-card__editor-wrap">
               {submitError && (
                 <div role="alert" className="card-base" style={{ marginBottom: 12, border: '1px solid var(--color-error)', color: 'var(--color-error)' }}>
@@ -1130,6 +1133,7 @@ export default function LearningSession() {
                 </div>
               </div>
             </div>
+          </main>
           </div>
         </div>
       ))}

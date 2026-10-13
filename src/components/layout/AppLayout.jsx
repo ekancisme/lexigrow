@@ -28,7 +28,7 @@ export default function AppLayout({ role, children }) {
     || ''
 
   return (
-    <div className="app-layout" data-role={resolvedRole}>
+    <div className="app-layout eduvia-refresh" data-role={resolvedRole}>
       <div className="app-layout__main">
         <TopNav role={resolvedRole} menuOpen={mobileMenuOpen}
           onMenuToggle={() => setMobileMenuRoute(current => current === location.key ? null : location.key)}

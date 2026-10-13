@@ -36,8 +36,8 @@
 }
 
 .word-lesson__step-dot--active {
-  border-color: var(--color-primary, #005bbf);
-  background: var(--color-primary, #005bbf);
+  border-color: var(--color-primary, #051A2E);
+  background: var(--color-primary, #051A2E);
   color: #fff;
   transform: scale(1.08);
   box-shadow: 0 4px 12px rgba(0, 91, 191, 0.25);
@@ -255,7 +255,7 @@
 .word-lesson__example-callout {
   background: #f0f7ff;
   border-radius: 12px;
-  border-left: 4px solid #005bbf;
+  border-left: 4px solid var(--color-primary, #051A2E);
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
@@ -286,7 +286,7 @@
   border: none;
   padding: 0;
   cursor: pointer;
-  color: #005bbf;
+  color: var(--color-primary, #051A2E);
   font-size: 14px;
   font-weight: 600;
   width: fit-content;
@@ -299,7 +299,7 @@
 }
 
 .word-lesson__example-audio-btn:focus-visible {
-  outline: 2px solid #005bbf;
+  outline: 2px solid var(--color-primary, #051A2E);
   outline-offset: 2px;
 }
 

@@ -3,9 +3,9 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  font-family: var(--font-family, 'Inter', sans-serif);
+  font-family: var(--font-family, 'Urbanist', sans-serif);
   font-weight: 500;
-  border-radius: var(--radius-md, 8px);
+  border-radius: var(--radius-full, 9999px);
   border: 1px solid transparent;
   cursor: pointer;
   white-space: nowrap;
@@ -16,7 +16,7 @@
 }
 
 .lexi-btn:focus-visible {
-  outline: 2px solid var(--color-primary, #1e40af);
+  outline: 2px solid var(--color-primary, #051A2E);
   outline-offset: 2px;
 }
 
@@ -50,7 +50,7 @@
 /* ── Variants ── */
 /* Primary (Solid Cobalt) */
 .lexi-btn--primary {
-  background-color: var(--color-primary, #1e40af);
+  background-color: var(--color-primary, #051A2E);
   color: var(--color-on-primary, #ffffff);
 }
 .lexi-btn--primary:hover:not(:disabled) {
@@ -59,6 +59,17 @@
 .lexi-btn--primary:active:not(:disabled) {
   background-color: var(--color-primary-active, #1e3a8a);
 }
+
+.lexi-btn--lime {
+  background-color: var(--eduvia-lime, #E9FA49);
+  color: var(--eduvia-navy, #051A2E);
+}
+.lexi-btn--lime:hover:not(:disabled) { filter: brightness(.96); }
+.lexi-btn--mint {
+  background-color: var(--eduvia-mint, #1CB886);
+  color: var(--eduvia-navy, #051A2E);
+}
+.lexi-btn--mint:hover:not(:disabled) { filter: brightness(.94); }
 
 /* Secondary (Soft Slate) */
 .lexi-btn--secondary {

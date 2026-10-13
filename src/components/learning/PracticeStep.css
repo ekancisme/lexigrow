@@ -23,7 +23,7 @@
 
 .practice-step__progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-primary, #005bbf) 0%, var(--color-primary-container, #1a73e8) 100%);
+  background: linear-gradient(90deg, var(--color-primary, #051A2E) 0%, var(--color-primary-container, #1a73e8) 100%);
   border-radius: 999px;
   transition: width 0.3s ease;
 }
@@ -81,7 +81,7 @@
   padding: 6px 12px;
   border-radius: 8px;
   background: var(--color-surface-container-high, #e0e7ff);
-  color: var(--color-primary, #005bbf);
+  color: var(--color-primary, #051A2E);
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
@@ -147,7 +147,7 @@
 }
 
 .practice-step__option-btn:hover:not(:disabled) {
-  border-color: var(--color-primary, #005bbf);
+  border-color: var(--color-primary, #051A2E);
   background: var(--color-surface-container-low, #f8fafc);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);

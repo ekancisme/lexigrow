@@ -1,3 +1,4 @@
+import { useId, useRef } from 'react'
 import './Tabs.css'
 
 export default function Tabs({
@@ -9,6 +10,11 @@ export default function Tabs({
   ariaLabel = 'Navigation tabs'
 }) {
   const normalizedVariant = variant === 'pill' ? 'pills' : variant
+  const generatedId = useId().replace(/:/g, '')
+  const tabListRef = useRef(null)
+
+  const getTabId = (id) => `${generatedId}-tab-${String(id).replace(/[^a-zA-Z0-9_-]/g, '-')}`
+  const getPanelId = (id) => `${generatedId}-tabpanel-${String(id).replace(/[^a-zA-Z0-9_-]/g, '-')}`
 
   const handleKeyDown = (e, currentIndex) => {
     if (!tabs || tabs.length === 0) return
@@ -31,7 +37,7 @@ export default function Tabs({
     if (nextIndex !== null) {
       const nextTab = tabs[nextIndex]
       onChange?.(nextTab.id)
-      const nextElem = document.getElementById(`tab-${nextTab.id}`)
+      const nextElem = tabListRef.current?.querySelector(`#${getTabId(nextTab.id)}`)
       nextElem?.focus()
     }
   }
@@ -40,6 +46,7 @@ export default function Tabs({
     <div
       role="tablist"
       aria-label={ariaLabel}
+      ref={tabListRef}
       className={`lexi-tabs-nav lexi-tabs-nav--${normalizedVariant} ${className}`}
     >
       {tabs.map((tab, idx) => {
@@ -50,8 +57,8 @@ export default function Tabs({
             role="tab"
             type="button"
             aria-selected={isActive}
-            aria-controls={`tabpanel-${tab.id}`}
-            id={`tab-${tab.id}`}
+            aria-controls={getPanelId(tab.id)}
+            id={getTabId(tab.id)}
             tabIndex={isActive ? 0 : -1}
             className={`lexi-tab--${normalizedVariant} ${isActive ? 'is-active' : ''}`}
             onClick={() => onChange?.(tab.id)}
