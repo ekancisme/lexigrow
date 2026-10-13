@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import { isValidLearningEssayWordCount } from '../../utils/learningEssay.js'
+import { invalidateLearningPathRecommendationCache } from '../../utils/learningPathRecommendationCache.js'
 import WordLesson from '../../components/learning/WordLesson'
 import PracticeStep from '../../components/learning/PracticeStep'
 import RevisionComparison from '../../components/learning/RevisionComparison'
@@ -688,6 +689,9 @@ export default function LearningSession() {
     try {
       if (hasServerSession) {
         await api.put(`/sessions/${session._id}/step`, { currentStep: nextStep })
+      }
+      if (nextStep === 'completed') {
+        invalidateLearningPathRecommendationCache(api.getUser()?._id)
       }
       setCurrentStep(nextStep)
       return true

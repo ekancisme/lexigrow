@@ -10,6 +10,7 @@ import Card, { CardHeader, CardTitle } from '../../components/common/Card'
 import Button from '../../components/common/Button'
 import Badge from '../../components/common/Badge'
 import { formatDate } from '../../utils/formatters.js'
+import { getLearningPathRecommendationCacheKey } from '../../utils/learningPathRecommendationCache.js'
 import './StudentDashboard.css'
 
 function ResourceNotice({ resource, label }) {
@@ -43,7 +44,10 @@ export default function StudentDashboard() {
   const essaysResource = useDashboardResource('/essays')
   const sessionResource = useDashboardResource('/sessions/current')
   const vocabularyResource = useDashboardResource('/vocabulary/due-today')
-  const recommendationResource = useDashboardResource('/sessions/recommendation', 8000)
+  const recommendationResource = useDashboardResource('/sessions/recommendation', 40000, {
+    key: getLearningPathRecommendationCacheKey(user?._id),
+    ttlMs: 30 * 60 * 1000,
+  })
 
   const overview = overviewResource.response?.data
   const weeklyGoal = goalsResource.response?.data
