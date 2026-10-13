@@ -12,8 +12,132 @@
   --eduvia-pink: #FF09AD;
   --eduvia-muted: #576C80;
   --eduvia-border: rgba(5, 26, 46, 0.08);
+
+  width: 100%;
+  color: var(--eduvia-navy);
+  font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+/* ── SUPPORT CONNECT & FORM ── */
+.eduvia-support-connect {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+.eduvia-support-connect__info {
+  display: flex;
+  flex-direction: column;
+}
+.eduvia-contact-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 24px;
+}
+.eduvia-contact-info-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.eduvia-contact-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(158, 137, 251, 0.2);
+  color: #6C52E5;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.eduvia-contact-icon .material-symbols-outlined {
+  font-size: 22px;
+}
+.eduvia-contact-label {
+  display: block;
+  font-size: 13px;
+  color: var(--eduvia-muted);
+  margin-bottom: 2px;
+}
+.eduvia-contact-info-item strong {
+  font-size: 16px;
+  color: var(--eduvia-navy);
+}
+
+.eduvia-support-connect__form-wrap {
+  background: var(--eduvia-hero-bg);
+  padding: 40px;
+  border-radius: 28px;
+}
+.eduvia-connect-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.eduvia-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.eduvia-form-group label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--eduvia-navy);
+}
+.eduvia-form-group input,
+.eduvia-form-group select,
+.eduvia-form-group textarea {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(5, 26, 46, 0.12);
+  background: #FFFFFF;
+  color: var(--eduvia-navy);
+  font-family: inherit;
+  font-size: 14px;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+.eduvia-form-group input:focus,
+.eduvia-form-group select:focus,
+.eduvia-form-group textarea:focus {
+  outline: none;
+  border-color: var(--eduvia-navy);
+}
+
+.eduvia-form-success {
+  padding: 14px 18px;
+  background: #E6FBF2;
+  border: 1px solid #1CB886;
+  border-radius: 12px;
+  color: #0E805B;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* ── PARTNERS ROW ── */
+.eduvia-partners-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 32px;
+  padding: 30px 20px;
+  border-top: 1px solid var(--eduvia-border);
+  border-bottom: 1px solid var(--eduvia-border);
+  flex-wrap: wrap;
+}
+.eduvia-partners-row img {
+  height: 38px;
+  width: auto;
+  opacity: 0.65;
+  transition: opacity 0.2s ease;
+}
+.eduvia-partners-row img:hover {
+  opacity: 1;
+}
+
+/* ── MAP SECTION ── */
 .eduvia-map-section {
   border-radius: 28px;
   overflow: hidden;
@@ -21,4 +145,65 @@
 }
 .eduvia-map-container iframe {
   display: block;
+}
+
+/* ── FAQS GRID (6 ITEMS IN 2 COLUMNS) ── */
+.eduvia-faqs-section {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+.eduvia-faqs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 36px 48px;
+}
+.eduvia-faq-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.eduvia-faq-arrow {
+  font-size: 20px;
+  color: var(--eduvia-purple);
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+.eduvia-faq-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.eduvia-faq-card__q {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--eduvia-navy);
+  line-height: 1.35;
+  margin: 0;
+}
+.eduvia-faq-card__a {
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--eduvia-muted);
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .eduvia-support-connect {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .eduvia-faqs-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+}
+@media (max-width: 640px) {
+  .eduvia-partners-row {
+    justify-content: center;
+    gap: 24px;
+  }
+  .eduvia-support-connect__form-wrap {
+    padding: 24px;
+  }
 }

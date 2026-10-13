@@ -255,8 +255,12 @@ export default function PricingPage() {
         {/* Section Header */}
         <div className="eduvia-section-header">
           <div>
-            <span className="eduvia-kicker eduvia-kicker--green">Course Pricing</span>
-            <h2 className="eduvia-section-title">Choose Plans That Fit Your Learning</h2>
+            <span className="eduvia-kicker eduvia-kicker--green">
+              {language === 'vi' ? 'Bảng giá gói học' : 'Plan Pricing'}
+            </span>
+            <h2 className="eduvia-section-title">
+              {language === 'vi' ? 'Chọn gói học phù hợp với mục tiêu của bạn' : 'Choose Plans That Fit Your Learning'}
+            </h2>
           </div>
           <p className="eduvia-section-desc">
             {language === 'vi'
@@ -343,15 +347,15 @@ export default function PricingPage() {
                       ) : isCurrent ? (
                         t('pricing.currentPlan', 'Gói hiện tại')
                       ) : isFeatured ? (
-                        t('pricing.chooseStandard', 'Choose Standard')
+                        language === 'vi' ? 'Chọn gói Pro' : 'Choose Pro Plan'
                       ) : (
-                        t('pricing.getPlan', 'Get Plan')
+                        language === 'vi' ? 'Chọn gói này' : 'Select Plan'
                       )}
                     </button>
                   </div>
 
                   <div className="eduvia-price-card__body">
-                    <h4>Included:</h4>
+                    <h4>{language === 'vi' ? 'Đặc quyền gói học:' : 'Included Benefits:'}</h4>
                     <ul className="eduvia-price-card__checklist">
                       {plan.features.map((feat, idx) => (
                         <li key={idx}>
@@ -399,7 +403,7 @@ export default function PricingPage() {
           </div>
 
           <div className="eduvia-video-container">
-            <img src="/assets/eduvia/image-13.jpg" alt="Student studying with headphones" className="eduvia-video-container__poster" />
+            <img src="/assets/lexigrow/writing-practice.webp" alt={language === 'vi' ? 'Học viên luyện viết tiếng Anh tại nhà' : 'Learner practising English writing at home'} className="eduvia-video-container__poster" />
             <button type="button" className="eduvia-video-container__play-btn" aria-label="Play video">
               <span className="material-symbols-outlined">play_arrow</span>
             </button>
@@ -440,7 +444,7 @@ export default function PricingPage() {
               <span className="eduvia-step-dot" />
               <h3>{language === 'vi' ? 'Luyện Tập Hàng Ngày' : 'Learn & Practice'}</h3>
               <p>{language === 'vi' ? 'Luyện viết luận, ôn thẻ từ vựng SRS và thực hành các bài tập phản xạ tương tác.' : 'Write essays, practice SRS flashcard reviews, and complete interactive skill modules.'}</p>
-              <Link to="/student/writing" className="eduvia-step-link">{language === 'vi' ? 'Luyện tập' : 'Start Practice'}</Link>
+              <Link to="/student/explore" className="eduvia-step-link">{language === 'vi' ? 'Luyện tập' : 'Start Practice'}</Link>
             </div>
             <div className="eduvia-step-card">
               <span className="eduvia-step-num">04</span>
@@ -477,12 +481,12 @@ export default function PricingPage() {
         <section className="eduvia-faq-section" style={{ marginTop: 80 }}>
           <div className="eduvia-section-header">
             <div>
-              <span className="eduvia-kicker eduvia-kicker--mint">Faqs</span>
-              <h2 className="eduvia-section-title">Answers To Your Common Questions</h2>
+              <span className="eduvia-kicker eduvia-kicker--mint">{language === 'vi' ? 'Câu hỏi thường gặp' : 'FAQs'}</span>
+              <h2 className="eduvia-section-title">{language === 'vi' ? 'Giải đáp thắc mắc về các gói học' : 'Answers To Your Common Questions'}</h2>
             </div>
-            <button type="button" className="eduvia-btn eduvia-btn--mint">
-              View All FAQs
-            </button>
+            <Link to="/contact" className="eduvia-btn eduvia-btn--mint">
+              {language === 'vi' ? 'Hỗ trợ & Liên hệ' : 'Contact Support'}
+            </Link>
           </div>
 
           <div className="eduvia-faq-grid">

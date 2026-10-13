@@ -61,7 +61,7 @@ export default function SiteFooter() {
 
         {/* Column 2: Company */}
         <div className="eduvia-footer__col">
-          <h3 className="eduvia-footer__heading">Company</h3>
+          <h3 className="eduvia-footer__heading">{language === 'vi' ? 'Về chúng tôi' : 'Company'}</h3>
           <ul className="eduvia-footer__links">
             <li><Link to="/about">{language === 'vi' ? 'Giới thiệu' : 'About Us'}</Link></li>
             <li><Link to="/about">{language === 'vi' ? 'Sứ mệnh & Giá trị' : 'Our Mission'}</Link></li>
@@ -72,7 +72,7 @@ export default function SiteFooter() {
 
         {/* Column 3: Courses */}
         <div className="eduvia-footer__col">
-          <h3 className="eduvia-footer__heading">Courses</h3>
+          <h3 className="eduvia-footer__heading">{language === 'vi' ? 'Khóa học & Chủ đề' : 'Courses & Topics'}</h3>
           <ul className="eduvia-footer__links">
             <li><Link to="/student/explore">{language === 'vi' ? 'Tiếng Anh nền tảng' : 'Beginner English'}</Link></li>
             <li><Link to="/student/explore">{language === 'vi' ? 'Tiếng Anh trung cấp' : 'Intermediate English'}</Link></li>
@@ -84,7 +84,7 @@ export default function SiteFooter() {
 
         {/* Column 4: Support */}
         <div className="eduvia-footer__col">
-          <h3 className="eduvia-footer__heading">Support</h3>
+          <h3 className="eduvia-footer__heading">{language === 'vi' ? 'Hỗ trợ' : 'Support'}</h3>
           <ul className="eduvia-footer__links">
             <li><Link to="/contact">{language === 'vi' ? 'Trung tâm hỗ trợ' : 'Help & Support'}</Link></li>
             <li><Link to="/contact">{language === 'vi' ? 'Câu hỏi thường gặp' : 'FAQs'}</Link></li>
@@ -96,7 +96,7 @@ export default function SiteFooter() {
 
         {/* Column 5: Newsletter */}
         <div className="eduvia-footer__col eduvia-footer__col--newsletter">
-          <h3 className="eduvia-footer__heading">Subscribe To Newsletter</h3>
+          <h3 className="eduvia-footer__heading">{language === 'vi' ? 'Đăng ký nhận tin' : 'Subscribe To Newsletter'}</h3>
           <form className="eduvia-footer__form" onSubmit={handleSubscribe}>
             <input
               type="email"
@@ -107,7 +107,7 @@ export default function SiteFooter() {
               className="eduvia-footer__input"
             />
             <button type="submit" className="eduvia-btn eduvia-btn--lime eduvia-footer__submit">
-              {subscribed ? '✓ Subscribed' : 'Subscribe'}
+              {subscribed ? (language === 'vi' ? '✓ Đã đăng ký' : '✓ Subscribed') : (language === 'vi' ? 'Đăng ký' : 'Subscribe')}
             </button>
           </form>
           {subscribed && (
@@ -122,12 +122,14 @@ export default function SiteFooter() {
       <div className="eduvia-footer__bottom">
         <div className="eduvia-footer__bottom-inner">
           <p className="eduvia-footer__copy-text">
-            Copyright © {new Date().getFullYear()} LexiGrow. All rights reserved.
+            {language === 'vi'
+              ? `Bản quyền © ${new Date().getFullYear()} LexiGrow. Bảo lưu mọi quyền.`
+              : `Copyright © ${new Date().getFullYear()} LexiGrow. All rights reserved.`}
           </p>
           <div className="eduvia-footer__legal-links">
-            <Link to="/pricing">Terms of Use</Link>
+            <Link to="/pricing">{language === 'vi' ? 'Điều khoản dịch vụ' : 'Terms of Use'}</Link>
             <span>·</span>
-            <Link to="/pricing">Privacy Policy</Link>
+            <Link to="/pricing">{language === 'vi' ? 'Chính sách bảo mật' : 'Privacy Policy'}</Link>
           </div>
         </div>
       </div>

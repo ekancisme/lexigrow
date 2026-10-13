@@ -1,0 +1,49 @@
+{
+  "source": "OpenAI ImageGen, created for LexiGrow",
+  "generatedAt": "2026-10-13",
+  "licenseNote": "Original AI-generated imagery; no stock-photo attribution required.",
+  "images": {
+    "study-hero.webp": {
+      "alt": {
+        "en": "Learner studying English by a window in a university library",
+        "vi": "Học viên đang ôn tiếng Anh bên cửa sổ tại thư viện đại học"
+      }
+    },
+    "study-group.webp": {
+      "alt": {
+        "en": "Three learners reviewing English vocabulary together in a campus study lounge",
+        "vi": "Ba học viên cùng ôn từ vựng tiếng Anh tại không gian tự học trong trường"
+      }
+    },
+    "writing-practice.webp": {
+      "alt": {
+        "en": "Learner wearing headphones and practising English writing at a desk",
+        "vi": "Học viên đeo tai nghe và luyện viết tiếng Anh tại bàn học"
+      }
+    },
+    "tutor-guidance.webp": {
+      "alt": {
+        "en": "Tutor and learner reviewing an English essay together",
+        "vi": "Gia sư và học viên cùng xem lại bài luận tiếng Anh"
+      }
+    },
+    "educator-portrait-1.webp": {
+      "alt": {
+        "en": "Portrait of a Vietnamese English educator",
+        "vi": "Chân dung giáo viên tiếng Anh người Việt"
+      }
+    },
+    "educator-portrait-2.webp": {
+      "alt": {
+        "en": "Portrait of a Vietnamese English educator",
+        "vi": "Chân dung giáo viên tiếng Anh người Việt"
+      }
+    },
+    "educator-portrait-3.webp": {
+      "alt": {
+        "en": "Portrait of a Vietnamese English educator",
+        "vi": "Chân dung giáo viên tiếng Anh người Việt"
+      }
+    }
+  }
+}

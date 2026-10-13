@@ -9,7 +9,7 @@ const EDUVIA_COURSES = [
     slug: 'daily-life',
     tag: 'Speaking',
     tagColor: 'green',
-    image: '/assets/eduvia/image-6.jpg',
+    image: '/assets/lexigrow/study-hero.webp',
     rating: 5,
     price: '$49',
     title: 'Daily Life & Routines',
@@ -30,7 +30,7 @@ const EDUVIA_COURSES = [
     slug: 'pronunciation-coach',
     tag: 'Pronunciation',
     tagColor: 'teal',
-    image: '/assets/eduvia/image-7.jpg',
+    image: '/assets/lexigrow/writing-practice.webp',
     rating: 5,
     price: '$39',
     title: 'Clear English Pronunciation',
@@ -50,7 +50,7 @@ const EDUVIA_COURSES = [
     slug: 'grammar-mastery',
     tag: 'Grammar',
     tagColor: 'green',
-    image: '/assets/eduvia/image-8.jpg',
+    image: '/assets/lexigrow/tutor-guidance.webp',
     rating: 5,
     price: '$45',
     title: 'Grammar in Action',
@@ -70,7 +70,7 @@ const EDUVIA_COURSES = [
     slug: 'academic-writing',
     tag: 'Writing',
     tagColor: 'teal',
-    image: '/assets/eduvia/image-9.jpg',
+    image: '/assets/lexigrow/writing-practice.webp',
     rating: 5,
     price: '$42',
     title: 'Academic Writing & Essays',
@@ -90,7 +90,7 @@ const EDUVIA_COURSES = [
     slug: 'technology',
     tag: 'Vocabulary',
     tagColor: 'teal',
-    image: '/assets/eduvia/image-10.jpg',
+    image: '/assets/lexigrow/study-group.webp',
     rating: 5,
     price: '$35',
     title: 'Technology & Innovation',
@@ -110,7 +110,7 @@ const EDUVIA_COURSES = [
     slug: 'environment',
     tag: 'Business English',
     tagColor: 'green',
-    image: '/assets/eduvia/image-11.jpg',
+    image: '/assets/editorial/topics/environment.webp',
     rating: 5,
     price: '$55',
     title: 'Environment & Sustainability',
@@ -130,7 +130,7 @@ const EDUVIA_COURSES = [
 
 export default function Explore() {
   const navigate = useNavigate()
-  const { t, language } = useLanguage()
+  const { language } = useLanguage()
   const [selectedTag, setSelectedTag] = useState('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [completedSlugs, setCompletedSlugs] = useState(new Set())
@@ -151,7 +151,7 @@ export default function Explore() {
           })
         }
         setCompletedSlugs(completed)
-      } catch (e) {
+      } catch {
         // Fallback gracefully
       }
     }
@@ -209,14 +209,22 @@ export default function Explore() {
 
         {/* ── CATEGORY FILTER PILLS ── */}
         <div className="eduvia-courses-filter-pills" role="tablist">
-          {['ALL', 'Speaking', 'Pronunciation', 'Grammar', 'Writing', 'Vocabulary', 'Business English'].map(tag => (
+          {[
+            { id: 'ALL', labelVi: 'Tất cả chủ đề', labelEn: 'All Topics' },
+            { id: 'Speaking', labelVi: 'Giao tiếp', labelEn: 'Speaking' },
+            { id: 'Pronunciation', labelVi: 'Phát âm', labelEn: 'Pronunciation' },
+            { id: 'Grammar', labelVi: 'Ngữ pháp', labelEn: 'Grammar' },
+            { id: 'Writing', labelVi: 'Viết luận', labelEn: 'Writing' },
+            { id: 'Vocabulary', labelVi: 'Từ vựng', labelEn: 'Vocabulary' },
+            { id: 'Business English', labelVi: 'Tiếng Anh thương mại', labelEn: 'Business English' },
+          ].map(tag => (
             <button
-              key={tag}
+              key={tag.id}
               type="button"
-              className={`eduvia-filter-pill ${selectedTag === tag ? 'active' : ''}`}
-              onClick={() => setSelectedTag(tag)}
+              className={`eduvia-filter-pill ${selectedTag === tag.id ? 'active' : ''}`}
+              onClick={() => setSelectedTag(tag.id)}
             >
-              {tag === 'ALL' ? (language === 'vi' ? 'Tất cả' : 'All Courses') : tag}
+              {language === 'vi' ? tag.labelVi : tag.labelEn}
             </button>
           ))}
         </div>
@@ -250,11 +258,11 @@ export default function Explore() {
                   <div className="eduvia-course-card__details">
                     <span className="eduvia-course-card__detail-item">
                       <span className="material-symbols-outlined eduvia-icon-purple">menu_book</span>
-                      <span>{course.lessons}</span>
+                      <span>{language === 'vi' ? course.lessons.replace('Lessons', 'Bài học') : course.lessons}</span>
                     </span>
                     <span className="eduvia-course-card__detail-item">
                       <span className="material-symbols-outlined eduvia-icon-teal">person</span>
-                      <span>{course.students}</span>
+                      <span>{language === 'vi' ? course.students.replace('Students', 'Học viên') : course.students}</span>
                     </span>
                   </div>
 
@@ -283,7 +291,7 @@ export default function Explore() {
         {/* ── VIDEO PLAYER BANNER (Matching 03_courses.png) ── */}
         <section className="eduvia-courses-video-section" style={{ marginTop: 80 }}>
           <div className="eduvia-video-container">
-            <img src="/assets/eduvia/image-13.jpg" alt="Students in study session" className="eduvia-video-container__poster" />
+            <img src="/assets/lexigrow/writing-practice.webp" alt={language === 'vi' ? 'Học viên luyện viết tiếng Anh tại bàn học' : 'Learner practising English writing at a study desk'} className="eduvia-video-container__poster" />
             <button type="button" className="eduvia-video-container__play-btn" aria-label="Play video">
               <span className="material-symbols-outlined">play_arrow</span>
             </button>

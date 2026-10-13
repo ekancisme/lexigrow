@@ -1,56 +1,66 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import './ContactUsPage.css'
 
-const FAQS = [
-  {
-    q: 'What level do I need to start learning at LexiGrow?',
-    a: 'Nền tảng hỗ trợ từ trình độ người mới bắt đầu (A1/A2) đến nâng cao (B2/C1). Bạn có thể làm bài kiểm tra đầu vào ngắn để hệ thống tự động gợi ý lộ trình phù hợp.',
-  },
-  {
-    q: 'Are the classes self-paced or live?',
-    a: 'LexiGrow hỗ trợ cả hai: các học phần tự học 24/7 với phản hồi tức thì từ AI, đi kèm các buổi hướng dẫn và tương tác cùng giảng viên chuyên môn.',
-  },
-  {
-    q: 'How long does each course usually take?',
-    a: 'Mỗi lộ trình được chia thành các bài học vi mô 15-20 phút/ngày, thường kéo dài từ 4 đến 8 tuần tùy thuộc vào mục tiêu và tốc độ học của bạn.',
-  },
-  {
-    q: 'What payment methods are supported?',
-    a: 'LexiGrow hỗ trợ thanh toán tự động qua mã VietQR (PayOS) từ tất cả ứng dụng ngân hàng tại Việt Nam, kích hoạt tài khoản ngay sau vài giây.',
-  },
-  {
-    q: 'Do I get a certificate after finishing a course?',
-    a: 'Có. Khi hoàn thành toàn bộ bài tập và vượt qua bài kiểm tra cuối khóa, bạn sẽ nhận được chứng nhận điện tử LexiGrow có mã xác thực theo chuẩn CEFR.',
-  },
-  {
-    q: "What if I'm not confident speaking English yet?",
-    a: 'Đừng lo lắng! Trợ lý AI nhận diện phát âm và phòng luyện phản xạ tương tác giúp bạn luyện nói trong môi trường an toàn, không phán xét trước khi giao tiếp thực tế.',
-  },
-]
-
 export default function ContactUsPage() {
+  const { t, language } = useLanguage()
   const [sent, setSent] = useState(false)
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    role: 'student',
+    subject: '',
+    message: '',
+  })
 
   const handleSubmit = (e) => {
     e.preventDefault()
     setSent(true)
-    setTimeout(() => setSent(false), 4000)
+    setFormData({ name: '', email: '', role: 'student', subject: '', message: '' })
+    setTimeout(() => setSent(false), 5000)
   }
+
+  const FAQS = [
+    {
+      q: t('contact.faq1Q', 'What is LexiGrow and how does it help improve my English?'),
+      a: t('contact.faq1A', 'LexiGrow is an intelligent English learning platform designed to bridge vocabulary memorization and essay writing. Through Spaced Repetition (SRS), AI essay scoring, and contextual exercises, learners build natural language reflexes and retain vocabulary long-term.'),
+    },
+    {
+      q: t('contact.faq2Q', 'How does the Spaced Repetition System (SRS) work?'),
+      a: t('contact.faq2A', 'Based on the Ebbinghaus forgetting curve, the platform schedules reviews just as memory begins to decay (1 day, 3 days, 7 days, 16 days, 30 days). Correct answers increase the review interval, while missed words return sooner.'),
+    },
+    {
+      q: t('contact.faq3Q', 'How does the AI writing evaluation score essays?'),
+      a: t('contact.faq3A', 'Our AI evaluates your writing against the 4 official IELTS criteria: Task Response, Coherence & Cohesion, Lexical Resource, and Grammatical Range & Accuracy. It flags grammar slips, suggests B2-C1 synonyms, and provides actionable rewrite suggestions within seconds.'),
+    },
+    {
+      q: t('contact.faq4Q', 'How can Teachers and Parents use LexiGrow?'),
+      a: t('contact.faq4A', 'Teachers can create virtual classrooms, assign essays with required vocabulary, and monitor at-risk students via Early Warning Alerts. Parents have a dedicated dashboard to track their child\'s study consistency, weekly milestones, and essay quality in real time.'),
+    },
+    {
+      q: t('contact.faq5Q', 'How does VietQR PayOS payment work?'),
+      a: t('contact.faq5A', 'When choosing a subscription, you will see a dynamic VietQR code. Scanning it with any mobile banking app in Vietnam immediately activates your plan via automated webhook within 3 seconds, with zero manual review needed.'),
+    },
+    {
+      q: t('contact.faq6Q', 'Is LexiGrow suitable for absolute beginners (A1-A2)?'),
+      a: t('contact.faq6A', 'Yes! LexiGrow provides curated beginner sets with Vietnamese definitions, phonetic guides, example sentences, and bite-sized 60-word writing prompts designed to build confidence without feeling overwhelming.'),
+    },
+  ]
 
   return (
     <div className="eduvia-page eduvia-contact-page">
       {/* ── BANNER HEADER ── */}
       <section className="eduvia-page-header">
         <div className="eduvia-page-header__inner">
-          <h1 className="eduvia-page-header__title">Contact Us</h1>
+          <h1 className="eduvia-page-header__title">{t('contact.heroTitle', 'Contact & Support')}</h1>
           <p className="eduvia-page-header__desc">
-            Liên hệ với đội ngũ LexiGrow để nhận tư vấn lộ trình học tập, hỗ trợ kỹ thuật và giải đáp mọi thắc mắc.
+            {t('contact.heroDesc', 'Have questions about LexiGrow plans, school integrations, or technical support? Our academic and engineering teams are here to assist.')}
           </p>
           <div className="eduvia-page-header__crumbs">
-            <Link to="/student/home">Home</Link>
+            <Link to="/student/home">{t('contact.breadcrumbHome', 'Home')}</Link>
             <span className="eduvia-crumb-separator">-</span>
-            <span>Contact Us</span>
+            <span>{t('contact.breadcrumbContact', 'Contact Us')}</span>
           </div>
         </div>
       </section>
@@ -59,32 +69,39 @@ export default function ContactUsPage() {
         {/* ── SECTION 1: CONNECT WITH OUR SUPPORT TEAM ── */}
         <section className="eduvia-support-connect">
           <div className="eduvia-support-connect__info">
-            <span className="eduvia-kicker eduvia-kicker--green">Contact Us</span>
-            <h2 className="eduvia-section-title">Connect With Our Support Team</h2>
+            <span className="eduvia-kicker eduvia-kicker--green">{t('contact.supportKicker', 'Get In Touch')}</span>
+            <h2 className="eduvia-section-title">{t('contact.supportTitle', 'Connect With The LexiGrow Academic & Support Team')}</h2>
             <p className="eduvia-section-desc">
-              Đội ngũ LexiGrow luôn sẵn sàng lắng nghe, tư vấn lộ trình và giải đáp mọi thắc mắc học tập của bạn.
+              {t('contact.supportDesc', 'We provide responsive support for individual learners, school educators, and parents seeking educational guidance.')}
             </p>
 
             <div className="eduvia-contact-info-list">
               <div className="eduvia-contact-info-item">
                 <span className="eduvia-contact-icon"><span className="material-symbols-outlined">mail</span></span>
                 <div>
-                  <span className="eduvia-contact-label">Email Support</span>
+                  <span className="eduvia-contact-label">{t('contact.emailLabel', 'Email Inquiries')}</span>
                   <strong>support@lexigrow.com</strong>
                 </div>
               </div>
               <div className="eduvia-contact-info-item">
                 <span className="eduvia-contact-icon"><span className="material-symbols-outlined">location_on</span></span>
                 <div>
-                  <span className="eduvia-contact-label">Office Address</span>
-                  <strong>Hà Nội, Việt Nam</strong>
+                  <span className="eduvia-contact-label">{t('contact.addressLabel', 'Office Location')}</span>
+                  <strong>{t('contact.addressValue', 'Hanoi & Ho Chi Minh City, Vietnam')}</strong>
                 </div>
               </div>
               <div className="eduvia-contact-info-item">
                 <span className="eduvia-contact-icon"><span className="material-symbols-outlined">call</span></span>
                 <div>
-                  <span className="eduvia-contact-label">Phone Number</span>
+                  <span className="eduvia-contact-label">{t('contact.phoneLabel', 'Hotline')}</span>
                   <strong>+84 (24) 7300 8888</strong>
+                </div>
+              </div>
+              <div className="eduvia-contact-info-item">
+                <span className="eduvia-contact-icon"><span className="material-symbols-outlined">schedule</span></span>
+                <div>
+                  <span className="eduvia-contact-label">{t('contact.hoursLabel', 'Support Hours')}</span>
+                  <strong>{t('contact.hoursValue', 'Monday – Friday (08:00 – 18:00)')}</strong>
                 </div>
               </div>
             </div>
@@ -92,39 +109,75 @@ export default function ContactUsPage() {
 
           <div className="eduvia-support-connect__form-wrap">
             <form className="eduvia-connect-form" onSubmit={handleSubmit}>
+              {sent && (
+                <div className="eduvia-form-success" role="status">
+                  {t('contact.successMsg', '✓ Thank you! Your message has been sent. Our team will contact you within 24 hours.')}
+                </div>
+              )}
               <div className="eduvia-form-group">
-                <label>Full Name</label>
-                <input type="text" placeholder="Your full name" required />
+                <label htmlFor="contact-name">{t('contact.nameLabel', 'Full Name')}</label>
+                <input
+                  id="contact-name"
+                  type="text"
+                  placeholder={t('contact.namePlaceholder', 'John Doe')}
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  required
+                />
               </div>
               <div className="eduvia-form-group">
-                <label>Email Address</label>
-                <input type="email" placeholder="Your email address" required />
+                <label htmlFor="contact-email">{t('contact.emailLabel', 'Email Address')}</label>
+                <input
+                  id="contact-email"
+                  type="email"
+                  placeholder={t('contact.emailPlaceholder', 'your.email@example.com')}
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                  required
+                />
               </div>
               <div className="eduvia-form-group">
-                <label>Subject</label>
-                <input type="text" placeholder="What is your message about?" required />
+                <label htmlFor="contact-role">{t('contact.roleLabel', 'I am a')}</label>
+                <select
+                  id="contact-role"
+                  value={formData.role}
+                  onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
+                >
+                  <option value="student">{t('contact.roleStudent', 'Student / Independent Learner')}</option>
+                  <option value="teacher">{t('contact.roleTeacher', 'Teacher / School Representative')}</option>
+                  <option value="parent">{t('contact.roleParent', 'Parent')}</option>
+                </select>
               </div>
               <div className="eduvia-form-group">
-                <label>Message</label>
-                <textarea rows="4" placeholder="Write your message here" required />
+                <label htmlFor="contact-subject">{t('contact.subjectLabel', 'Subject / Topic')}</label>
+                <input
+                  id="contact-subject"
+                  type="text"
+                  placeholder={t('contact.subjectPlaceholder', 'e.g., Question about Pro Plan, Classroom Setup, etc.')}
+                  value={formData.subject}
+                  onChange={(e) => setFormData(prev => ({ ...prev, subject: e.target.value }))}
+                  required
+                />
+              </div>
+              <div className="eduvia-form-group">
+                <label htmlFor="contact-message">{t('contact.messageLabel', 'Your Message')}</label>
+                <textarea
+                  id="contact-message"
+                  rows="4"
+                  placeholder={t('contact.messagePlaceholder', 'Share your questions or feedback with us...')}
+                  value={formData.message}
+                  onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
+                  required
+                />
               </div>
               <button type="submit" className="eduvia-btn eduvia-btn--lime eduvia-btn--block">
-                {sent ? '✓ Message Sent' : 'Send Message'}
+                {t('contact.submitBtn', 'Send Message')}
               </button>
             </form>
           </div>
         </section>
 
-        {/* ── SECTION 2: PARTNER LOGOS ── */}
-        <section className="eduvia-partners-row" aria-label="Accreditations and Partners">
-          <img src="/assets/eduvia/Logo-1-1.png" alt="Ultra partner" />
-          <img src="/assets/eduvia/Logo-2.png" alt="QC Power XR2" />
-          <img src="/assets/eduvia/Logo-3.png" alt="International Standard" />
-          <img src="/assets/eduvia/Logo-4.png" alt="Certified Award" />
-          <img src="/assets/eduvia/Logo-5.png" alt="Logoipsum" />
-        </section>
-
-        {/* ── SECTION 3: MAP VIEW ── */}
+        {/* ── SECTION 2: MAP VIEW ── */}
         <section className="eduvia-map-section" aria-label="Location Map">
           <div className="eduvia-map-container">
             <iframe
@@ -140,15 +193,15 @@ export default function ContactUsPage() {
           </div>
         </section>
 
-        {/* ── SECTION 4: FAQS (6 ITEMS) ── */}
+        {/* ── SECTION 3: FAQS (6 COMPREHENSIVE LEXIGROW ITEMS) ── */}
         <section className="eduvia-faqs-section">
           <div className="eduvia-section-header">
             <div>
-              <span className="eduvia-kicker eduvia-kicker--green">Faqs</span>
-              <h2 className="eduvia-section-title">Answers To Your Common Questions</h2>
+              <span className="eduvia-kicker eduvia-kicker--green">{t('contact.faqsKicker', 'System FAQs')}</span>
+              <h2 className="eduvia-section-title">{t('contact.faqsTitle', 'Everything You Need To Know About LexiGrow')}</h2>
             </div>
             <Link to="/pricing" className="eduvia-btn eduvia-btn--mint">
-              View Pricing Plans
+              {language === 'vi' ? 'Xem bảng giá gói học' : 'View Pricing Plans'}
             </Link>
           </div>
 

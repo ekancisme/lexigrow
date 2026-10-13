@@ -1,7 +1,7 @@
 // LexiGrow Service Worker
 // Caches assets for offline use and installable PWA
 
-const CACHE_NAME = 'lexigrow-v7'
+const CACHE_NAME = 'lexigrow-v8'
 const STATIC_ASSETS = [
   '/',
   '/index.html',
