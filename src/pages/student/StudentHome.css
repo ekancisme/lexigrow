@@ -1,1042 +1,620 @@
-/* ==========================================================================
-   Eduvia Home Page — Pixel-Perfect Layout matching 01_home.png
-   ========================================================================== */
-
-.eduvia-home {
-  --eduvia-navy: #051A2E;
-  --eduvia-lime: #E9FA49;
-  --eduvia-mint: #1CB886;
-  --eduvia-purple: #9E89FB;
-  --eduvia-hero-bg: #DDE9FF;
-  --eduvia-surface: #F4F7FA;
-  --eduvia-pink: #FF09AD;
-  --eduvia-muted: #576C80;
-  --eduvia-star: #F5A623;
-
-  width: min(100%, 1320px);
+.student-home {
+  --home-ink: var(--color-on-surface, #0f172a);
+  --home-muted: var(--color-on-surface-variant, #475569);
+  --home-line: var(--color-outline-variant, #e2e8f0);
+  width: min(100%, 1240px);
   margin-inline: auto;
-  padding: 0 24px 80px;
-  display: flex;
-  flex-direction: column;
-  gap: clamp(48px, 6vw, 88px);
-  color: var(--eduvia-navy);
-  font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-.eduvia-home a {
-  text-decoration: none;
-  color: inherit;
-}
-
-/* ── BUTTONS ── */
-.eduvia-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  border-radius: 99px;
-  font-family: 'Urbanist', sans-serif;
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1;
-  padding: 16px 32px;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  text-decoration: none !important;
-}
-
-.eduvia-btn:hover {
-  transform: translateY(-2px);
-}
-
-.eduvia-btn--lime {
-  background-color: var(--eduvia-lime);
-  color: var(--eduvia-navy) !important;
-  box-shadow: 0 8px 24px rgba(233, 250, 73, 0.35);
-}
-.eduvia-btn--lime:hover {
-  background-color: #dbee3b;
-  box-shadow: 0 12px 28px rgba(233, 250, 73, 0.5);
-}
-
-.eduvia-btn--navy {
-  background-color: var(--eduvia-navy);
-  color: #FFFFFF !important;
-  box-shadow: 0 8px 20px rgba(5, 26, 46, 0.15);
-}
-.eduvia-btn--navy:hover {
-  background-color: #0c2742;
-  box-shadow: 0 10px 26px rgba(5, 26, 46, 0.25);
-}
-
-.eduvia-btn--mint {
-  background-color: var(--eduvia-mint);
-  color: #FFFFFF !important;
-  box-shadow: 0 8px 20px rgba(28, 184, 134, 0.3);
-}
-.eduvia-btn--mint:hover {
-  background-color: #169e73;
-}
-
-.eduvia-btn--ghost {
-  background: transparent;
-  color: var(--eduvia-navy) !important;
-  font-weight: 600;
-}
-.eduvia-btn--ghost:hover {
-  background: rgba(5, 26, 46, 0.05);
-}
-
-.eduvia-btn--full {
-  width: 100%;
-}
-
-/* ── KICKERS & TITLES ── */
-.eduvia-kicker {
-  display: inline-block;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  margin-bottom: 8px;
-}
-.eduvia-kicker--green { color: var(--eduvia-mint); }
-.eduvia-kicker--purple { color: var(--eduvia-purple); }
-
-.eduvia-section-title {
-  font-size: clamp(32px, 4vw, 44px);
-  font-weight: 700;
-  color: var(--eduvia-navy);
-  line-height: 1.2;
-  margin: 0;
-  letter-spacing: -0.02em;
-}
-
-.eduvia-section-header {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 24px;
-  flex-wrap: wrap;
-  margin-bottom: 36px;
-}
-
-.eduvia-section-desc {
-  max-width: 480px;
-  color: var(--eduvia-muted);
-  font-size: 15px;
-  line-height: 1.6;
-  margin: 0;
-}
-
-.eduvia-center-header {
-  text-align: center;
-  max-width: 640px;
-  margin: 0 auto 40px;
-}
-
-/* ── 1. HERO SECTION ── */
-.eduvia-hero {
-  background: radial-gradient(130% 120% at 90% 0%, #EDF4FF 0%, var(--eduvia-hero-bg) 60%, #D4E5FF 100%);
-  border-radius: 36px;
-  padding: clamp(36px, 5vw, 64px) clamp(24px, 4vw, 56px) 0;
-  overflow: hidden;
-  box-shadow: 0 16px 48px rgba(5, 26, 46, 0.03);
-}
-
-.eduvia-hero__container {
+  padding: 0 20px 80px;
   display: grid;
-  grid-template-columns: 1.08fr 0.92fr;
-  align-items: flex-end;
-  gap: 40px;
+  gap: clamp(48px, 6.5vw, 80px);
+  color: var(--home-ink);
 }
 
-.eduvia-hero__copy {
-  padding-bottom: clamp(40px, 6vw, 80px);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
+.student-home :is(h1, h2, h3, p) { margin-top: 0; }
+.student-home a { color: inherit; }
+.student-home a:focus-visible,
+.student-home button:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
 
-.eduvia-hero__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  background: #FFFFFF;
-  border-radius: 99px;
-  padding: 6px 18px 6px 6px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--eduvia-navy);
-  width: fit-content;
-  box-shadow: 0 4px 16px rgba(5, 26, 46, 0.05);
-}
-
-.eduvia-hero__badge-icon {
-  width: 32px;
-  height: 32px;
-  background: var(--eduvia-purple);
-  color: #FFFFFF;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-}
-.eduvia-hero__badge-icon .material-symbols-outlined { font-size: 18px; }
-
-.eduvia-hero__title {
-  font-size: clamp(38px, 5.2vw, 62px);
-  font-weight: 700;
-  color: var(--eduvia-navy);
-  line-height: 1.15;
-  letter-spacing: -0.03em;
-  margin: 0;
-}
-
-.eduvia-hero__subtitle {
-  font-size: 16px;
-  line-height: 1.65;
-  color: #3A4F63;
-  margin: 0;
-  max-width: 520px;
-}
-
-.eduvia-hero__cta-group {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-top: 8px;
-  flex-wrap: wrap;
-}
-
-.eduvia-hero__proof {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-top: 12px;
-}
-
-.eduvia-hero__avatars {
-  display: flex;
-  align-items: center;
-}
-
-.eduvia-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid #FFFFFF;
-  margin-left: -12px;
-  box-shadow: 0 4px 12px rgba(5, 26, 46, 0.08);
-}
-.eduvia-avatar:first-child { margin-left: 0; }
-
-.eduvia-hero__proof-text {
-  display: flex;
-  flex-direction: column;
-}
-.eduvia-hero__proof-text strong {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--eduvia-navy);
-}
-.eduvia-hero__proof-text span {
-  font-size: 13px;
-  color: var(--eduvia-muted);
-}
-
-.eduvia-hero__visual {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-}
-
-.eduvia-hero__visual-inner {
-  position: relative;
-  width: 100%;
-  max-width: 520px;
-}
-
-.eduvia-hero__student {
-  width: 100%;
-  height: auto;
+.student-home__eyebrow {
   display: block;
-  filter: drop-shadow(0 20px 30px rgba(5, 26, 46, 0.12));
-}
-
-.eduvia-float-card {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(12px);
-  border-radius: 18px;
-  padding: 12px 20px;
-  box-shadow: 0 12px 32px rgba(5, 26, 46, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  white-space: nowrap;
-  animation: floatSlow 4s ease-in-out infinite alternate;
-}
-
-.eduvia-float-card--top {
-  top: 18%;
-  right: -20px;
-}
-
-.eduvia-float-card--bottom {
-  bottom: 22%;
-  left: -30px;
-  animation-delay: -2s;
-}
-
-@keyframes floatSlow {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(-8px); }
-}
-
-.eduvia-float-card__icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: grid;
-  place-items: center;
-  color: #FFFFFF;
-}
-.eduvia-float-card__icon--green { background: var(--eduvia-mint); }
-.eduvia-float-card__icon--purple { background: var(--eduvia-purple); }
-.eduvia-float-card__icon .material-symbols-outlined { font-size: 22px; }
-
-.eduvia-float-card__text h4 {
-  font-size: 15px;
-  font-weight: 700;
-  margin: 0;
-  color: var(--eduvia-navy);
-}
-.eduvia-float-card__text p {
-  font-size: 12px;
-  color: var(--eduvia-muted);
-  margin: 2px 0 0;
-}
-
-/* ── 2. FEATURES BAR ── */
-.eduvia-features-bar {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-  background: #FFFFFF;
-  border-radius: 24px;
-  padding: 28px 36px;
-  box-shadow: 0 8px 36px rgba(5, 26, 46, 0.05);
-  border: 1px solid #EBF1F7;
-}
-
-.eduvia-features-bar__item {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.eduvia-features-bar__icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: #F1EDFE;
-  color: var(--eduvia-purple);
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-}
-.eduvia-features-bar__icon .material-symbols-outlined { font-size: 22px; }
-
-.eduvia-features-bar__text h3 {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--eduvia-navy);
-  margin: 0;
-}
-.eduvia-features-bar__text p {
-  font-size: 13px;
-  color: var(--eduvia-muted);
-  margin: 4px 0 0;
-}
-
-/* ── 3. DUAL PROMO SPLIT ── */
-.eduvia-promo-split {
-  display: grid;
-  grid-template-columns: 1fr 1.25fr;
-  gap: 28px;
-}
-
-.eduvia-promo-card {
-  border-radius: 28px;
-  overflow: hidden;
-  position: relative;
-  min-height: 380px;
-}
-
-.eduvia-promo-card--photo {
-  position: relative;
-}
-.eduvia-promo-card__bg-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.eduvia-promo-badge-rating {
-  position: absolute;
-  bottom: 24px;
-  right: 24px;
-  background: var(--eduvia-purple);
-  color: #FFFFFF;
-  border-radius: 20px;
-  padding: 20px 24px;
-  text-align: center;
-  box-shadow: 0 12px 30px rgba(158, 137, 251, 0.4);
-}
-.eduvia-promo-badge-rating__score {
-  font-size: 28px;
-  font-weight: 800;
-  line-height: 1;
-}
-.eduvia-promo-badge-rating__label {
-  font-size: 12px;
-  font-weight: 500;
-  margin-top: 6px;
-  opacity: 0.95;
-}
-
-.eduvia-promo-card--navy {
-  background: var(--eduvia-navy);
-  color: #FFFFFF;
-  padding: clamp(32px, 4vw, 48px);
-  display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  align-items: center;
-  gap: 20px;
-}
-
-.eduvia-promo-card__content {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  z-index: 1;
-}
-.eduvia-promo-card__content h2 {
-  font-size: clamp(26px, 3vw, 34px);
-  font-weight: 700;
-  line-height: 1.2;
-  margin: 0;
-  color: #FFFFFF;
-}
-.eduvia-promo-card__content p {
-  font-size: 14px;
-  line-height: 1.6;
-  color: #C1D2E5;
-  margin: 0;
-}
-.eduvia-promo-card__content .eduvia-btn {
-  margin-top: 10px;
-  width: fit-content;
-}
-
-.eduvia-pill-badge {
-  display: inline-block;
+  margin-bottom: 10px;
+  color: var(--color-primary);
   font-size: 12px;
   font-weight: 700;
-  padding: 4px 14px;
-  border-radius: 99px;
-  width: fit-content;
+  letter-spacing: .08em;
+  line-height: 1.45;
   text-transform: uppercase;
 }
-.eduvia-pill-badge--green {
-  background: rgba(28, 184, 134, 0.2);
-  color: var(--eduvia-mint);
-  border: 1px solid var(--eduvia-mint);
-}
 
-.eduvia-promo-card__cutout {
-  display: flex;
-  justify-content: flex-end;
-  align-items: flex-end;
-  height: 100%;
-}
-.eduvia-promo-card__cutout img {
-  max-height: 340px;
-  width: auto;
-  object-fit: contain;
-}
-
-/* ── 4. COURSES GRID ── */
-.eduvia-courses-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
-}
-
-.eduvia-course-card {
-  background: #FFFFFF;
-  border-radius: 24px;
-  overflow: hidden;
-  border: 1px solid #EBF1F7;
-  box-shadow: 0 10px 32px rgba(5, 26, 46, 0.04);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-  display: flex;
-  flex-direction: column;
-}
-.eduvia-course-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(5, 26, 46, 0.09);
-}
-
-.eduvia-course-card__image-wrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 10;
-  overflow: hidden;
-}
-.eduvia-course-card__img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s ease;
-}
-.eduvia-course-card:hover .eduvia-course-card__img {
-  transform: scale(1.04);
-}
-
-.eduvia-course-card__tag {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  font-size: 12px;
+.student-home__intro h1,
+.student-home__announcement h2,
+.student-home__section-heading h2,
+.student-home__method-intro h2,
+.student-home__steps-intro h2,
+.student-home__closing h2 {
+  font-family: var(--font-family);
   font-weight: 700;
-  padding: 6px 14px;
-  border-radius: 99px;
-  color: #FFFFFF;
-}
-.eduvia-course-card__tag--green { background: var(--eduvia-mint); }
-.eduvia-course-card__tag--teal { background: #00A896; }
-
-.eduvia-course-card__body {
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
+  letter-spacing: -.03em;
+  text-wrap: balance;
 }
 
-.eduvia-course-card__meta-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-
-.eduvia-course-card__stars {
-  color: var(--eduvia-star);
-  font-size: 15px;
-  letter-spacing: 2px;
-}
-
-.eduvia-course-card__price {
-  font-size: 20px;
-  font-weight: 800;
-  color: var(--eduvia-pink);
-}
-
-.eduvia-course-card__title {
-  font-size: 17px;
-  font-weight: 700;
-  line-height: 1.35;
-  margin: 0 0 16px;
-  color: var(--eduvia-navy);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.student-home__button {
   min-height: 46px;
-}
-.eduvia-course-card__title a:hover {
-  color: var(--eduvia-mint);
-}
-
-.eduvia-course-card__details {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 20px;
-  font-size: 13px;
-  color: var(--eduvia-muted);
-}
-
-.eduvia-course-card__detail-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.eduvia-icon-purple { color: var(--eduvia-purple); font-size: 18px; }
-.eduvia-icon-teal { color: var(--eduvia-mint); font-size: 18px; }
-
-/* ── 5. EMPOWERING STUDENTS / STATS ── */
-.eduvia-empower-section {
-  padding: 20px 0;
-}
-.eduvia-empower__grid {
-  display: grid;
-  grid-template-columns: 1fr 1.05fr;
-  gap: clamp(36px, 5vw, 64px);
-  align-items: center;
-}
-
-.eduvia-empower__visual {
-  border-radius: 28px;
-  overflow: hidden;
-  box-shadow: 0 16px 48px rgba(5, 26, 46, 0.08);
-}
-.eduvia-empower__img {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.eduvia-empower__copy {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-.eduvia-empower__copy h2 {
-  font-size: clamp(30px, 3.8vw, 44px);
-  font-weight: 700;
-  color: var(--eduvia-navy);
-  line-height: 1.2;
-  margin: 0;
-}
-.eduvia-empower__copy p {
+  justify-content: center;
+  gap: 10px;
+  padding: 11px 22px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md, 10px);
   font-size: 15px;
-  line-height: 1.7;
-  color: var(--eduvia-muted);
-  margin: 0;
-}
-.eduvia-empower__copy .eduvia-btn {
-  width: fit-content;
+  font-weight: 650;
+  line-height: 1.3;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all .18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.eduvia-empower__stats-row {
-  display: flex;
+.student-home__button--primary {
+  color: #ffffff !important;
+  background: var(--color-primary, #10b981);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+}
+.student-home__button--primary:hover {
+  background: var(--color-primary-hover, #059669);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
+.student-home__button--secondary {
+  border-color: var(--home-line);
+  background: var(--color-surface-container-lowest, #ffffff);
+  color: var(--home-ink) !important;
+}
+.student-home__button--secondary:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary) !important;
+  background: var(--color-surface-container-low, #f8fafc);
+  text-decoration: none;
+}
+
+.student-home__button .material-symbols-outlined { font-size: 18px; }
+
+.student-home__text-link,
+.student-home__section-link {
+  display: inline-flex;
   align-items: center;
-  gap: 48px;
-  margin-top: 16px;
-  padding-top: 24px;
-  border-top: 1px solid #EBF1F7;
-}
-
-.eduvia-stat-box {
-  display: flex;
-  flex-direction: column;
-}
-.eduvia-stat-box__number {
-  font-size: 44px;
-  font-weight: 800;
-  color: var(--eduvia-mint);
-  line-height: 1;
-}
-.eduvia-stat-box__label {
-  font-size: 13px;
-  color: var(--eduvia-muted);
-  margin-top: 6px;
-}
-
-/* ── 6. WHY CHOOSE US & VIDEO PLAYER ── */
-.eduvia-why-section {
-  padding: 20px 0;
-}
-
-.eduvia-why-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 28px;
-  margin-bottom: 48px;
-}
-
-.eduvia-why-card {
-  background: #FFFFFF;
-  border-radius: 24px;
-  padding: 32px 28px;
-  border: 1px solid #EBF1F7;
-  box-shadow: 0 8px 30px rgba(5, 26, 46, 0.04);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-}
-
-.eduvia-why-card__icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 16px;
-  background: #F1EDFE;
-  color: var(--eduvia-purple);
-  display: grid;
-  place-items: center;
-}
-.eduvia-why-card__icon .material-symbols-outlined { font-size: 26px; }
-
-.eduvia-why-card h3 {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--eduvia-navy);
-  margin: 0;
-}
-.eduvia-why-card p {
+  gap: 7px;
+  color: var(--color-primary, #10b981) !important;
   font-size: 14px;
-  line-height: 1.6;
-  color: var(--eduvia-muted);
-  margin: 0;
+  font-weight: 650;
+  text-decoration: none;
+  transition: opacity .15s ease;
+}
+.student-home__text-link:hover,
+.student-home__section-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
-.eduvia-video-container {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 21 / 9;
-  border-radius: 32px;
+/* ── ANNOUNCEMENT BANNER ── */
+.student-home__announcement {
+  min-height: 260px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(300px, .9fr);
+  align-items: stretch;
   overflow: hidden;
-  box-shadow: 0 18px 48px rgba(5, 26, 46, 0.09);
+  border: 1px solid var(--home-line);
+  border-radius: var(--radius-lg, 16px);
+  background: var(--color-surface-container-lowest, #ffffff);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
 }
-.eduvia-video-container__poster {
+
+.student-home__announcement--no-image {
+  grid-template-columns: 1fr;
+  min-height: auto;
+}
+
+.student-home__announcement-copy {
+  align-self: center;
+  padding: clamp(24px, 4.5vw, 48px);
+}
+
+.student-home__announcement .student-home__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.student-home__announcement .student-home__eyebrow > span {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #f59e0b;
+}
+
+.student-home__announcement h2 {
+  max-width: 650px;
+  margin-bottom: 12px;
+  font-size: clamp(24px, 3.2vw, 36px);
+  line-height: 1.2;
+}
+
+.student-home__announcement-copy > p {
+  max-width: 610px;
+  margin-bottom: 20px;
+  color: var(--home-muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.student-home__announcement-image {
   width: 100%;
   height: 100%;
+  min-height: 260px;
   object-fit: cover;
-  display: block;
+  background: var(--color-surface-container-low, #f1f5f9);
 }
 
-.eduvia-video-container__play-btn {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: var(--eduvia-lime);
-  border: none;
-  cursor: pointer;
-  display: grid;
-  place-items: center;
-  color: var(--eduvia-navy);
-  box-shadow: 0 0 0 16px rgba(233, 250, 73, 0.35);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.eduvia-video-container__play-btn:hover {
-  transform: translate(-50%, -50%) scale(1.1);
-  box-shadow: 0 0 0 24px rgba(233, 250, 73, 0.45);
-}
-.eduvia-video-container__play-btn .material-symbols-outlined { font-size: 36px; }
-
-/* ── 7. PRICING CARDS ── */
-.eduvia-pricing-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 32px;
-  align-items: stretch;
-}
-
-.eduvia-price-card {
-  background: #FFFFFF;
-  border-radius: 28px;
-  overflow: hidden;
-  border: 1px solid #EBF1F7;
-  box-shadow: 0 10px 36px rgba(5, 26, 46, 0.05);
-  display: flex;
-  flex-direction: column;
-}
-
-.eduvia-price-card__header {
-  padding: 36px 32px;
-  color: #FFFFFF;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.eduvia-price-card__header--purple { background: var(--eduvia-purple); }
-.eduvia-price-card__header--green { background: var(--eduvia-mint); }
-
-.eduvia-price-card__plan-name {
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  opacity: 0.9;
-}
-
-.eduvia-price-card__amount {
-  display: flex;
-  align-items: baseline;
-  gap: 4px;
-}
-.eduvia-price-card__amount strong {
-  font-size: 48px;
-  font-weight: 800;
-  line-height: 1;
-}
-.eduvia-price-card__amount span {
-  font-size: 15px;
-  opacity: 0.85;
-}
-
-.eduvia-price-card__header p {
-  font-size: 13px;
-  line-height: 1.5;
-  margin: 0;
-  opacity: 0.9;
-}
-
-.eduvia-price-card__body {
-  padding: 32px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-.eduvia-price-card__body h4 {
-  font-size: 15px;
-  font-weight: 700;
-  margin: 0 0 16px;
-  color: var(--eduvia-navy);
-}
-
-.eduvia-price-card__checklist {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.eduvia-price-card__checklist li {
-  display: flex;
+.student-home__announcement-controls {
+  display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-size: 14px;
-  color: #3A4F63;
+  margin-top: 16px;
+  color: var(--home-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
 }
-.eduvia-price-card__checklist li .material-symbols-outlined {
-  color: var(--eduvia-mint);
+
+.student-home__announcement-controls button {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--home-line);
+  border-radius: 50%;
+  color: var(--home-ink);
+  background: var(--color-surface-container-lowest, #ffffff);
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.student-home__announcement-controls button:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-surface-container-low, #f8fafc);
+}
+
+/* ── HERO BANNER ── */
+.student-home__intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(280px, .95fr);
+  align-items: center;
+  gap: clamp(36px, 6vw, 72px);
+  padding-top: 12px;
+}
+
+.student-home__intro-copy { max-width: 620px; }
+.student-home__intro h1 {
+  max-width: 670px;
+  margin-bottom: 18px;
+  font-size: clamp(36px, 4.8vw, 56px);
+  line-height: 1.08;
+  letter-spacing: -.035em;
+}
+
+.student-home__lead {
+  max-width: 570px;
+  margin-bottom: 26px;
+  color: var(--home-muted);
+  font-size: clamp(15px, 1.4vw, 17px);
+  line-height: 1.68;
+}
+
+.student-home__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px 18px;
+}
+
+.student-home__hero-visual {
+  min-width: 0;
+  margin: 0;
+}
+
+.student-home__intro-image {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1.35;
+  border: 1px solid var(--home-line);
+  border-radius: 16px;
+  object-fit: cover;
+  object-position: center;
+  background: var(--color-surface-container-low);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.06);
+}
+
+.student-home__hero-visual figcaption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--home-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.student-home__hero-visual figcaption .material-symbols-outlined {
+  color: var(--color-primary);
   font-size: 18px;
 }
 
-.eduvia-price-card__footer-note {
-  margin-top: auto;
-  padding-top: 18px;
-  border-top: 1px solid #EBF1F7;
-}
-.eduvia-price-card__footer-note strong {
-  display: block;
-  font-size: 13px;
-  color: var(--eduvia-navy);
-}
-.eduvia-price-card__footer-note p {
-  font-size: 12px;
-  color: var(--eduvia-muted);
-  margin: 4px 0 0;
-  line-height: 1.5;
-}
-
-/* ── 8. DARK CTA BANNER ── */
-.eduvia-dark-cta {
-  background: var(--eduvia-navy);
-  border-radius: 36px;
-  padding: clamp(60px, 8vw, 100px) clamp(24px, 5vw, 64px);
-  text-align: center;
-  color: #FFFFFF;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 20px 48px rgba(5, 26, 46, 0.18);
-}
-
-.eduvia-dark-cta::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-image: url('/assets/eduvia/image-18.jpg');
-  background-size: cover;
-  background-position: center;
-  opacity: 0.18;
-  mix-blend-mode: luminosity;
-}
-
-.eduvia-dark-cta__inner {
-  position: relative;
-  z-index: 1;
-  max-width: 680px;
-  margin: 0 auto;
+.student-home__promise-list {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin-top: 28px;
+  padding: 16px 0 0;
+  border-top: 1px solid var(--home-line);
+  list-style: none;
+}
+.student-home__promise-list li {
+  display: inline-flex;
   align-items: center;
+  gap: 7px;
+  color: var(--home-muted);
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+.student-home__promise-list .material-symbols-outlined {
+  color: var(--color-primary);
+  font-size: 18px;
+}
+
+/* ── LEARNING PILLARS / AREAS (4 CARDS) ── */
+.student-home__practice,
+.student-home__topics {
+  display: grid;
+  gap: 24px;
+}
+
+.student-home__section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+.student-home__section-heading > div:first-child { max-width: 760px; }
+.student-home__section-heading .student-home__eyebrow { margin-bottom: 8px; }
+.student-home__section-heading h2 {
+  margin-bottom: 8px;
+  font-size: clamp(26px, 3vw, 34px);
+  line-height: 1.2;
+}
+.student-home__section-heading > div:first-child > p:not(.student-home__eyebrow) {
+  margin-bottom: 0;
+  color: var(--home-muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.student-home__section-link {
+  flex: 0 0 auto;
+  padding-bottom: 4px;
+}
+.student-home__section-link .material-symbols-outlined { font-size: 18px; }
+
+.student-home__learning-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
 }
 
-.eduvia-dark-cta__kicker {
+.student-home__learning-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--home-line);
+  border-radius: var(--radius-lg, 16px);
+  background: var(--color-surface-container-lowest, #ffffff);
+  text-decoration: none;
+  transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+.student-home__learning-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 10px 28px rgba(16, 185, 129, 0.12);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.student-home__learning-image {
+  display: block;
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  background: var(--color-surface-container-low, #f1f5f9);
+}
+
+.student-home__learning-copy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 20px;
+}
+
+.student-home__learning-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: var(--color-primary, #10b981);
+  background: rgba(16, 185, 129, 0.1);
+  font-size: 22px;
+}
+
+.student-home__learning-card h3 {
+  margin-bottom: 2px;
+  font-size: 17px;
+  line-height: 1.35;
+  font-weight: 700;
+}
+
+.student-home__learning-card p {
+  margin-bottom: 12px;
+  color: var(--home-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.student-home__card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  color: var(--color-primary, #10b981);
   font-size: 13px;
   font-weight: 700;
-  color: var(--eduvia-mint);
-  letter-spacing: 0.05em;
+}
+.student-home__card-link .material-symbols-outlined { font-size: 16px; }
+
+/* ── TOPICS PREVIEW (4 CARDS) ── */
+.student-home__topic-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.student-home__topic-card {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--home-line);
+  border-radius: var(--radius-lg, 16px);
+  background: var(--color-surface-container-lowest, #ffffff);
+  text-decoration: none;
+  transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+.student-home__topic-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 10px 28px rgba(16, 185, 129, 0.12);
+  transform: translateY(-2px);
+  text-decoration: none;
+}
+
+.student-home__topic-image-wrap {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--color-surface-container-low);
+}
+
+.student-home__topic-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .25s ease;
+}
+.student-home__topic-card:hover .student-home__topic-image {
+  transform: scale(1.04);
+}
+
+.student-home__level {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  color: #7a3400;
+  background: #fff5e5;
+  font-size: 11px;
+  font-weight: 750;
+  letter-spacing: .03em;
+}
+
+.student-home__topic-copy {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 18px;
+}
+
+.student-home__topic-category {
+  margin-bottom: 6px;
+  color: var(--home-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
   text-transform: uppercase;
 }
 
-.eduvia-dark-cta h2 {
-  font-size: clamp(32px, 4.2vw, 48px);
+.student-home__topic-copy h3 {
+  margin-bottom: 8px;
+  font-size: 16px;
+  line-height: 1.35;
   font-weight: 700;
-  line-height: 1.2;
-  margin: 0;
-  color: #FFFFFF;
 }
 
-.eduvia-dark-cta p {
-  font-size: 15px;
-  line-height: 1.7;
-  color: #C1D2E5;
-  margin: 0;
-}
-
-.eduvia-dark-cta__actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-top: 12px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-/* ── 9. TESTIMONIALS GRID ── */
-.eduvia-testimonials-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 24px;
-}
-
-.eduvia-testi-card {
-  background: #FFFFFF;
-  border-radius: 20px;
-  padding: 24px;
-  border: 1px solid #EBF1F7;
-  box-shadow: 0 6px 24px rgba(5, 26, 46, 0.03);
-  display: flex;
-  flex-direction: column;
-}
-
-.eduvia-testi-card__stars {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 12px;
-}
-.eduvia-testi-stars {
-  color: var(--eduvia-star);
+.student-home__topic-copy > p {
+  margin-bottom: 16px;
+  color: var(--home-muted);
   font-size: 13px;
-  letter-spacing: 2px;
+  line-height: 1.6;
 }
-.eduvia-testi-rating {
+
+/* ── METHOD STEPS ── */
+.student-home__steps-section {
+  display: grid;
+  grid-template-columns: minmax(220px, .7fr) minmax(0, 1.3fr);
+  gap: clamp(34px, 6vw, 72px);
+  padding: clamp(36px, 5vw, 60px) 0;
+  border-top: 1px solid var(--home-line);
+  border-bottom: 1px solid var(--home-line);
+}
+
+.student-home__steps-intro h2 {
+  margin-bottom: 10px;
+  font-size: clamp(26px, 3vw, 34px);
+  line-height: 1.2;
+}
+
+.student-home__steps-intro > p:not(.student-home__eyebrow) {
+  margin-bottom: 18px;
+  color: var(--home-muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.student-home__steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 26px 32px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.student-home__steps li {
+  display: grid;
+  grid-template-columns: 28px 28px minmax(0, 1fr);
+  align-items: start;
+  gap: 10px;
+}
+
+.student-home__step-number {
+  padding-top: 3px;
+  color: var(--home-muted);
   font-size: 12px;
   font-weight: 700;
-  color: var(--eduvia-navy);
+  font-variant-numeric: tabular-nums;
 }
 
-.eduvia-testi-card__quote {
-  font-size: 13.5px;
+.student-home__step-icon {
+  color: var(--color-primary, #10b981);
+  font-size: 22px;
+}
+
+.student-home__steps h3 {
+  margin-bottom: 5px;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+.student-home__steps p {
+  margin-bottom: 0;
+  color: var(--home-muted);
+  font-size: 13px;
   line-height: 1.6;
-  color: #4A5F73;
-  margin: 0 0 16px;
-  flex: 1;
 }
 
-.eduvia-testi-card__footer {
+/* ── CLOSING BANNER ── */
+.student-home__closing {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 14px;
-  border-top: 1px solid #F1F5F9;
-  font-size: 13px;
-}
-.eduvia-testi-card__author {
-  color: var(--eduvia-navy);
-  font-weight: 700;
-}
-.eduvia-testi-card__badge {
-  font-size: 11px;
-  color: var(--eduvia-mint);
-  font-weight: 600;
+  gap: 28px;
+  padding: clamp(28px, 4vw, 44px);
+  border: 1px solid var(--home-line);
+  border-radius: var(--radius-lg, 16px);
+  background: var(--color-surface-container-low, #f8fafc);
 }
 
-/* ── RESPONSIVE DESIGN (Matching 01_home_mobile.png) ── */
-@media (max-width: 1024px) {
-  .eduvia-courses-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .eduvia-pricing-cards {
-    grid-template-columns: 1fr;
-    max-width: 480px;
-    margin: 0 auto;
-  }
-  .eduvia-testimonials-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .eduvia-features-bar {
-    grid-template-columns: repeat(2, 1fr);
+.student-home__closing > div:first-child { max-width: 680px; }
+.student-home__closing .student-home__eyebrow { margin-bottom: 8px; }
+.student-home__closing h2 {
+  margin-bottom: 8px;
+  font-size: clamp(24px, 2.8vw, 32px);
+  line-height: 1.2;
+}
+.student-home__closing > div:first-child > p:last-child {
+  margin-bottom: 0;
+  color: var(--home-muted);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.student-home__closing .student-home__actions { flex: 0 0 auto; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1080px) {
+  .student-home__learning-grid,
+  .student-home__topic-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 768px) {
-  .eduvia-hero__container {
+@media (max-width: 860px) {
+  .student-home__steps-section {
     grid-template-columns: 1fr;
-    text-align: center;
-    gap: 24px;
+    gap: 28px;
   }
-  .eduvia-hero__badge {
-    margin: 0 auto;
+  .student-home__closing {
+    align-items: flex-start;
+    flex-direction: column;
   }
-  .eduvia-hero__subtitle {
-    margin: 0 auto;
-  }
-  .eduvia-hero__cta-group {
-    justify-content: center;
-  }
-  .eduvia-hero__proof {
-    justify-content: center;
-  }
-  .eduvia-float-card--top {
-    right: 0;
-  }
-  .eduvia-float-card--bottom {
-    left: 0;
-  }
-  .eduvia-features-bar {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  .eduvia-promo-split {
-    grid-template-columns: 1fr;
-  }
-  .eduvia-promo-card--navy {
-    grid-template-columns: 1fr;
-  }
-  .eduvia-promo-card__cutout {
-    display: none;
-  }
-  .eduvia-courses-grid {
-    grid-template-columns: 1fr;
-  }
-  .eduvia-empower__grid {
-    grid-template-columns: 1fr;
-  }
-  .eduvia-why-cards {
-    grid-template-columns: 1fr;
-  }
-  .eduvia-video-container {
-    aspect-ratio: 16 / 10;
-  }
-  .eduvia-testimonials-grid {
-    grid-template-columns: 1fr;
+}
+
+@media (max-width: 720px) {
+  .student-home { gap: 48px; }
+  .student-home__announcement { grid-template-columns: 1fr; }
+  .student-home__announcement-image { min-height: 0; max-height: 240px; grid-row: 1; }
+  .student-home__announcement-copy { padding: 24px; }
+  .student-home__intro { grid-template-columns: 1fr; gap: 24px; }
+  .student-home__intro-image { max-height: 380px; }
+  .student-home__learning-grid { grid-template-columns: 1fr; }
+  .student-home__learning-card { min-height: 0; }
+  .student-home__learning-image { height: clamp(170px, 48vw, 240px); }
+}
+
+@media (max-width: 520px) {
+  .student-home { gap: 40px; padding-inline: 16px; }
+  .student-home__intro h1 { font-size: clamp(32px, 9vw, 42px); }
+  .student-home__actions { align-items: flex-start; }
+  .student-home__section-heading { align-items: flex-start; flex-direction: column; }
+  .student-home__topic-grid { grid-template-columns: 1fr; }
+  .student-home__topic-card { display: grid; grid-template-columns: minmax(110px, .8fr) minmax(0, 1.2fr); }
+  .student-home__topic-image-wrap { height: 100%; min-height: 150px; aspect-ratio: auto; }
+  .student-home__topic-copy { padding: 14px; }
+  .student-home__topic-copy > p { font-size: 12px; }
+  .student-home__steps { grid-template-columns: 1fr; gap: 18px; }
+  .student-home__closing .student-home__actions { align-items: stretch; flex-direction: column; width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .student-home *, .student-home *::before, .student-home *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
