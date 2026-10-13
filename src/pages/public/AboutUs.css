@@ -18,12 +18,15 @@
   font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
-/* ── COMMON PAGE HEADER (02_about_us.png / 03_courses.png / etc.) ── */
 .eduvia-page-header {
-  background: var(--eduvia-hero-bg);
-  padding: 80px 24px 60px;
+  width: min(100% - 48px, 1320px);
+  margin: 32px auto 60px;
+  border-radius: 28px;
+  background: var(--eduvia-hero-bg, #DDE9FF);
+  border: 1px solid rgba(5, 26, 46, 0.08);
+  padding: clamp(48px, 6vw, 76px) clamp(24px, 5vw, 64px);
   text-align: center;
-  margin-bottom: 60px;
+  box-shadow: 0 4px 24px rgba(5, 26, 46, 0.035);
 }
 .eduvia-page-header__inner {
   max-width: 760px;

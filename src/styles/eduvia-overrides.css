@@ -59,6 +59,83 @@ body {
   border-bottom: 1px solid var(--color-outline-variant);
   box-shadow: 0 4px 18px rgba(5, 26, 46, .035);
 }
+.eduvia-refresh .topnav.topnav--home {
+  background: #F3F5F8 !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+  box-shadow: 0 2px 14px rgba(5, 26, 46, 0.03) !important;
+}
+[data-theme="dark"] .eduvia-refresh .topnav.topnav--home {
+  background: #0f1d2e !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* ── Bo viền Card Header cho Banner (02_about_us, 03_courses, pricing, contact) ── */
+.eduvia-page-header,
+.eduvia-page-hero {
+  width: min(100% - 48px, 1320px) !important;
+  margin: 32px auto 56px !important;
+  padding: clamp(48px, 6vw, 76px) clamp(24px, 5vw, 64px) !important;
+  background: #E8F0FE !important;
+  border: 1px solid rgba(5, 26, 46, 0.08) !important;
+  border-radius: 28px !important;
+  text-align: center !important;
+  box-shadow: 0 4px 24px rgba(5, 26, 46, 0.035) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 16px !important;
+}
+[data-theme="dark"] .eduvia-page-header,
+[data-theme="dark"] .eduvia-page-hero {
+  background: #0f1d2e !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25) !important;
+}
+.eduvia-page-header__inner {
+  max-width: 820px !important;
+  margin-inline: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 14px !important;
+}
+.eduvia-page-header__title,
+.eduvia-page-hero__title {
+  font-size: clamp(32px, 4.2vw, 52px) !important;
+  font-weight: 800 !important;
+  letter-spacing: -0.025em !important;
+  color: var(--color-on-surface, #051A2E) !important;
+  margin: 0 !important;
+  line-height: 1.15 !important;
+}
+.eduvia-page-header__desc,
+.eduvia-page-hero__desc {
+  max-width: 720px !important;
+  margin: 0 !important;
+  font-size: 16px !important;
+  line-height: 1.65 !important;
+  color: var(--color-on-surface-variant, #576C80) !important;
+}
+.eduvia-page-header__crumbs,
+.eduvia-breadcrumbs {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--color-on-surface-variant, #576C80) !important;
+  margin-top: 4px !important;
+}
+.eduvia-page-header__crumbs a,
+.eduvia-breadcrumbs a {
+  color: var(--color-on-surface, #051A2E) !important;
+  text-decoration: none !important;
+  transition: color 0.15s ease !important;
+}
+.eduvia-page-header__crumbs a:hover,
+.eduvia-breadcrumbs a:hover {
+  color: var(--color-primary, #10b981) !important;
+}
 .eduvia-refresh.app-layout:has(.student-home) .topnav {
   background: var(--eduvia-hero);
   border-bottom-color: transparent;

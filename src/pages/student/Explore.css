@@ -1,34 +1,127 @@
 /* ==========================================================================
-   Eduvia Courses / Explore Page — Pixel-Perfect Matching 03_courses.png
+   Explore / Topics Page — Eduvia Refined Design with Bo Viền & Elegant Grid
    ========================================================================== */
 
 .eduvia-courses-page {
-  font-family: 'Urbanist', -apple-system, BlinkMacSystemFont, sans-serif;
-  color: #051A2E;
+  font-family: var(--font-family);
+  color: var(--color-on-surface, #051A2E);
   padding-bottom: 80px;
 }
 
+/* ── HERO BANNER (Bo Viền) ── */
+.eduvia-courses-page .eduvia-page-hero {
+  width: min(100% - 48px, 1320px);
+  margin: 32px auto 56px;
+  border-radius: 28px;
+  background: radial-gradient(120% 120% at 50% 0%, #EDF4FF 0%, #DDE9FF 70%, #D4E5FF 100%);
+  border: 1px solid rgba(5, 26, 46, 0.08);
+  padding: clamp(48px, 6vw, 76px) clamp(24px, 5vw, 64px);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 4px 24px rgba(5, 26, 46, 0.035);
+}
+
+[data-theme="dark"] .eduvia-courses-page .eduvia-page-hero {
+  background: #0f1d2e;
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+}
+
+.eduvia-courses-page .eduvia-page-hero__title {
+  font-size: clamp(32px, 4.2vw, 52px);
+  font-weight: 800;
+  color: var(--color-on-surface, #051A2E);
+  margin: 0;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+}
+
+.eduvia-courses-page .eduvia-page-hero__desc {
+  font-size: 16px;
+  color: var(--color-on-surface-variant, #576C80);
+  max-width: 680px;
+  margin: 0;
+  line-height: 1.65;
+}
+
+.eduvia-courses-page .eduvia-breadcrumbs {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant, #576C80);
+  margin-top: 4px;
+}
+
+.eduvia-courses-page .eduvia-breadcrumbs a {
+  color: var(--color-on-surface, #051A2E);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.eduvia-courses-page .eduvia-breadcrumbs a:hover {
+  color: var(--color-primary, #10B981);
+}
+
+.eduvia-breadcrumbs__sep {
+  opacity: 0.5;
+}
+
+/* ── CONTAINER ── */
 .eduvia-courses-container {
   width: min(100%, 1320px);
   margin-inline: auto;
   padding: 0 24px;
 }
 
+/* ── SECTION HEADER & SEARCH ── */
+.eduvia-courses-page .eduvia-section-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.eduvia-kicker {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+.eduvia-kicker--green {
+  color: var(--color-primary, #10B981);
+}
+
+.eduvia-section-title {
+  font-size: clamp(24px, 3vw, 36px);
+  font-weight: 800;
+  color: var(--color-on-surface, #051A2E);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
 .eduvia-courses-search {
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: #FFFFFF;
-  border: 1px solid #E5EDF5;
+  gap: 12px;
+  background: var(--color-surface-container-lowest, #FFFFFF);
+  border: 1px solid var(--color-outline-variant, #E2E8F0);
   border-radius: 99px;
-  padding: 12px 24px;
+  padding: 12px 22px;
   min-width: 320px;
   box-shadow: 0 4px 16px rgba(5, 26, 46, 0.04);
   transition: all 0.2s ease;
 }
 .eduvia-courses-search:focus-within {
-  border-color: #051A2E;
-  box-shadow: 0 6px 20px rgba(5, 26, 46, 0.08);
+  border-color: var(--color-primary, #10B981);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 .eduvia-courses-search input {
   border: none;
@@ -36,11 +129,11 @@
   outline: none;
   font-family: inherit;
   font-size: 14px;
-  color: #051A2E;
+  color: var(--color-on-surface, #051A2E);
   width: 100%;
 }
 .eduvia-courses-search .material-symbols-outlined {
-  color: #576C80;
+  color: var(--color-on-surface-variant, #576C80);
   font-size: 20px;
 }
 
@@ -48,54 +141,369 @@
 .eduvia-courses-filter-pills {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
   margin-bottom: 40px;
 }
 
 .eduvia-filter-pill {
-  padding: 10px 22px;
+  padding: 9px 20px;
   border-radius: 99px;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 650;
   font-family: inherit;
-  border: 1px solid #E5EDF5;
-  background: #FFFFFF;
-  color: #051A2E;
+  border: 1px solid var(--color-outline-variant, #E2E8F0);
+  background: var(--color-surface-container-lowest, #FFFFFF);
+  color: var(--color-on-surface, #051A2E);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .eduvia-filter-pill:hover {
-  border-color: #051A2E;
+  border-color: var(--color-primary, #10B981);
+  color: var(--color-primary, #10B981);
 }
 .eduvia-filter-pill.active {
-  background: #051A2E;
+  background: var(--color-on-surface, #051A2E);
   color: #FFFFFF;
-  border-color: #051A2E;
-  box-shadow: 0 4px 16px rgba(5, 26, 46, 0.12);
+  border-color: var(--color-on-surface, #051A2E);
+  box-shadow: 0 4px 14px rgba(5, 26, 46, 0.15);
+}
+
+[data-theme="dark"] .eduvia-filter-pill.active {
+  background: var(--color-primary, #10B981);
+  border-color: var(--color-primary, #10B981);
+  color: #FFFFFF;
+}
+
+/* ── 6 TOPICS GRID ── */
+.eduvia-courses-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 28px;
+}
+
+.eduvia-course-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface-container-lowest, #FFFFFF);
+  border: 1px solid var(--color-outline-variant, #E2E8F0);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(5, 26, 46, 0.035);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.eduvia-course-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-primary, #10B981);
+  box-shadow: 0 16px 36px rgba(16, 185, 129, 0.12);
+}
+
+.eduvia-course-card__image-wrap {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: var(--color-surface-container-low, #F1F5F9);
+}
+
+.eduvia-course-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.eduvia-course-card:hover .eduvia-course-card__img {
+  transform: scale(1.05);
+}
+
+.eduvia-course-card__tag {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+.eduvia-course-card__tag--green {
+  background: #10B981;
+}
+.eduvia-course-card__tag--teal {
+  background: #0284C7;
+}
+
+.eduvia-course-card__level-badge {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  background: rgba(255, 255, 255, 0.92);
+  color: #051A2E;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(4px);
+}
+[data-theme="dark"] .eduvia-course-card__level-badge {
+  background: rgba(15, 29, 46, 0.9);
+  color: #FFFFFF;
+}
+
+.eduvia-course-card__body {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.eduvia-course-card__meta-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 12.5px;
+  color: var(--color-on-surface-variant, #576C80);
+}
+
+.eduvia-course-card__badge-time,
+.eduvia-course-card__badge-words {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.eduvia-course-card__badge-time .material-symbols-outlined,
+.eduvia-course-card__badge-words .material-symbols-outlined {
+  font-size: 16px;
+  color: var(--color-primary, #10B981);
+}
+
+.eduvia-course-card__title {
+  margin: 0 0 10px;
+  font-size: 18px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+.eduvia-course-card__title a {
+  color: var(--color-on-surface, #051A2E);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+.eduvia-course-card__title a:hover {
+  color: var(--color-primary, #10B981);
+}
+
+.eduvia-course-card__desc {
+  margin: 0 0 16px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--color-on-surface-variant, #576C80);
 }
 
 /* ── WORDS CHIPS PREVIEW ── */
 .eduvia-course-card__words {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 6px;
+  margin-top: auto;
   margin-bottom: 20px;
 }
+
 .eduvia-word-tag {
-  background: #F4F7FA;
+  background: var(--color-surface-container-low, #F1F5F9);
   border-radius: 8px;
-  padding: 4px 10px;
+  padding: 4px 9px;
   font-size: 11.5px;
-  color: #4A5F73;
+  color: var(--color-on-surface-variant, #4A5F73);
+  border: 1px solid rgba(5, 26, 46, 0.04);
 }
 .eduvia-word-tag strong {
-  color: #051A2E;
+  color: var(--color-on-surface, #051A2E);
+  font-weight: 700;
+}
+
+/* ── BUTTONS ── */
+.eduvia-courses-page .eduvia-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 99px;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 14px 24px;
+  cursor: pointer;
+  border: none;
+  text-decoration: none !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.eduvia-courses-page .eduvia-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+.eduvia-courses-page .eduvia-btn:hover {
+  transform: translateY(-2px);
+}
+.eduvia-courses-page .eduvia-btn--full {
+  width: 100%;
+}
+.eduvia-courses-page .eduvia-btn--navy {
+  background: #051A2E;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(5, 26, 46, 0.15);
+}
+.eduvia-courses-page .eduvia-btn--navy:hover {
+  background: #0F2D4A;
+  box-shadow: 0 8px 20px rgba(5, 26, 46, 0.25);
+}
+.eduvia-courses-page .eduvia-btn--lime {
+  background: #E9FA49;
+  color: #051A2E !important;
+  box-shadow: 0 6px 18px rgba(233, 250, 73, 0.35);
+}
+.eduvia-courses-page .eduvia-btn--lime:hover {
+  background: #d8e938;
+}
+.eduvia-courses-page .eduvia-btn--mint {
+  background: #1CB886;
+  color: #FFFFFF !important;
+  box-shadow: 0 6px 18px rgba(28, 184, 134, 0.3);
+}
+.eduvia-courses-page .eduvia-btn--mint:hover {
+  background: #159a6f;
+}
+
+/* ── VIDEO PLAYER BANNER ── */
+.eduvia-courses-video-section {
+  margin-top: 80px;
+}
+
+.eduvia-video-container {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 21 / 9;
+  max-height: 480px;
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 12px 36px rgba(5, 26, 46, 0.08);
+}
+.eduvia-video-container__poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.eduvia-video-container__play-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: #9E89FB;
+  color: #FFFFFF;
+  display: grid;
+  place-items: center;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 30px rgba(158, 137, 251, 0.5);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.eduvia-video-container__play-btn:hover {
+  transform: translate(-50%, -50%) scale(1.1);
+  background: #8b73f8;
+}
+.eduvia-video-container__play-btn .material-symbols-outlined {
+  font-size: 38px;
+}
+
+/* ── DARK CTA BANNER ── */
+.eduvia-courses-page .eduvia-dark-cta {
+  margin-top: 80px;
+  background: #051A2E;
+  border-radius: 28px;
+  padding: clamp(48px, 6vw, 76px) clamp(24px, 5vw, 60px);
+  text-align: center;
+  color: #FFFFFF;
+  box-shadow: 0 16px 40px rgba(5, 26, 46, 0.2);
+}
+.eduvia-dark-cta__inner {
+  max-width: 720px;
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.eduvia-dark-cta__kicker {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #E9FA49;
+}
+.eduvia-dark-cta__inner h2 {
+  font-size: clamp(28px, 3.8vw, 44px);
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+.eduvia-dark-cta__inner p {
+  font-size: 16px;
+  line-height: 1.65;
+  color: #9FB2C8;
+  margin: 0 0 10px;
+}
+.eduvia-dark-cta__actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1080px) {
+  .eduvia-courses-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 768px) {
+  .eduvia-courses-page .eduvia-section-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
   .eduvia-courses-search {
     width: 100%;
     min-width: 100%;
+  }
+  .eduvia-courses-grid {
+    grid-template-columns: 1fr;
+  }
+  .eduvia-video-container {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+@media (max-width: 480px) {
+  .eduvia-courses-container {
+    padding: 0 16px;
+  }
+  .eduvia-course-card__body {
+    padding: 18px;
+  }
+  .eduvia-dark-cta__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  .eduvia-dark-cta__actions .eduvia-btn {
+    width: 100%;
   }
 }

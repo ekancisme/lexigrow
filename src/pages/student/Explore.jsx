@@ -10,20 +10,17 @@ const EDUVIA_COURSES = [
     tag: 'Speaking',
     tagColor: 'green',
     image: '/assets/lexigrow/study-hero.webp',
-    rating: 5,
-    price: '$49',
     title: 'Daily Life & Routines',
-    titleVi: 'Nâng cao kỹ năng giao tiếp tiếng Anh tự tin mỗi ngày',
+    titleVi: 'Sinh hoạt & Giao tiếp hằng ngày',
     level: 'A2',
-    lessons: '24 Lessons',
-    students: '4,800 Students',
     timeEstimate: '10 mins',
-    desc: 'Master essential expressions for daily routines, commuting to work/school, and maintaining high productivity.',
+    desc: 'Master essential expressions for daily routines, commuting to work/school, and organizing daily life.',
+    descVi: 'Nắm vững các mẫu câu và từ vựng thông dụng cho sinh hoạt, đi lại và sắp xếp công việc thường ngày.',
     words: [
       { word: 'routine', meaning: 'Daily habits' },
       { word: 'commute', meaning: 'Travel to work/school' },
       { word: 'productive', meaning: 'High efficiency' },
-      { word: 'efficient', meaning: 'Time-saving' }
+      { word: 'schedule', meaning: 'Daily plan' }
     ]
   },
   {
@@ -31,15 +28,12 @@ const EDUVIA_COURSES = [
     tag: 'Pronunciation',
     tagColor: 'teal',
     image: '/assets/lexigrow/writing-practice.webp',
-    rating: 5,
-    price: '$39',
     title: 'Clear English Pronunciation',
-    titleVi: 'Làm chủ phát âm chuẩn quốc tế cùng hướng dẫn chuyên sâu',
+    titleVi: 'Phát âm chuẩn & Ngữ điệu tự nhiên',
     level: 'A2',
-    lessons: '18 Lessons',
-    students: '3,200 Students',
     timeEstimate: '10 mins',
-    desc: 'Guided phonetics practice, intonation drills, and accent reduction coaching.',
+    desc: 'Guided phonetics practice, syllable stress patterns, and natural spoken intonation coaching.',
+    descVi: 'Luyện phát âm chuẩn bảng ký hiệu IPA, nhấn trọng âm và ngữ điệu tự nhiên khi giao tiếp.',
     words: [
       { word: 'intonation', meaning: 'Pitch modulation' },
       { word: 'articulation', meaning: 'Clear pronunciation' },
@@ -51,19 +45,16 @@ const EDUVIA_COURSES = [
     tag: 'Grammar',
     tagColor: 'green',
     image: '/assets/lexigrow/tutor-guidance.webp',
-    rating: 5,
-    price: '$45',
-    title: 'Grammar in Action',
-    titleVi: 'Hệ thống hóa ngữ pháp tiếng Anh thực hành chuẩn xác',
+    title: 'Grammar in Action & Cohesion',
+    titleVi: 'Ngữ pháp thực hành & Cấu trúc câu',
     level: 'B1',
-    lessons: '30 Lessons',
-    students: '5,600 Students',
     timeEstimate: '12 mins',
-    desc: 'Understand sentence clauses, complex verb tenses, and academic cohesion.',
+    desc: 'Understand sentence clauses, complex verb tenses, and logical cohesion in writing.',
+    descVi: 'Hệ thống hóa ngữ pháp tiếng Anh qua các tình huống thực tế và bài tập viết câu mạch lạc.',
     words: [
       { word: 'conditional', meaning: 'Hypothetical' },
       { word: 'passive', meaning: 'Subject receives action' },
-      { word: 'clause', meaning: 'Grammar unit' }
+      { word: 'cohesion', meaning: 'Logical flow' }
     ]
   },
   {
@@ -71,19 +62,16 @@ const EDUVIA_COURSES = [
     tag: 'Writing',
     tagColor: 'teal',
     image: '/assets/lexigrow/writing-practice.webp',
-    rating: 5,
-    price: '$42',
-    title: 'Academic Writing & Essays',
-    titleVi: 'Luyện viết luận học thuật chuyên sâu và chấm sửa AI',
+    title: 'Academic Writing & IELTS Essays',
+    titleVi: 'Viết luận học thuật & Chấm điểm IELTS',
     level: 'B2',
-    lessons: '20 Lessons',
-    students: '2,750 Students',
     timeEstimate: '15 mins',
-    desc: 'Structured essay templates, topic sentences, and instant 4-criteria IELTS evaluation.',
+    desc: 'Structured essay templates, topic sentences, and instant 4-criteria IELTS evaluation by AI.',
+    descVi: 'Rèn luyện kỹ năng viết luận theo 4 tiêu chí chuẩn IELTS với sự chấm chữa tức thì từ trợ lý AI.',
     words: [
-      { word: 'thesis', meaning: 'Main statement' },
-      { word: 'coherence', meaning: 'Logical flow' },
-      { word: 'counterargument', meaning: 'Opposing view' }
+      { word: 'thesis', meaning: 'Main proposition' },
+      { word: 'coherence', meaning: 'Logical connection' },
+      { word: 'counterargument', meaning: 'Opposing perspective' }
     ]
   },
   {
@@ -91,17 +79,14 @@ const EDUVIA_COURSES = [
     tag: 'Vocabulary',
     tagColor: 'teal',
     image: '/assets/lexigrow/study-group.webp',
-    rating: 5,
-    price: '$35',
-    title: 'Technology & Innovation',
-    titleVi: 'Mở rộng vốn từ vựng phản xạ với phương pháp ghi nhớ SRS',
+    title: 'Technology & Digital Life',
+    titleVi: 'Công nghệ & Đổi mới sáng tạo',
     level: 'B1',
-    lessons: '22 Lessons',
-    students: '4,100 Students',
     timeEstimate: '10 mins',
-    desc: 'Discuss technological innovation, remote collaboration, accessibility, and AI.',
+    desc: 'Discuss technological innovation, digital transformation, accessibility, and practical AI.',
+    descVi: 'Mở rộng vốn từ vựng về trí tuệ nhân tạo, thiết bị số và xu hướng công nghệ tương lai.',
     words: [
-      { word: 'innovation', meaning: 'Groundbreaking' },
+      { word: 'innovation', meaning: 'Groundbreaking idea' },
       { word: 'collaboration', meaning: 'Teamwork' },
       { word: 'accessible', meaning: 'Easy to reach' }
     ]
@@ -111,15 +96,12 @@ const EDUVIA_COURSES = [
     tag: 'Business English',
     tagColor: 'green',
     image: '/assets/editorial/topics/environment.webp',
-    rating: 5,
-    price: '$55',
     title: 'Environment & Sustainability',
-    titleVi: 'Tiếng Anh thương mại cho thuyết trình và đàm phán công việc',
+    titleVi: 'Môi trường & Phát triển bền vững',
     level: 'B2',
-    lessons: '26 Lessons',
-    students: '3,980 Students',
     timeEstimate: '12 mins',
-    desc: 'Discuss biodiversity, climate action, fragile ecosystems, and corporate sustainability.',
+    desc: 'Discuss biodiversity, climate action, ecosystems, and corporate environmental responsibility.',
+    descVi: 'Học ngôn ngữ học thuật về biến đổi khí hậu, bảo tồn hệ sinh thái và phát triển bền vững.',
     words: [
       { word: 'sustainable', meaning: 'Eco-friendly' },
       { word: 'biodiversity', meaning: 'Biological variety' },
@@ -172,7 +154,7 @@ export default function Explore() {
 
   return (
     <div className="eduvia-courses-page">
-      {/* ── BREADCRUMB HERO BANNER (Matching 03_courses.png) ── */}
+      {/* ── BREADCRUMB HERO BANNER ── */}
       <section className="eduvia-page-hero">
         <h1 className="eduvia-page-hero__title">
           {language === 'vi' ? 'Chủ đề & Luyện viết thông minh' : 'Smart Writing & Topics'}
@@ -180,7 +162,7 @@ export default function Explore() {
         <p className="eduvia-page-hero__desc">
           {language === 'vi'
             ? 'Chọn chủ đề bạn muốn rèn luyện, nắm vững từ vựng trọng tâm và chuyển tiếp ngay sang phòng viết luận cùng trợ lý AI LexiGrow.'
-            : 'Select a topic to master target vocabulary and transition into AI-powered Smart Writing.'}
+            : 'Select a topic to master target vocabulary and transition directly into AI-powered Smart Writing.'}
         </p>
         <div className="eduvia-breadcrumbs">
           <Link to="/student/home">{language === 'vi' ? 'Trang chủ' : 'Home'}</Link>
@@ -193,8 +175,12 @@ export default function Explore() {
         {/* ── SECTION HEADER & SEARCH ── */}
         <div className="eduvia-section-header">
           <div>
-            <span className="eduvia-kicker eduvia-kicker--green">{language === 'vi' ? 'Chủ đề nổi bật' : 'Writing Topics'}</span>
-            <h2 className="eduvia-section-title">{language === 'vi' ? 'Chọn chủ đề để học từ & viết luận' : 'Select A Topic To Learn & Write'}</h2>
+            <span className="eduvia-kicker eduvia-kicker--green">
+              {language === 'vi' ? 'Chủ đề nổi bật' : 'Writing Topics'}
+            </span>
+            <h2 className="eduvia-section-title">
+              {language === 'vi' ? 'Chọn chủ đề để học từ & viết luận' : 'Select A Topic To Learn & Write'}
+            </h2>
           </div>
           <div className="eduvia-courses-search">
             <span className="material-symbols-outlined">search</span>
@@ -203,6 +189,7 @@ export default function Explore() {
               placeholder={language === 'vi' ? 'Tìm bài học, chủ đề, từ vựng...' : 'Search courses, topics, vocabulary...'}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              aria-label={language === 'vi' ? 'Tìm kiếm chủ đề' : 'Search topics'}
             />
           </div>
         </div>
@@ -229,7 +216,7 @@ export default function Explore() {
           ))}
         </div>
 
-        {/* ── 6 COURSES GRID ── */}
+        {/* ── 6 TOPICS GRID ── */}
         <div className="eduvia-courses-grid">
           {filteredCourses.map(course => {
             const isDone = completedSlugs.has(course.slug)
@@ -237,16 +224,25 @@ export default function Explore() {
             return (
               <article className="eduvia-course-card" key={course.slug}>
                 <div className="eduvia-course-card__image-wrap">
-                  <img src={course.image} alt="" className="eduvia-course-card__img" loading="lazy" />
+                  <img src={course.image} alt={course.title} className="eduvia-course-card__img" loading="lazy" />
                   <span className={`eduvia-course-card__tag eduvia-course-card__tag--${course.tagColor}`}>
                     {course.tag}
+                  </span>
+                  <span className="eduvia-course-card__level-badge">
+                    {course.level}
                   </span>
                 </div>
 
                 <div className="eduvia-course-card__body">
                   <div className="eduvia-course-card__meta-top">
-                    <div className="eduvia-course-card__stars">★★★★★</div>
-                    <div className="eduvia-course-card__price">{course.price}</div>
+                    <span className="eduvia-course-card__badge-time">
+                      <span className="material-symbols-outlined">schedule</span>
+                      {course.timeEstimate}
+                    </span>
+                    <span className="eduvia-course-card__badge-words">
+                      <span className="material-symbols-outlined">style</span>
+                      {course.words.length} {language === 'vi' ? 'từ vựng' : 'words'}
+                    </span>
                   </div>
 
                   <h3 className="eduvia-course-card__title">
@@ -255,16 +251,9 @@ export default function Explore() {
                     </Link>
                   </h3>
 
-                  <div className="eduvia-course-card__details">
-                    <span className="eduvia-course-card__detail-item">
-                      <span className="material-symbols-outlined eduvia-icon-purple">menu_book</span>
-                      <span>{language === 'vi' ? course.lessons.replace('Lessons', 'Bài học') : course.lessons}</span>
-                    </span>
-                    <span className="eduvia-course-card__detail-item">
-                      <span className="material-symbols-outlined eduvia-icon-teal">person</span>
-                      <span>{language === 'vi' ? course.students.replace('Students', 'Học viên') : course.students}</span>
-                    </span>
-                  </div>
+                  <p className="eduvia-course-card__desc">
+                    {language === 'vi' ? course.descVi : course.desc}
+                  </p>
 
                   {/* Vocabulary preview chips */}
                   <div className="eduvia-course-card__words">
@@ -280,7 +269,8 @@ export default function Explore() {
                     className="eduvia-btn eduvia-btn--navy eduvia-btn--full"
                     onClick={() => navigate(`/student/writing?set=${course.slug}`)}
                   >
-                    {isDone ? (language === 'vi' ? 'Luyện viết lại' : 'Practice Writing Again') : (language === 'vi' ? 'Chọn chủ đề & Viết luận' : 'Select Topic & Write')}
+                    <span>{isDone ? (language === 'vi' ? 'Luyện viết lại' : 'Practice Writing Again') : (language === 'vi' ? 'Chọn chủ đề & Viết luận' : 'Select Topic & Write')}</span>
+                    <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
                   </button>
                 </div>
               </article>
@@ -288,8 +278,8 @@ export default function Explore() {
           })}
         </div>
 
-        {/* ── VIDEO PLAYER BANNER (Matching 03_courses.png) ── */}
-        <section className="eduvia-courses-video-section" style={{ marginTop: 80 }}>
+        {/* ── VIDEO PLAYER BANNER ── */}
+        <section className="eduvia-courses-video-section">
           <div className="eduvia-video-container">
             <img src="/assets/lexigrow/writing-practice.webp" alt={language === 'vi' ? 'Học viên luyện viết tiếng Anh tại bàn học' : 'Learner practising English writing at a study desk'} className="eduvia-video-container__poster" />
             <button type="button" className="eduvia-video-container__play-btn" aria-label="Play video">
@@ -299,7 +289,7 @@ export default function Explore() {
         </section>
 
         {/* ── DARK CTA BANNER ── */}
-        <section className="eduvia-dark-cta" style={{ marginTop: 80 }}>
+        <section className="eduvia-dark-cta">
           <div className="eduvia-dark-cta__inner">
             <span className="eduvia-dark-cta__kicker">{language === 'vi' ? 'Tại sao chọn LexiGrow' : 'Why Choose LexiGrow'}</span>
             <h2>{language === 'vi' ? 'Bắt đầu hành trình bứt phá tiếng Anh cùng LexiGrow' : 'Begin Your English Journey With Confidence'}</h2>

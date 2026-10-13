@@ -6,6 +6,15 @@
   background: var(--color-surface-container-lowest);
   border-bottom: 1px solid var(--color-outline-variant);
 }
+.topnav.topnav--home {
+  background: #F3F5F8 !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+  box-shadow: 0 2px 14px rgba(5, 26, 46, 0.03) !important;
+}
+[data-theme="dark"] .topnav.topnav--home {
+  background: #0f1d2e !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
 .topnav__bar {
   display: flex;
   align-items: center;

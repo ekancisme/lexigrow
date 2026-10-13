@@ -74,8 +74,10 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
     <input type="search" aria-label={searchLabel} placeholder={searchLabel} />
   </label>
 
+  const isHome = location.pathname === '/' || location.pathname === '/student/home'
+
   return (
-    <header ref={headerRef} className="topnav" onKeyDown={event => {
+    <header ref={headerRef} className={`topnav ${isHome ? 'topnav--home' : ''}`} onKeyDown={event => {
       if (event.key === 'Escape' && menuOpen) {
         event.preventDefault()
         onMenuClose()
