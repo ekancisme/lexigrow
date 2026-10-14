@@ -19,6 +19,7 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootDir = path.resolve(__dirname, '..')
 const outDir = path.join(rootDir, 'exports/figma_screens')
+const svgDir = path.join(outDir, 'svg')
 
 const isLocal = process.argv.includes('--local')
 const BASE_URL = isLocal ? 'http://localhost:5173' : 'https://lexigrow.ltcuong24.io.vn'
@@ -177,9 +178,12 @@ Thư mục này chứa toàn bộ các màn hình của hệ thống **LexiGrow*
 
 ## 🎨 Cách 2: Kéo Thả File SVG (Layer Vector + Text chỉnh sửa được - 100% Miễn Phí)
 - **Đặc điểm**: Mọi chữ, button, icon, form đều là **vector và text có thể click sửa trực tiếp trên Figma**, KHÔNG bị giới hạn số lượng, KHÔNG cần plugin.
+- **Vị trí file**:
+  - Thư mục riêng: \`exports/figma_screens/svg/\`
+  - Hoặc giải nén từ file nén: \`exports/figma_screens/LexiGrow_All_Screens_SVG.zip\`
 - **Các bước thực hiện**:
   1. Mở Figma.
-  2. Mở thư mục \`exports/figma_screens/\`.
+  2. Mở thư mục con \`exports/figma_screens/svg/\`.
   3. Chọn các file \`.svg\` (ví dụ: \`01_Public_LandingPage.svg\`, \`09_Student_Home.svg\`,...).
   4. **Kéo thả trực tiếp vào Figma**.
   5. Figma tự động mở các layer vector, text, thẻ màu để bạn thoải mái chỉnh sửa chữ, đổi màu nút, dời vị trí components.
@@ -209,6 +213,9 @@ async function run() {
 
   if (!fs.existsSync(outDir)) {
     fs.mkdirSync(outDir, { recursive: true })
+  }
+  if (!fs.existsSync(svgDir)) {
+    fs.mkdirSync(svgDir, { recursive: true })
   }
 
   exportDesignTokens()
@@ -346,7 +353,7 @@ async function run() {
           }
         })
         if (svgContent) {
-          const svgPath = path.join(outDir, `${item.id}.svg`)
+          const svgPath = path.join(svgDir, `${item.id}.svg`)
           fs.writeFileSync(svgPath, svgContent, 'utf8')
         }
       } catch {}

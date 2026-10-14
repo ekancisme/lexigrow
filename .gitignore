@@ -48,4 +48,5 @@ server/scripts/seedRoleProAccounts.js
 # Exported figma screens (regenerate via npm run export:figma)
 exports/**/*.png
 exports/**/*.svg
+exports/**/*.zip
 exports/**/*.figma.json

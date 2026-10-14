@@ -22,10 +22,13 @@ Thư mục này chứa toàn bộ các màn hình của hệ thống **LexiGrow*
 
 ## 🎨 Cách 2: Kéo Thả File SVG (Layer Vector + Text chỉnh sửa được - 100% Miễn Phí)
 - **Đặc điểm**: Mọi chữ, button, icon, form đều là **vector và text có thể click sửa trực tiếp trên Figma**, KHÔNG bị giới hạn số lượng, KHÔNG cần plugin.
+- **Vị trí lưu file**:
+  - Thư mục riêng: [`exports/figma_screens/svg/`](file:///home/youngltc/Documents/Coding/LexiYoungLTC/LexiGrow/exports/figma_screens/svg/)
+  - Hoặc file nén trọn bộ: [`exports/figma_screens/LexiGrow_All_Screens_SVG.zip`](file:///home/youngltc/Documents/Coding/LexiYoungLTC/LexiGrow/exports/figma_screens/LexiGrow_All_Screens_SVG.zip)
 - **Các bước thực hiện**:
   1. Mở Figma.
-  2. Mở thư mục `exports/figma_screens/`.
-  3. Chọn các file `.svg` (ví dụ: `01_Public_LandingPage.svg`, `09_Student_Home.svg`,...).
+  2. Mở thư mục con [`exports/figma_screens/svg/`](file:///home/youngltc/Documents/Coding/LexiYoungLTC/LexiGrow/exports/figma_screens/svg/).
+  3. Chọn các file `.svg` (ví dụ: `01_Public_LandingPage.svg`, `09_Student_Home.svg`, `31_Teacher_Dashboard.svg`,...).
   4. **Kéo thả trực tiếp vào Figma**.
   5. Figma tự động mở các layer vector, text, thẻ màu để bạn thoải mái chỉnh sửa chữ, đổi màu nút, dời vị trí components.
 
