@@ -151,40 +151,44 @@ function exportDesignTokens() {
 }
 
 function createReadmeInstructions() {
-  const tableRows = SCREENS.map(s => `| \`${s.id}.png\` | ${s.role.toUpperCase()} | \`${s.path}\` | ${s.title} |`).join('\n')
+  const tableRows = SCREENS.map(s => `| \`${s.id}.png\` / \`${s.id}.svg\` | ${s.role.toUpperCase()} | \`${s.path}\` | ${s.title} |`).join('\n')
 
-  const readmeContent = `# Hướng Dẫn Đưa Toàn Bộ Giao Diện LexiGrow Lên Figma
+  const readmeContent = `# Hướng Dẫn Đưa Toàn Bộ Giao Diện LexiGrow Lên Figma (100% Miễn Phí)
 
-Thư mục này chứa toàn bộ các màn hình của hệ thống **LexiGrow** được trích xuất tự động từ ứng dụng thực tế với độ phân giải siêu nét **2x Retina**.
+Thư mục này chứa toàn bộ các màn hình của hệ thống **LexiGrow** được trích xuất tự động từ ứng dụng thực tế.
 
----
-
-## 🚀 Cách 1: Kéo Thả Trực Tiếp Vào Figma (Nhanh nhất - Chỉ mất 10 giây)
-
-1. Mở Figma (trên trình duyệt web hoặc ứng dụng máy tính) và tạo một file mới (**New design file**).
-2. Mở thư mục này trên máy tính của bạn: \`exports/figma_screens/\`.
-3. Nhấn \`Ctrl + A\` chọn toàn bộ các file ảnh \`.png\`.
-4. **Kéo thả trực tiếp vào khung vẽ Figma**.
-5. Figma sẽ tự động dàn đều toàn bộ các màn hình thành các Artboard chuẩn nét sắc sảo!
-6. *(Tạo Prototype tương tác)*: Chuyển sang tab **Prototype** ở cột bên phải Figma và kéo mũi tên nối giữa các nút bấm để tạo bản demo tương tác hoàn chỉnh.
+> ⚠️ **LƯU Ý QUAN TRỌNG VỀ PLUGIN TRẢ PHÍ**:
+> Các extension / plugin như **html.to.design** là dịch vụ thương mại có phí (giới hạn ~10 file/tháng và đòi file \`.h2d\`).
+> **BẠN HOÀN TOÀN KHÔNG CẦN CÀI EXTENSION HAY MUA GÓI NÀY!** Hãy làm theo các cách miễn phí 100% dưới đây:
 
 ---
 
-## 🎨 Cách 2: Biến Thành Layer Có Thể Chỉnh Sửa (.figma.json)
-
-Nếu bạn muốn chỉnh sửa chữ, đổi màu icon, chỉnh layout từng nút bấm dạng vector:
-1. Trong file Figma, nhấn phím tắt \`Ctrl + /\` (hoặc mở menu **Plugins**).
-2. Tìm plugin miễn phí: **Builder.io (Figma to Code / HTML to Figma)** hoặc **HTML to Design**.
-3. Chọn tab **Import JSON / Upload File**.
-4. Chọn file \`.figma.json\` tương ứng với màn hình bạn muốn chỉnh sửa.
-5. Plugin sẽ tự động vẽ lại cây layer Vector, Text, Button, Form chuẩn 100% theo code.
+## 🚀 Cách 1: Kéo Thả Trực Tiếp Ảnh PNG (Nhanh nhất - 10 giây)
+- **Đặc điểm**: Nhanh, chuẩn nét 2x Retina, không cần bất kỳ plugin nào.
+- **Các bước thực hiện**:
+  1. Mở file mới trên **Figma** (Web hoặc App).
+  2. Mở thư mục này trên máy tính: \`exports/figma_screens/\`.
+  3. Chọn tất cả các file \`.png\` (nhấn \`Ctrl + A\`).
+  4. **Kéo thả chuột trực tiếp vào khung vẽ Figma** (hoặc dùng phím tắt \`Ctrl + Shift + K\` > chọn các file PNG).
+  5. Figma sẽ tự động dàn đều toàn bộ các màn hình thành các Artboard chuẩn nét!
+  6. Sang tab **Prototype** kéo mũi tên giữa các nút để chạy demo tương tác.
 
 ---
 
-## 💎 Cách 3: Đồng Bộ Bảng Màu & Tokens Vào Figma Variables
+## 🎨 Cách 2: Kéo Thả File SVG (Layer Vector + Text chỉnh sửa được - 100% Miễn Phí)
+- **Đặc điểm**: Mọi chữ, button, icon, form đều là **vector và text có thể click sửa trực tiếp trên Figma**, KHÔNG bị giới hạn số lượng, KHÔNG cần plugin.
+- **Các bước thực hiện**:
+  1. Mở Figma.
+  2. Mở thư mục \`exports/figma_screens/\`.
+  3. Chọn các file \`.svg\` (ví dụ: \`01_Public_LandingPage.svg\`, \`09_Student_Home.svg\`,...).
+  4. **Kéo thả trực tiếp vào Figma**.
+  5. Figma tự động mở các layer vector, text, thẻ màu để bạn thoải mái chỉnh sửa chữ, đổi màu nút, dời vị trí components.
 
+---
+
+## 💎 Cách 3: Đồng Bộ Bảng Màu & Typography Vào Figma Variables
 1. File \`00_LexiGrow_Design_Tokens.json\` chứa toàn bộ bảng màu chuẩn Eduvia Design System (\`#051A2E\`, \`#1CB886\`, \`#9E89FB\`,...).
-2. Mở plugin **Tokens Studio for Figma** (miễn phí) trong Figma.
+2. Mở plugin miễn phí **Tokens Studio for Figma** trong Figma.
 3. Chọn **Load Tokens** > Chọn file \`00_LexiGrow_Design_Tokens.json\`.
 4. Toàn bộ bảng màu và typography sẽ xuất hiện tự động trong Figma Variables!
 
@@ -283,6 +287,8 @@ async function run() {
       console.warn(`   ⚠️ Ngoại lệ đăng nhập [${role}]: ${loginErr.message}`)
     }
 
+    await new Promise(r => setTimeout(r, 1200))
+
     contexts[role] = { ctx, page }
     return { ctx, page }
   }
@@ -295,7 +301,12 @@ async function run() {
       const { page } = await getContextForRole(item.role)
       const targetUrl = `${BASE_URL}${item.path}`
 
-      await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 30000 })
+      try {
+        await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 30000 })
+      } catch {
+        await new Promise(r => setTimeout(r, 1200))
+        await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 30000 })
+      }
 
       // Custom action if specified (e.g. advance to step 2 practice)
       if (item.customAction === 'step2_practice') {
@@ -322,7 +333,25 @@ async function run() {
       const pngPath = path.join(outDir, `${item.id}.png`)
       await page.screenshot({ path: pngPath, fullPage: true })
 
-      // 2. Extract Figma Node JSON layer tree (if htmlToFigma bundle available)
+      // 2. Save Native Vector SVG (100% Free, drag-and-drop editable vector/text into Figma)
+      try {
+        const svgContent = await page.evaluate(async () => {
+          try {
+            const { documentToSVG, inlineResources } = await import('https://esm.sh/dom-to-svg')
+            const svgDoc = documentToSVG(document)
+            await inlineResources(svgDoc.documentElement)
+            return new XMLSerializer().serializeToString(svgDoc)
+          } catch {
+            return null
+          }
+        })
+        if (svgContent) {
+          const svgPath = path.join(outDir, `${item.id}.svg`)
+          fs.writeFileSync(svgPath, svgContent, 'utf8')
+        }
+      } catch {}
+
+      // 3. Extract Figma Node JSON layer tree (if htmlToFigma bundle available)
       if (hasHtmlToFigmaBundle) {
         try {
           await page.addScriptTag({ path: htmlToFigmaBundlePath })
@@ -340,7 +369,7 @@ async function run() {
         }
       }
 
-      console.log(`   ✅ Đã xuất: ${item.id}.png`)
+      console.log(`   ✅ Đã xuất: ${item.id}.png & .svg`)
       successCount++
     } catch (err) {
       console.error(`   ❌ Lỗi khi xuất [${item.id}]:`, err.message)
