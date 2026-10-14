@@ -837,61 +837,6 @@ export default function AIFeedbackReview({
                   )}
                 </div>
 
-                {/* AI Writing Detection Status (AI-13: Separated with confidence and source) */}
-                <div style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: 8,
-                  padding: '16px',
-                  borderRadius: '12px',
-                  backgroundColor: 'var(--color-surface-container-low)',
-                  border: '1px solid var(--color-outline-variant)'
-                }}>
-                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>AI Writing Detector (Supportive)</span>
-                  {analysis.aiWritingDetails?.isAI ? (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
-                      <span style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        padding: '6px 12px',
-                        borderRadius: '20px',
-                        backgroundColor: 'rgba(245, 158, 11, 0.15)',
-                        color: '#b45309',
-                        fontSize: '13px',
-                        fontWeight: 700,
-                        alignSelf: 'flex-start'
-                      }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>smart_toy</span>
-                        AI markers detected ({Math.round((analysis.aiWritingDetails.confidence || analysis.aiWritingDetails.score || 0) * 100)}%)
-                      </span>
-                      <span style={{ fontSize: '11px', color: 'var(--color-outline)', textAlign: 'left' }}>
-                        Source: {analysis.aiWritingDetails.source || 'Heuristic'}. Indicative aid only, not definitive plagiarism.
-                      </span>
-                    </div>
-                  ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, alignItems: 'flex-start' }}>
-                      <span style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: 6,
-                        padding: '6px 12px',
-                        borderRadius: '20px',
-                        backgroundColor: 'rgba(22, 163, 74, 0.1)',
-                        color: 'var(--color-success)',
-                        fontSize: '13px',
-                        fontWeight: 700,
-                        alignSelf: 'flex-start'
-                      }}>
-                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check_circle</span>
-                        No AI markers flagged
-                      </span>
-                      <span style={{ fontSize: '11px', color: 'var(--color-outline)', textAlign: 'left' }}>
-                        Heuristic scan found no strong AI indicators. (Indicative check only; not proof of human authorship.)
-                      </span>
-                    </div>
-                  )}
-                </div>
 
                 {/* Learning Trajectory Status */}
                 <div style={{ 
