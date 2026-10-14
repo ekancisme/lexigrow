@@ -991,3 +991,54 @@ export function getTopicRound(slug, roundNumber = 1) {
   const idx = Math.max(0, (roundNumber - 1) % rounds.length)
   return rounds[idx]
 }
+
+/**
+ * Helper to identify the active vocabulary round based on the session's target words.
+ * Prevents prompt mismatch when student advances to Round 2 or 3 of a topic.
+ */
+export function findTopicRoundByWords(slug, targetWords = []) {
+  if (!targetWords || !targetWords.length) return null
+  const wordList = targetWords
+    .map((w) => (typeof w === 'string' ? w : w?.word || '').trim().toLowerCase())
+    .filter(Boolean)
+  if (!wordList.length) return null
+
+  // 1. Search within the specified topic slug first
+  const rounds = TOPIC_VOCABULARY_ROUNDS[slug] || []
+  let bestMatch = null
+  let maxOverlap = 0
+
+  for (const r of rounds) {
+    const rWords = (r.words || []).map((rw) => (rw.word || '').toLowerCase())
+    const overlap = wordList.filter((w) => rWords.includes(w)).length
+    if (overlap > maxOverlap) {
+      maxOverlap = overlap
+      bestMatch = r
+    }
+  }
+
+  const threshold = Math.min(2, wordList.length)
+  if (bestMatch && maxOverlap >= threshold) {
+    return bestMatch
+  }
+
+  // 2. Fallback: Search all topics if not matched under specified slug
+  for (const [topicSlug, topicRounds] of Object.entries(TOPIC_VOCABULARY_ROUNDS)) {
+    if (topicSlug === slug) continue
+    for (const r of topicRounds) {
+      const rWords = (r.words || []).map((rw) => (rw.word || '').toLowerCase())
+      const overlap = wordList.filter((w) => rWords.includes(w)).length
+      if (overlap > maxOverlap) {
+        maxOverlap = overlap
+        bestMatch = { ...r, matchedTopicSlug: topicSlug }
+      }
+    }
+  }
+
+  if (bestMatch && maxOverlap >= threshold) {
+    return bestMatch
+  }
+
+  return null
+}
+

@@ -998,7 +998,7 @@
     "draftLocal": "Draft saved in this browser",
     "draftUnsaved": "Preparing to save draft…",
     "draftSyncError": "Could not sync draft to server. Saved safely on this browser.",
-    "writePlaceholder": "Start writing your paragraph in English here... (e.g. Every morning, my daily routine starts at 6:30 AM...)",
+    "writePlaceholder": "Start writing your paragraph in English here (60–100 words)...",
     "wordCountValidation": "Please write 60–100 words before submitting for AI analysis.",
     "sessionOffline": "The learning session is offline. Your draft is saved in this browser; reconnect and start the session again before submitting for AI feedback.",
     "practiceTitleMC": "What is the accurate meaning of \"{word}\"?",

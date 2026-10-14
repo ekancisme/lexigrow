@@ -9,7 +9,7 @@ import PracticeStep from '../../components/learning/PracticeStep'
 import RevisionComparison from '../../components/learning/RevisionComparison'
 import SessionCompletionModal from '../../components/learning/SessionCompletionModal'
 import AIFeedbackReview from './AIFeedbackReview'
-import { getTopicRound, TOPIC_VOCABULARY_ROUNDS } from '../../data/topicVocabularyRounds.js'
+import { getTopicRound, findTopicRoundByWords, TOPIC_VOCABULARY_ROUNDS } from '../../data/topicVocabularyRounds.js'
 import './LearningSession.css'
 
 const readStoredDraft = (key) => {
@@ -535,63 +535,68 @@ export default function LearningSession() {
             if (typeof localDraft?.content === 'string') setEssayContent(localDraft.content)
           }
           if (payload.currentStep) setCurrentStep(payload.currentStep)
+
+          const slug = payload.learningSetSlug || payload.learningSet?.slug || setSlug
+          const preset = defaultLearningSets[slug]
+          const isAdaptiveSession = payload.sessionType === 'adaptive_recommendation' || (!slug && adaptive)
+
+          const rawTargetWords = payload.targetWords || payload.learningSet?.words || []
+          const matchedRound = findTopicRoundByWords(slug, rawTargetWords) || (roundParam ? getTopicRound(slug, roundParam) : null)
+
+          let title = isAdaptiveSession
+            ? 'Adaptive Learning Session'
+            : (matchedRound?.name || preset?.title || (payload.theme ? `${payload.theme} Session` : 'Smart Writing Session'))
+
+          let promptTopic = payload.promptTopic ||
+            payload.snapshot?.promptTopic ||
+            matchedRound?.promptTopic ||
+            (payload.snapshot?.rationale && payload.snapshot?.rationale !== 'Published learning set'
+              ? payload.snapshot.rationale
+              : (preset?.promptTopic || 'Write a short paragraph (60–100 words) incorporating the target words into your writing.'))
+
           if (payload.learningSet?.words) {
-            const slug = payload.learningSetSlug || payload.learningSet.slug || setSlug
             setLearningSet({
               ...payload.learningSet,
+              title: matchedRound?.name || payload.learningSet.title || title,
+              promptTopic,
               words: enrichLessonWords(payload.learningSet.words, slug, payload.learningSet.level || payload.level),
             })
-          } else {
-            const slug = payload.learningSetSlug || setSlug
-            const preset = defaultLearningSets[slug]
-
-            const isAdaptiveSession = payload.sessionType === 'adaptive_recommendation' || (!slug && adaptive)
-
-            let title = isAdaptiveSession
-              ? 'Adaptive Learning Session'
-              : (preset?.title || (payload.theme ? `${payload.theme} Session` : 'Smart Writing Session'))
-
-            let promptTopic = preset?.promptTopic
-            if (!promptTopic) {
-              const rationale = payload.snapshot?.rationale
-              if (rationale && rationale !== 'Published learning set') {
-                promptTopic = rationale
-              } else {
-                promptTopic = 'Write a short paragraph (60–100 words) incorporating the target words into your writing.'
-              }
-            }
-
-            if (payload.targetWords?.length) {
-              const mappedWords = enrichLessonWords(payload.targetWords, slug, payload.level || preset?.level)
+          } else if (payload.targetWords?.length) {
+            const mappedWords = enrichLessonWords(payload.targetWords, slug, payload.level || preset?.level)
+            setLearningSet({
+              title,
+              level: payload.level || preset?.level || 'B1',
+              promptTopic,
+              words: mappedWords,
+            })
+          } else if (preset) {
+            const roundData = matchedRound || getTopicRound(slug, roundParam)
+            if (roundData) {
               setLearningSet({
-                title,
-                level: payload.level || preset?.level || 'B1',
-                promptTopic,
-                words: mappedWords,
+                title: roundData.name || title,
+                level: preset.level || 'B1',
+                promptTopic: roundData.promptTopic || promptTopic,
+                words: roundData.words,
               })
-            } else if (preset) {
-              const roundData = getTopicRound(slug, roundParam)
-              if (roundData) {
-                setLearningSet({
-                  title: roundData.name || title,
-                  level: preset.level || 'B1',
-                  promptTopic: roundData.promptTopic || promptTopic,
-                  words: roundData.words,
-                })
-              } else {
-                setLearningSet(preset)
-              }
+            } else {
+              setLearningSet(preset)
             }
           }
 
-          // Keep browser URL aligned with active session so refreshing retains the correct session
+          // Keep browser URL aligned with active session so refreshing retains the correct session & round
           if (payload.sessionType === 'adaptive_recommendation') {
             if (!searchParams.get('adaptive')) {
               navigate('/student/writing?adaptive=true', { replace: true })
             }
-          } else if (payload.learningSetSlug && searchParams.get('set') !== payload.learningSetSlug) {
-            const roundQuery = roundParam > 1 ? `&round=${roundParam}` : ''
-            navigate(`/student/writing?set=${payload.learningSetSlug}${roundQuery}`, { replace: true })
+          } else if (payload.learningSetSlug) {
+            const currentSet = searchParams.get('set')
+            const currentRound = searchParams.get('round')
+            const activeRound = matchedRound?.round || payload.round || payload.snapshot?.round || (roundParam > 1 ? roundParam : 1)
+            const expectedRoundStr = activeRound > 1 ? String(activeRound) : null
+            if (currentSet !== payload.learningSetSlug || (expectedRoundStr && currentRound !== expectedRoundStr)) {
+              const roundQuery = activeRound > 1 ? `&round=${activeRound}` : ''
+              navigate(`/student/writing?set=${payload.learningSetSlug}${roundQuery}`, { replace: true })
+            }
           }
         }
       } catch {
@@ -850,12 +855,19 @@ export default function LearningSession() {
         if (payload.currentStep) setCurrentStep(payload.currentStep)
         const slug = payload.learningSetSlug
         const preset = defaultLearningSets[slug]
+        const isAdaptive = payload.sessionType === 'adaptive_recommendation'
 
-        let title = payload.sessionType === 'adaptive_recommendation'
+        const rawTargetWords = payload.targetWords || payload.learningSet?.words || []
+        const matchedRound = findTopicRoundByWords(slug, rawTargetWords)
+
+        let title = isAdaptive
           ? 'Adaptive Learning Session'
-          : (preset?.title || (payload.theme ? `${payload.theme} Session` : 'Smart Writing Session'))
+          : (matchedRound?.name || preset?.title || (payload.theme ? `${payload.theme} Session` : 'Smart Writing Session'))
 
-        let promptTopic = preset?.promptTopic || (payload.snapshot?.rationale || 'Write a short paragraph (60–100 words) incorporating the target words into your writing.')
+        let promptTopic = payload.promptTopic ||
+          payload.snapshot?.promptTopic ||
+          matchedRound?.promptTopic ||
+          (payload.snapshot?.rationale || preset?.promptTopic || 'Write a short paragraph (60–100 words) incorporating the target words into your writing.')
 
         if (payload.targetWords?.length) {
           const mappedWords = enrichLessonWords(payload.targetWords, slug, payload.level || preset?.level)
@@ -866,13 +878,25 @@ export default function LearningSession() {
             words: mappedWords,
           })
         } else if (preset) {
-          setLearningSet(preset)
+          const roundData = matchedRound || getTopicRound(slug, 1)
+          if (roundData) {
+            setLearningSet({
+              title: roundData.name || title,
+              level: preset.level || 'B1',
+              promptTopic: roundData.promptTopic || promptTopic,
+              words: roundData.words,
+            })
+          } else {
+            setLearningSet(preset)
+          }
         }
 
-        if (payload.sessionType === 'adaptive_recommendation') {
+        if (isAdaptive) {
           navigate('/student/writing?adaptive=true', { replace: true })
         } else if (slug) {
-          navigate(`/student/writing?set=${slug}`, { replace: true })
+          const activeRound = matchedRound?.round || payload.round || payload.snapshot?.round || 1
+          const roundQuery = activeRound > 1 ? `&round=${activeRound}` : ''
+          navigate(`/student/writing?set=${slug}${roundQuery}`, { replace: true })
         }
       }
     } catch (err) {

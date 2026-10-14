@@ -998,7 +998,7 @@
     "draftLocal": "Bản nháp được lưu trên trình duyệt này",
     "draftUnsaved": "Đang chuẩn bị lưu bản nháp…",
     "draftSyncError": "Chưa thể đồng bộ nháp lên server. Bản nháp vẫn được lưu an toàn trên trình duyệt này.",
-    "writePlaceholder": "Bắt đầu viết đoạn văn tiếng Anh của bạn tại đây... (Ví dụ: Every morning, my daily routine starts at 6:30 AM...)",
+    "writePlaceholder": "Bắt đầu viết đoạn văn tiếng Anh của bạn tại đây (60–100 từ)...",
     "wordCountValidation": "Vui lòng viết từ 60–100 từ trước khi gửi chấm AI.",
     "sessionOffline": "Phiên học đang ngoại tuyến. Bản nháp đã được lưu trên trình duyệt; vui lòng kết nối lại để gửi chấm AI.",
     "practiceTitleMC": "Nghĩa chính xác của \"{word}\" là gì?",
