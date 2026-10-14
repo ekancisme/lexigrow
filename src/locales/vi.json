@@ -1058,6 +1058,7 @@
     "sessionDuration": "Cấp độ {level} · Phiên học 10 phút",
     "gradingTitle": "AI Agent đang chấm bài & phân tích chi tiết...",
     "gradingSubtitle": "Vui lòng đợi trong giây lát, chuyên gia AI đang đánh giá toàn diện bài viết theo rubric chuẩn CEFR. Kết quả sẽ tự động hiển thị ngay khi hoàn tất!",
+    "gradingTimerLabel": "Thời gian chấm bài:",
     "gradingProgress": "Tiến trình chấm điểm AI",
     "gradingProcessing": "Đang xử lý",
     "gradingComplete": "Đã hoàn tất",

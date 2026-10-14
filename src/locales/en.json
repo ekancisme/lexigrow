@@ -1058,6 +1058,7 @@
     "sessionDuration": "Level {level} · 10-Minute Session",
     "gradingTitle": "AI Agent is Evaluating & Analyzing Your Essay...",
     "gradingSubtitle": "Please wait a moment while the AI evaluates your essay against CEFR rubrics. Results will appear automatically once complete!",
+    "gradingTimerLabel": "Evaluation Time:",
     "gradingProgress": "AI Evaluation Progress",
     "gradingProcessing": "In progress",
     "gradingComplete": "Completed",

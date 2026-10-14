@@ -351,6 +351,20 @@ const defaultLearningSets = {
 
 function AIGradingProgress({ stage = 1, progress = 15 }) {
   const { t } = useLanguage()
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setElapsedSeconds((prev) => prev + 1)
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [])
+
+  const formatTime = (totalSeconds) => {
+    const minutes = Math.floor(totalSeconds / 60)
+    const seconds = totalSeconds % 60
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+  }
 
   const stages = [
     {
@@ -396,6 +410,16 @@ function AIGradingProgress({ stage = 1, progress = 15 }) {
         <p className="ai-grading-loader__subtitle">
           {t('learning.gradingSubtitle', 'Vui lòng đợi trong giây lát, chuyên gia AI đang đánh giá toàn diện bài viết theo rubric chuẩn CEFR. Kết quả sẽ tự động hiển thị ngay khi hoàn tất!')}
         </p>
+
+        {/* Live Timer Badge */}
+        <div className="ai-grading-loader__timer" aria-live="polite">
+          <span className="material-symbols-outlined ai-grading-loader__timer-icon animate-pulse">timer</span>
+          <span className="ai-grading-loader__timer-label">
+            {t('learning.gradingTimerLabel', 'Thời gian chấm bài:')}
+          </span>
+          <span className="ai-grading-loader__timer-val">{formatTime(elapsedSeconds)}</span>
+          <span className="ai-grading-loader__timer-sec">({elapsedSeconds}s)</span>
+        </div>
 
         {/* Progress Bar */}
         <div className="ai-grading-loader__bar-container">

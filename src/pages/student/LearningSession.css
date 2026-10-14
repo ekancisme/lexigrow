@@ -627,7 +627,43 @@
   font-size: 14px;
   color: var(--color-on-surface-variant, #64748b);
   line-height: 1.5;
-  margin: 0 0 20px 0;
+  margin: 0 0 16px 0;
+}
+
+.ai-grading-loader__timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--color-surface-container-low, #f1f5f9);
+  border: 1px solid var(--color-outline-variant, #e2e8f0);
+  border-radius: 9999px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--color-on-surface-variant, #475569);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.ai-grading-loader__timer-icon {
+  font-size: 18px;
+  color: var(--color-primary, #051A2E);
+}
+
+.ai-grading-loader__timer-label {
+  font-weight: 500;
+}
+
+.ai-grading-loader__timer-val {
+  font-family: var(--font-mono, 'JetBrains Mono', 'Fira Code', monospace);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--color-primary, #051A2E);
+}
+
+.ai-grading-loader__timer-sec {
+  font-size: 12px;
+  color: var(--color-on-surface-variant, #64748b);
+  opacity: 0.9;
 }
 
 .ai-grading-loader__bar-container {
@@ -880,4 +916,22 @@
 [data-theme='dark'] .ai-grading-loader__step--current .ai-grading-loader__step-desc,
 [data-theme='dark'] .ai-grading-loader__step--done .ai-grading-loader__step-desc {
   color: var(--color-on-surface-variant, #cbd5e1);
+}
+
+[data-theme='dark'] .ai-grading-loader__timer {
+  background: var(--color-surface-container-low, #1e293b);
+  border-color: var(--color-outline-variant, #334155);
+  color: var(--color-on-surface-variant, #cbd5e1);
+}
+
+[data-theme='dark'] .ai-grading-loader__timer-icon {
+  color: var(--eduvia-purple, #9E89FB);
+}
+
+[data-theme='dark'] .ai-grading-loader__timer-val {
+  color: var(--eduvia-purple, #9E89FB);
+}
+
+[data-theme='dark'] .ai-grading-loader__timer-sec {
+  color: var(--color-on-surface-variant, #94a3b8);
 }
