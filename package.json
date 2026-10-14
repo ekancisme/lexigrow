@@ -8,7 +8,8 @@
     "build": "vite build",
     "lint": "eslint src server/src server/tests",
     "lint:all": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "export:figma": "node scripts/export_screens_to_figma.mjs"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
@@ -27,6 +28,7 @@
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
+    "@builder.io/html-to-figma": "^0.0.3",
     "@eslint/js": "^10.0.1",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -35,6 +37,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
+    "puppeteer-core": "^25.13.0",
     "vite": "^8.0.12"
   },
   "overrides": {
