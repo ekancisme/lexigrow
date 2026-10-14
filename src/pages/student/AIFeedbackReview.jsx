@@ -5,6 +5,7 @@ import './AIFeedbackReview.css'
 import EssayDiscussion from '../../components/common/EssayDiscussion.jsx'
 import ShimmerSkeleton from '../../components/common/ShimmerSkeleton.jsx'
 import { sanitizeHtml } from '../../utils/sanitizeHtml.js'
+import { getSocket, connectSocket } from '../../services/socket.js'
 
 export default function AIFeedbackReview({
   essayId: propEssayId,
@@ -152,12 +153,43 @@ export default function AIFeedbackReview({
 
     fetchAnalysis()
 
-    // Poll every 5 seconds if still analyzing
-    intervalId = setInterval(fetchAnalysis, 5000)
+    // Real-time notification: listen for completion event from backend socket
+    const socket = getSocket() || connectSocket()
+
+    const handleAnalysisCompleted = (payload) => {
+      if (!isCurrent) return
+      if (!payload || !payload.essayId || String(payload.essayId) === String(essayId)) {
+        fetchAnalysis()
+      }
+    }
+
+    const handleAnalysisUpdated = (payload) => {
+      if (!isCurrent) return
+      if (payload && payload.essayId && String(payload.essayId) === String(essayId)) {
+        // Silently refresh analysis data to pick up enriched background synonyms
+        api.get(`/essays/${essayId}/analysis`).then((res) => {
+          if (isCurrent && res.data) {
+            setAnalysis(res.data)
+          }
+        }).catch(() => {})
+      }
+    }
+
+    if (socket) {
+      socket.on('essay_analysis_completed', handleAnalysisCompleted)
+      socket.on('essay_analysis_updated', handleAnalysisUpdated)
+    }
+
+    // Fallback polling every 3 seconds if socket is unavailable or reconnecting
+    intervalId = setInterval(fetchAnalysis, 3000)
 
     return () => {
       isCurrent = false
       if (intervalId) clearInterval(intervalId)
+      if (socket) {
+        socket.off('essay_analysis_completed', handleAnalysisCompleted)
+        socket.off('essay_analysis_updated', handleAnalysisUpdated)
+      }
     }
   }, [essayId])
 
