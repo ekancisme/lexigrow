@@ -23,7 +23,7 @@
 
 .practice-step__progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--color-primary, #051A2E) 0%, var(--color-primary-container, #1a73e8) 100%);
+  background: linear-gradient(90deg, var(--color-primary, #005bbf) 0%, var(--color-primary-container, #1a73e8) 100%);
   border-radius: 999px;
   transition: width 0.3s ease;
 }
@@ -81,7 +81,7 @@
   padding: 6px 12px;
   border-radius: 8px;
   background: var(--color-surface-container-high, #e0e7ff);
-  color: var(--color-primary, #051A2E);
+  color: var(--color-primary, #005bbf);
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
@@ -147,7 +147,7 @@
 }
 
 .practice-step__option-btn:hover:not(:disabled) {
-  border-color: var(--color-primary, #051A2E);
+  border-color: var(--color-primary, #005bbf);
   background: var(--color-surface-container-low, #f8fafc);
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
@@ -263,3 +263,240 @@
   display: flex;
   justify-content: flex-start;
 }
+
+/* Header actions & Refresh Button */
+.practice-step__header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.practice-step__btn-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-outline-variant, #cbd5e1);
+  color: var(--color-primary, #005bbf);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.practice-step__btn-refresh:hover:not(:disabled) {
+  background: var(--color-primary-container, #eff6ff);
+  border-color: var(--color-primary, #005bbf);
+  transform: translateY(-1px);
+}
+
+.practice-step__btn-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.practice-step__btn-refresh .material-symbols-outlined {
+  font-size: 16px;
+}
+
+/* Badge Row & AI Pill */
+.practice-step__type-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.practice-step__ai-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #7c3aed;
+  background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+  border: 1px solid #ddd6fe;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+
+.practice-step__ai-pill .material-symbols-outlined {
+  font-size: 15px;
+  color: #8b5cf6;
+}
+
+/* Blank Slot & Interactive Fill */
+.practice-step__blank-slot {
+  display: inline-flex;
+  align-items: center;
+  margin: 0 4px;
+  vertical-align: middle;
+}
+
+.practice-step__blank-indicator {
+  display: inline-block;
+  padding: 2px 10px;
+  border-bottom: 2px dashed var(--color-primary, #005bbf);
+  background: rgba(0, 91, 191, 0.06);
+  border-radius: 4px;
+  color: var(--color-primary, #005bbf);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.practice-step__filled-word {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  animation: pop-in 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.practice-step__filled-word--correct {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.practice-step__filled-word--wrong {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+  text-decoration: line-through;
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* AI Loader Screen */
+.practice-step__ai-loader {
+  padding: 48px 32px;
+  border-radius: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-outline-variant, #e2e8f0);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+}
+
+.practice-step__ai-sparkle {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
+  color: #7c3aed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.practice-step__ai-sparkle .material-symbols-outlined {
+  font-size: 30px;
+}
+
+.practice-step__ai-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-on-surface, #0f172a);
+  margin: 0;
+}
+
+.practice-step__ai-desc {
+  font-size: 14px;
+  color: var(--color-outline, #64748b);
+  max-width: 440px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.practice-step__skeleton-bar {
+  width: 220px;
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+
+.practice-step__skeleton-fill {
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(90deg, #7c3aed, #a855f7);
+  border-radius: 999px;
+  animation: shimmer 1.4s infinite ease-in-out;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(300%); }
+}
+
+.spinning {
+  animation: spin 1.2s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ── Dark Theme Overrides ── */
+[data-theme='dark'] .practice-step__card,
+[data-theme='dark'] .practice-step__ai-loader {
+  background: var(--color-surface-container-lowest, #1e293b);
+  border-color: var(--color-outline-variant, #334155);
+}
+
+[data-theme='dark'] .practice-step__title,
+[data-theme='dark'] .practice-step__ai-title {
+  color: var(--color-on-surface, #f8fafc);
+}
+
+[data-theme='dark'] .practice-step__sentence-box {
+  background: var(--color-surface-container-low, #0f172a);
+  border-color: var(--color-outline-variant, #334155);
+}
+
+[data-theme='dark'] .practice-step__sentence-text {
+  color: var(--color-on-surface, #f8fafc);
+}
+
+[data-theme='dark'] .practice-step__option-btn {
+  background: var(--color-surface-container-low, #1e293b);
+  border-color: var(--color-outline-variant, #334155);
+  color: var(--color-on-surface, #f8fafc);
+}
+
+[data-theme='dark'] .practice-step__option-letter {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+[data-theme='dark'] .practice-step__btn-refresh {
+  background: #1e293b;
+  border-color: #334155;
+  color: var(--eduvia-purple, #9E89FB);
+}
+
+[data-theme='dark'] .practice-step__type-badge {
+  background: rgba(158, 137, 251, 0.15);
+  color: var(--eduvia-purple, #9E89FB);
+}
+
+[data-theme='dark'] .practice-step__ai-pill {
+  background: rgba(158, 137, 251, 0.2);
+  border-color: rgba(158, 137, 251, 0.4);
+  color: #d8b4fe;
+}
+

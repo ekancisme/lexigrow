@@ -72,6 +72,7 @@ const ContactUsPage = lazy(() => import('./pages/public/ContactUsPage'))
 const NotFoundPage = lazy(() => import('./pages/public/NotFoundPage'))
 const TextTranslator = lazy(() => import('./components/common/TextTranslator'))
 import { useAuth } from './contexts/AuthContext.jsx'
+import ScrollToTop from './components/common/ScrollToTop.jsx'
 
 // Route guard for Admins
 function AdminProtectedRoute({ children }) {
@@ -171,6 +172,7 @@ function RootRoute() {
 function App() {
   return (
     <>
+      <ScrollToTop />
       <Suspense fallback={
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
           <span className="material-symbols-outlined animate-spin" style={{ fontSize: 48, color: 'var(--color-primary)' }}>progress_activity</span>

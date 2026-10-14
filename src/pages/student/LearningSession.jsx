@@ -515,8 +515,56 @@ export default function LearningSession() {
   const activeRequestIdRef = useRef(null)
   const lastSubmittedContentRef = useRef(null)
 
+  // AI Practice Questions
+  const [practiceQuestions, setPracticeQuestions] = useState([])
+  const [loadingPractice, setLoadingPractice] = useState(false)
+  const [practiceError, setPracticeError] = useState(null)
+  const [refreshingPractice, setRefreshingPractice] = useState(false)
+
   const draftStorageKey = `lexigrow-learning-draft:${adaptive ? 'adaptive' : setSlug}`
   const hasServerSession = /^[a-f\d]{24}$/i.test(String(session?._id || ''))
+
+  // Scroll to top on step changes so user never starts scrolled to the bottom
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    if (document.documentElement) document.documentElement.scrollTop = 0
+    if (document.body) document.body.scrollTop = 0
+  }, [currentStep])
+
+  /**
+   * Fetch AI Practice Questions for current session
+   * @param {boolean} bypassCache - true = AI generates a brand new question set
+   */
+  const fetchPracticeQuestions = async (bypassCache = false) => {
+    if (!session?._id) return
+    if (bypassCache) setRefreshingPractice(true)
+    else setLoadingPractice(true)
+    setPracticeError(null)
+    try {
+      const qs = bypassCache ? '?bypassCache=1' : ''
+      const res = await api.get(`/sessions/${session._id}/practice-questions${qs}`)
+      const qList = res?.data?.data?.questions || res?.data?.questions
+      if (Array.isArray(qList) && qList.length > 0) {
+        setPracticeQuestions(qList)
+      }
+    } catch (err) {
+      console.error('[PracticeQuestions] fetch failed:', err)
+      setPracticeError(err?.message || 'Failed to load practice questions')
+    } finally {
+      setLoadingPractice(false)
+      setRefreshingPractice(false)
+    }
+  }
+
+  // Pre-fetch AI practice questions as soon as session is active or when entering practice
+  useEffect(() => {
+    if (session?._id && practiceQuestions.length === 0 && !loadingPractice) {
+      Promise.resolve().then(() => {
+        fetchPracticeQuestions(false)
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session?._id, currentStep])
 
   // Initialize Session
   useEffect(() => {
@@ -1040,6 +1088,11 @@ export default function LearningSession() {
       {currentStep === 'practice' && (
         <PracticeStep
           words={words}
+          questions={practiceQuestions}
+          loading={loadingPractice}
+          refreshing={refreshingPractice}
+          error={practiceError}
+          onRefresh={() => fetchPracticeQuestions(true)}
           onComplete={() => handleStepChange('writing')}
           onBack={() => setCurrentStep('lesson')}
         />

@@ -8,6 +8,11 @@ import { ModalProvider } from './contexts/ModalContext.jsx'
 import { LanguageProvider } from './contexts/LanguageContext.jsx'
 import './styles/global.css'
 
+// Prevent browser from restoring scroll positions down the page on navigation/reload
+if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+  window.history.scrollRestoration = 'manual'
+}
+
 // Auto-recover stale tabs when chunk hashes change after a deployment
 window.addEventListener('vite:preloadError', (event) => {
   event.preventDefault()
