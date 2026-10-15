@@ -12,6 +12,7 @@
  */
 
 import puppeteer from 'puppeteer-core'
+import { execFileSync } from 'node:child_process'
 import fs from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -22,6 +23,8 @@ const outDir = path.join(rootDir, 'exports/figma_screens')
 const svgDir = path.join(outDir, 'svg')
 
 const isLocal = process.argv.includes('--local')
+const svgOnly = process.argv.includes('--svg-only')
+const screenFilter = process.argv.find(arg => arg.startsWith('--only='))?.slice('--only='.length)
 const BASE_URL = isLocal ? 'http://localhost:5173' : 'https://lexigrow.ltcuong24.io.vn'
 
 const CREDENTIALS = {
@@ -86,6 +89,47 @@ const SCREENS = [
   // ── 5. Parent Management (1 screen) ──
   { id: '44_Parent_Dashboard', path: '/parent/dashboard', role: 'parent', title: 'Dashboard Giám Sát Của Phụ Huynh' },
 ]
+
+// Exact Material Symbols glyph outlines (Google, Apache-2.0), so Figma never
+// needs the icon font and all other text and shapes stay editable.
+const MATERIAL_ICON_PATHS = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'material_symbols_paths.json'), 'utf8'),
+)
+
+const embeddedImageCache = new Map()
+
+async function inlineSvgImages(svgContent) {
+  const imageRefs = [...svgContent.matchAll(/(?:xlink:href|href)="([^"]+)"/g)]
+  const urls = [...new Set(imageRefs.map(match => match[1]).filter(value => value.startsWith('http://') || value.startsWith('https://')))]
+  for (const url of urls) {
+    try {
+      let dataUrl = embeddedImageCache.get(url)
+      if (!dataUrl) {
+        const response = await fetch(url)
+        if (!response.ok) continue
+        let mimeType = response.headers.get('content-type')?.split(';')[0] || 'application/octet-stream'
+        let imageBytes = Buffer.from(await response.arrayBuffer())
+        if (mimeType === 'image/webp') {
+          imageBytes = execFileSync('python3', [
+            '-c', 'import sys; from io import BytesIO; from PIL import Image; Image.open(BytesIO(sys.stdin.buffer.read())).convert("RGB").save(sys.stdout.buffer, format="JPEG", quality=93, optimize=True)',
+          ], { input: imageBytes, maxBuffer: 32 * 1024 * 1024 })
+          mimeType = 'image/jpeg'
+        }
+        dataUrl = `data:${mimeType};base64,${imageBytes.toString('base64')}`
+        embeddedImageCache.set(url, dataUrl)
+      }
+      svgContent = svgContent.replaceAll(`"${url}"`, `"${dataUrl}"`)
+    } catch (err) {
+      console.warn(`   ⚠️ Không nhúng được ảnh ${url}: ${err.message}`)
+    }
+  }
+  return svgContent
+    .replace(/<image\b[^>]*>/g, tag => /\bpreserveAspectRatio=/.test(tag) ? tag : tag.replace(/\s*\/?\s*>$/, ending => ` preserveAspectRatio="xMidYMid slice"${ending}`))
+    .replace(/color\(srgb\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+))?\)/g, (_, r, g, b, a = '1') => {
+      const rgb = [r, g, b].map(value => Math.round(Number(value) * 255))
+      return Number(a) < 1 ? `rgba(${rgb.join(', ')}, ${a})` : `rgb(${rgb.join(', ')})`
+    })
+}
 
 function findBrowserPath() {
   const candidates = [
@@ -218,8 +262,10 @@ async function run() {
     fs.mkdirSync(svgDir, { recursive: true })
   }
 
-  exportDesignTokens()
-  createReadmeInstructions()
+  if (!svgOnly) {
+    exportDesignTokens()
+    createReadmeInstructions()
+  }
 
   const browserPath = findBrowserPath()
   if (!browserPath) {
@@ -300,9 +346,13 @@ async function run() {
     return { ctx, page }
   }
 
+  const screensToExport = screenFilter ? SCREENS.filter(item => item.id === screenFilter) : SCREENS
+  if (screenFilter && screensToExport.length === 0) {
+    throw new Error(`Không tìm thấy màn hình: ${screenFilter}`)
+  }
   let successCount = 0
 
-  for (const item of SCREENS) {
+  for (const item of screensToExport) {
     console.log(`📸 [${item.id}] Đang chụp: ${item.title} (${item.path})...`)
     try {
       const { page } = await getContextForRole(item.role)
@@ -328,38 +378,85 @@ async function run() {
         }
       }
 
-      // Smooth scroll to trigger lazy loading, then return to top
-      await page.evaluate(async () => {
-        window.scrollTo(0, document.body.scrollHeight / 3)
-        await new Promise(r => setTimeout(r, 200))
-        window.scrollTo(0, 0)
-      })
+      // Wait for web fonts and lazy-loaded media before capturing the page.
+      let pageReady = false
+      for (let attempt = 0; attempt < 3 && !pageReady; attempt++) {
+        try {
+          await page.evaluate(async () => {
+            window.scrollTo(0, document.body.scrollHeight / 3)
+            await new Promise(r => setTimeout(r, 500))
+            window.scrollTo(0, 0)
+            await document.fonts.ready
+            await Promise.all([...document.images].map(image => image.decode().catch(() => {})))
+          })
+          pageReady = true
+        } catch (err) {
+          if (!err.message.includes('Execution context was destroyed') || attempt === 2) throw err
+          await new Promise(r => setTimeout(r, 700))
+        }
+      }
       await new Promise(r => setTimeout(r, 600))
 
-      // 1. Save High-Res 2x Retina PNG
-      const pngPath = path.join(outDir, `${item.id}.png`)
-      await page.screenshot({ path: pngPath, fullPage: true })
+      // 1. Save High-Res 2x Retina PNG unless regenerating SVGs only.
+      if (!svgOnly) {
+        const pngPath = path.join(outDir, `${item.id}.png`)
+        await page.screenshot({ path: pngPath, fullPage: true })
+      }
 
-      // 2. Save Native Vector SVG (100% Free, drag-and-drop editable vector/text into Figma)
+      // 2. Preserve editable text and shapes. Replace Material Symbols ligatures
+      //    with their exact font outlines so Figma never needs the icon font.
       try {
-        const svgContent = await page.evaluate(async () => {
-          try {
-            const { documentToSVG, inlineResources } = await import('https://esm.sh/dom-to-svg')
-            const svgDoc = documentToSVG(document)
-            await inlineResources(svgDoc.documentElement)
-            return new XMLSerializer().serializeToString(svgDoc)
-          } catch {
-            return null
+        const svgResult = await page.evaluate(async ({ icons, unitsPerEm }) => {
+          let replacedIcons = 0
+          const missingIcons = []
+          const iconSpans = document.querySelectorAll('.material-symbols-outlined')
+          for (const span of iconSpans) {
+            const key = span.textContent.trim()
+            const pathData = icons[key.toLowerCase()]
+            if (!pathData) {
+              missingIcons.push(key)
+              continue
+            }
+
+            const style = getComputedStyle(span)
+            const size = parseFloat(style.fontSize) || 24
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+            svg.setAttribute('width', String(size))
+            svg.setAttribute('height', String(size))
+            svg.setAttribute('viewBox', `0 0 ${unitsPerEm} ${unitsPerEm}`)
+            svg.setAttribute('fill', style.color)
+            svg.setAttribute('aria-label', key)
+            const glyph = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+            glyph.setAttribute('d', pathData)
+            svg.appendChild(glyph)
+            span.replaceChildren(svg)
+            span.style.fontSize = `${size}px`
+            span.style.verticalAlign = 'middle'
+            replacedIcons++
           }
-        })
-        if (svgContent) {
-          const svgPath = path.join(svgDir, `${item.id}.svg`)
-          fs.writeFileSync(svgPath, svgContent, 'utf8')
+
+          const { documentToSVG } = await import('https://esm.sh/dom-to-svg')
+          const svgDocument = documentToSVG(document)
+          return {
+            svg: new XMLSerializer().serializeToString(svgDocument),
+            replacedIcons,
+            missingIcons: [...new Set(missingIcons)],
+          }
+        }, MATERIAL_ICON_PATHS)
+        if (svgResult.missingIcons.length) {
+          throw new Error(`Thiếu vector Material Symbols: ${svgResult.missingIcons.join(', ')}`)
         }
-      } catch {}
+        const svgContent = await inlineSvgImages(svgResult.svg)
+        console.log(`   ↳ SVG: ${svgResult.replacedIcons} Material Symbols vector paths`)
+        const svgPath = path.join(svgDir, `${item.id}.svg`)
+        fs.writeFileSync(svgPath, svgContent, 'utf8')
+      } catch (svgErr) {
+        console.error(`   ❌ SVG [${item.id}]: ${svgErr.message}`)
+        throw svgErr
+      }
 
       // 3. Extract Figma Node JSON layer tree (if htmlToFigma bundle available)
-      if (hasHtmlToFigmaBundle) {
+      if (!svgOnly && hasHtmlToFigmaBundle) {
         try {
           await page.addScriptTag({ path: htmlToFigmaBundlePath })
           const figmaJson = await page.evaluate(async () => {
@@ -376,7 +473,7 @@ async function run() {
         }
       }
 
-      console.log(`   ✅ Đã xuất: ${item.id}.png & .svg`)
+      console.log(`   ✅ Đã xuất: ${item.id}.${svgOnly ? 'svg' : 'png & .svg'}`)
       successCount++
     } catch (err) {
       console.error(`   ❌ Lỗi khi xuất [${item.id}]:`, err.message)
@@ -391,7 +488,7 @@ async function run() {
   }
   await browser.close()
 
-  console.log(`\n🎉 HOÀN TẤT! Đã xuất thành công ${successCount}/${SCREENS.length} màn hình vào thư mục:`)
+  console.log(`\n🎉 HOÀN TẤT! Đã xuất thành công ${successCount}/${screensToExport.length} màn hình vào thư mục:`)
   console.log(`📂 ${outDir}\n`)
 }
 

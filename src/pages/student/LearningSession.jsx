@@ -571,13 +571,14 @@ export default function LearningSession() {
     async function initSession() {
       try {
         const requestedSet = searchParams.get('set')
+        const isPersonalizedRoadmap = searchParams.get('roadmap') === 'true'
         const isForce = searchParams.get('force') === 'true' || searchParams.get('forceSet') === 'true'
         const isAdvance = searchParams.get('advanceTopic') === 'true'
         const roundParam = parseInt(searchParams.get('round') || '1', 10)
         const startPayload = adaptive
           ? { adaptive: true }
           : requestedSet
-            ? { learningSetSlug: requestedSet, forceSet: isForce, advanceTopic: isAdvance, round: roundParam }
+            ? { learningSetSlug: requestedSet, forceSet: isForce, advanceTopic: isAdvance, round: roundParam, personalizedRoadmap: isPersonalizedRoadmap }
             : { advance: true }
 
         const res = await api.post('/sessions/start', startPayload)

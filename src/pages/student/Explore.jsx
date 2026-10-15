@@ -120,15 +120,22 @@ export default function Explore() {
   const [topicSets, setTopicSets] = useState(EDUVIA_COURSES)
   const [completedCounts, setCompletedCounts] = useState({})
   const [recentSessions, setRecentSessions] = useState([])
+  const [userRoadmap, setUserRoadmap] = useState(null)
 
   useEffect(() => {
     let isMounted = true
     async function loadExploreData() {
-      const [setsResult, historyResult] = await Promise.allSettled([
+      const [setsResult, historyResult, roadmapResult] = await Promise.allSettled([
         api.get('/learning-sets'),
         api.get('/sessions/history'),
+        api.get('/roadmap'),
       ])
       if (!isMounted) return
+
+      if (roadmapResult.status === 'fulfilled') {
+        const rData = roadmapResult.value?.data?.data
+        if (rData) setUserRoadmap(rData)
+      }
 
       if (setsResult.status === 'fulfilled') {
         const responseData = setsResult.value?.data
@@ -250,6 +257,84 @@ export default function Explore() {
           <span>{language === 'vi' ? 'Chủ đề luyện viết' : 'Writing Topics'}</span>
         </div>
       </section>
+
+      {/* ── PERSONALIZED ROADMAP HERO (When available) ── */}
+      {userRoadmap?.activeTopic && (
+        <section className="eduvia-roadmap-banner" aria-label="Personalized Learning Roadmap">
+          <div className="eduvia-roadmap-badge">
+            <span className="material-symbols-outlined">auto_awesome</span>
+            <span>{language === 'vi' ? 'Lộ trình AI cá nhân hóa' : 'Your Personalized AI Roadmap'}</span>
+            <span className="eduvia-roadmap-level">CEFR: {userRoadmap.targetLevel || 'B1'}</span>
+          </div>
+
+          <div className="eduvia-roadmap-content">
+            <div className="eduvia-roadmap-main">
+              <span className="eduvia-roadmap-label">
+                {language === 'vi' ? 'Chủ đề đang học' : 'Current Active Topic'}
+              </span>
+              <h2 className="eduvia-roadmap-title">
+                {language === 'vi' ? (userRoadmap.activeTopic.titleVi || userRoadmap.activeTopic.title) : userRoadmap.activeTopic.title}
+              </h2>
+              <p className="eduvia-roadmap-prompt">
+                {userRoadmap.activeTopic.promptTopic}
+              </p>
+              {userRoadmap.activeTopic.words?.length > 0 && (
+                <div className="eduvia-roadmap-words">
+                  {userRoadmap.activeTopic.words.map((w) => (
+                    <span key={w.word} className={`eduvia-roadmap-chip eduvia-roadmap-chip--${w.status || 'ready'}`}>
+                      <strong>{w.word}</strong>
+                      {w.definitionVi ? ` · ${w.definitionVi}` : ''}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="eduvia-roadmap-action">
+              <div className="eduvia-roadmap-progress-wrap">
+                <div className="eduvia-roadmap-progress-bar">
+                  <div
+                    className="eduvia-roadmap-progress-fill"
+                    style={{ width: `${userRoadmap.activeTopic.progressPercent || 0}%` }}
+                  />
+                </div>
+                <span className="eduvia-roadmap-progress-text">
+                  {userRoadmap.activeTopic.progressPercent || 0}% {language === 'vi' ? 'hoàn thành' : 'completed'}
+                </span>
+              </div>
+
+              <button
+                type="button"
+                className="btn-primary eduvia-roadmap-btn"
+                onClick={() => navigate(`/student/writing?set=${userRoadmap.activeTopic.topicSlug}&roadmap=true`)}
+              >
+                <span className="material-symbols-outlined">play_arrow</span>
+                <span>{language === 'vi' ? 'Học ngay chủ đề này' : 'Start Session Now'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Up next topics preview */}
+          {userRoadmap.topics?.filter((t) => t.status !== 'active').length > 0 && (
+            <div className="eduvia-roadmap-upcoming">
+              <span className="eduvia-upcoming-label">
+                {language === 'vi' ? 'Chủ đề kế tiếp:' : 'Up next:'}
+              </span>
+              <div className="eduvia-upcoming-pills">
+                {userRoadmap.topics
+                  .filter((t) => t.status !== 'active')
+                  .slice(0, 3)
+                  .map((t) => (
+                    <span key={t.topicSlug} className={`eduvia-upcoming-pill ${t.status === 'completed' ? 'eduvia-upcoming-pill--done' : ''}`}>
+                      {t.status === 'completed' && <span className="material-symbols-outlined">check</span>}
+                      <span>{language === 'vi' ? (t.titleVi || t.title) : t.title}</span>
+                    </span>
+                  ))}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
 
       <div className="eduvia-courses-container">
         {/* ── SECTION HEADER & SEARCH ── */}

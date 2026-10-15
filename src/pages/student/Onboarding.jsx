@@ -159,6 +159,8 @@ export default function Onboarding() {
           learningProfile: savedProfile
         })
       }
+      // Trigger instant roadmap generation in background
+      api.post('/roadmap/refresh').catch(() => {})
       // Only navigate on success — never swallow API errors silently
       navigate('/student/dashboard')
     } catch (err) {

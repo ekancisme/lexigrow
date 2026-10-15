@@ -646,3 +646,205 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+
+/* ── PERSONALIZED ROADMAP HERO (Curated AOT) ── */
+.eduvia-roadmap-banner {
+  width: min(100% - 48px, 1320px);
+  margin: -24px auto 48px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #f8fafc;
+  padding: 32px 36px;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.eduvia-roadmap-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.eduvia-roadmap-level {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+}
+
+.eduvia-roadmap-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.eduvia-roadmap-main {
+  flex: 1;
+  min-width: 280px;
+}
+
+.eduvia-roadmap-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.eduvia-roadmap-title {
+  font-size: clamp(22px, 3vw, 30px);
+  font-weight: 800;
+  color: #ffffff;
+  margin: 4px 0 10px;
+  letter-spacing: -0.015em;
+}
+
+.eduvia-roadmap-prompt {
+  font-size: 14px;
+  color: #cbd5e1;
+  line-height: 1.55;
+  max-width: 680px;
+  margin: 0 0 16px;
+}
+
+.eduvia-roadmap-words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.eduvia-roadmap-chip {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #e2e8f0;
+}
+
+.eduvia-roadmap-chip--learning {
+  border-color: rgba(59, 130, 246, 0.4);
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+}
+
+.eduvia-roadmap-chip--mastered {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.15);
+  color: #6ee7b7;
+}
+
+.eduvia-roadmap-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 16px;
+  min-width: 200px;
+}
+
+.eduvia-roadmap-progress-wrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+.eduvia-roadmap-progress-bar {
+  width: 180px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.eduvia-roadmap-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #059669);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.eduvia-roadmap-progress-text {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.eduvia-roadmap-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #10b981;
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+
+.eduvia-roadmap-btn:hover {
+  background: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+}
+
+.eduvia-roadmap-upcoming {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.eduvia-upcoming-label {
+  font-size: 12px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.eduvia-upcoming-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.eduvia-upcoming-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 4px 10px;
+  border-radius: 6px;
+  color: #cbd5e1;
+}
+
+.eduvia-upcoming-pill--done {
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.eduvia-upcoming-pill span.material-symbols-outlined {
+  font-size: 14px;
+}
