@@ -210,7 +210,7 @@ export default function StudentDashboard() {
                   <Link
                     key={essay._id}
                     className="student-dash__essay-item"
-                    to={essay.status === 'draft' ? `/student/writing?id=${essay._id}` : `/student/feedback?id=${essay._id}`}
+                    to={essay.status === 'draft' ? `/student/write-essay?id=${essay._id}` : `/student/feedback?id=${essay._id}`}
                   >
                     <div className="student-dash__essay-left">
                       <span className="material-symbols-outlined student-dash__essay-icon">article</span>

@@ -6,17 +6,8 @@ import { useModal } from '../../contexts/ModalContext.jsx'
 import { sanitizeHtml } from '../../utils/sanitizeHtml.js'
 import './WriteEssay.css'
 
-const themesList = [
-  { value: 'General', label: 'General' },
-  { value: 'Technology', label: 'Technology' },
-  { value: 'Education', label: 'Education' },
-  { value: 'Environment', label: 'Environment' },
-  { value: 'Business', label: 'Business & Economy' },
-  { value: 'Science', label: 'Science & Healthcare' }
-]
-
 export default function WriteEssay() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const [searchParams] = useSearchParams()
   const essayId = searchParams.get('id')
   const assignmentId = searchParams.get('assignmentId')
@@ -32,14 +23,23 @@ export default function WriteEssay() {
   const [selectedTheme, setSelectedTheme] = useState('General')
   const [topicSuggestions, setTopicSuggestions] = useState([])
   const [topicsLoading, setTopicsLoading] = useState(false)
-  // Assignment mode state
   const [assignmentData, setAssignmentData] = useState(null)
   const [allowPaste, setAllowPaste] = useState(true)
   const { showAlert } = useModal()
   const [aiHelperLoading, setAiHelperLoading] = useState(false)
   const [spellErrors, setSpellErrors] = useState([])
   const [wordCount, setWordCount] = useState(0)
+  const [lastSavedAt, setLastSavedAt] = useState(null)
   const editorRef = useRef(null)
+
+  const themesList = [
+    { value: 'General', label: language === 'vi' ? 'Tổng quan & Xã hội' : 'General & Society' },
+    { value: 'Technology', label: language === 'vi' ? 'Công nghệ & Đổi mới' : 'Technology & AI' },
+    { value: 'Education', label: language === 'vi' ? 'Giáo dục & Học đường' : 'Education & Learning' },
+    { value: 'Environment', label: language === 'vi' ? 'Môi trường & Sinh thái' : 'Environment & Climate' },
+    { value: 'Business', label: language === 'vi' ? 'Kinh tế & Thương mại' : 'Business & Economy' },
+    { value: 'Science', label: language === 'vi' ? 'Khoa học & Y tế' : 'Science & Healthcare' }
+  ]
 
   useEffect(() => {
     if (editorRef.current && essayText !== undefined) {
@@ -52,21 +52,18 @@ export default function WriteEssay() {
     }
   }, [essayText])
 
-  // Load classes student might be enrolled in (or just list student classes)
+  // Load student classes and paste configuration
   useEffect(() => {
     async function loadStudentData() {
       try {
-        // Find if student is in any classes
         await api.get('/auth/me')
-        // In this architecture, let's load all classes the student belongs to
-        // But for simplicity, we can also query classes endpoint
-        // Let's get active classes
         const clsRes = await api.get('/classes')
         setClasses(clsRes.data || [])
 
-        // Load paste configuration
         const pasteRes = await api.get('/essays/paste-config')
-        setAllowPaste(pasteRes.allowPaste)
+        if (pasteRes && typeof pasteRes.allowPaste === 'boolean') {
+          setAllowPaste(pasteRes.allowPaste)
+        }
       } catch (err) {
         console.error('Error loading writing settings:', err)
       }
@@ -74,15 +71,15 @@ export default function WriteEssay() {
     loadStudentData()
   }, [])
 
-  // Load existing essay if id parameter is provided
+  // Load existing essay if id is provided (Draft / Revision flow)
   useEffect(() => {
     if (!essayId) return
     async function loadEssay() {
       try {
         const res = await api.get(`/essays/${essayId}`)
         const essay = res.data
-        setTitle(essay.title)
-        setEssayText(essay.content)
+        setTitle(essay.title || '')
+        setEssayText(essay.content || '')
         if (editorRef.current) {
           editorRef.current.innerHTML = sanitizeHtml(essay.content || '')
           const text = editorRef.current.innerText || ''
@@ -91,6 +88,7 @@ export default function WriteEssay() {
         if (essay.class) setSelectedClass(essay.class)
         if (essay.theme) setSelectedTheme(essay.theme)
         if (essay.status) setStatus(essay.status)
+        if (essay.updatedAt) setLastSavedAt(new Date(essay.updatedAt))
       } catch (err) {
         console.error('Error loading essay draft:', err)
       }
@@ -98,7 +96,7 @@ export default function WriteEssay() {
     loadEssay()
   }, [essayId])
 
-  // Load assignment data if assignmentId is in URL
+  // Load assignment data if assignmentId is present
   useEffect(() => {
     if (!assignmentId) return
     async function loadAssignment() {
@@ -106,9 +104,8 @@ export default function WriteEssay() {
         const res = await api.get(`/assignments/${assignmentId}`)
         const assignment = res.data
         setAssignmentData(assignment)
-        // Prefill title and lock class to assignment's class
         if (!essayId) {
-          setTitle(assignment.title)
+          setTitle(assignment.title || '')
           if (assignment.classId?._id) setSelectedClass(assignment.classId._id)
           else if (assignment.classId) setSelectedClass(assignment.classId)
         }
@@ -117,9 +114,9 @@ export default function WriteEssay() {
       }
     }
     loadAssignment()
-  }, [assignmentId])
+  }, [assignmentId, essayId])
 
-  // Load AI suggested topics when theme changes (AI-20: prevent race condition)
+  // Fetch AI suggested topics on theme change
   useEffect(() => {
     const controller = new AbortController()
     let isActive = true
@@ -139,9 +136,9 @@ export default function WriteEssay() {
         if (isActive) {
           setTopicSuggestions([
             `The role of ${selectedTheme} in modern society`,
-            `How ${selectedTheme} is changing the way we live`,
-            `The future prospects of ${selectedTheme}`,
-            `Key challenges and opportunities in ${selectedTheme}`
+            `How ${selectedTheme} is shaping our future opportunities`,
+            `The key challenges and innovations in ${selectedTheme}`,
+            `Critical ethical considerations surrounding ${selectedTheme}`
           ])
         }
       } finally {
@@ -161,7 +158,11 @@ export default function WriteEssay() {
   const handlePaste = (e) => {
     if (!allowPaste) {
       e.preventDefault()
-      showAlert('Paste Restricted', 'Pasting content is not allowed for this essay. Please type your essay manually.', 'warning')
+      showAlert(
+        t('writing.pasteRestrictedTitle', 'Paste Restricted'),
+        t('writing.pasteRestrictedDesc', 'Pasting content is not allowed for this essay. Please type your essay manually.'),
+        'warning'
+      )
       return
     }
     e.preventDefault()
@@ -170,11 +171,11 @@ export default function WriteEssay() {
   }
 
   async function handleSaveDraft() {
-    if (!title.trim() || !essayText.trim()) return
+    if (!title.trim() && !essayText.trim()) return
     setSaving(true)
     try {
       const payload = {
-        title,
+        title: title.trim() || (language === 'vi' ? 'Bản nháp chưa đặt tên' : 'Untitled Draft'),
         content: essayText,
         classId: selectedClass || undefined,
         theme: selectedTheme,
@@ -185,14 +186,14 @@ export default function WriteEssay() {
         await api.put(`/essays/${essayId}`, payload)
       } else {
         const res = await api.post('/essays', payload)
-        // Set query param so subsequent saves are updates
         const newUrl = assignmentId
           ? `/student/write-essay?id=${res.data._id}&assignmentId=${assignmentId}`
           : `/student/write-essay?id=${res.data._id}`
         navigate(newUrl, { replace: true })
       }
+      setLastSavedAt(new Date())
     } catch (err) {
-      showAlert('Error', 'Could not save draft: ' + err.message, 'error')
+      showAlert(t('common.error', 'Error'), t('writing.saveDraft', 'Save Draft') + ': ' + err.message, 'error')
     } finally {
       setSaving(false)
     }
@@ -200,14 +201,18 @@ export default function WriteEssay() {
 
   async function handleSubmit() {
     if (!title.trim() || !essayText.trim()) {
-      showAlert('Missing Information', 'Please provide both a title and essay content before submitting.', 'warning')
+      showAlert(
+        t('writing.missingInfoTitle', 'Missing Information'),
+        t('writing.missingInfoDesc', 'Please provide both a title and essay content before submitting.'),
+        'warning'
+      )
       return
     }
     setSaving(true)
     try {
       let targetId = essayId
       const payload = {
-        title,
+        title: title.trim(),
         content: essayText,
         classId: selectedClass || undefined,
         theme: selectedTheme,
@@ -221,11 +226,10 @@ export default function WriteEssay() {
         targetId = res.data._id
       }
 
-      // Submit for analysis
       await api.patch(`/essays/${targetId}/submit`)
       navigate(`/student/feedback?id=${targetId}`)
     } catch (err) {
-      showAlert('Error', 'Could not submit essay: ' + err.message, 'error')
+      showAlert(t('common.error', 'Error'), err.message || 'Could not submit essay', 'error')
     } finally {
       setSaving(false)
     }
@@ -287,7 +291,11 @@ export default function WriteEssay() {
 
     const targetText = selectedText || fullText
     if (!targetText.trim()) {
-      showAlert('No Text', 'Please write something first before using AI Help.', 'warning')
+      showAlert(
+        t('writing.missingInfoTitle', 'No Text'),
+        language === 'vi' ? 'Vui lòng gõ nội dung bài viết trước khi sử dụng trợ lý AI.' : 'Please write something first before using AI Help.',
+        'warning'
+      )
       return
     }
 
@@ -302,7 +310,6 @@ export default function WriteEssay() {
           range.deleteContents()
           const textNode = document.createTextNode(improvedText)
           range.insertNode(textNode)
-          
           range.setStartAfter(textNode)
           range.setEndAfter(textNode)
           selection.removeAllRanges()
@@ -311,7 +318,11 @@ export default function WriteEssay() {
           editorRef.current.innerHTML = sanitizeHtml(improvedText.replace(/\n/g, '<br>'))
         }
         handleEditorInput()
-        showAlert('AI Improved', 'AI has successfully enhanced your writing style!', 'success')
+        showAlert(
+          language === 'vi' ? 'Đã tối ưu câu từ' : 'AI Improved',
+          language === 'vi' ? 'Trợ lý AI đã nâng cao văn phong và độ phong phú từ vựng thành công!' : 'AI has successfully enhanced your writing style!',
+          'success'
+        )
       } else if (action === 'spellcheck') {
         const occurrenceCounts = new Map()
         const errors = (Array.isArray(res.data) ? res.data : []).map((item, index) => {
@@ -322,14 +333,24 @@ export default function WriteEssay() {
         }).filter((item) => item.error && item.correction)
         setSpellErrors(errors)
         if (errors.length === 0) {
-          showAlert('Great Job!', 'No spelling or grammar errors found!', 'success')
+          showAlert(
+            language === 'vi' ? 'Rất tốt!' : 'Great Job!',
+            language === 'vi' ? 'Không phát hiện lỗi chính tả hoặc ngữ pháp nào!' : 'No spelling or grammar errors found!',
+            'success'
+          )
         } else {
-          showAlert('Review Errors', `AI found ${errors.length} grammar/spelling errors. Check the sidebar for suggestions!`, 'info')
+          showAlert(
+            language === 'vi' ? 'Đã kiểm tra ngữ pháp' : 'Review Errors',
+            language === 'vi'
+              ? `AI tìm thấy ${errors.length} điểm cần sửa ngữ pháp/chính tả. Hãy xem cột bên phải để duyệt sửa!`
+              : `AI found ${errors.length} grammar/spelling errors. Check the sidebar for suggestions!`,
+            'info'
+          )
         }
       }
     } catch (err) {
       console.error('AI Helper error:', err)
-      showAlert('AI Helper Failed', err.message || 'Failed to process with AI helper.', 'error')
+      showAlert(t('writing.aiHelperFailed', 'AI Assistant Failed'), err.message || 'Failed to process with AI helper.', 'error')
     } finally {
       setAiHelperLoading(false)
     }
@@ -387,96 +408,148 @@ export default function WriteEssay() {
     setSpellErrors(prev => prev.filter((item) => item.correctionId !== error.correctionId))
   }
 
+  const isEditingDraft = Boolean(essayId && status === 'draft')
+  const isRevising = status === 'needs_revision'
+
   return (
-    <div className="write-essay">
-      {/* Header */}
-      <section className="write-essay__header">
-        <div>
-          <h1 className="text-headline-lg">
-            {assignmentData ? `Assignment: ${assignmentData.title}` : t('writing.title', 'Smart Writing Lab')}
+    <div className="write-essay-page eduvia-page-container">
+      {/* Breadcrumb Navigation */}
+      <div className="write-essay__nav-bar">
+        <button
+          type="button"
+          className="write-essay__back-btn"
+          onClick={() => navigate('/student/essays?tab=drafts')}
+        >
+          <span className="material-symbols-outlined">arrow_back</span>
+          <span>{t('writing.backToDrafts', 'Back to Essay History & Drafts')}</span>
+        </button>
+      </div>
+
+      {/* Modern Academic Header */}
+      <header className="write-essay__header card-base">
+        <div className="write-essay__header-main">
+          <div className="write-essay__header-meta">
+            <span className="write-essay__editorial-badge">
+              <span className="material-symbols-outlined">history_edu</span>
+              {t('writing.editorialBadge', 'Academic Writing Studio')}
+            </span>
+            {isEditingDraft && (
+              <span className="write-essay__status-badge write-essay__status-badge--draft">
+                <span className="material-symbols-outlined">edit_document</span>
+                {t('writing.draftBadge', 'Draft Edition')}
+              </span>
+            )}
+            {isRevising && (
+              <span className="write-essay__status-badge write-essay__status-badge--revision">
+                <span className="material-symbols-outlined">assignment_late</span>
+                {t('writing.revisionAlertTitle', 'Revision Requested')}
+              </span>
+            )}
+          </div>
+          <h1 className="text-headline-lg write-essay__header-title">
+            {assignmentData
+              ? `Assignment: ${assignmentData.title}`
+              : isEditingDraft
+                ? (title ? `${t('writing.editDraftTitle', 'Edit Essay Draft')}: ${title}` : t('writing.editDraftTitle', 'Edit Essay Draft'))
+                : t('writing.newEssayTitle', 'Smart Writing Lab')}
           </h1>
-          <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
+          <p className="text-body-md write-essay__header-sub">
             {assignmentData
               ? `Writing for class: ${assignmentData.classId?.name || 'your class'}`
-              : t('writing.subtitle', 'Compose your essay and let AI analyze your vocabulary growth')}
+              : isEditingDraft
+                ? t('writing.editDraftSubtitle', 'Continue refining your draft before submitting for comprehensive AI evaluation.')
+                : t('writing.newEssaySubtitle', 'Compose your essay with real-time AI assistance and vocabulary analysis.')}
           </p>
         </div>
+
         <div className="write-essay__actions">
-          <button type="button" className="write-essay__btn-secondary" onClick={() => navigate('/student/essays')}>
-            <span className="material-symbols-outlined">history_edu</span>
-            {t('nav.essayHistory', 'History & Drafts')}
+          <button
+            type="button"
+            className="btn-secondary write-essay__action-btn"
+            onClick={handleSaveDraft}
+            disabled={saving || isAssignmentClosed}
+            title={t('writing.saveDraft', 'Save Draft')}
+          >
+            <span className={`material-symbols-outlined ${saving ? 'animate-spin' : ''}`}>
+              {saving ? 'progress_activity' : 'bookmark'}
+            </span>
+            <span>{saving ? t('writing.saving', 'Saving...') : t('writing.saveDraft', 'Save Draft')}</span>
           </button>
-          <button className="write-essay__btn-secondary" onClick={handleSaveDraft} disabled={saving || isAssignmentClosed}>
-            <span className="material-symbols-outlined">save</span>
-            {saving ? t('common.loading', 'Saving...') : t('writing.saveDraft', 'Save Draft')}
-          </button>
-          <button className="write-essay__btn-primary" onClick={handleSubmit} disabled={saving || isAssignmentClosed}>
-            <span className="material-symbols-outlined">send</span>
-            {saving ? t('common.loading', 'Submitting...') : t('common.submit', 'Submit Essay')}
+          <button
+            type="button"
+            className="btn-primary write-essay__action-btn"
+            onClick={handleSubmit}
+            disabled={saving || isAssignmentClosed}
+            title={t('writing.submitEssay', 'Submit for AI Evaluation')}
+          >
+            <span className={`material-symbols-outlined ${saving ? 'animate-spin' : ''}`}>
+              {saving ? 'progress_activity' : 'send'}
+            </span>
+            <span>{saving ? t('writing.submitting', 'Submitting...') : t('writing.submitEssay', 'Submit for AI Evaluation')}</span>
           </button>
         </div>
-      </section>
+      </header>
 
-      {/* Closed Assignment Alert */}
-      {isAssignmentClosed && (
-        <div style={{
-          background: 'rgba(239, 68, 68, 0.1)',
-          border: '1.5px solid var(--color-error)',
-          color: 'var(--color-error)',
-          padding: '14px 18px',
-          borderRadius: '12px',
-          marginBottom: '20px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          fontWeight: 600
-        }}>
-          <span className="material-symbols-outlined" style={{ fontSize: 24 }}>lock</span>
+      {/* Revision Notice Banner */}
+      {isRevising && (
+        <div className="write-essay__revision-banner">
+          <span className="material-symbols-outlined write-essay__revision-icon">assignment_late</span>
           <div>
-            <strong>Assignment Closed:</strong> This assignment has been closed by your teacher (or is past due). Submissions and edits are no longer accepted.
+            <h4 className="text-title-md write-essay__revision-title">{t('writing.revisionAlertTitle', 'Revision Requested by Teacher')}</h4>
+            <p className="text-body-sm write-essay__revision-desc">
+              {t('writing.revisionAlertDesc', 'You are currently updating an essay that your teacher has requested you to revise. Please address their revision comments.')}
+            </p>
           </div>
         </div>
       )}
 
+      {/* Closed Assignment Alert */}
+      {isAssignmentClosed && (
+        <div className="write-essay__closed-banner">
+          <span className="material-symbols-outlined">lock</span>
+          <div>
+            <strong>{t('writing.closedAssignmentTitle', 'Assignment Closed')}:</strong>{' '}
+            {t('writing.closedAssignmentDesc', 'This assignment has been closed by your teacher (or is past due). Submissions and edits are no longer accepted.')}
+          </div>
+        </div>
+      )}
+
+      {/* Main Workspace Layout */}
       <div className="write-essay__layout">
-        {/* Editor Area */}
-        <div className="write-essay__editor-area">
-          {status === 'needs_revision' && (
-            <div className="write-essay__revision-alert">
-              <span className="material-symbols-outlined write-essay__revision-alert-icon">info</span>
-              <div className="write-essay__revision-alert-text">
-                <strong>Revising Requested Essay:</strong> You are currently updating an essay that your teacher has requested you to revise. Please address their revision comments.
-              </div>
-            </div>
-          )}
-          {/* Title & Class */}
-          <div className="write-essay__title-field card-base" style={{ display: 'flex', gap: 16, flexDirection: 'row', alignItems: 'center' }}>
-            <div style={{ flex: 2 }}>
-              <label className="text-label-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 8, display: 'block' }}>Essay Title</label>
+        {/* Editor Column */}
+        <div className="write-essay__editor-column">
+          {/* Metadata Card: Title & Class */}
+          <div className="card-base write-essay__meta-card">
+            <div className="write-essay__title-field">
+              <label className="text-label-md write-essay__label">
+                <span className="material-symbols-outlined write-essay__label-icon">title</span>
+                {t('writing.titleLabel', 'Essay Title')}
+              </label>
               <input
                 type="text"
                 className="write-essay__title-input"
-                placeholder="Enter your essay title..."
+                placeholder={t('writing.titlePlaceholder', 'Enter your essay title...')}
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
             </div>
-            <div style={{ flex: 1 }}>
-              <label className="text-label-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 8, display: 'block' }}>
-                Class {assignmentData ? '(Locked by assignment)' : '(Optional)'}
+            <div className="write-essay__class-field">
+              <label className="text-label-md write-essay__label">
+                <span className="material-symbols-outlined write-essay__label-icon">school</span>
+                {t('writing.classLabel', 'Assigned Class')} {assignmentData ? t('writing.lockedByAssignment', '(Locked by Assignment)') : ''}
               </label>
               {assignmentData ? (
-                <div style={{ height: '48px', padding: '0 16px', borderRadius: '12px', border: '1px solid var(--color-outline)', backgroundColor: 'var(--color-surface-variant)', color: 'var(--color-on-surface)', display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600 }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-outline)' }}>lock</span>
-                  {assignmentData.classId?.name || 'Assigned class'}
+                <div className="write-essay__locked-class">
+                  <span className="material-symbols-outlined">lock</span>
+                  <span>{assignmentData.classId?.name || 'Assigned class'}</span>
                 </div>
               ) : (
                 <select
                   value={selectedClass}
                   onChange={(e) => setSelectedClass(e.target.value)}
-                  style={{ width: '100%', height: '48px', padding: '0 16px', borderRadius: '12px', border: '1px solid var(--color-outline)', backgroundColor: 'var(--color-surface)', color: 'var(--color-on-surface)' }}
+                  className="write-essay__select"
                 >
-                  <option value="">No Class</option>
+                  <option value="">{t('writing.noClass', 'Independent (No Class)')}</option>
                   {classes.map((cls) => (
                     <option key={cls._id} value={cls._id}>{cls.name}</option>
                   ))}
@@ -485,104 +558,167 @@ export default function WriteEssay() {
             </div>
           </div>
 
-          {/* Editor */}
-          <div className="write-essay__editor card-base">
+          {/* Editorial Canvas Card */}
+          <div className="card-base write-essay__editor-card">
             {/* Toolbar */}
-            <div className="write-essay__toolbar" style={{ pointerEvents: aiHelperLoading ? 'none' : 'auto', opacity: aiHelperLoading ? 0.6 : 1 }}>
-              <div className="write-essay__toolbar-group">
-                <button type="button" className="write-essay__tool-btn" onClick={() => applyFormat('bold')} title="Bold"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>format_bold</span></button>
-                <button type="button" className="write-essay__tool-btn" onClick={() => applyFormat('italic')} title="Italic"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>format_italic</span></button>
-                <button type="button" className="write-essay__tool-btn" onClick={() => applyFormat('underline')} title="Underline"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>format_underlined</span></button>
+            <div className="write-essay__toolbar">
+              <div className="write-essay__tool-group">
+                <button
+                  type="button"
+                  className="write-essay__tool-btn"
+                  onClick={() => applyFormat('bold')}
+                  title="Bold (Ctrl+B)"
+                >
+                  <span className="material-symbols-outlined">format_bold</span>
+                </button>
+                <button
+                  type="button"
+                  className="write-essay__tool-btn"
+                  onClick={() => applyFormat('italic')}
+                  title="Italic (Ctrl+I)"
+                >
+                  <span className="material-symbols-outlined">format_italic</span>
+                </button>
+                <button
+                  type="button"
+                  className="write-essay__tool-btn"
+                  onClick={() => applyFormat('underline')}
+                  title="Underline (Ctrl+U)"
+                >
+                  <span className="material-symbols-outlined">format_underlined</span>
+                </button>
               </div>
 
-              <div className="write-essay__toolbar-divider" />
-              <div className="write-essay__toolbar-group">
-                <button type="button" className="write-essay__tool-btn" onClick={() => handleAIHelper('spellcheck')} title="AI Spellcheck & Grammar"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>spellcheck</span></button>
-                <button type="button" className="write-essay__tool-btn" onClick={() => handleAIHelper('improve')} title="AI Auto-Fix / Improve"><span className="material-symbols-outlined" style={{ fontSize: 20 }}>auto_fix_high</span></button>
+              <div className="write-essay__tool-separator" />
+
+              <div className="write-essay__tool-group">
+                <button
+                  type="button"
+                  className="write-essay__tool-btn"
+                  onClick={() => applyFormat('bullet')}
+                  title="Bullet List"
+                >
+                  <span className="material-symbols-outlined">format_list_bulleted</span>
+                </button>
+                <button
+                  type="button"
+                  className="write-essay__tool-btn"
+                  onClick={() => applyFormat('number')}
+                  title="Numbered List"
+                >
+                  <span className="material-symbols-outlined">format_list_numbered</span>
+                </button>
+                <button
+                  type="button"
+                  className="write-essay__tool-btn"
+                  onClick={() => applyFormat('quote')}
+                  title="Blockquote"
+                >
+                  <span className="material-symbols-outlined">format_quote</span>
+                </button>
               </div>
-              {aiHelperLoading && (
-                <span className="text-label-sm" style={{ color: 'var(--color-primary)', marginLeft: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span className="material-symbols-outlined animate-spin" style={{ fontSize: 16 }}>sync</span>
-                  AI processing...
-                </span>
-              )}
+
+              <div className="write-essay__tool-separator" />
+
+              {/* AI Helper Tools */}
+              <div className="write-essay__ai-tools">
+                <button
+                  type="button"
+                  className="write-essay__ai-tool-btn"
+                  onClick={() => handleAIHelper('spellcheck')}
+                  disabled={aiHelperLoading}
+                  title={t('writing.aiSpellcheck', 'Grammar & Spelling Check')}
+                >
+                  <span className="material-symbols-outlined">spellcheck</span>
+                  <span>{t('writing.aiSpellcheck', 'Grammar Check')}</span>
+                </button>
+                <button
+                  type="button"
+                  className="write-essay__ai-tool-btn write-essay__ai-tool-btn--accent"
+                  onClick={() => handleAIHelper('improve')}
+                  disabled={aiHelperLoading}
+                  title={t('writing.aiImprove', 'AI Style Enhance')}
+                >
+                  <span className="material-symbols-outlined">auto_fix_high</span>
+                  <span>{t('writing.aiImprove', 'Style Enhance')}</span>
+                </button>
+                {aiHelperLoading && (
+                  <div className="write-essay__ai-status">
+                    <span className="material-symbols-outlined animate-spin">sync</span>
+                    <span>{t('writing.aiProcessing', 'AI is analyzing...')}</span>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Text Area */}
-            {/* Rich Editor Area */}
+            {/* Notebook ContentEditable Canvas */}
             <div
               ref={editorRef}
-              className="write-essay__textarea"
+              className="write-essay__canvas"
               contentEditable="true"
               onInput={handleEditorInput}
               onPaste={handlePaste}
-              style={{
-                outline: 'none',
-                minHeight: '400px',
-                padding: '16px',
-                border: '1px solid var(--color-outline-variant)',
-                borderRadius: '8px',
-                backgroundColor: 'var(--color-surface-container-lowest)',
-                color: 'var(--color-on-surface)',
-                overflowY: 'auto',
-                textAlign: 'left'
-              }}
-              placeholder="Start writing your essay here..."
+              placeholder={t('writing.editorPlaceholder', 'Start writing your essay here (minimum 50 words for AI analysis)...')}
             />
 
-            {/* Footer */}
-            <div className="write-essay__editor-footer">
-              <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>
-                {wordCount} words
-              </span>
-              <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>
-                Auto-saved at {new Date().toLocaleTimeString()}
-              </span>
-            </div>
+            {/* Dynamic Status Footer */}
+            <footer className="write-essay__editor-footer">
+              <div className="write-essay__word-indicator">
+                <span className="material-symbols-outlined">edit_note</span>
+                <span className="text-data-mono write-essay__word-count">{wordCount}</span>
+                <span className="text-label-sm">{t('writing.wordCount', 'Words')}</span>
+                {wordCount < 50 ? (
+                  <span className="write-essay__word-target-badge write-essay__word-target-badge--low">
+                    {t('writing.minWordsNote', 'Write at least 50 words to unlock AI feedback')}
+                  </span>
+                ) : (
+                  <span className="write-essay__word-target-badge write-essay__word-target-badge--good">
+                    {language === 'vi' ? 'Đủ điều kiện chấm AI' : 'Eligible for AI Grading'}
+                  </span>
+                )}
+              </div>
+
+              <div className="write-essay__autosave-indicator">
+                <span className="write-essay__pulse-dot" />
+                <span className="text-label-sm">
+                  {lastSavedAt
+                    ? `${t('writing.autosavedAt', 'Auto-saved at')} ${lastSavedAt.toLocaleTimeString(language === 'vi' ? 'vi-VN' : 'en-US')}`
+                    : (language === 'vi' ? 'Sẵn sàng lưu bản nháp' : 'Ready to save draft')}
+                </span>
+              </div>
+            </footer>
           </div>
         </div>
 
-        {/* Side Panel */}
-        <div className="write-essay__side">
-          {/* AI Spellcheck & Grammar Results */}
+        {/* Sidebar Column */}
+        <aside className="write-essay__sidebar">
+          {/* AI Grammar & Spellcheck Review Panel */}
           {spellErrors.length > 0 && (
-            <div className="card-base" style={{ borderLeft: '4px solid var(--color-error)' }}>
-              <h3 className="text-title-lg" style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8, color: 'var(--color-error)' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: 22 }}>spellcheck</span>
-                Grammar & Spelling ({spellErrors.length})
-              </h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxHeight: '350px', overflowY: 'auto', paddingRight: '4px' }}>
+            <div className="card-base write-essay__side-card write-essay__side-card--errors">
+              <div className="write-essay__side-header">
+                <h3 className="text-title-md write-essay__side-title write-essay__side-title--error">
+                  <span className="material-symbols-outlined">spellcheck</span>
+                  <span>{t('writing.aiSpellcheck', 'Grammar & Spelling')} ({spellErrors.length})</span>
+                </h3>
+              </div>
+              <div className="write-essay__errors-list">
                 {spellErrors.map((err, idx) => (
-                  <div key={err.correctionId || idx} style={{
-                    padding: '10px 12px', 
-                    borderRadius: '8px', 
-                    backgroundColor: 'var(--color-surface-container-low)', 
-                    border: '1px solid var(--color-outline-variant)' 
-                  }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center', marginBottom: 6 }}>
-                      <span style={{ textDecoration: 'line-through', color: 'var(--color-error)', fontSize: '13px', fontWeight: 600 }}>
-                        {err.error}
-                      </span>
-                      <span className="material-symbols-outlined" style={{ fontSize: 14, color: 'var(--color-outline)' }}>
-                        arrow_forward
-                      </span>
-                      <span style={{ color: 'var(--color-success)', fontSize: '13px', fontWeight: 700, backgroundColor: 'rgba(22, 163, 74, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>
-                        {err.correction}
-                      </span>
+                  <div key={err.correctionId || idx} className="write-essay__error-item">
+                    <div className="write-essay__error-diff">
+                      <span className="write-essay__error-wrong">{err.error}</span>
+                      <span className="material-symbols-outlined write-essay__error-arrow">arrow_forward</span>
+                      <span className="write-essay__error-correct">{err.correction}</span>
                     </div>
                     {err.explanation && (
-                      <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)', fontSize: '12px', lineHeight: 1.4, marginBottom: 8 }}>
-                        {err.explanation}
-                      </p>
+                      <p className="text-body-sm write-essay__error-expl">{err.explanation}</p>
                     )}
-                    <button 
+                    <button
                       type="button"
-                      className="write-essay__btn-secondary" 
-                      style={{ padding: '4px 8px', fontSize: '11px', width: '100%', justifyContent: 'center' }}
+                      className="btn-secondary write-essay__apply-btn"
                       onClick={() => applyCorrection(err)}
                     >
-                      <span className="material-symbols-outlined" style={{ fontSize: 13 }}>done</span>
-                      Apply Suggestion
+                      <span className="material-symbols-outlined">done</span>
+                      <span>{t('writing.applySuggestion', 'Apply Suggestion')}</span>
                     </button>
                   </div>
                 ))}
@@ -590,92 +726,88 @@ export default function WriteEssay() {
             </div>
           )}
 
-          {/* Assignment Brief Card — shown only in assignment mode */}
+          {/* Assignment Brief Card (if assignment) */}
           {assignmentData && (
-            <div className="card-base" style={{ borderLeft: '4px solid var(--color-primary)' }}>
-              <h3 className="text-title-lg" style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', fontSize: 22 }}>assignment</span>
-                Assignment Brief
-              </h3>
+            <div className="card-base write-essay__side-card write-essay__side-card--primary">
+              <div className="write-essay__side-header">
+                <h3 className="text-title-md write-essay__side-title">
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>assignment</span>
+                  <span>{assignmentData.title}</span>
+                </h3>
+              </div>
               {assignmentData.description && (
-                <p className="text-body-sm" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 14, lineHeight: 1.6 }}>
-                  {assignmentData.description}
-                </p>
+                <p className="text-body-sm write-essay__brief-desc">{assignmentData.description}</p>
               )}
               {assignmentData.dueDate && (
-                <p className="text-label-sm" style={{ color: 'var(--color-outline)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 15 }}>calendar_today</span>
-                  Due: {new Date(assignmentData.dueDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
-                </p>
+                <div className="write-essay__brief-meta">
+                  <span className="material-symbols-outlined">calendar_today</span>
+                  <span>
+                    Due: {new Date(assignmentData.dueDate).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US')}
+                  </span>
+                </div>
               )}
               {assignmentData.keywords?.length > 0 && (
-                <div>
-                  <p className="text-label-sm" style={{ color: 'var(--color-outline)', marginBottom: 8, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em' }}>Required Keywords</p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                <div className="write-essay__keywords">
+                  <span className="text-label-sm write-essay__keywords-label">Keywords</span>
+                  <div className="write-essay__keywords-wrap">
                     {assignmentData.keywords.map((kw, i) => (
-                      <span key={i} style={{ background: 'var(--color-primary-container)', color: 'var(--color-on-primary-container)', borderRadius: '999px', padding: '4px 12px', fontSize: '0.8rem', fontWeight: 600 }}>
-                        {kw}
-                      </span>
+                      <span key={i} className="write-essay__keyword-pill">{kw}</span>
                     ))}
                   </div>
                 </div>
               )}
             </div>
           )}
-          {/* Topic Themes Selection */}
-          <div className="card-base">
-            <h3 className="text-title-lg" style={{ marginBottom: 16 }}>Select Theme</h3>
+
+          {/* Theme Selection & AI Topics */}
+          <div className="card-base write-essay__side-card">
+            <div className="write-essay__side-header">
+              <h3 className="text-title-md write-essay__side-title">
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>category</span>
+                <span>{t('writing.themeLabel', 'Select Theme')}</span>
+              </h3>
+            </div>
             <select
               value={selectedTheme}
               onChange={(e) => setSelectedTheme(e.target.value)}
-              className="write-essay__theme-select"
-              style={{
-                width: '100%',
-                height: '48px',
-                padding: '0 16px',
-                borderRadius: '12px',
-                border: '1px solid var(--color-outline)',
-                backgroundColor: 'var(--color-surface)',
-                color: 'var(--color-on-surface)',
-                marginBottom: 16,
-                fontWeight: 500,
-                cursor: 'pointer'
-              }}
+              className="write-essay__select write-essay__select--theme"
             >
-              {themesList.map((t) => (
-                <option key={t.value} value={t.value}>{t.label}</option>
+              {themesList.map((th) => (
+                <option key={th.value} value={th.value}>{th.label}</option>
               ))}
             </select>
 
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-              <h4 className="text-label-md" style={{ margin: 0, fontWeight: 700 }}>AI Suggested Topics</h4>
+            <div className="write-essay__topics-header">
+              <span className="text-label-md write-essay__topics-title">
+                {t('writing.aiTopics', 'AI Suggested Topics')}
+              </span>
               {topicsLoading && (
-                <span className="material-symbols-outlined animate-spin" style={{ fontSize: 18, color: 'var(--color-primary)' }}>
-                  sync
-                </span>
+                <span className="material-symbols-outlined animate-spin write-essay__loading-icon">sync</span>
               )}
             </div>
 
             {topicsLoading ? (
-              <div style={{ padding: '24px 0', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 8 }}>
-                <span className="material-symbols-outlined animate-spin" style={{ color: 'var(--color-primary)' }}>progress_activity</span>
-                <p className="text-body-sm" style={{ color: 'var(--color-outline)', margin: 0 }}>AI is generating topics...</p>
+              <div className="write-essay__topics-loading">
+                <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                <span className="text-body-sm">{t('writing.aiGeneratingTopics', 'AI is generating topics...')}</span>
               </div>
             ) : (
-              <div className="write-essay__topics">
+              <div className="write-essay__topics-list">
                 {topicSuggestions.length === 0 ? (
-                  <p className="text-body-sm" style={{ color: 'var(--color-outline)', textAlign: 'center', padding: '16px 0' }}>No topics found.</p>
+                  <p className="text-body-sm write-essay__topics-empty">{t('writing.noTopics', 'No topic suggestions found.')}</p>
                 ) : (
                   topicSuggestions.map((topic, i) => (
                     <button
                       key={i}
-                      className={`write-essay__topic ${selectedTopic === topic ? 'write-essay__topic--active' : ''}`}
+                      type="button"
+                      className={`write-essay__topic-item ${selectedTopic === topic ? 'write-essay__topic-item--active' : ''}`}
                       onClick={() => {
                         setSelectedTopic(topic)
                         setTitle(topic)
                       }}
+                      title={topic}
                     >
-                      <span className="material-symbols-outlined" style={{ fontSize: 18 }}>lightbulb</span>
+                      <span className="material-symbols-outlined">lightbulb</span>
                       <span>{topic}</span>
                     </button>
                   ))
@@ -684,43 +816,68 @@ export default function WriteEssay() {
             )}
           </div>
 
-          {/* Writing Stats */}
-          <div className="card-base">
-            <h3 className="text-title-lg" style={{ marginBottom: 16 }}>Writing Stats</h3>
-            <div className="write-essay__stats">
-              <div className="write-essay__stat-item">
-                <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Paragraphs</span>
-                <span className="text-data-mono">{essayText.split('\n\n').filter(Boolean).length || 0}</span>
+          {/* Writing Metrics Card */}
+          <div className="card-base write-essay__side-card">
+            <div className="write-essay__side-header">
+              <h3 className="text-title-md write-essay__side-title">
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>analytics</span>
+                <span>{t('writing.writingStats', 'Writing Metrics')}</span>
+              </h3>
+            </div>
+            <div className="write-essay__metrics-grid">
+              <div className="write-essay__metric-item">
+                <span className="text-label-sm write-essay__metric-label">{t('writing.paragraphs', 'Paragraphs')}</span>
+                <span className="text-data-mono write-essay__metric-value">
+                  {essayText.split('\n\n').filter(Boolean).length || (essayText.trim() ? 1 : 0)}
+                </span>
               </div>
-              <div className="write-essay__stat-item">
-                <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Sentences</span>
-                <span className="text-data-mono">{essayText.split(/[.!?]+/).filter(Boolean).length || 0}</span>
+              <div className="write-essay__metric-item">
+                <span className="text-label-sm write-essay__metric-label">{t('writing.sentences', 'Sentences')}</span>
+                <span className="text-data-mono write-essay__metric-value">
+                  {essayText.split(/[.!?]+/).filter(Boolean).length || 0}
+                </span>
               </div>
-              <div className="write-essay__stat-item">
-                <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Characters</span>
-                <span className="text-data-mono">{essayText.length}</span>
+              <div className="write-essay__metric-item">
+                <span className="text-label-sm write-essay__metric-label">{t('writing.characterCount', 'Characters')}</span>
+                <span className="text-data-mono write-essay__metric-value">{essayText.length}</span>
               </div>
-              <div className="write-essay__stat-item">
-                <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Reading Time</span>
-                <span className="text-data-mono">{Math.max(1, Math.ceil(wordCount / 200))} min</span>
+              <div className="write-essay__metric-item">
+                <span className="text-label-sm write-essay__metric-label">{t('writing.readingTime', 'Reading Time')}</span>
+                <span className="text-data-mono write-essay__metric-value">
+                  {Math.max(1, Math.ceil(wordCount / 200))} {t('common.min', 'min')}
+                </span>
               </div>
             </div>
           </div>
 
-          {/* Guidelines */}
-          <div className="card-base">
-            <h3 className="text-title-lg" style={{ marginBottom: 16 }}>
-              <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', marginRight: 8 }}>tips_and_updates</span>
-              Writing Tips
-            </h3>
-            <ul className="write-essay__tips">
-              <li>Use varied vocabulary to improve your TTR score</li>
-              <li>Aim for at least 500 words per essay</li>
-              <li>Include topic-specific terminology</li>
-              <li>Practice complex sentence structures</li>
+          {/* Writing Tips / Guidelines Card */}
+          <div className="card-base write-essay__side-card">
+            <div className="write-essay__side-header">
+              <h3 className="text-title-md write-essay__side-title">
+                <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>tips_and_updates</span>
+                <span>{t('writing.writingTips', 'IELTS Writing Guidelines')}</span>
+              </h3>
+            </div>
+            <ul className="write-essay__tips-list">
+              <li>
+                <span className="material-symbols-outlined write-essay__tip-icon">check_circle</span>
+                <span>{t('writing.tip1', 'Vary your vocabulary to increase your lexical diversity (TTR) score.')}</span>
+              </li>
+              <li>
+                <span className="material-symbols-outlined write-essay__tip-icon">check_circle</span>
+                <span>{t('writing.tip2', 'Use clear cohesive devices and topic sentences for each paragraph.')}</span>
+              </li>
+              <li>
+                <span className="material-symbols-outlined write-essay__tip-icon">check_circle</span>
+                <span>{t('writing.tip3', 'Aim for at least 150–250 words for comprehensive AI grading.')}</span>
+              </li>
+              <li>
+                <span className="material-symbols-outlined write-essay__tip-icon">check_circle</span>
+                <span>{t('writing.tip4', 'Review AI grammar and spelling suggestions before submitting.')}</span>
+              </li>
             </ul>
           </div>
-        </div>
+        </aside>
       </div>
     </div>
   )

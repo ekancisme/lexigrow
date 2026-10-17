@@ -6,6 +6,7 @@ import EssayDiscussion from '../../components/common/EssayDiscussion.jsx'
 import ShimmerSkeleton from '../../components/common/ShimmerSkeleton.jsx'
 import { sanitizeHtml } from '../../utils/sanitizeHtml.js'
 import { getSocket, connectSocket } from '../../services/socket.js'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 
 export default function AIFeedbackReview({
   essayId: propEssayId,
@@ -13,6 +14,7 @@ export default function AIFeedbackReview({
   onComplete,
   embedded = false,
 } = {}) {
+  const { t, language } = useLanguage()
   const [searchParams] = useSearchParams()
   const essayId = propEssayId || searchParams.get('id')
   const navigate = useNavigate()
@@ -28,6 +30,12 @@ export default function AIFeedbackReview({
   const [copiedSynonym, setCopiedSynonym] = useState('')
   const [teacherFeedback, setTeacherFeedback] = useState(null)
   const reanalyzeRequestIdRef = useRef(null)
+
+  // Language & Translation states
+  const [feedbackLang, setFeedbackLang] = useState(() => (language === 'vi' ? 'vi' : 'en'))
+  const [translationVi, setTranslationVi] = useState(null)
+  const [translating, setTranslating] = useState(false)
+  const [translationError, setTranslationError] = useState('')
 
   // Portal states when no id is present in URL
   const [essayList, setEssayList] = useState([])
@@ -193,6 +201,43 @@ export default function AIFeedbackReview({
     }
   }, [essayId])
 
+  const fetchTranslation = async () => {
+    if (!essayId || translating) return
+    setTranslating(true)
+    setTranslationError('')
+    try {
+      const res = await api.post(`/essays/${essayId}/analysis/translate`)
+      if (res?.data) {
+        setTranslationVi(res.data)
+      }
+    } catch (err) {
+      console.error('Translation error:', err)
+      setTranslationError(t('feedback.translationError', 'Could not load Vietnamese translation. Please try again.'))
+    } finally {
+      setTranslating(false)
+    }
+  }
+
+  useEffect(() => {
+    if (analysis?.translationVi?.translatedAt) {
+      setTranslationVi(analysis.translationVi)
+    }
+  }, [analysis])
+
+  useEffect(() => {
+    if (language === 'vi') {
+      setFeedbackLang('vi')
+    } else if (language === 'en') {
+      setFeedbackLang('en')
+    }
+  }, [language])
+
+  useEffect(() => {
+    if (feedbackLang === 'vi' && analysis && !translationVi && !translating && essayId) {
+      fetchTranslation()
+    }
+  }, [feedbackLang, analysis, translationVi, translating, essayId])
+
   async function handleReanalyze() {
     if (reanalyzing || loading) return
     try {
@@ -213,6 +258,7 @@ export default function AIFeedbackReview({
         headers: { 'Idempotency-Key': requestId },
       })
       if (res.success) {
+        setTranslationVi(null)
         setAnalysis(res.data)
         reanalyzeRequestIdRef.current = null
         try { localStorage.removeItem(storageKey) } catch {}
@@ -280,17 +326,17 @@ export default function AIFeedbackReview({
         {isLoadingList ? (
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '200px', color: 'var(--color-outline)' }}>
             <span className="material-symbols-outlined animate-spin" style={{ marginRight: 8, color: 'var(--color-primary)' }}>progress_activity</span>
-            <span>Loading your essays...</span>
+            <span>{t('common.loading', 'Loading...')}</span>
           </div>
         ) : essayList.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px 24px', background: 'var(--color-surface-container-lowest)', borderRadius: 16, border: '1px solid var(--color-outline-variant)' }} className="card-base">
             <span className="material-symbols-outlined" style={{ fontSize: 48, color: 'var(--color-outline)', marginBottom: 16 }}>edit_note</span>
-            <h3 className="text-title-lg" style={{ marginBottom: 8 }}>No Essays Submitted Yet</h3>
+            <h3 className="text-title-lg" style={{ marginBottom: 8 }}>{t('feedback.noEssaysYet', 'No Essays Submitted Yet')}</h3>
             <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 24, maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>
-              Submit your first essay to let our AI analyze your writing patterns and provide custom vocabulary recommendations.
+              {t('feedback.noEssaysDesc', 'Submit your first essay to let our AI analyze your writing patterns and provide custom vocabulary recommendations.')}
             </p>
             <button onClick={() => navigate('/student/writing')} className="ai-feedback__btn-primary">
-              Write New Essay
+              {t('feedback.writeNewEssay', 'Write New Essay')}
             </button>
           </div>
         ) : (
@@ -339,16 +385,16 @@ export default function AIFeedbackReview({
                     </span>
                   </div>
                   <p className="text-body-sm" style={{ color: 'var(--color-outline)', marginBottom: 12, textAlign: 'left' }}>
-                    Submitted on {new Date(e.submittedAt || e.createdAt).toLocaleDateString()}
+                    {t('feedback.submittedOn', 'Submitted on {date}', { date: new Date(e.submittedAt || e.createdAt).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US') })}
                   </p>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--color-outline-variant)', paddingTop: 12 }}>
                   <span className="text-label-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-                    Word Count: {e.content?.split(/\s+/).filter(Boolean).length || 0}
+                    {t('writing.wordCount', 'Word Count')}: {e.content?.split(/\s+/).filter(Boolean).length || 0}
                   </span>
                   <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontWeight: 'bold', color: 'var(--color-primary)' }}>
-                    <span>View Analysis</span>
+                    <span>{t('feedback.viewAnalysis', 'View Analysis')}</span>
                     <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_forward</span>
                   </span>
                 </div>
@@ -382,38 +428,84 @@ export default function AIFeedbackReview({
   const overallScore = analysis?.overallScore || 0
   const scoresList = [
     { 
-      label: 'Vocabulary Diversity (TTR)', 
+      label: feedbackLang === 'vi' ? 'Độ đa dạng từ vựng (TTR)' : 'Vocabulary Diversity (TTR)', 
       score: analysis?.scores?.vocabularyDiversity || 0, 
       max: 1,
-      description: 'Type-Token Ratio. The ratio of unique words to total words. Sensitive to essay length.'
+      description: feedbackLang === 'vi'
+        ? 'Tỷ lệ Type-Token (từ vựng độc nhất / tổng số từ). Đo lường sự đa dạng của từ vựng.'
+        : 'Type-Token Ratio. The ratio of unique words to total words. Sensitive to essay length.'
     },
     { 
-      label: 'Lexical Diversity (HD-D)', 
+      label: feedbackLang === 'vi' ? 'Độ phong phú từ vựng (HD-D)' : 'Lexical Diversity (HD-D)', 
       score: analysis?.scores?.lexicalDiversityHdd || 0, 
       max: 1,
-      description: 'Hypergeometric Distribution D. Measures variety by sampling 42-word segments. Highly reliable & length-independent.'
+      description: feedbackLang === 'vi'
+        ? 'Hypergeometric Distribution D. Đo lường độc lập với độ dài bài viết bằng mẫu 42 từ.'
+        : 'Hypergeometric Distribution D. Measures variety by sampling 42-word segments. Highly reliable & length-independent.'
     },
     { 
-      label: 'Lexical Diversity (MTLD)', 
+      label: feedbackLang === 'vi' ? 'Độ đa dạng văn bản (MTLD)' : 'Lexical Diversity (MTLD)', 
       score: analysis?.scores?.lexicalDiversityMtld || 0, 
       max: 120,
-      description: 'Measure of Textual Lexical Diversity. Calculates average word run length before TTR drops below 0.72. Target: 50+ (higher is better).'
+      description: feedbackLang === 'vi'
+        ? 'Độ dài chuỗi từ trung bình trước khi TTR giảm dưới 0.72. Chuẩn mục tiêu: 50+.'
+        : 'Measure of Textual Lexical Diversity. Calculates average word run length before TTR drops below 0.72. Target: 50+ (higher is better).'
     },
-    { label: 'Grammar Accuracy', score: analysis?.scores?.grammarAccuracy || 0, max: 10 },
-    { label: 'Coherence & Flow', score: analysis?.scores?.coherence || 0, max: 10 },
-    { label: 'Complexity Index', score: analysis?.scores?.complexityIndex || 0, max: 10 },
+    { label: feedbackLang === 'vi' ? 'Độ chính xác ngữ pháp' : 'Grammar Accuracy', score: analysis?.scores?.grammarAccuracy || 0, max: 10 },
+    { label: feedbackLang === 'vi' ? 'Tính mạch lạc & Liên kết' : 'Coherence & Flow', score: analysis?.scores?.coherence || 0, max: 10 },
+    { label: feedbackLang === 'vi' ? 'Chỉ số độ phức tạp câu' : 'Complexity Index', score: analysis?.scores?.complexityIndex || 0, max: 10 },
   ]
 
   return (
     <div className={`ai-feedback ${embedded ? 'ai-feedback--embedded' : ''}`} style={embedded ? { padding: 0 } : undefined}>
       <section className="ai-feedback__header">
         <div>
-          <h2 className="text-headline-lg">AI Feedback Review</h2>
-          <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-            {essay?.title} — {new Date(essay?.submittedAt || essay?.createdAt).toLocaleDateString()}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <h2 className="text-headline-lg">{t('feedback.title', 'AI Feedback Review')}</h2>
+            <div className="ai-feedback__lang-switcher" aria-label={t('feedback.langToggleLabel', 'Feedback Language')}>
+              <button
+                type="button"
+                className={`ai-feedback__lang-btn ${feedbackLang === 'en' ? 'ai-feedback__lang-btn--active' : ''}`}
+                onClick={() => setFeedbackLang('en')}
+                title="View original English analysis"
+              >
+                <span>🇬🇧 English</span>
+              </button>
+              <button
+                type="button"
+                className={`ai-feedback__lang-btn ${feedbackLang === 'vi' ? 'ai-feedback__lang-btn--active' : ''}`}
+                onClick={() => {
+                  setFeedbackLang('vi')
+                  if (!translationVi && !translating) {
+                    fetchTranslation()
+                  }
+                }}
+                title="Chuyển nhận xét sang tiếng Việt"
+              >
+                <span>🇻🇳 Tiếng Việt</span>
+                {translating && <span className="material-symbols-outlined animate-spin" style={{ fontSize: 14 }}>sync</span>}
+              </button>
+            </div>
+          </div>
+          <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginTop: 4 }}>
+            {essay?.title} — {new Date(essay?.submittedAt || essay?.createdAt).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US')}
           </p>
+          {feedbackLang === 'vi' && translating && (
+            <div className="ai-feedback__translating-badge" style={{ marginTop: 6 }}>
+              <span className="material-symbols-outlined animate-spin" style={{ fontSize: 16 }}>sync</span>
+              <span>{t('feedback.translating', 'Đang dịch nhận xét AI sang tiếng Việt...')}</span>
+            </div>
+          )}
+          {translationError && feedbackLang === 'vi' && (
+            <div style={{ marginTop: 6, fontSize: 12, color: 'var(--color-error)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span>{translationError}</span>
+              <button type="button" className="btn-secondary" style={{ padding: '2px 8px', fontSize: 11 }} onClick={fetchTranslation}>
+                Thử lại
+              </button>
+            </div>
+          )}
         </div>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
           <button
             className="ai-feedback__btn-outline"
             onClick={handleReanalyze}
@@ -423,14 +515,14 @@ export default function AIFeedbackReview({
             <span className={`material-symbols-outlined ${reanalyzing ? 'animate-spin' : ''}`} style={{ fontSize: 18 }}>
               {reanalyzing ? 'progress_activity' : 'refresh'}
             </span>
-            {reanalyzing ? 'Re-analyzing...' : 'Re-analyze'}
+            {reanalyzing ? t('feedback.reanalyzing', 'Re-analyzing...') : t('feedback.reanalyze', 'Re-analyze')}
           </button>
           <button
             className="ai-feedback__btn-primary"
             onClick={() => onRevise ? onRevise() : navigate(`/student/write-essay?id=${essayId}`)}
           >
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>edit</span>
-            Revise Essay
+            {t('feedback.reviseEssay', 'Revise Essay')}
           </button>
           {onComplete && (
             <button
@@ -439,7 +531,7 @@ export default function AIFeedbackReview({
               style={{ borderColor: 'var(--color-primary)', color: 'var(--color-primary)', display: 'inline-flex', alignItems: 'center', gap: 6 }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: 18 }}>check_circle</span>
-              Complete Session
+              {t('feedback.completeSession', 'Complete Session')}
             </button>
           )}
         </div>
@@ -449,12 +541,12 @@ export default function AIFeedbackReview({
         <div className="essay-revision-banner">
           <span className="material-symbols-outlined essay-revision-banner__icon">warning</span>
           <div className="essay-revision-banner__content">
-            <h4>Revision Requested by Teacher</h4>
-            <p>Your teacher reviewed this essay and requested some changes. Please read the comments below and revise your essay.</p>
+            <h4>{t('feedback.revisionRequested', 'Revision Requested by Teacher')}</h4>
+            <p>{t('feedback.revisionRequestedDesc', 'Your teacher reviewed this essay and requested some changes. Please read the comments below and revise your essay.')}</p>
           </div>
           <button className="ai-feedback__btn-primary" onClick={() => navigate(`/student/write-essay?id=${essayId}`)}>
             <span className="material-symbols-outlined" style={{ fontSize: 18 }}>edit</span>
-            Revise Now
+            {t('feedback.reviseNow', 'Revise Now')}
           </button>
         </div>
       )}
@@ -466,14 +558,16 @@ export default function AIFeedbackReview({
             <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--color-primary)' }}>auto_awesome</span>
             <div>
               <p className="text-label-md" style={{ fontWeight: 700, margin: 0 }}>
-                Graded with Teacher&apos;s Custom AI Prompt
+                {feedbackLang === 'vi' ? 'Chấm bằng AI Prompt tùy chỉnh của giáo viên' : 'Graded with Teacher\'s Custom AI Prompt'}
               </p>
               <p className="text-label-sm" style={{ color: 'var(--color-on-surface-variant)', margin: 0 }}>
-                Your teacher applied the prompt &ldquo;<strong>{analysis?.promptUsed?.name || 'Custom Prompt'}</strong>&rdquo; — feedback is tailored specifically for your class.
+                {feedbackLang === 'vi'
+                  ? `Giáo viên của bạn đã áp dụng tiêu chí "${analysis?.promptUsed?.name || 'Custom Prompt'}" dành riêng cho lớp.`
+                  : `Your teacher applied the prompt "${analysis?.promptUsed?.name || 'Custom Prompt'}" — feedback is tailored specifically for your class.`}
               </p>
             </div>
           </div>
-          <span className="ai-feedback__prompt-chip">Custom Prompt</span>
+          <span className="ai-feedback__prompt-chip">{feedbackLang === 'vi' ? 'Prompt của lớp' : 'Custom Prompt'}</span>
         </div>
       )}
       {(analysis?._meta?.isFallback || analysis?.analysisMeta?.isFallback) && (
@@ -494,14 +588,14 @@ export default function AIFeedbackReview({
             <span className="material-symbols-outlined" style={{ fontSize: 20, color: 'var(--color-outline)' }}>settings</span>
             <div>
               <p className="text-label-md" style={{ fontWeight: 600, margin: 0, color: 'var(--color-on-surface-variant)' }}>
-                Graded with LexiGrow Default AI Prompt
+                {feedbackLang === 'vi' ? 'Chấm bằng AI Prompt chuẩn của LexiGrow' : 'Graded with LexiGrow Default AI Prompt'}
               </p>
               <p className="text-label-sm" style={{ color: 'var(--color-outline)', margin: 0 }}>
-                Standard analysis — your teacher has not applied a custom prompt to this class yet.
+                {feedbackLang === 'vi' ? 'Tiêu chuẩn khảo thí IELTS & CEFR tổng quát.' : 'Standard analysis — standard IELTS & CEFR criteria applied.'}
               </p>
             </div>
           </div>
-          <span className="ai-feedback__prompt-chip ai-feedback__prompt-chip--default">Default Prompt</span>
+          <span className="ai-feedback__prompt-chip ai-feedback__prompt-chip--default">{feedbackLang === 'vi' ? 'Chuẩn hệ thống' : 'Default Prompt'}</span>
         </div>
       )}
 
@@ -524,9 +618,13 @@ export default function AIFeedbackReview({
               </div>
             </div>
             <div>
-              <h3 className="text-title-lg">Overall Score</h3>
+              <h3 className="text-title-lg">{t('feedback.overallBand', 'Overall Score')}</h3>
               <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-                {overallScore >= 8 ? 'Excellent Work!' : overallScore >= 6 ? 'Good job, keep it up!' : 'Keep practicing to improve.'}
+                {overallScore >= 8
+                  ? (feedbackLang === 'vi' ? 'Bài viết xuất sắc!' : 'Excellent Work!')
+                  : overallScore >= 6
+                  ? (feedbackLang === 'vi' ? 'Làm tốt lắm, hãy tiếp tục phát huy!' : 'Good job, keep it up!')
+                  : (feedbackLang === 'vi' ? 'Tiếp tục luyện tập để cải thiện thêm nhé.' : 'Keep practicing to improve.')}
               </p>
             </div>
           </div>
@@ -545,12 +643,12 @@ export default function AIFeedbackReview({
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', fontSize: 24 }}>description</span>
-                <h3 className="text-title-lg" style={{ margin: 0 }}>Your Written Essay</h3>
+                <h3 className="text-title-lg" style={{ margin: 0 }}>{t('feedback.originalEssay', 'Your Written Essay')}</h3>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                 <button 
                   onClick={handleCopyEssay} 
-                  title="Copy essay to clipboard"
+                  title={t('feedback.copyEssay', 'Copy essay to clipboard')}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -610,11 +708,9 @@ export default function AIFeedbackReview({
             )}
           </div>
 
-
-
           {/* Detailed Scores */}
           <div className="card-base">
-            <h3 className="text-title-lg" style={{ marginBottom: 20 }}>Detailed Analysis</h3>
+            <h3 className="text-title-lg" style={{ marginBottom: 20 }}>{t('feedback.detailedAnalysis', 'Detailed Analysis')}</h3>
             <div className="ai-feedback__scores">
               {scoresList.map((s, i) => (
                 <div key={i} className="ai-feedback__score-item" style={{ marginBottom: 16 }}>
@@ -641,24 +737,38 @@ export default function AIFeedbackReview({
 
           {/* Suggestions */}
           <div className="card-base">
-            <h3 className="text-title-lg" style={{ marginBottom: 20 }}>AI Suggestions</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 className="text-title-lg" style={{ margin: 0 }}>{t('feedback.aiSuggestions', 'AI Suggestions')}</h3>
+              {feedbackLang === 'vi' && (
+                <span className="text-label-sm" style={{ color: 'var(--color-primary)', display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
+                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>translate</span>
+                  {translating ? t('feedback.translating', 'Đang dịch...') : 'Tiếng Việt'}
+                </span>
+              )}
+            </div>
             <div className="ai-feedback__suggestions">
-              {analysis?.suggestions?.map((s, i) => (
-                <div key={i} className={`ai-feedback__suggestion ai-feedback__suggestion--${s.type || 'strength'}`}>
-                  <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
-                    {s.type === 'strength' ? 'thumb_up' : 'lightbulb'}
-                  </span>
-                  <div>
-                    <p className="text-body-md">{s.text}</p>
-                    {s.quote && <blockquote style={{ margin: '6px 0 0', paddingLeft: 10, borderLeft: '3px solid var(--color-primary)', color: 'var(--color-outline)', fontStyle: 'italic' }}>“{s.quote}”</blockquote>}
-                    {s.suggestedRevision && (
-                      <div className="ai-feedback__suggested-revision" style={{ marginTop: 8, padding: 10, borderRadius: 8, background: 'var(--color-surface-variant)' }}>
-                        <strong>Suggested revision:</strong> {s.suggestedRevision}
-                      </div>
-                    )}
+              {analysis?.suggestions?.map((s, i) => {
+                const trans = feedbackLang === 'vi' ? translationVi?.suggestions?.[i] : null
+                const textToShow = trans?.text || s.text
+                const revisionToShow = trans?.suggestedRevision || s.suggestedRevision
+
+                return (
+                  <div key={i} className={`ai-feedback__suggestion ai-feedback__suggestion--${s.type || 'strength'}`}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
+                      {s.type === 'strength' ? 'thumb_up' : 'lightbulb'}
+                    </span>
+                    <div>
+                      <p className="text-body-md">{textToShow}</p>
+                      {s.quote && <blockquote style={{ margin: '6px 0 0', paddingLeft: 10, borderLeft: '3px solid var(--color-primary)', color: 'var(--color-outline)', fontStyle: 'italic' }}>“{s.quote}”</blockquote>}
+                      {revisionToShow && (
+                        <div className="ai-feedback__suggested-revision" style={{ marginTop: 8, padding: 10, borderRadius: 8, background: 'var(--color-surface-variant)' }}>
+                          <strong>{t('feedback.suggestedRevision', 'Suggested revision:')}</strong> {revisionToShow}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )) || <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>No suggestions generated.</p>}
+                )
+              }) || <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>{t('feedback.noSuggestions', 'No suggestions generated.')}</p>}
             </div>
           </div>
 
@@ -666,13 +776,13 @@ export default function AIFeedbackReview({
           <div className="card-base">
             <h3 className="text-title-lg" style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>grading</span>
-              Teacher Feedback
+              {t('feedback.teacherFeedback', 'Teacher Feedback')}
             </h3>
             {teacherFeedback ? (
               <div style={{ textAlign: 'left' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8 }}>
                   <span className="text-body-md" style={{ fontWeight: 600 }}>
-                    {teacherFeedback.teacher?.name || 'Your teacher'}
+                    {teacherFeedback.teacher?.name || t('feedback.yourTeacher', 'Your teacher')}
                   </span>
                   <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                     <span style={{
@@ -684,7 +794,7 @@ export default function AIFeedbackReview({
                     </span>
                     {teacherFeedback.submittedAt && (
                       <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>
-                        {new Date(teacherFeedback.submittedAt).toLocaleDateString()}
+                        {new Date(teacherFeedback.submittedAt).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US')}
                       </span>
                     )}
                   </div>
@@ -692,10 +802,10 @@ export default function AIFeedbackReview({
                 {teacherFeedback.scores && (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 12, marginBottom: 16 }}>
                     {[
-                      ['Grammar', teacherFeedback.scores.grammar],
-                      ['Vocabulary', teacherFeedback.scores.vocabulary],
-                      ['Coherence', teacherFeedback.scores.coherence],
-                      ['Complexity', teacherFeedback.scores.complexity],
+                      [t('feedback.grammar', 'Grammar'), teacherFeedback.scores.grammar],
+                      [t('feedback.vocabulary', 'Vocabulary'), teacherFeedback.scores.vocabulary],
+                      [t('feedback.coherence', 'Coherence'), teacherFeedback.scores.coherence],
+                      [t('feedback.complexity', 'Complexity'), teacherFeedback.scores.complexity],
                     ].map(([label, score]) => (
                       <div key={label} style={{ padding: '10px 12px', borderRadius: 12, backgroundColor: 'var(--color-surface-container-low)', textAlign: 'center' }}>
                         <div className="text-data-mono" style={{ fontWeight: 700 }}>{score ?? '-'}/10</div>
@@ -707,27 +817,33 @@ export default function AIFeedbackReview({
                 {teacherFeedback.feedbackText ? (
                   <p className="text-body-md" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>{teacherFeedback.feedbackText}</p>
                 ) : (
-                  <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>No written comments yet.</p>
+                  <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>{t('feedback.noTeacherComments', 'No written comments yet.')}</p>
                 )}
               </div>
             ) : (
               <p className="text-body-md" style={{ color: 'var(--color-outline)' }}>
-                Teacher feedback is not available yet.
+                {t('feedback.noTeacherFeedback', 'Teacher feedback is not available yet.')}
               </p>
             )}
           </div>
 
-
-
           {/* Learning Pattern Detection Card */}
           {analysis?.learningPatterns && (
             <div className="card-base" style={{ marginTop: 24 }}>
-              <h3 className="text-title-lg" style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>psychology</span>
-                Learning Patterns & Progress Analysis (AI)
-              </h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <h3 className="text-title-lg" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>psychology</span>
+                  {t('feedback.learningPatternsTitle', 'Learning Patterns & Progress Analysis (AI)')}
+                </h3>
+                {feedbackLang === 'vi' && (
+                  <span className="text-label-sm" style={{ color: 'var(--color-primary)', display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>translate</span>
+                    Tiếng Việt
+                  </span>
+                )}
+              </div>
               <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 20, textAlign: 'left' }}>
-                The AI system analyzes the writing habits of this essay and compares them with the student's historical writing performance to provide in-depth feedback:
+                {t('feedback.learningPatternsSubtitle', 'The AI system analyzes the writing habits of this essay and compares them with the student\'s historical writing performance to provide in-depth feedback:')}
               </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
@@ -741,7 +857,9 @@ export default function AIFeedbackReview({
                   backgroundColor: 'var(--color-surface-container-low)', 
                   border: '1px solid var(--color-outline-variant)' 
                 }}>
-                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>Word Padding Detection</span>
+                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>
+                    {t('feedback.wordPaddingDetection', 'Word Padding Detection')}
+                  </span>
                   {analysis.learningPatterns.paddedSentences ? (
                     <span style={{ 
                       display: 'inline-flex', 
@@ -756,7 +874,7 @@ export default function AIFeedbackReview({
                       alignSelf: 'flex-start'
                     }}>
                       <span className="material-symbols-outlined" style={{ fontSize: 16 }}>warning</span>
-                      Word padding detected
+                      {t('feedback.wordPaddingDetected', 'Word padding detected')}
                     </span>
                   ) : (
                     <span style={{ 
@@ -772,7 +890,7 @@ export default function AIFeedbackReview({
                       alignSelf: 'flex-start'
                     }}>
                       <span className="material-symbols-outlined" style={{ fontSize: 16 }}>check_circle</span>
-                      Concise writing
+                      {t('feedback.conciseWriting', 'Concise writing')}
                     </span>
                   )}
                 </div>
@@ -787,7 +905,9 @@ export default function AIFeedbackReview({
                   backgroundColor: 'var(--color-surface-container-low)', 
                   border: '1px solid var(--color-outline-variant)' 
                 }}>
-                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>Peer Plagiarism Check</span>
+                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>
+                    {t('feedback.peerPlagiarismCheck', 'Peer Plagiarism Check')}
+                  </span>
                   {analysis.plagiarismDetails?.isPlagiarized ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, alignItems: 'flex-start' }}>
                       <span style={{ 
@@ -803,7 +923,7 @@ export default function AIFeedbackReview({
                         alignSelf: 'flex-start'
                       }}>
                         <span className="material-symbols-outlined" style={{ fontSize: 16 }}>gavel</span>
-                        High similarity to peer submission
+                        {t('feedback.highSimilarity', 'High similarity to peer submission')}
                       </span>
                       <div style={{
                         fontSize: '12px',
@@ -815,7 +935,9 @@ export default function AIFeedbackReview({
                         gap: 4
                       }}>
                         <span className="material-symbols-outlined" style={{ fontSize: 14 }}>info</span>
-                        <span>Matches another student essay ({Math.round((analysis.plagiarismDetails.similarityScore || 0) * 100)}% similarity).</span>
+                        <span>
+                          {t('feedback.matchesPeerEssay', 'Matches another student essay ({pct}% similarity).', { pct: Math.round((analysis.plagiarismDetails.similarityScore || 0) * 100) })}
+                        </span>
                       </div>
                     </div>
                   ) : (
@@ -832,11 +954,10 @@ export default function AIFeedbackReview({
                       alignSelf: 'flex-start'
                     }}>
                       <span className="material-symbols-outlined" style={{ fontSize: 16 }}>verified</span>
-                      Original (No peer overlap)
+                      {t('feedback.originalNoPeerOverlap', 'Original (No peer overlap)')}
                     </span>
                   )}
                 </div>
-
 
                 {/* Learning Trajectory Status */}
                 <div style={{ 
@@ -848,32 +969,34 @@ export default function AIFeedbackReview({
                   backgroundColor: 'var(--color-surface-container-low)', 
                   border: '1px solid var(--color-outline-variant)' 
                 }}>
-                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>Learning Trajectory</span>
+                  <span style={{ fontSize: '12px', color: 'var(--color-outline)', fontWeight: 600, textTransform: 'uppercase', textAlign: 'left' }}>
+                    {t('feedback.learningTrajectory', 'Learning Trajectory')}
+                  </span>
                   {(() => {
                     const status = analysis.learningPatterns.learningStatus || 'stable';
                     let config = {
-                      label: 'Stable',
+                      label: t('feedback.trajectoryStable', 'Stable'),
                       color: 'var(--color-primary)',
                       bg: 'rgba(0, 91, 191, 0.1)',
                       icon: 'sync'
                     };
                     if (status === 'progressing') {
                       config = {
-                        label: 'Progressing',
+                        label: t('feedback.trajectoryProgressing', 'Progressing'),
                         color: 'var(--color-success)',
                         bg: 'rgba(22, 163, 74, 0.1)',
                         icon: 'trending_up'
                       };
                     } else if (status === 'plateau') {
                       config = {
-                        label: 'Plateau',
+                        label: t('feedback.trajectoryPlateau', 'Plateau'),
                         color: 'var(--color-tertiary)',
                         bg: 'rgba(234, 88, 12, 0.1)',
                         icon: 'trending_flat'
                       };
                     } else if (status === 'regression') {
                       config = {
-                        label: 'Regression',
+                        label: t('feedback.trajectoryRegression', 'Regression'),
                         color: 'var(--color-error)',
                         bg: 'var(--color-error-container)',
                         icon: 'trending_down'
@@ -912,8 +1035,12 @@ export default function AIFeedbackReview({
                   color: 'var(--color-on-surface-variant)',
                   fontSize: '14px'
                 }}>
-                  <strong>Detailed AI Analysis Feedback:</strong>
-                  <p style={{ margin: '8px 0 0 0' }}>{analysis.learningPatterns.feedback}</p>
+                  <strong>{t('feedback.detailedAiAnalysisFeedback', 'Detailed AI Analysis Feedback:')}</strong>
+                  <p style={{ margin: '8px 0 0 0' }}>
+                    {(feedbackLang === 'vi' && translationVi?.learningPatternsFeedback)
+                      ? translationVi.learningPatternsFeedback
+                      : analysis.learningPatterns.feedback}
+                  </p>
                 </div>
               )}
             </div>
@@ -922,12 +1049,20 @@ export default function AIFeedbackReview({
           {/* Next Essay Suggestions Card */}
           {analysis?.nextEssaySuggestions && (
             <div className="card-base" style={{ marginTop: 24 }}>
-              <h3 className="text-title-lg" style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>tips_and_updates</span>
-                AI Recommendations for Your Next Essay
-              </h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                <h3 className="text-title-lg" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>tips_and_updates</span>
+                  {t('feedback.recommendationsTitle', 'AI Recommendations for Your Next Essay')}
+                </h3>
+                {feedbackLang === 'vi' && (
+                  <span className="text-label-sm" style={{ color: 'var(--color-primary)', display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: 600 }}>
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>translate</span>
+                    Tiếng Việt
+                  </span>
+                )}
+              </div>
               <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 20, textAlign: 'left' }}>
-                To level up your writing, try incorporating these specific transition words and sentence structures in your next draft:
+                {t('feedback.recommendationsSubtitle', 'To level up your writing, try incorporating these specific transition words and sentence structures in your next draft:')}
               </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20, marginBottom: 20 }}>
@@ -943,7 +1078,9 @@ export default function AIFeedbackReview({
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', fontSize: 20 }}>link</span>
-                    <span className="text-label-md" style={{ fontWeight: 700 }}>Advanced Transition Words</span>
+                    <span className="text-label-md" style={{ fontWeight: 700 }}>
+                      {t('feedback.advancedTransitions', 'Advanced Transition Words')}
+                    </span>
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                     {analysis.nextEssaySuggestions.transitionWords?.map((word, i) => (
@@ -957,7 +1094,7 @@ export default function AIFeedbackReview({
                       }}>
                         {word}
                       </span>
-                    )) || <span style={{ color: 'var(--color-outline)' }}>None recommended</span>}
+                    )) || <span style={{ color: 'var(--color-outline)' }}>{t('feedback.noneRecommended', 'None recommended')}</span>}
                   </div>
                 </div>
 
@@ -973,7 +1110,9 @@ export default function AIFeedbackReview({
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span className="material-symbols-outlined" style={{ color: 'var(--color-secondary)', fontSize: 20 }}>segment</span>
-                    <span className="text-label-md" style={{ fontWeight: 700 }}>Sentence Structures to Try</span>
+                    <span className="text-label-md" style={{ fontWeight: 700 }}>
+                      {t('feedback.sentenceStructures', 'Sentence Structures to Try')}
+                    </span>
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                     {analysis.nextEssaySuggestions.sentenceStructures?.map((struct, i) => (
@@ -987,7 +1126,7 @@ export default function AIFeedbackReview({
                       }}>
                         {struct}
                       </span>
-                    )) || <span style={{ color: 'var(--color-outline)' }}>None recommended</span>}
+                    )) || <span style={{ color: 'var(--color-outline)' }}>{t('feedback.noneRecommended', 'None recommended')}</span>}
                   </div>
                 </div>
               </div>
@@ -1004,8 +1143,12 @@ export default function AIFeedbackReview({
                   color: 'var(--color-on-surface-variant)',
                   fontSize: '14px'
                 }}>
-                  <strong>Tips & Advice:</strong>
-                  <p style={{ margin: '8px 0 0 0' }}>{analysis.nextEssaySuggestions.generalTips}</p>
+                  <strong>{t('feedback.tipsAndAdvice', 'Tips & Advice:')}</strong>
+                  <p style={{ margin: '8px 0 0 0' }}>
+                    {(feedbackLang === 'vi' && translationVi?.generalTips)
+                      ? translationVi.generalTips
+                      : analysis.nextEssaySuggestions.generalTips}
+                  </p>
                 </div>
               )}
             </div>
@@ -1016,29 +1159,33 @@ export default function AIFeedbackReview({
             <div className="card-base ai-feedback__nlp-analysis" style={{ marginTop: 24 }}>
               <h3 className="text-title-lg" style={{ marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)' }}>analytics</span>
-                Sentence Structure & Word Repetitions
+                {t('feedback.sentenceStructureTitle', 'Sentence Structure & Word Repetitions')}
               </h3>
               
               <div className="ai-feedback__nlp-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
                 <div className="ai-feedback__nlp-card" style={{ padding: 16, borderRadius: 12, backgroundColor: 'var(--color-surface-variant)', border: '1px solid var(--color-outline-variant)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                     <span className="material-symbols-outlined" style={{ color: 'var(--color-secondary)' }}>swap_calls</span>
-                    <span className="text-label-md" style={{ fontWeight: 700 }}>Passive Voice Constructions</span>
+                    <span className="text-label-md" style={{ fontWeight: 700 }}>{t('feedback.passiveVoice', 'Passive Voice Constructions')}</span>
                   </div>
                   <p className="text-headline-md" style={{ margin: 0 }}>{analysis.nlpStats.passiveVoiceCount}</p>
                   <p className="text-body-sm" style={{ color: 'var(--color-outline)', marginTop: 4 }}>
-                    {analysis.nlpStats.passiveVoiceCount > 3 ? 'Try to use active voice more often to make writing punchy.' : 'Good balance of active/passive structures.'}
+                    {analysis.nlpStats.passiveVoiceCount > 3
+                      ? t('feedback.passiveHintHigh', 'Try to use active voice more often to make writing punchy.')
+                      : t('feedback.passiveHintGood', 'Good balance of active/passive structures.')}
                   </p>
                 </div>
 
                 <div className="ai-feedback__nlp-card" style={{ padding: 16, borderRadius: 12, backgroundColor: 'var(--color-surface-variant)', border: '1px solid var(--color-outline-variant)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                     <span className="material-symbols-outlined" style={{ color: 'var(--color-tertiary)' }}>schema</span>
-                    <span className="text-label-md" style={{ fontWeight: 700 }}>Subordinate Clauses</span>
+                    <span className="text-label-md" style={{ fontWeight: 700 }}>{t('feedback.subordinateClauses', 'Subordinate Clauses')}</span>
                   </div>
                   <p className="text-headline-md" style={{ margin: 0 }}>{analysis.nlpStats.subordinateClausesCount}</p>
                   <p className="text-body-sm" style={{ color: 'var(--color-outline)', marginTop: 4 }}>
-                    {analysis.nlpStats.subordinateClausesCount > 0 ? 'Indicates usage of complex sentences and connectors.' : 'Try using conjunctions (because, since, although) to connect clauses.'}
+                    {analysis.nlpStats.subordinateClausesCount > 0
+                      ? t('feedback.clauseHintGood', 'Indicates usage of complex sentences and connectors.')
+                      : t('feedback.clauseHintLow', 'Try using conjunctions (because, since, although) to connect clauses.')}
                   </p>
                 </div>
               </div>
@@ -1047,10 +1194,10 @@ export default function AIFeedbackReview({
                 <div className="ai-feedback__repeated-words" style={{ borderTop: '1px solid var(--color-outline-variant)', paddingTop: 16 }}>
                   <h4 className="text-title-md" style={{ marginBottom: 12, color: 'var(--color-error)', display: 'flex', alignItems: 'center', gap: 8 }}>
                     <span className="material-symbols-outlined">warning</span>
-                    Overused Words Alert
+                    {t('feedback.overusedWordsAlert', 'Overused Words Alert')}
                   </h4>
                   <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)', marginBottom: 16 }}>
-                    These words are repeated frequently. Click a suggested synonym to copy it, or click the plus icon to add it to your study list:
+                    {t('feedback.overusedWordsDesc', 'These words are repeated frequently. Click a suggested synonym to copy it, or click the plus icon to add it to your study list:')}
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                     {analysis.nlpStats.repeatedWords.map((item, idx) => {
@@ -1082,14 +1229,16 @@ export default function AIFeedbackReview({
                               <strong>{item.word}</strong>
                             </span>
                             <span style={{ fontSize: '13px', color: 'var(--color-outline)' }}>
-                              repeated <strong>{item.count}</strong> times
+                              {t('feedback.repeatedTimes', 'repeated {count} times', { count: item.count })}
                             </span>
                           </div>
                           
                           {sugList.length > 0 ? (
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                               <span className="material-symbols-outlined" style={{ fontSize: 18, color: 'var(--color-success)' }}>trending_flat</span>
-                              <span style={{ fontSize: '13px', color: 'var(--color-on-surface-variant)', marginRight: 4, fontWeight: 500 }}>Try instead:</span>
+                              <span style={{ fontSize: '13px', color: 'var(--color-on-surface-variant)', marginRight: 4, fontWeight: 500 }}>
+                                {t('feedback.tryInstead', 'Try instead:')}
+                              </span>
                               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                                 {sugList.map((sug, sIdx) => {
                                   const isCopied = copiedSynonym === sug;
@@ -1127,7 +1276,7 @@ export default function AIFeedbackReview({
                                       {/* Copy Action Part */}
                                       <button
                                         onClick={() => handleCopySynonym(sug)}
-                                        title="Click to copy"
+                                        title={t('feedback.clickToCopy', 'Click to copy')}
                                         style={{
                                           background: 'none',
                                           border: 'none',
@@ -1157,7 +1306,7 @@ export default function AIFeedbackReview({
                                           <span className="material-symbols-outlined animate-spin" style={{ fontSize: 14 }}>progress_activity</span>
                                         </span>
                                       ) : status === 'added' ? (
-                                        <span title="Added to vocabulary" style={{ padding: '6px 8px', display: 'inline-flex', alignItems: 'center', color: 'var(--color-success)' }}>
+                                        <span title={t('feedback.addedToVocab', 'Added to vocabulary')} style={{ padding: '6px 8px', display: 'inline-flex', alignItems: 'center', color: 'var(--color-success)' }}>
                                           <span className="material-symbols-outlined" style={{ fontSize: 14 }}>check_circle</span>
                                         </span>
                                       ) : (
@@ -1166,7 +1315,7 @@ export default function AIFeedbackReview({
                                             e.stopPropagation()
                                             handleAddWord(sug)
                                           }}
-                                          title="Add to study list"
+                                          title={t('feedback.addToStudyList', 'Add to study list')}
                                           style={{
                                             background: 'none',
                                             border: 'none',
@@ -1190,7 +1339,7 @@ export default function AIFeedbackReview({
                             </div>
                           ) : (
                             <div style={{ fontSize: '13px', color: 'var(--color-outline)' }}>
-                              No recommendations available. Try reanalyzing this essay.
+                              {t('feedback.noWordRecommendations', 'No recommendations available.')}
                             </div>
                           )}
                         </div>
@@ -1208,36 +1357,36 @@ export default function AIFeedbackReview({
           <div className="card-base">
             <h3 className="text-title-lg" style={{ marginBottom: 16 }}>
               <span className="material-symbols-outlined" style={{ color: 'var(--color-primary)', marginRight: 8 }}>auto_awesome</span>
-              New Words Detected
+              {t('feedback.newWordsDetected', 'New Words Detected')}
             </h3>
             <p className="text-label-sm" style={{ color: 'var(--color-outline)', marginBottom: 16 }}>
-              {analysis?.newWordsDetected?.length || 0} new words added to your library
+              {t('feedback.newWordsDesc', '{count} new words added to your library', { count: analysis?.newWordsDetected?.length || 0 })}
             </p>
             <div className="ai-feedback__words">
               {analysis?.newWordsDetected?.map((w, i) => (
                 <span key={i} className="ai-feedback__word-chip">{w}</span>
-              )) || <span className="text-body-md" style={{ color: 'var(--color-outline)' }}>None detected.</span>}
+              )) || <span className="text-body-md" style={{ color: 'var(--color-outline)' }}>{t('feedback.noneDetected', 'None detected.')}</span>}
             </div>
           </div>
 
           <div className="card-base">
-            <h3 className="text-title-lg" style={{ marginBottom: 16 }}>Writing Stats</h3>
+            <h3 className="text-title-lg" style={{ marginBottom: 16 }}>{t('feedback.writingStats', 'Writing Stats')}</h3>
             <div className="ai-feedback__writing-stats">
               <div className="ai-feedback__wstat">
-                <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Word Count</span>
+                <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>{t('writing.wordCount', 'Word Count')}</span>
                 <span className="text-data-mono">{essay?.wordCount || 0}</span>
               </div>
               <div className="ai-feedback__wstat">
-                <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Paragraphs</span>
+                <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>{t('writing.paragraphs', 'Paragraphs')}</span>
                 <span className="text-data-mono">{essay?.paragraphCount || 0}</span>
               </div>
               <div className="ai-feedback__wstat">
-                <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Unique Words</span>
+                <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>{t('feedback.uniqueWords', 'Unique Words')}</span>
                 <span className="text-data-mono">{analysis?.writingStats?.uniqueWords || 'N/A'}</span>
               </div>
               <div className="ai-feedback__wstat">
-                <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>Reading Time</span>
-                <span className="text-data-mono">{essay?.readingTime || 1} min</span>
+                <span className="text-label-sm" style={{ color: 'var(--color-outline)' }}>{t('feedback.readingTime', 'Reading Time')}</span>
+                <span className="text-data-mono">{essay?.readingTime || 1} {t('common.min', 'min')}</span>
               </div>
             </div>
           </div>
