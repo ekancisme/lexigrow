@@ -1,0 +1,35 @@
+{
+  "language": "en",
+  "theme": "dark",
+  "errors": [],
+  "loader": [
+    {
+      "class": "ai-grading-loader__step ai-grading-loader__step--done  ",
+      "title": "1. Đánh giá từ vựng mục tiêu (Target Vocabulary Check)\nĐÃ HOÀN TẤT",
+      "bg": "rgb(240, 253, 244)",
+      "color": "rgb(226, 232, 240)",
+      "desc": "rgb(148, 163, 184)"
+    },
+    {
+      "class": "ai-grading-loader__step  ai-grading-loader__step--current ",
+      "title": "2. Phân tích ngữ pháp & Độ phong phú từ vựng (Grammar & Lexical Diversity)\nĐANG XỬ LÝ",
+      "bg": "rgb(239, 246, 255)",
+      "color": "rgb(226, 232, 240)",
+      "desc": "rgb(148, 163, 184)"
+    },
+    {
+      "class": "ai-grading-loader__step   ai-grading-loader__step--pending",
+      "title": "3. Đo lường mạch lạc & Đề xuất cải thiện (Coherence & Suggestions)",
+      "bg": "rgb(14, 20, 32)",
+      "color": "rgb(226, 232, 240)",
+      "desc": "rgb(148, 163, 184)"
+    },
+    {
+      "class": "ai-grading-loader__step   ai-grading-loader__step--pending",
+      "title": "4. Hoàn thiện bảng điểm & Báo cáo chi tiết (Compiling Report)",
+      "bg": "rgb(14, 20, 32)",
+      "color": "rgb(226, 232, 240)",
+      "desc": "rgb(148, 163, 184)"
+    }
+  ]
+}

@@ -1,0 +1,3340 @@
+[
+  {
+    "path": "/student/dashboard",
+    "width": 360,
+    "language": "en",
+    "theme": "light",
+    "bodyWidth": 354,
+    "viewport": 360,
+    "over": [],
+    "main": [],
+    "grid": [],
+    "primary": [],
+    "srs": [],
+    "infoBadge": [],
+    "words": [],
+    "text": "auto_stories\nLexiGrow\n\nMeasured Growth\n\nclose\nhome\nToday\nexplore\nExplore\nedit_note\nSmart Writing\nhistory_edu\nEssay History & Drafts\nmenu_book\nMy Words\nschool\nMy Classes\nforest\nGrowth Garden\nworkspace_premium\nUpgrade Plan\nadd\nNew Entry\nsettings\nSettings\nlogout\nLogout\nmenu\nrocket_launch\nUpgrade\nEN\nexpand_more\ndark_mode\nnotifications\nperson\nprogress_activity",
+    "errors": []
+  },
+  {
+    "path": "/student/dashboard",
+    "width": 768,
+    "language": "en",
+    "theme": "light",
+    "bodyWidth": 762,
+    "viewport": 768,
+    "over": [],
+    "main": [
+      {
+        "text": "schedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · ",
+        "w": 730,
+        "h": 1162,
+        "scrollWidth": 730,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "grid": [
+      {
+        "text": "schedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · ",
+        "w": 730,
+        "h": 1963,
+        "scrollWidth": 730,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "730px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nContinue Learning",
+        "w": 218,
+        "h": 48,
+        "scrollWidth": 216,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "auto"
+      },
+      {
+        "text": "Review Flashcards\narrow_forward",
+        "w": 688,
+        "h": 40,
+        "scrollWidth": 686,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "srs": [
+      {
+        "text": "style\nSpaced Repetition\n12 Words Due Review\n\nTap card to reveal definition\n\nReview Flashcards\narrow_",
+        "w": 730,
+        "h": 177,
+        "scrollWidth": 728,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgb(239, 246, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "infoBadge": [],
+    "words": [],
+    "text": "auto_stories\nLexiGrow\n\nMeasured Growth\n\nclose\nhome\nToday\nexplore\nExplore\nedit_note\nSmart Writing\nhistory_edu\nEssay History & Drafts\nmenu_book\nMy Words\nschool\nMy Classes\nforest\nGrowth Garden\nworkspace_premium\nUpgrade Plan\nadd\nNew Entry\nsettings\nSettings\nlogout\nLogout\nmenu\nsearch\nrocket_launch\nUpgrade\nEN\nexpand_more\ndark_mode\nnotifications\n\nHọc viên kiểm tra\n\nStudent (B2)\n\nperson\nschedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · deforestation\n\nĐề xuất bộ từ luyện tập về bảo tồn tài nguyên thiên nhiên.\n\nplay_circle\nContinue Learning\nexplore\nExplore Vocabulary Sets\nEssays Submitted\ndescription\n\n11\n\nVocab Growth\ntrending_up\n\n+28\n\n+20% vs last month\n\nVocabulary Diversity\nanalytics\n\n60%\n\nEstimated CEFR Level\nequalizer\n\nB2\n\nBased on active writing\n\nVocabulary Growth\nWeekly\nMonthly\nMon\nTue\nWed\nRecent Essay Submissions\n\nTrack your completed essays and review feedback\n\nAll →\narticle\nBài viết về sự bảo tồn tài nguyên thiên nhiên và động vật hoang dã\nOct 1, 2026 · 88 words\nGraded by AI\nlocal_fire_department\n7 Day Streak\nKeep the momentum going!\nstyle\nSpaced Repetition\n12 Words Due Review\n\nTap card to reveal definition\n\nReview Flashcards\narrow_forward\nWeekly Goals\nSettings\n53%\n\nNew Words Acquired\n\n8 / 15 words\n\n40%\n\nWriting Volume\n\n200 / 500 words\n\n50%\n\nTarget Level\n\nLevel: B2\n\nyard\nGrowth Garden\nVisualize your vocabulary expansion. Every mastered word waters your tree!\n\nEach mastered word waters your tree.\n\npotted_plant",
+    "errors": []
+  },
+  {
+    "path": "/student/dashboard",
+    "width": 1100,
+    "language": "en",
+    "theme": "light",
+    "bodyWidth": 1094,
+    "viewport": 1100,
+    "over": [],
+    "main": [
+      {
+        "text": "schedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · ",
+        "w": 386,
+        "h": 1339,
+        "scrollWidth": 667,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "grid": [
+      {
+        "text": "schedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · ",
+        "w": 750,
+        "h": 1339,
+        "scrollWidth": 750,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "386px 340px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nContinue Learning",
+        "w": 218,
+        "h": 48,
+        "scrollWidth": 216,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "auto"
+      },
+      {
+        "text": "Review Flashcards\narrow_forward",
+        "w": 298,
+        "h": 40,
+        "scrollWidth": 296,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "srs": [
+      {
+        "text": "style\nSpaced Repetition\n12 Words Due Review\n\nTap card to reveal definition\n\nReview Flashcards\narrow_",
+        "w": 340,
+        "h": 177,
+        "scrollWidth": 338,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgb(239, 246, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "infoBadge": [],
+    "words": [],
+    "text": "auto_stories\nLexiGrow\n\nMeasured Growth\n\nhome\nToday\nexplore\nExplore\nedit_note\nSmart Writing\nhistory_edu\nEssay History & Drafts\nmenu_book\nMy Words\nschool\nMy Classes\nforest\nGrowth Garden\nworkspace_premium\nUpgrade Plan\nadd\nNew Entry\nsettings\nSettings\nlogout\nLogout\nsearch\nrocket_launch\nUpgrade\nEN\nexpand_more\ndark_mode\nnotifications\n\nHọc viên kiểm tra\n\nStudent (B2)\n\nperson\nschedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · deforestation\n\nĐề xuất bộ từ luyện tập về bảo tồn tài nguyên thiên nhiên.\n\nplay_circle\nContinue Learning\nexplore\nExplore Vocabulary Sets\nEssays Submitted\ndescription\n\n11\n\nVocab Growth\ntrending_up\n\n+28\n\n+20% vs last month\n\nVocabulary Diversity\nanalytics\n\n61%\n\nEstimated CEFR Level\nequalizer\n\nB2\n\nBased on active writing\n\nVocabulary Growth\nWeekly\nMonthly\nMon\nTue\nWed\nRecent Essay Submissions\n\nTrack your completed essays and review feedback\n\nAll →\narticle\nBài viết về sự bảo tồn tài nguyên thiên nhiên và động vật hoang dã\nOct 1, 2026 · 88 words\nGraded by AI\nlocal_fire_department\n7 Day Streak\nKeep the momentum going!\nstyle\nSpaced Repetition\n12 Words Due Review\n\nTap card to reveal definition\n\nReview Flashcards\narrow_forward\nWeekly Goals\nSettings\n53%\n\nNew Words Acquired\n\n8 / 15 words\n\n40%\n\nWriting Volume\n\n200 / 500 words\n\n50%\n\nTarget Level\n\nLevel: B2\n\nyard\nGrowth Garden\nVisualize your vocabulary expansion. Every mastered word waters your tree!\n\nEach mastered word waters your tree.\n\npotted_plant",
+    "errors": []
+  },
+  {
+    "path": "/student/dashboard",
+    "width": 1440,
+    "language": "en",
+    "theme": "light",
+    "bodyWidth": 1434,
+    "viewport": 1440,
+    "over": [],
+    "main": [
+      {
+        "text": "schedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · ",
+        "w": 698,
+        "h": 1182,
+        "scrollWidth": 698,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "grid": [
+      {
+        "text": "schedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · ",
+        "w": 1090,
+        "h": 1182,
+        "scrollWidth": 1090,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "698px 360px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nContinue Learning",
+        "w": 218,
+        "h": 48,
+        "scrollWidth": 216,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "auto"
+      },
+      {
+        "text": "Review Flashcards\narrow_forward",
+        "w": 318,
+        "h": 40,
+        "scrollWidth": 316,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "srs": [
+      {
+        "text": "style\nSpaced Repetition\n12 Words Due Review\n\nTap card to reveal definition\n\nReview Flashcards\narrow_",
+        "w": 360,
+        "h": 177,
+        "scrollWidth": 358,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgb(239, 246, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "infoBadge": [],
+    "words": [],
+    "text": "auto_stories\nLexiGrow\n\nMeasured Growth\n\nhome\nToday\nexplore\nExplore\nedit_note\nSmart Writing\nhistory_edu\nEssay History & Drafts\nmenu_book\nMy Words\nschool\nMy Classes\nforest\nGrowth Garden\nworkspace_premium\nUpgrade Plan\nadd\nNew Entry\nsettings\nSettings\nlogout\nLogout\nsearch\nrocket_launch\nUpgrade\nEN\nexpand_more\ndark_mode\nnotifications\n\nHọc viên kiểm tra\n\nStudent (B2)\n\nperson\nschedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · deforestation\n\nĐề xuất bộ từ luyện tập về bảo tồn tài nguyên thiên nhiên.\n\nplay_circle\nContinue Learning\nexplore\nExplore Vocabulary Sets\nEssays Submitted\ndescription\n\n11\n\nVocab Growth\ntrending_up\n\n+29\n\n+20% vs last month\n\nVocabulary Diversity\nanalytics\n\n62%\n\nEstimated CEFR Level\nequalizer\n\nB2\n\nBased on active writing\n\nVocabulary Growth\nWeekly\nMonthly\nMon\nTue\nWed\nRecent Essay Submissions\n\nTrack your completed essays and review feedback\n\nAll →\narticle\nBài viết về sự bảo tồn tài nguyên thiên nhiên và động vật hoang dã\nOct 1, 2026 · 88 words\nGraded by AI\nlocal_fire_department\n7 Day Streak\nKeep the momentum going!\nstyle\nSpaced Repetition\n12 Words Due Review\n\nTap card to reveal definition\n\nReview Flashcards\narrow_forward\nWeekly Goals\nSettings\n53%\n\nNew Words Acquired\n\n8 / 15 words\n\n40%\n\nWriting Volume\n\n200 / 500 words\n\n50%\n\nTarget Level\n\nLevel: B2\n\nyard\nGrowth Garden\nVisualize your vocabulary expansion. Every mastered word waters your tree!\n\nEach mastered word waters your tree.\n\npotted_plant",
+    "errors": []
+  },
+  {
+    "path": "/student/explore",
+    "width": 360,
+    "language": "en",
+    "theme": "light",
+    "bodyWidth": 354,
+    "viewport": 360,
+    "over": [],
+    "main": [],
+    "grid": [
+      {
+        "text": "A2\nschedule\n10 mins\nDaily Life & Routines\nSinh hoạt hàng ngày, đi lại & năng suất\n\nMaster essential ",
+        "w": 322,
+        "h": 3424,
+        "scrollWidth": 322,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "322px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (12 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "srs": [],
+    "infoBadge": [
+      {
+        "text": "explore\nThematic Vocabulary Sets Library",
+        "w": 234,
+        "h": 24,
+        "scrollWidth": 232,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "words": [
+      {
+        "text": "Daily habits",
+        "w": 232,
+        "h": 17,
+        "scrollWidth": 232,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "Travel to work/school",
+        "w": 232,
+        "h": 17,
+        "scrollWidth": 232,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "High efficiency",
+        "w": 232,
+        "h": 17,
+        "scrollWidth": 232,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "text": "ntial expressions for daily routines, commuting to work/school, and maintaining high productivity.\n\nformat_list_bulleted\n4 TARGET VOCABULARY WORDS:\nroutine\nDaily habits\ncommute\nTravel to work/school\nproductive\nHigh efficiency\nefficient\nTime-saving\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n10 mins\nTravel & Exploration\nDu lịch, lịch trình & trải nghiệm\n\nDescribe famous landmarks, detailed travel itineraries, and reserving hotel rooms.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nitinerary\nTrip schedule\naccommodation\nLodging\nlandmark\nFamous site\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n10 mins\nHobbies & Creative Arts\nSở thích, thư giãn & nghệ thuật\n\nExpress passion for photography, cooking, gardening, and work-life balance.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nphotography\nTaking photos\ngardening\nPlant care\ncooking\nCulinary arts\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n12 mins\nTechnology & Digital Era\nCông nghệ, đổi mới & kết nối số\n\nDiscuss technological innovation, remote collaboration, accessibility, and AI revolution.\n\nformat_list_bulleted\n4 TARGET VOCABULARY WORDS:\ninnovation\nGroundbreaking\ncollaboration\nTeamwork\naccessible\nEasy to reach\nrevolutionize\nTransform\nplay_circle\nStart Session (12 mins)\nB2\nschedule\n10 mins\nEnvironment & Sustainability\nMôi trường, sinh thái & phát triển bền vững\n\nDiscuss biodiversity, climate action, fragile ecosystems, and sustainable development.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nsustainable\nEco-friendly\nbiodiversity\nBiological variety\necosystem\nLiving network\nplay_circle\nStart Session (10 mins)",
+    "errors": []
+  },
+  {
+    "path": "/student/explore",
+    "width": 768,
+    "language": "en",
+    "theme": "light",
+    "bodyWidth": 762,
+    "viewport": 768,
+    "over": [],
+    "main": [],
+    "grid": [
+      {
+        "text": "A2\nschedule\n10 mins\nDaily Life & Routines\nSinh hoạt hàng ngày, đi lại & năng suất\n\nMaster essential ",
+        "w": 730,
+        "h": 1935,
+        "scrollWidth": 730,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "353px 353px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (12 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "srs": [],
+    "infoBadge": [
+      {
+        "text": "explore\nThematic Vocabulary Sets Library",
+        "w": 234,
+        "h": 24,
+        "scrollWidth": 232,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "words": [
+      {
+        "text": "Daily habits",
+        "w": 212,
+        "h": 17,
+        "scrollWidth": 212,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "Travel to work/school",
+        "w": 199,
+        "h": 17,
+        "scrollWidth": 199,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "High efficiency",
+        "w": 191,
+        "h": 17,
+        "scrollWidth": 191,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "text": "ntial expressions for daily routines, commuting to work/school, and maintaining high productivity.\n\nformat_list_bulleted\n4 TARGET VOCABULARY WORDS:\nroutine\nDaily habits\ncommute\nTravel to work/school\nproductive\nHigh efficiency\nefficient\nTime-saving\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n10 mins\nTravel & Exploration\nDu lịch, lịch trình & trải nghiệm\n\nDescribe famous landmarks, detailed travel itineraries, and reserving hotel rooms.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nitinerary\nTrip schedule\naccommodation\nLodging\nlandmark\nFamous site\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n10 mins\nHobbies & Creative Arts\nSở thích, thư giãn & nghệ thuật\n\nExpress passion for photography, cooking, gardening, and work-life balance.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nphotography\nTaking photos\ngardening\nPlant care\ncooking\nCulinary arts\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n12 mins\nTechnology & Digital Era\nCông nghệ, đổi mới & kết nối số\n\nDiscuss technological innovation, remote collaboration, accessibility, and AI revolution.\n\nformat_list_bulleted\n4 TARGET VOCABULARY WORDS:\ninnovation\nGroundbreaking\ncollaboration\nTeamwork\naccessible\nEasy to reach\nrevolutionize\nTransform\nplay_circle\nStart Session (12 mins)\nB2\nschedule\n10 mins\nEnvironment & Sustainability\nMôi trường, sinh thái & phát triển bền vững\n\nDiscuss biodiversity, climate action, fragile ecosystems, and sustainable development.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nsustainable\nEco-friendly\nbiodiversity\nBiological variety\necosystem\nLiving network\nplay_circle\nStart Session (10 mins)",
+    "errors": []
+  },
+  {
+    "path": "/student/explore",
+    "width": 1100,
+    "language": "en",
+    "theme": "light",
+    "bodyWidth": 1094,
+    "viewport": 1100,
+    "over": [],
+    "main": [],
+    "grid": [
+      {
+        "text": "A2\nschedule\n10 mins\nDaily Life & Routines\nSinh hoạt hàng ngày, đi lại & năng suất\n\nMaster essential ",
+        "w": 750,
+        "h": 1952,
+        "scrollWidth": 750,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "363px 363px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (12 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "srs": [],
+    "infoBadge": [
+      {
+        "text": "explore\nThematic Vocabulary Sets Library",
+        "w": 234,
+        "h": 24,
+        "scrollWidth": 232,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "words": [
+      {
+        "text": "Daily habits",
+        "w": 222,
+        "h": 17,
+        "scrollWidth": 222,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "Travel to work/school",
+        "w": 209,
+        "h": 17,
+        "scrollWidth": 209,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "High efficiency",
+        "w": 201,
+        "h": 17,
+        "scrollWidth": 201,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "text": "ntial expressions for daily routines, commuting to work/school, and maintaining high productivity.\n\nformat_list_bulleted\n4 TARGET VOCABULARY WORDS:\nroutine\nDaily habits\ncommute\nTravel to work/school\nproductive\nHigh efficiency\nefficient\nTime-saving\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n10 mins\nTravel & Exploration\nDu lịch, lịch trình & trải nghiệm\n\nDescribe famous landmarks, detailed travel itineraries, and reserving hotel rooms.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nitinerary\nTrip schedule\naccommodation\nLodging\nlandmark\nFamous site\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n10 mins\nHobbies & Creative Arts\nSở thích, thư giãn & nghệ thuật\n\nExpress passion for photography, cooking, gardening, and work-life balance.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nphotography\nTaking photos\ngardening\nPlant care\ncooking\nCulinary arts\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n12 mins\nTechnology & Digital Era\nCông nghệ, đổi mới & kết nối số\n\nDiscuss technological innovation, remote collaboration, accessibility, and AI revolution.\n\nformat_list_bulleted\n4 TARGET VOCABULARY WORDS:\ninnovation\nGroundbreaking\ncollaboration\nTeamwork\naccessible\nEasy to reach\nrevolutionize\nTransform\nplay_circle\nStart Session (12 mins)\nB2\nschedule\n10 mins\nEnvironment & Sustainability\nMôi trường, sinh thái & phát triển bền vững\n\nDiscuss biodiversity, climate action, fragile ecosystems, and sustainable development.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nsustainable\nEco-friendly\nbiodiversity\nBiological variety\necosystem\nLiving network\nplay_circle\nStart Session (10 mins)",
+    "errors": []
+  },
+  {
+    "path": "/student/explore",
+    "width": 1440,
+    "language": "en",
+    "theme": "light",
+    "bodyWidth": 1434,
+    "viewport": 1440,
+    "over": [],
+    "main": [],
+    "grid": [
+      {
+        "text": "A2\nschedule\n10 mins\nDaily Life & Routines\nSinh hoạt hàng ngày, đi lại & năng suất\n\nMaster essential ",
+        "w": 1090,
+        "h": 1305,
+        "scrollWidth": 1090,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "347.328px 347.328px 347.344px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (12 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "srs": [],
+    "infoBadge": [
+      {
+        "text": "explore\nThematic Vocabulary Sets Library",
+        "w": 234,
+        "h": 24,
+        "scrollWidth": 232,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "words": [
+      {
+        "text": "Daily habits",
+        "w": 206,
+        "h": 17,
+        "scrollWidth": 206,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "Travel to work/school",
+        "w": 193,
+        "h": 17,
+        "scrollWidth": 193,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "High efficiency",
+        "w": 185,
+        "h": 17,
+        "scrollWidth": 185,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "text": "ntial expressions for daily routines, commuting to work/school, and maintaining high productivity.\n\nformat_list_bulleted\n4 TARGET VOCABULARY WORDS:\nroutine\nDaily habits\ncommute\nTravel to work/school\nproductive\nHigh efficiency\nefficient\nTime-saving\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n10 mins\nTravel & Exploration\nDu lịch, lịch trình & trải nghiệm\n\nDescribe famous landmarks, detailed travel itineraries, and reserving hotel rooms.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nitinerary\nTrip schedule\naccommodation\nLodging\nlandmark\nFamous site\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n10 mins\nHobbies & Creative Arts\nSở thích, thư giãn & nghệ thuật\n\nExpress passion for photography, cooking, gardening, and work-life balance.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nphotography\nTaking photos\ngardening\nPlant care\ncooking\nCulinary arts\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n12 mins\nTechnology & Digital Era\nCông nghệ, đổi mới & kết nối số\n\nDiscuss technological innovation, remote collaboration, accessibility, and AI revolution.\n\nformat_list_bulleted\n4 TARGET VOCABULARY WORDS:\ninnovation\nGroundbreaking\ncollaboration\nTeamwork\naccessible\nEasy to reach\nrevolutionize\nTransform\nplay_circle\nStart Session (12 mins)\nB2\nschedule\n10 mins\nEnvironment & Sustainability\nMôi trường, sinh thái & phát triển bền vững\n\nDiscuss biodiversity, climate action, fragile ecosystems, and sustainable development.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nsustainable\nEco-friendly\nbiodiversity\nBiological variety\necosystem\nLiving network\nplay_circle\nStart Session (10 mins)",
+    "errors": []
+  },
+  {
+    "path": "/student/game",
+    "width": 360,
+    "language": "en",
+    "theme": "light",
+    "bodyWidth": 354,
+    "viewport": 360,
+    "over": [],
+    "main": [],
+    "grid": [],
+    "primary": [],
+    "srs": [],
+    "infoBadge": [],
+    "words": [],
+    "text": "ed yet\nDAILY VOCABULARY QUEST\n· Today · 33% Solved\nDaily Word Quest\n\nComplete today word puzzle to earn fireflies & sprout rare flowers. Discover Latin roots and lexical synonyms in contextual crossword grids.\n\nSprout Progress: 2 / 6 Clues Solved\n+120 Firefly XP\ngrade\nReward: +80 XP & 1 Sprout\nPLAY NOW\narrow_forward\nArcade Arena Modes\n4 Available\n\nSelect a specialized game mode to train speed, grammar, morphology, or auditory recall.\n\nARCADE REFLEX\nmilitary_tech\n45 words\nsports_esports\nVocab Hunter\nSpeed Drills · 90s Time Attack\n\nQuick reflexes! Target falling vocabulary bubbles matching the target definition.\n\nTarget speed: 45 WPM\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nEDITORIAL PRACTICE\ngrade\nTTR 65%\npsychology\nContext Filler\nLiterature & News Cloze Drills\n\nContextual learning! Fill in missing vocabulary blanks in real-world example sentences.\n\n\"Her lexical precision was ___.\"\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nSPELLING & IPA\nexplore\nTier: B2\nspellcheck\nWord Scramble\nPhonetic Transcription & Anagrams\n\nSpelling mastery! Rearrange scrambled letters to form complete vocabulary words using clues.\n\nPhonetic IPA clues\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nMEMORY 3D\nmilitary_tech\nActive 4x4\nextension\nWord Matching\nPairs Flip & Semantic Association\n\nMemory challenge! Match English vocabulary with corresponding definitions on 3D flip cards.\n\n16 Cards · Grid 4x4\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nsports_esports\nDAILY QUEST GOAL\n2 / 6 Words Solved\ngrade\nEXPERIENCE THIS WEEK\n0 XP\nmilitary_tech\nCURRENT LEVEL\nLevel 3 · 250 XP",
+    "errors": []
+  },
+  {
+    "path": "/student/game",
+    "width": 768,
+    "language": "en",
+    "theme": "light",
+    "bodyWidth": 762,
+    "viewport": 768,
+    "over": [],
+    "main": [],
+    "grid": [],
+    "primary": [],
+    "srs": [],
+    "infoBadge": [],
+    "words": [],
+    "text": "ed yet\nDAILY VOCABULARY QUEST\n· Today · 33% Solved\nDaily Word Quest\n\nComplete today word puzzle to earn fireflies & sprout rare flowers. Discover Latin roots and lexical synonyms in contextual crossword grids.\n\nSprout Progress: 2 / 6 Clues Solved\n+120 Firefly XP\ngrade\nReward: +80 XP & 1 Sprout\nPLAY NOW\narrow_forward\nArcade Arena Modes\n4 Available\n\nSelect a specialized game mode to train speed, grammar, morphology, or auditory recall.\n\nARCADE REFLEX\nmilitary_tech\n45 words\nsports_esports\nVocab Hunter\nSpeed Drills · 90s Time Attack\n\nQuick reflexes! Target falling vocabulary bubbles matching the target definition.\n\nTarget speed: 45 WPM\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nEDITORIAL PRACTICE\ngrade\nTTR 65%\npsychology\nContext Filler\nLiterature & News Cloze Drills\n\nContextual learning! Fill in missing vocabulary blanks in real-world example sentences.\n\n\"Her lexical precision was ___.\"\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nSPELLING & IPA\nexplore\nTier: B2\nspellcheck\nWord Scramble\nPhonetic Transcription & Anagrams\n\nSpelling mastery! Rearrange scrambled letters to form complete vocabulary words using clues.\n\nPhonetic IPA clues\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nMEMORY 3D\nmilitary_tech\nActive 4x4\nextension\nWord Matching\nPairs Flip & Semantic Association\n\nMemory challenge! Match English vocabulary with corresponding definitions on 3D flip cards.\n\n16 Cards · Grid 4x4\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nsports_esports\nDAILY QUEST GOAL\n2 / 6 Words Solved\ngrade\nEXPERIENCE THIS WEEK\n0 XP\nmilitary_tech\nCURRENT LEVEL\nLevel 3 · 250 XP",
+    "errors": []
+  },
+  {
+    "path": "/student/game",
+    "width": 1100,
+    "language": "en",
+    "theme": "light",
+    "bodyWidth": 1094,
+    "viewport": 1100,
+    "over": [],
+    "main": [],
+    "grid": [],
+    "primary": [],
+    "srs": [],
+    "infoBadge": [],
+    "words": [],
+    "text": "ed yet\nDAILY VOCABULARY QUEST\n· Today · 33% Solved\nDaily Word Quest\n\nComplete today word puzzle to earn fireflies & sprout rare flowers. Discover Latin roots and lexical synonyms in contextual crossword grids.\n\nSprout Progress: 2 / 6 Clues Solved\n+120 Firefly XP\ngrade\nReward: +80 XP & 1 Sprout\nPLAY NOW\narrow_forward\nArcade Arena Modes\n4 Available\n\nSelect a specialized game mode to train speed, grammar, morphology, or auditory recall.\n\nARCADE REFLEX\nmilitary_tech\n45 words\nsports_esports\nVocab Hunter\nSpeed Drills · 90s Time Attack\n\nQuick reflexes! Target falling vocabulary bubbles matching the target definition.\n\nTarget speed: 45 WPM\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nEDITORIAL PRACTICE\ngrade\nTTR 65%\npsychology\nContext Filler\nLiterature & News Cloze Drills\n\nContextual learning! Fill in missing vocabulary blanks in real-world example sentences.\n\n\"Her lexical precision was ___.\"\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nSPELLING & IPA\nexplore\nTier: B2\nspellcheck\nWord Scramble\nPhonetic Transcription & Anagrams\n\nSpelling mastery! Rearrange scrambled letters to form complete vocabulary words using clues.\n\nPhonetic IPA clues\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nMEMORY 3D\nmilitary_tech\nActive 4x4\nextension\nWord Matching\nPairs Flip & Semantic Association\n\nMemory challenge! Match English vocabulary with corresponding definitions on 3D flip cards.\n\n16 Cards · Grid 4x4\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nsports_esports\nDAILY QUEST GOAL\n2 / 6 Words Solved\ngrade\nEXPERIENCE THIS WEEK\n0 XP\nmilitary_tech\nCURRENT LEVEL\nLevel 3 · 250 XP",
+    "errors": []
+  },
+  {
+    "path": "/student/game",
+    "width": 1440,
+    "language": "en",
+    "theme": "light",
+    "bodyWidth": 1434,
+    "viewport": 1440,
+    "over": [],
+    "main": [],
+    "grid": [],
+    "primary": [],
+    "srs": [],
+    "infoBadge": [],
+    "words": [],
+    "text": "ed yet\nDAILY VOCABULARY QUEST\n· Today · 33% Solved\nDaily Word Quest\n\nComplete today word puzzle to earn fireflies & sprout rare flowers. Discover Latin roots and lexical synonyms in contextual crossword grids.\n\nSprout Progress: 2 / 6 Clues Solved\n+120 Firefly XP\ngrade\nReward: +80 XP & 1 Sprout\nPLAY NOW\narrow_forward\nArcade Arena Modes\n4 Available\n\nSelect a specialized game mode to train speed, grammar, morphology, or auditory recall.\n\nARCADE REFLEX\nmilitary_tech\n45 words\nsports_esports\nVocab Hunter\nSpeed Drills · 90s Time Attack\n\nQuick reflexes! Target falling vocabulary bubbles matching the target definition.\n\nTarget speed: 45 WPM\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nEDITORIAL PRACTICE\ngrade\nTTR 65%\npsychology\nContext Filler\nLiterature & News Cloze Drills\n\nContextual learning! Fill in missing vocabulary blanks in real-world example sentences.\n\n\"Her lexical precision was ___.\"\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nSPELLING & IPA\nexplore\nTier: B2\nspellcheck\nWord Scramble\nPhonetic Transcription & Anagrams\n\nSpelling mastery! Rearrange scrambled letters to form complete vocabulary words using clues.\n\nPhonetic IPA clues\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nMEMORY 3D\nmilitary_tech\nActive 4x4\nextension\nWord Matching\nPairs Flip & Semantic Association\n\nMemory challenge! Match English vocabulary with corresponding definitions on 3D flip cards.\n\n16 Cards · Grid 4x4\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nsports_esports\nDAILY QUEST GOAL\n2 / 6 Words Solved\ngrade\nEXPERIENCE THIS WEEK\n0 XP\nmilitary_tech\nCURRENT LEVEL\nLevel 3 · 250 XP",
+    "errors": []
+  },
+  {
+    "path": "/student/dashboard",
+    "width": 360,
+    "language": "en",
+    "theme": "dark",
+    "bodyWidth": 354,
+    "viewport": 360,
+    "over": [
+      {
+        "class": "",
+        "right": 532,
+        "text": "Bài viết về sự bảo tồn tài nguyên thiên nhiên và động vật ho"
+      },
+      {
+        "class": "student-dash__essay-title",
+        "right": 532,
+        "text": "Bài viết về sự bảo tồn tài nguyên thiên nhiên và động vật ho"
+      },
+      {
+        "class": "student-dash__essay-meta",
+        "right": 532,
+        "text": "Oct 1, 2026 · 88 words"
+      }
+    ],
+    "main": [
+      {
+        "text": "schedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · ",
+        "w": 322,
+        "h": 1574,
+        "scrollWidth": 338,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "grid": [
+      {
+        "text": "schedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · ",
+        "w": 322,
+        "h": 2423,
+        "scrollWidth": 338,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "322px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nContinue Learning",
+        "w": 218,
+        "h": 48,
+        "scrollWidth": 216,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      },
+      {
+        "text": "Review Flashcards\narrow_forward",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "srs": [
+      {
+        "text": "style\nSpaced Repetition\n12 Words Due Review\n\nTap card to reveal definition\n\nReview Flashcards\narrow_",
+        "w": 322,
+        "h": 177,
+        "scrollWidth": 320,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgb(239, 246, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "infoBadge": [],
+    "words": [],
+    "text": "auto_stories\nLexiGrow\n\nMeasured Growth\n\nclose\nhome\nToday\nexplore\nExplore\nedit_note\nSmart Writing\nhistory_edu\nEssay History & Drafts\nmenu_book\nMy Words\nschool\nMy Classes\nforest\nGrowth Garden\nworkspace_premium\nUpgrade Plan\nadd\nNew Entry\nsettings\nSettings\nlogout\nLogout\nmenu\nrocket_launch\nUpgrade\nEN\nexpand_more\nlight_mode\nnotifications\nperson\nschedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · deforestation\n\nĐề xuất bộ từ luyện tập về bảo tồn tài nguyên thiên nhiên.\n\nplay_circle\nContinue Learning\nexplore\nExplore Vocabulary Sets\nEssays Submitted\ndescription\n\n7\n\nVocab Growth\ntrending_up\n\n+18\n\n+20% vs last month\n\nVocabulary Diversity\nanalytics\n\n40%\n\nEstimated CEFR Level\nequalizer\n\nB2\n\nBased on active writing\n\nVocabulary Growth\nWeekly\nMonthly\nMon\nTue\nWed\nRecent Essay Submissions\n\nTrack your completed essays and review feedback\n\nAll →\narticle\nBài viết về sự bảo tồn tài nguyên thiên nhiên và động vật hoang dã\nOct 1, 2026 · 88 words\nGraded by AI\nlocal_fire_department\n7 Day Streak\nKeep the momentum going!\nstyle\nSpaced Repetition\n12 Words Due Review\n\nTap card to reveal definition\n\nReview Flashcards\narrow_forward\nWeekly Goals\nSettings\n53%\n\nNew Words Acquired\n\n8 / 15 words\n\n40%\n\nWriting Volume\n\n200 / 500 words\n\n50%\n\nTarget Level\n\nLevel: B2\n\nyard\nGrowth Garden\nVisualize your vocabulary expansion. Every mastered word waters your tree!\n\nEach mastered word waters your tree.\n\npotted_plant",
+    "errors": []
+  },
+  {
+    "path": "/student/dashboard",
+    "width": 768,
+    "language": "en",
+    "theme": "dark",
+    "bodyWidth": 762,
+    "viewport": 768,
+    "over": [],
+    "main": [
+      {
+        "text": "schedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · ",
+        "w": 730,
+        "h": 1162,
+        "scrollWidth": 730,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "grid": [
+      {
+        "text": "schedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · ",
+        "w": 730,
+        "h": 1963,
+        "scrollWidth": 730,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "730px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nContinue Learning",
+        "w": 218,
+        "h": 48,
+        "scrollWidth": 216,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      },
+      {
+        "text": "Review Flashcards\narrow_forward",
+        "w": 688,
+        "h": 40,
+        "scrollWidth": 686,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "srs": [
+      {
+        "text": "style\nSpaced Repetition\n12 Words Due Review\n\nTap card to reveal definition\n\nReview Flashcards\narrow_",
+        "w": 730,
+        "h": 177,
+        "scrollWidth": 728,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgb(239, 246, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "infoBadge": [],
+    "words": [],
+    "text": "auto_stories\nLexiGrow\n\nMeasured Growth\n\nclose\nhome\nToday\nexplore\nExplore\nedit_note\nSmart Writing\nhistory_edu\nEssay History & Drafts\nmenu_book\nMy Words\nschool\nMy Classes\nforest\nGrowth Garden\nworkspace_premium\nUpgrade Plan\nadd\nNew Entry\nsettings\nSettings\nlogout\nLogout\nmenu\nsearch\nrocket_launch\nUpgrade\nEN\nexpand_more\nlight_mode\nnotifications\n\nHọc viên kiểm tra\n\nStudent (B2)\n\nperson\nschedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · deforestation\n\nĐề xuất bộ từ luyện tập về bảo tồn tài nguyên thiên nhiên.\n\nplay_circle\nContinue Learning\nexplore\nExplore Vocabulary Sets\nEssays Submitted\ndescription\n\n11\n\nVocab Growth\ntrending_up\n\n+28\n\n+20% vs last month\n\nVocabulary Diversity\nanalytics\n\n61%\n\nEstimated CEFR Level\nequalizer\n\nB2\n\nBased on active writing\n\nVocabulary Growth\nWeekly\nMonthly\nMon\nTue\nWed\nRecent Essay Submissions\n\nTrack your completed essays and review feedback\n\nAll →\narticle\nBài viết về sự bảo tồn tài nguyên thiên nhiên và động vật hoang dã\nOct 1, 2026 · 88 words\nGraded by AI\nlocal_fire_department\n7 Day Streak\nKeep the momentum going!\nstyle\nSpaced Repetition\n12 Words Due Review\n\nTap card to reveal definition\n\nReview Flashcards\narrow_forward\nWeekly Goals\nSettings\n53%\n\nNew Words Acquired\n\n8 / 15 words\n\n40%\n\nWriting Volume\n\n200 / 500 words\n\n50%\n\nTarget Level\n\nLevel: B2\n\nyard\nGrowth Garden\nVisualize your vocabulary expansion. Every mastered word waters your tree!\n\nEach mastered word waters your tree.\n\npotted_plant",
+    "errors": []
+  },
+  {
+    "path": "/student/dashboard",
+    "width": 1100,
+    "language": "en",
+    "theme": "dark",
+    "bodyWidth": 1094,
+    "viewport": 1100,
+    "over": [],
+    "main": [
+      {
+        "text": "schedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · ",
+        "w": 386,
+        "h": 1339,
+        "scrollWidth": 667,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "grid": [
+      {
+        "text": "schedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · ",
+        "w": 750,
+        "h": 1339,
+        "scrollWidth": 750,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "386px 340px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nContinue Learning",
+        "w": 218,
+        "h": 48,
+        "scrollWidth": 216,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      },
+      {
+        "text": "Review Flashcards\narrow_forward",
+        "w": 298,
+        "h": 40,
+        "scrollWidth": 296,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "srs": [
+      {
+        "text": "style\nSpaced Repetition\n12 Words Due Review\n\nTap card to reveal definition\n\nReview Flashcards\narrow_",
+        "w": 340,
+        "h": 177,
+        "scrollWidth": 338,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgb(239, 246, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "infoBadge": [],
+    "words": [],
+    "text": "auto_stories\nLexiGrow\n\nMeasured Growth\n\nhome\nToday\nexplore\nExplore\nedit_note\nSmart Writing\nhistory_edu\nEssay History & Drafts\nmenu_book\nMy Words\nschool\nMy Classes\nforest\nGrowth Garden\nworkspace_premium\nUpgrade Plan\nadd\nNew Entry\nsettings\nSettings\nlogout\nLogout\nsearch\nrocket_launch\nUpgrade\nEN\nexpand_more\nlight_mode\nnotifications\n\nHọc viên kiểm tra\n\nStudent (B2)\n\nperson\nschedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · deforestation\n\nĐề xuất bộ từ luyện tập về bảo tồn tài nguyên thiên nhiên.\n\nplay_circle\nContinue Learning\nexplore\nExplore Vocabulary Sets\nEssays Submitted\ndescription\n\n11\n\nVocab Growth\ntrending_up\n\n+28\n\n+20% vs last month\n\nVocabulary Diversity\nanalytics\n\n61%\n\nEstimated CEFR Level\nequalizer\n\nB2\n\nBased on active writing\n\nVocabulary Growth\nWeekly\nMonthly\nMon\nTue\nWed\nRecent Essay Submissions\n\nTrack your completed essays and review feedback\n\nAll →\narticle\nBài viết về sự bảo tồn tài nguyên thiên nhiên và động vật hoang dã\nOct 1, 2026 · 88 words\nGraded by AI\nlocal_fire_department\n7 Day Streak\nKeep the momentum going!\nstyle\nSpaced Repetition\n12 Words Due Review\n\nTap card to reveal definition\n\nReview Flashcards\narrow_forward\nWeekly Goals\nSettings\n53%\n\nNew Words Acquired\n\n8 / 15 words\n\n40%\n\nWriting Volume\n\n200 / 500 words\n\n50%\n\nTarget Level\n\nLevel: B2\n\nyard\nGrowth Garden\nVisualize your vocabulary expansion. Every mastered word waters your tree!\n\nEach mastered word waters your tree.\n\npotted_plant",
+    "errors": []
+  },
+  {
+    "path": "/student/dashboard",
+    "width": 1440,
+    "language": "en",
+    "theme": "dark",
+    "bodyWidth": 1434,
+    "viewport": 1440,
+    "over": [],
+    "main": [
+      {
+        "text": "schedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · ",
+        "w": 698,
+        "h": 1182,
+        "scrollWidth": 698,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "grid": [
+      {
+        "text": "schedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · ",
+        "w": 1090,
+        "h": 1182,
+        "scrollWidth": 1090,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "698px 360px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nContinue Learning",
+        "w": 218,
+        "h": 48,
+        "scrollWidth": 216,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      },
+      {
+        "text": "Review Flashcards\narrow_forward",
+        "w": 318,
+        "h": 40,
+        "scrollWidth": 316,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "srs": [
+      {
+        "text": "style\nSpaced Repetition\n12 Words Due Review\n\nTap card to reveal definition\n\nReview Flashcards\narrow_",
+        "w": 360,
+        "h": 177,
+        "scrollWidth": 358,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgb(239, 246, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "infoBadge": [],
+    "words": [],
+    "text": "auto_stories\nLexiGrow\n\nMeasured Growth\n\nhome\nToday\nexplore\nExplore\nedit_note\nSmart Writing\nhistory_edu\nEssay History & Drafts\nmenu_book\nMy Words\nschool\nMy Classes\nforest\nGrowth Garden\nworkspace_premium\nUpgrade Plan\nadd\nNew Entry\nsettings\nSettings\nlogout\nLogout\nsearch\nrocket_launch\nUpgrade\nEN\nexpand_more\nlight_mode\nnotifications\n\nHọc viên kiểm tra\n\nStudent (B2)\n\nperson\nschedule\nContinue Learning\nCEFR: B2\nRecommended Sets for You\nconservation · renewable · emissions · deforestation\n\nĐề xuất bộ từ luyện tập về bảo tồn tài nguyên thiên nhiên.\n\nplay_circle\nContinue Learning\nexplore\nExplore Vocabulary Sets\nEssays Submitted\ndescription\n\n8\n\nVocab Growth\ntrending_up\n\n+20\n\n+20% vs last month\n\nVocabulary Diversity\nanalytics\n\n44%\n\nEstimated CEFR Level\nequalizer\n\nB2\n\nBased on active writing\n\nVocabulary Growth\nWeekly\nMonthly\nMon\nTue\nWed\nRecent Essay Submissions\n\nTrack your completed essays and review feedback\n\nAll →\narticle\nBài viết về sự bảo tồn tài nguyên thiên nhiên và động vật hoang dã\nOct 1, 2026 · 88 words\nGraded by AI\nlocal_fire_department\n7 Day Streak\nKeep the momentum going!\nstyle\nSpaced Repetition\n12 Words Due Review\n\nTap card to reveal definition\n\nReview Flashcards\narrow_forward\nWeekly Goals\nSettings\n53%\n\nNew Words Acquired\n\n8 / 15 words\n\n40%\n\nWriting Volume\n\n200 / 500 words\n\n50%\n\nTarget Level\n\nLevel: B2\n\nyard\nGrowth Garden\nVisualize your vocabulary expansion. Every mastered word waters your tree!\n\nEach mastered word waters your tree.\n\npotted_plant",
+    "errors": []
+  },
+  {
+    "path": "/student/explore",
+    "width": 360,
+    "language": "en",
+    "theme": "dark",
+    "bodyWidth": 354,
+    "viewport": 360,
+    "over": [],
+    "main": [],
+    "grid": [
+      {
+        "text": "A2\nschedule\n10 mins\nDaily Life & Routines\nSinh hoạt hàng ngày, đi lại & năng suất\n\nMaster essential ",
+        "w": 322,
+        "h": 3424,
+        "scrollWidth": 322,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "322px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (12 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "srs": [],
+    "infoBadge": [
+      {
+        "text": "explore\nThematic Vocabulary Sets Library",
+        "w": 234,
+        "h": 24,
+        "scrollWidth": 232,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "words": [
+      {
+        "text": "Daily habits",
+        "w": 232,
+        "h": 17,
+        "scrollWidth": 232,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "Travel to work/school",
+        "w": 232,
+        "h": 17,
+        "scrollWidth": 232,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "High efficiency",
+        "w": 232,
+        "h": 17,
+        "scrollWidth": 232,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "text": "ntial expressions for daily routines, commuting to work/school, and maintaining high productivity.\n\nformat_list_bulleted\n4 TARGET VOCABULARY WORDS:\nroutine\nDaily habits\ncommute\nTravel to work/school\nproductive\nHigh efficiency\nefficient\nTime-saving\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n10 mins\nTravel & Exploration\nDu lịch, lịch trình & trải nghiệm\n\nDescribe famous landmarks, detailed travel itineraries, and reserving hotel rooms.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nitinerary\nTrip schedule\naccommodation\nLodging\nlandmark\nFamous site\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n10 mins\nHobbies & Creative Arts\nSở thích, thư giãn & nghệ thuật\n\nExpress passion for photography, cooking, gardening, and work-life balance.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nphotography\nTaking photos\ngardening\nPlant care\ncooking\nCulinary arts\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n12 mins\nTechnology & Digital Era\nCông nghệ, đổi mới & kết nối số\n\nDiscuss technological innovation, remote collaboration, accessibility, and AI revolution.\n\nformat_list_bulleted\n4 TARGET VOCABULARY WORDS:\ninnovation\nGroundbreaking\ncollaboration\nTeamwork\naccessible\nEasy to reach\nrevolutionize\nTransform\nplay_circle\nStart Session (12 mins)\nB2\nschedule\n10 mins\nEnvironment & Sustainability\nMôi trường, sinh thái & phát triển bền vững\n\nDiscuss biodiversity, climate action, fragile ecosystems, and sustainable development.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nsustainable\nEco-friendly\nbiodiversity\nBiological variety\necosystem\nLiving network\nplay_circle\nStart Session (10 mins)",
+    "errors": []
+  },
+  {
+    "path": "/student/explore",
+    "width": 768,
+    "language": "en",
+    "theme": "dark",
+    "bodyWidth": 762,
+    "viewport": 768,
+    "over": [],
+    "main": [],
+    "grid": [
+      {
+        "text": "A2\nschedule\n10 mins\nDaily Life & Routines\nSinh hoạt hàng ngày, đi lại & năng suất\n\nMaster essential ",
+        "w": 730,
+        "h": 1935,
+        "scrollWidth": 730,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "353px 353px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (12 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "srs": [],
+    "infoBadge": [
+      {
+        "text": "explore\nThematic Vocabulary Sets Library",
+        "w": 234,
+        "h": 24,
+        "scrollWidth": 232,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "words": [
+      {
+        "text": "Daily habits",
+        "w": 212,
+        "h": 17,
+        "scrollWidth": 212,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "Travel to work/school",
+        "w": 199,
+        "h": 17,
+        "scrollWidth": 199,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "High efficiency",
+        "w": 191,
+        "h": 17,
+        "scrollWidth": 191,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "text": "ntial expressions for daily routines, commuting to work/school, and maintaining high productivity.\n\nformat_list_bulleted\n4 TARGET VOCABULARY WORDS:\nroutine\nDaily habits\ncommute\nTravel to work/school\nproductive\nHigh efficiency\nefficient\nTime-saving\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n10 mins\nTravel & Exploration\nDu lịch, lịch trình & trải nghiệm\n\nDescribe famous landmarks, detailed travel itineraries, and reserving hotel rooms.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nitinerary\nTrip schedule\naccommodation\nLodging\nlandmark\nFamous site\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n10 mins\nHobbies & Creative Arts\nSở thích, thư giãn & nghệ thuật\n\nExpress passion for photography, cooking, gardening, and work-life balance.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nphotography\nTaking photos\ngardening\nPlant care\ncooking\nCulinary arts\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n12 mins\nTechnology & Digital Era\nCông nghệ, đổi mới & kết nối số\n\nDiscuss technological innovation, remote collaboration, accessibility, and AI revolution.\n\nformat_list_bulleted\n4 TARGET VOCABULARY WORDS:\ninnovation\nGroundbreaking\ncollaboration\nTeamwork\naccessible\nEasy to reach\nrevolutionize\nTransform\nplay_circle\nStart Session (12 mins)\nB2\nschedule\n10 mins\nEnvironment & Sustainability\nMôi trường, sinh thái & phát triển bền vững\n\nDiscuss biodiversity, climate action, fragile ecosystems, and sustainable development.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nsustainable\nEco-friendly\nbiodiversity\nBiological variety\necosystem\nLiving network\nplay_circle\nStart Session (10 mins)",
+    "errors": []
+  },
+  {
+    "path": "/student/explore",
+    "width": 1100,
+    "language": "en",
+    "theme": "dark",
+    "bodyWidth": 1094,
+    "viewport": 1100,
+    "over": [],
+    "main": [],
+    "grid": [
+      {
+        "text": "A2\nschedule\n10 mins\nDaily Life & Routines\nSinh hoạt hàng ngày, đi lại & năng suất\n\nMaster essential ",
+        "w": 750,
+        "h": 1952,
+        "scrollWidth": 750,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "363px 363px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (12 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "srs": [],
+    "infoBadge": [
+      {
+        "text": "explore\nThematic Vocabulary Sets Library",
+        "w": 234,
+        "h": 24,
+        "scrollWidth": 232,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "words": [
+      {
+        "text": "Daily habits",
+        "w": 222,
+        "h": 17,
+        "scrollWidth": 222,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "Travel to work/school",
+        "w": 209,
+        "h": 17,
+        "scrollWidth": 209,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "High efficiency",
+        "w": 201,
+        "h": 17,
+        "scrollWidth": 201,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "text": "ntial expressions for daily routines, commuting to work/school, and maintaining high productivity.\n\nformat_list_bulleted\n4 TARGET VOCABULARY WORDS:\nroutine\nDaily habits\ncommute\nTravel to work/school\nproductive\nHigh efficiency\nefficient\nTime-saving\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n10 mins\nTravel & Exploration\nDu lịch, lịch trình & trải nghiệm\n\nDescribe famous landmarks, detailed travel itineraries, and reserving hotel rooms.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nitinerary\nTrip schedule\naccommodation\nLodging\nlandmark\nFamous site\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n10 mins\nHobbies & Creative Arts\nSở thích, thư giãn & nghệ thuật\n\nExpress passion for photography, cooking, gardening, and work-life balance.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nphotography\nTaking photos\ngardening\nPlant care\ncooking\nCulinary arts\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n12 mins\nTechnology & Digital Era\nCông nghệ, đổi mới & kết nối số\n\nDiscuss technological innovation, remote collaboration, accessibility, and AI revolution.\n\nformat_list_bulleted\n4 TARGET VOCABULARY WORDS:\ninnovation\nGroundbreaking\ncollaboration\nTeamwork\naccessible\nEasy to reach\nrevolutionize\nTransform\nplay_circle\nStart Session (12 mins)\nB2\nschedule\n10 mins\nEnvironment & Sustainability\nMôi trường, sinh thái & phát triển bền vững\n\nDiscuss biodiversity, climate action, fragile ecosystems, and sustainable development.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nsustainable\nEco-friendly\nbiodiversity\nBiological variety\necosystem\nLiving network\nplay_circle\nStart Session (10 mins)",
+    "errors": []
+  },
+  {
+    "path": "/student/explore",
+    "width": 1440,
+    "language": "en",
+    "theme": "dark",
+    "bodyWidth": 1434,
+    "viewport": 1440,
+    "over": [],
+    "main": [],
+    "grid": [
+      {
+        "text": "A2\nschedule\n10 mins\nDaily Life & Routines\nSinh hoạt hàng ngày, đi lại & năng suất\n\nMaster essential ",
+        "w": 1090,
+        "h": 1305,
+        "scrollWidth": 1090,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "347.328px 347.328px 347.344px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (12 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nStart Session (10 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "srs": [],
+    "infoBadge": [
+      {
+        "text": "explore\nThematic Vocabulary Sets Library",
+        "w": 234,
+        "h": 24,
+        "scrollWidth": 232,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "words": [
+      {
+        "text": "Daily habits",
+        "w": 206,
+        "h": 17,
+        "scrollWidth": 206,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "Travel to work/school",
+        "w": 193,
+        "h": 17,
+        "scrollWidth": 193,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "High efficiency",
+        "w": 185,
+        "h": 17,
+        "scrollWidth": 185,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "text": "ntial expressions for daily routines, commuting to work/school, and maintaining high productivity.\n\nformat_list_bulleted\n4 TARGET VOCABULARY WORDS:\nroutine\nDaily habits\ncommute\nTravel to work/school\nproductive\nHigh efficiency\nefficient\nTime-saving\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n10 mins\nTravel & Exploration\nDu lịch, lịch trình & trải nghiệm\n\nDescribe famous landmarks, detailed travel itineraries, and reserving hotel rooms.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nitinerary\nTrip schedule\naccommodation\nLodging\nlandmark\nFamous site\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n10 mins\nHobbies & Creative Arts\nSở thích, thư giãn & nghệ thuật\n\nExpress passion for photography, cooking, gardening, and work-life balance.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nphotography\nTaking photos\ngardening\nPlant care\ncooking\nCulinary arts\nplay_circle\nStart Session (10 mins)\nB1\nschedule\n12 mins\nTechnology & Digital Era\nCông nghệ, đổi mới & kết nối số\n\nDiscuss technological innovation, remote collaboration, accessibility, and AI revolution.\n\nformat_list_bulleted\n4 TARGET VOCABULARY WORDS:\ninnovation\nGroundbreaking\ncollaboration\nTeamwork\naccessible\nEasy to reach\nrevolutionize\nTransform\nplay_circle\nStart Session (12 mins)\nB2\nschedule\n10 mins\nEnvironment & Sustainability\nMôi trường, sinh thái & phát triển bền vững\n\nDiscuss biodiversity, climate action, fragile ecosystems, and sustainable development.\n\nformat_list_bulleted\n3 TARGET VOCABULARY WORDS:\nsustainable\nEco-friendly\nbiodiversity\nBiological variety\necosystem\nLiving network\nplay_circle\nStart Session (10 mins)",
+    "errors": []
+  },
+  {
+    "path": "/student/game",
+    "width": 360,
+    "language": "en",
+    "theme": "dark",
+    "bodyWidth": 354,
+    "viewport": 360,
+    "over": [],
+    "main": [],
+    "grid": [],
+    "primary": [],
+    "srs": [],
+    "infoBadge": [],
+    "words": [],
+    "text": "ed yet\nDAILY VOCABULARY QUEST\n· Today · 33% Solved\nDaily Word Quest\n\nComplete today word puzzle to earn fireflies & sprout rare flowers. Discover Latin roots and lexical synonyms in contextual crossword grids.\n\nSprout Progress: 2 / 6 Clues Solved\n+120 Firefly XP\ngrade\nReward: +80 XP & 1 Sprout\nPLAY NOW\narrow_forward\nArcade Arena Modes\n4 Available\n\nSelect a specialized game mode to train speed, grammar, morphology, or auditory recall.\n\nARCADE REFLEX\nmilitary_tech\n45 words\nsports_esports\nVocab Hunter\nSpeed Drills · 90s Time Attack\n\nQuick reflexes! Target falling vocabulary bubbles matching the target definition.\n\nTarget speed: 45 WPM\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nEDITORIAL PRACTICE\ngrade\nTTR 65%\npsychology\nContext Filler\nLiterature & News Cloze Drills\n\nContextual learning! Fill in missing vocabulary blanks in real-world example sentences.\n\n\"Her lexical precision was ___.\"\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nSPELLING & IPA\nexplore\nTier: B2\nspellcheck\nWord Scramble\nPhonetic Transcription & Anagrams\n\nSpelling mastery! Rearrange scrambled letters to form complete vocabulary words using clues.\n\nPhonetic IPA clues\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nMEMORY 3D\nmilitary_tech\nActive 4x4\nextension\nWord Matching\nPairs Flip & Semantic Association\n\nMemory challenge! Match English vocabulary with corresponding definitions on 3D flip cards.\n\n16 Cards · Grid 4x4\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nsports_esports\nDAILY QUEST GOAL\n2 / 6 Words Solved\ngrade\nEXPERIENCE THIS WEEK\n0 XP\nmilitary_tech\nCURRENT LEVEL\nLevel 3 · 250 XP",
+    "errors": []
+  },
+  {
+    "path": "/student/game",
+    "width": 768,
+    "language": "en",
+    "theme": "dark",
+    "bodyWidth": 762,
+    "viewport": 768,
+    "over": [],
+    "main": [],
+    "grid": [],
+    "primary": [],
+    "srs": [],
+    "infoBadge": [],
+    "words": [],
+    "text": "ed yet\nDAILY VOCABULARY QUEST\n· Today · 33% Solved\nDaily Word Quest\n\nComplete today word puzzle to earn fireflies & sprout rare flowers. Discover Latin roots and lexical synonyms in contextual crossword grids.\n\nSprout Progress: 2 / 6 Clues Solved\n+120 Firefly XP\ngrade\nReward: +80 XP & 1 Sprout\nPLAY NOW\narrow_forward\nArcade Arena Modes\n4 Available\n\nSelect a specialized game mode to train speed, grammar, morphology, or auditory recall.\n\nARCADE REFLEX\nmilitary_tech\n45 words\nsports_esports\nVocab Hunter\nSpeed Drills · 90s Time Attack\n\nQuick reflexes! Target falling vocabulary bubbles matching the target definition.\n\nTarget speed: 45 WPM\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nEDITORIAL PRACTICE\ngrade\nTTR 65%\npsychology\nContext Filler\nLiterature & News Cloze Drills\n\nContextual learning! Fill in missing vocabulary blanks in real-world example sentences.\n\n\"Her lexical precision was ___.\"\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nSPELLING & IPA\nexplore\nTier: B2\nspellcheck\nWord Scramble\nPhonetic Transcription & Anagrams\n\nSpelling mastery! Rearrange scrambled letters to form complete vocabulary words using clues.\n\nPhonetic IPA clues\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nMEMORY 3D\nmilitary_tech\nActive 4x4\nextension\nWord Matching\nPairs Flip & Semantic Association\n\nMemory challenge! Match English vocabulary with corresponding definitions on 3D flip cards.\n\n16 Cards · Grid 4x4\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nsports_esports\nDAILY QUEST GOAL\n2 / 6 Words Solved\ngrade\nEXPERIENCE THIS WEEK\n0 XP\nmilitary_tech\nCURRENT LEVEL\nLevel 3 · 250 XP",
+    "errors": []
+  },
+  {
+    "path": "/student/game",
+    "width": 1100,
+    "language": "en",
+    "theme": "dark",
+    "bodyWidth": 1094,
+    "viewport": 1100,
+    "over": [],
+    "main": [],
+    "grid": [],
+    "primary": [],
+    "srs": [],
+    "infoBadge": [],
+    "words": [],
+    "text": "ed yet\nDAILY VOCABULARY QUEST\n· Today · 33% Solved\nDaily Word Quest\n\nComplete today word puzzle to earn fireflies & sprout rare flowers. Discover Latin roots and lexical synonyms in contextual crossword grids.\n\nSprout Progress: 2 / 6 Clues Solved\n+120 Firefly XP\ngrade\nReward: +80 XP & 1 Sprout\nPLAY NOW\narrow_forward\nArcade Arena Modes\n4 Available\n\nSelect a specialized game mode to train speed, grammar, morphology, or auditory recall.\n\nARCADE REFLEX\nmilitary_tech\n45 words\nsports_esports\nVocab Hunter\nSpeed Drills · 90s Time Attack\n\nQuick reflexes! Target falling vocabulary bubbles matching the target definition.\n\nTarget speed: 45 WPM\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nEDITORIAL PRACTICE\ngrade\nTTR 65%\npsychology\nContext Filler\nLiterature & News Cloze Drills\n\nContextual learning! Fill in missing vocabulary blanks in real-world example sentences.\n\n\"Her lexical precision was ___.\"\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nSPELLING & IPA\nexplore\nTier: B2\nspellcheck\nWord Scramble\nPhonetic Transcription & Anagrams\n\nSpelling mastery! Rearrange scrambled letters to form complete vocabulary words using clues.\n\nPhonetic IPA clues\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nMEMORY 3D\nmilitary_tech\nActive 4x4\nextension\nWord Matching\nPairs Flip & Semantic Association\n\nMemory challenge! Match English vocabulary with corresponding definitions on 3D flip cards.\n\n16 Cards · Grid 4x4\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nsports_esports\nDAILY QUEST GOAL\n2 / 6 Words Solved\ngrade\nEXPERIENCE THIS WEEK\n0 XP\nmilitary_tech\nCURRENT LEVEL\nLevel 3 · 250 XP",
+    "errors": []
+  },
+  {
+    "path": "/student/game",
+    "width": 1440,
+    "language": "en",
+    "theme": "dark",
+    "bodyWidth": 1434,
+    "viewport": 1440,
+    "over": [],
+    "main": [],
+    "grid": [],
+    "primary": [],
+    "srs": [],
+    "infoBadge": [],
+    "words": [],
+    "text": "ed yet\nDAILY VOCABULARY QUEST\n· Today · 33% Solved\nDaily Word Quest\n\nComplete today word puzzle to earn fireflies & sprout rare flowers. Discover Latin roots and lexical synonyms in contextual crossword grids.\n\nSprout Progress: 2 / 6 Clues Solved\n+120 Firefly XP\ngrade\nReward: +80 XP & 1 Sprout\nPLAY NOW\narrow_forward\nArcade Arena Modes\n4 Available\n\nSelect a specialized game mode to train speed, grammar, morphology, or auditory recall.\n\nARCADE REFLEX\nmilitary_tech\n45 words\nsports_esports\nVocab Hunter\nSpeed Drills · 90s Time Attack\n\nQuick reflexes! Target falling vocabulary bubbles matching the target definition.\n\nTarget speed: 45 WPM\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nEDITORIAL PRACTICE\ngrade\nTTR 65%\npsychology\nContext Filler\nLiterature & News Cloze Drills\n\nContextual learning! Fill in missing vocabulary blanks in real-world example sentences.\n\n\"Her lexical precision was ___.\"\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nSPELLING & IPA\nexplore\nTier: B2\nspellcheck\nWord Scramble\nPhonetic Transcription & Anagrams\n\nSpelling mastery! Rearrange scrambled letters to form complete vocabulary words using clues.\n\nPhonetic IPA clues\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nMEMORY 3D\nmilitary_tech\nActive 4x4\nextension\nWord Matching\nPairs Flip & Semantic Association\n\nMemory challenge! Match English vocabulary with corresponding definitions on 3D flip cards.\n\n16 Cards · Grid 4x4\nPractice only · no XP reward\nPLAY NOW\narrow_forward\nsports_esports\nDAILY QUEST GOAL\n2 / 6 Words Solved\ngrade\nEXPERIENCE THIS WEEK\n0 XP\nmilitary_tech\nCURRENT LEVEL\nLevel 3 · 250 XP",
+    "errors": []
+  },
+  {
+    "path": "/student/dashboard",
+    "width": 360,
+    "language": "vi",
+    "theme": "light",
+    "bodyWidth": 354,
+    "viewport": 360,
+    "over": [
+      {
+        "class": "",
+        "right": 532,
+        "text": "Bài viết về sự bảo tồn tài nguyên thiên nhiên và động vật ho"
+      },
+      {
+        "class": "student-dash__essay-title",
+        "right": 532,
+        "text": "Bài viết về sự bảo tồn tài nguyên thiên nhiên và động vật ho"
+      },
+      {
+        "class": "student-dash__essay-meta",
+        "right": 532,
+        "text": "1 thg 10, 2026 · 88 từ"
+      }
+    ],
+    "main": [
+      {
+        "text": "schedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · defor",
+        "w": 322,
+        "h": 1521,
+        "scrollWidth": 322,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "grid": [
+      {
+        "text": "schedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · defor",
+        "w": 322,
+        "h": 2418,
+        "scrollWidth": 322,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "322px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nTiếp tục học",
+        "w": 172,
+        "h": 48,
+        "scrollWidth": 170,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "auto"
+      },
+      {
+        "text": "Ôn tập Flashcard\narrow_forward",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "srs": [
+      {
+        "text": "style\nSpaced Repetition\n12 Từ cần ôn tập hôm nay\n\nNhấp vào thẻ để xem định nghĩa\n\nÔn tập Flashcard\na",
+        "w": 322,
+        "h": 177,
+        "scrollWidth": 320,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgb(239, 246, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "infoBadge": [],
+    "words": [],
+    "text": "auto_stories\nLexiGrow\n\nHọc tập & Tăng trưởng\n\nclose\nhome\nHôm nay\nexplore\nKhám phá\nedit_note\nLuyện viết AI\nhistory_edu\nLịch sử & Bản nháp\nmenu_book\nTừ vựng của tôi\nschool\nLớp học của tôi\nforest\nVườn tri thức\nworkspace_premium\nNâng cấp gói\nadd\nViết bài mới\nsettings\nCài đặt\nlogout\nĐăng xuất\nmenu\nrocket_launch\nNâng cấp\nVI\nexpand_more\ndark_mode\nnotifications\nperson\nschedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · deforestation\n\nĐề xuất bộ từ luyện tập về bảo tồn tài nguyên thiên nhiên.\n\nplay_circle\nTiếp tục học\nexplore\nKhám phá bộ từ vựng\nBài viết đã nộp\ndescription\n\n6\n\nTừ vựng tích lũy\ntrending_up\n\n+16\n\n+20% vs last month\n\nĐộ đa dạng từ vựng\nanalytics\n\n35%\n\nCấp độ CEFR ước tính\nequalizer\n\nB2\n\nDựa trên các bài viết thực tế\n\nVocabulary Growth\nWeekly\nMonthly\nMon\nTue\nWed\nBài luận gần đây\n\nTrack your completed essays and review feedback\n\nTất cả →\narticle\nBài viết về sự bảo tồn tài nguyên thiên nhiên và động vật hoang dã\n1 thg 10, 2026 · 88 từ\nĐã chấm bởi AI\nlocal_fire_department\n7 Chuỗi ngày học\nHãy duy trì đà học tập tuyệt vời này nhé!\nstyle\nSpaced Repetition\n12 Từ cần ôn tập hôm nay\n\nNhấp vào thẻ để xem định nghĩa\n\nÔn tập Flashcard\narrow_forward\nMục tiêu tuần\nCài đặt\n53%\n\nTừ mới tích lũy\n\n8 / 15 từ\n\n40%\n\nKhối lượng viết\n\n200 / 500 từ\n\n50%\n\nCấp độ mục tiêu\n\nLevel: B2\n\nyard\nVườn Tri Thức\nTrực quan hóa quá trình tích lũy từ vựng của bạn. Mỗi từ đã thuộc sẽ tưới xanh cho cây tri thức!\n\nMỗi từ thuộc sẽ tưới nước cho cây.\n\npotted_plant",
+    "errors": []
+  },
+  {
+    "path": "/student/dashboard",
+    "width": 768,
+    "language": "vi",
+    "theme": "light",
+    "bodyWidth": 762,
+    "viewport": 768,
+    "over": [],
+    "main": [
+      {
+        "text": "schedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · defor",
+        "w": 730,
+        "h": 1182,
+        "scrollWidth": 730,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "grid": [
+      {
+        "text": "schedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · defor",
+        "w": 730,
+        "h": 2007,
+        "scrollWidth": 730,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "730px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nTiếp tục học",
+        "w": 172,
+        "h": 48,
+        "scrollWidth": 170,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "auto"
+      },
+      {
+        "text": "Ôn tập Flashcard\narrow_forward",
+        "w": 688,
+        "h": 40,
+        "scrollWidth": 686,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "srs": [
+      {
+        "text": "style\nSpaced Repetition\n12 Từ cần ôn tập hôm nay\n\nNhấp vào thẻ để xem định nghĩa\n\nÔn tập Flashcard\na",
+        "w": 730,
+        "h": 177,
+        "scrollWidth": 728,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgb(239, 246, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "infoBadge": [],
+    "words": [],
+    "text": "auto_stories\nLexiGrow\n\nHọc tập & Tăng trưởng\n\nclose\nhome\nHôm nay\nexplore\nKhám phá\nedit_note\nLuyện viết AI\nhistory_edu\nLịch sử & Bản nháp\nmenu_book\nTừ vựng của tôi\nschool\nLớp học của tôi\nforest\nVườn tri thức\nworkspace_premium\nNâng cấp gói\nadd\nViết bài mới\nsettings\nCài đặt\nlogout\nĐăng xuất\nmenu\nsearch\nrocket_launch\nNâng cấp\nVI\nexpand_more\ndark_mode\nnotifications\n\nHọc viên kiểm tra\n\nHọc sinh (B2)\n\nperson\nschedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · deforestation\n\nĐề xuất bộ từ luyện tập về bảo tồn tài nguyên thiên nhiên.\n\nplay_circle\nTiếp tục học\nexplore\nKhám phá bộ từ vựng\nBài viết đã nộp\ndescription\n\n11\n\nTừ vựng tích lũy\ntrending_up\n\n+27\n\n+20% vs last month\n\nĐộ đa dạng từ vựng\nanalytics\n\n58%\n\nCấp độ CEFR ước tính\nequalizer\n\nB2\n\nDựa trên các bài viết thực tế\n\nVocabulary Growth\nWeekly\nMonthly\nMon\nTue\nWed\nBài luận gần đây\n\nTrack your completed essays and review feedback\n\nTất cả →\narticle\nBài viết về sự bảo tồn tài nguyên thiên nhiên và động vật hoang dã\n1 thg 10, 2026 · 88 từ\nĐã chấm bởi AI\nlocal_fire_department\n7 Chuỗi ngày học\nHãy duy trì đà học tập tuyệt vời này nhé!\nstyle\nSpaced Repetition\n12 Từ cần ôn tập hôm nay\n\nNhấp vào thẻ để xem định nghĩa\n\nÔn tập Flashcard\narrow_forward\nMục tiêu tuần\nCài đặt\n53%\n\nTừ mới tích lũy\n\n8 / 15 từ\n\n40%\n\nKhối lượng viết\n\n200 / 500 từ\n\n50%\n\nCấp độ mục tiêu\n\nLevel: B2\n\nyard\nVườn Tri Thức\nTrực quan hóa quá trình tích lũy từ vựng của bạn. Mỗi từ đã thuộc sẽ tưới xanh cho cây tri thức!\n\nMỗi từ thuộc sẽ tưới nước cho cây.\n\npotted_plant",
+    "errors": []
+  },
+  {
+    "path": "/student/dashboard",
+    "width": 1100,
+    "language": "vi",
+    "theme": "light",
+    "bodyWidth": 1094,
+    "viewport": 1100,
+    "over": [],
+    "main": [
+      {
+        "text": "schedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · defor",
+        "w": 386,
+        "h": 1395,
+        "scrollWidth": 538,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "grid": [
+      {
+        "text": "schedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · defor",
+        "w": 750,
+        "h": 1395,
+        "scrollWidth": 750,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "386px 340px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nTiếp tục học",
+        "w": 172,
+        "h": 48,
+        "scrollWidth": 170,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "auto"
+      },
+      {
+        "text": "Ôn tập Flashcard\narrow_forward",
+        "w": 298,
+        "h": 40,
+        "scrollWidth": 296,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "srs": [
+      {
+        "text": "style\nSpaced Repetition\n12 Từ cần ôn tập hôm nay\n\nNhấp vào thẻ để xem định nghĩa\n\nÔn tập Flashcard\na",
+        "w": 340,
+        "h": 177,
+        "scrollWidth": 338,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgb(239, 246, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "infoBadge": [],
+    "words": [],
+    "text": "auto_stories\nLexiGrow\n\nHọc tập & Tăng trưởng\n\nhome\nHôm nay\nexplore\nKhám phá\nedit_note\nLuyện viết AI\nhistory_edu\nLịch sử & Bản nháp\nmenu_book\nTừ vựng của tôi\nschool\nLớp học của tôi\nforest\nVườn tri thức\nworkspace_premium\nNâng cấp gói\nadd\nViết bài mới\nsettings\nCài đặt\nlogout\nĐăng xuất\nsearch\nrocket_launch\nNâng cấp\nVI\nexpand_more\ndark_mode\nnotifications\n\nHọc viên kiểm tra\n\nHọc sinh (B2)\n\nperson\nschedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · deforestation\n\nĐề xuất bộ từ luyện tập về bảo tồn tài nguyên thiên nhiên.\n\nplay_circle\nTiếp tục học\nexplore\nKhám phá bộ từ vựng\nBài viết đã nộp\ndescription\n\n11\n\nTừ vựng tích lũy\ntrending_up\n\n+28\n\n+20% vs last month\n\nĐộ đa dạng từ vựng\nanalytics\n\n61%\n\nCấp độ CEFR ước tính\nequalizer\n\nB2\n\nDựa trên các bài viết thực tế\n\nVocabulary Growth\nWeekly\nMonthly\nMon\nTue\nWed\nBài luận gần đây\n\nTrack your completed essays and review feedback\n\nTất cả →\narticle\nBài viết về sự bảo tồn tài nguyên thiên nhiên và động vật hoang dã\n1 thg 10, 2026 · 88 từ\nĐã chấm bởi AI\nlocal_fire_department\n7 Chuỗi ngày học\nHãy duy trì đà học tập tuyệt vời này nhé!\nstyle\nSpaced Repetition\n12 Từ cần ôn tập hôm nay\n\nNhấp vào thẻ để xem định nghĩa\n\nÔn tập Flashcard\narrow_forward\nMục tiêu tuần\nCài đặt\n53%\n\nTừ mới tích lũy\n\n8 / 15 từ\n\n40%\n\nKhối lượng viết\n\n200 / 500 từ\n\n50%\n\nCấp độ mục tiêu\n\nLevel: B2\n\nyard\nVườn Tri Thức\nTrực quan hóa quá trình tích lũy từ vựng của bạn. Mỗi từ đã thuộc sẽ tưới xanh cho cây tri thức!\n\nMỗi từ thuộc sẽ tưới nước cho cây.\n\npotted_plant",
+    "errors": []
+  },
+  {
+    "path": "/student/dashboard",
+    "width": 1440,
+    "language": "vi",
+    "theme": "light",
+    "bodyWidth": 1434,
+    "viewport": 1440,
+    "over": [],
+    "main": [
+      {
+        "text": "schedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · defor",
+        "w": 698,
+        "h": 1182,
+        "scrollWidth": 698,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "grid": [
+      {
+        "text": "schedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · defor",
+        "w": 1090,
+        "h": 1182,
+        "scrollWidth": 1090,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "698px 360px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nTiếp tục học",
+        "w": 172,
+        "h": 48,
+        "scrollWidth": 170,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "auto"
+      },
+      {
+        "text": "Ôn tập Flashcard\narrow_forward",
+        "w": 318,
+        "h": 40,
+        "scrollWidth": 316,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "srs": [
+      {
+        "text": "style\nSpaced Repetition\n12 Từ cần ôn tập hôm nay\n\nNhấp vào thẻ để xem định nghĩa\n\nÔn tập Flashcard\na",
+        "w": 360,
+        "h": 177,
+        "scrollWidth": 358,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgb(239, 246, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "infoBadge": [],
+    "words": [],
+    "text": "auto_stories\nLexiGrow\n\nHọc tập & Tăng trưởng\n\nhome\nHôm nay\nexplore\nKhám phá\nedit_note\nLuyện viết AI\nhistory_edu\nLịch sử & Bản nháp\nmenu_book\nTừ vựng của tôi\nschool\nLớp học của tôi\nforest\nVườn tri thức\nworkspace_premium\nNâng cấp gói\nadd\nViết bài mới\nsettings\nCài đặt\nlogout\nĐăng xuất\nsearch\nrocket_launch\nNâng cấp\nVI\nexpand_more\ndark_mode\nnotifications\n\nHọc viên kiểm tra\n\nHọc sinh (B2)\n\nperson\nschedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · deforestation\n\nĐề xuất bộ từ luyện tập về bảo tồn tài nguyên thiên nhiên.\n\nplay_circle\nTiếp tục học\nexplore\nKhám phá bộ từ vựng\nBài viết đã nộp\ndescription\n\n11\n\nTừ vựng tích lũy\ntrending_up\n\n+28\n\n+20% vs last month\n\nĐộ đa dạng từ vựng\nanalytics\n\n60%\n\nCấp độ CEFR ước tính\nequalizer\n\nB2\n\nDựa trên các bài viết thực tế\n\nVocabulary Growth\nWeekly\nMonthly\nMon\nTue\nWed\nBài luận gần đây\n\nTrack your completed essays and review feedback\n\nTất cả →\narticle\nBài viết về sự bảo tồn tài nguyên thiên nhiên và động vật hoang dã\n1 thg 10, 2026 · 88 từ\nĐã chấm bởi AI\nlocal_fire_department\n7 Chuỗi ngày học\nHãy duy trì đà học tập tuyệt vời này nhé!\nstyle\nSpaced Repetition\n12 Từ cần ôn tập hôm nay\n\nNhấp vào thẻ để xem định nghĩa\n\nÔn tập Flashcard\narrow_forward\nMục tiêu tuần\nCài đặt\n53%\n\nTừ mới tích lũy\n\n8 / 15 từ\n\n40%\n\nKhối lượng viết\n\n200 / 500 từ\n\n50%\n\nCấp độ mục tiêu\n\nLevel: B2\n\nyard\nVườn Tri Thức\nTrực quan hóa quá trình tích lũy từ vựng của bạn. Mỗi từ đã thuộc sẽ tưới xanh cho cây tri thức!\n\nMỗi từ thuộc sẽ tưới nước cho cây.\n\npotted_plant",
+    "errors": []
+  },
+  {
+    "path": "/student/explore",
+    "width": 360,
+    "language": "vi",
+    "theme": "light",
+    "bodyWidth": 354,
+    "viewport": 360,
+    "over": [],
+    "main": [],
+    "grid": [
+      {
+        "text": "A2\nschedule\n10 mins\nDaily Life & Routines\nSinh hoạt hàng ngày, đi lại & năng suất\n\nMaster essential ",
+        "w": 322,
+        "h": 3424,
+        "scrollWidth": 322,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "322px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (12 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "srs": [],
+    "infoBadge": [
+      {
+        "text": "explore\nThư viện bộ từ vựng theo chủ đề",
+        "w": 226,
+        "h": 24,
+        "scrollWidth": 224,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "words": [
+      {
+        "text": "Daily habits",
+        "w": 232,
+        "h": 17,
+        "scrollWidth": 232,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "Travel to work/school",
+        "w": 232,
+        "h": 17,
+        "scrollWidth": 232,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "High efficiency",
+        "w": 232,
+        "h": 17,
+        "scrollWidth": 232,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "text": "ạt hàng ngày, đi lại & năng suất\n\nMaster essential expressions for daily routines, commuting to work/school, and maintaining high productivity.\n\nformat_list_bulleted\n4 TỪ VỰNG MỤC TIÊU:\nroutine\nDaily habits\ncommute\nTravel to work/school\nproductive\nHigh efficiency\nefficient\nTime-saving\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n10 mins\nTravel & Exploration\nDu lịch, lịch trình & trải nghiệm\n\nDescribe famous landmarks, detailed travel itineraries, and reserving hotel rooms.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nitinerary\nTrip schedule\naccommodation\nLodging\nlandmark\nFamous site\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n10 mins\nHobbies & Creative Arts\nSở thích, thư giãn & nghệ thuật\n\nExpress passion for photography, cooking, gardening, and work-life balance.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nphotography\nTaking photos\ngardening\nPlant care\ncooking\nCulinary arts\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n12 mins\nTechnology & Digital Era\nCông nghệ, đổi mới & kết nối số\n\nDiscuss technological innovation, remote collaboration, accessibility, and AI revolution.\n\nformat_list_bulleted\n4 TỪ VỰNG MỤC TIÊU:\ninnovation\nGroundbreaking\ncollaboration\nTeamwork\naccessible\nEasy to reach\nrevolutionize\nTransform\nplay_circle\nBắt đầu học (12 mins)\nB2\nschedule\n10 mins\nEnvironment & Sustainability\nMôi trường, sinh thái & phát triển bền vững\n\nDiscuss biodiversity, climate action, fragile ecosystems, and sustainable development.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nsustainable\nEco-friendly\nbiodiversity\nBiological variety\necosystem\nLiving network\nplay_circle\nBắt đầu học (10 mins)",
+    "errors": []
+  },
+  {
+    "path": "/student/explore",
+    "width": 768,
+    "language": "vi",
+    "theme": "light",
+    "bodyWidth": 762,
+    "viewport": 768,
+    "over": [],
+    "main": [],
+    "grid": [
+      {
+        "text": "A2\nschedule\n10 mins\nDaily Life & Routines\nSinh hoạt hàng ngày, đi lại & năng suất\n\nMaster essential ",
+        "w": 730,
+        "h": 1935,
+        "scrollWidth": 730,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "353px 353px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (12 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "srs": [],
+    "infoBadge": [
+      {
+        "text": "explore\nThư viện bộ từ vựng theo chủ đề",
+        "w": 226,
+        "h": 24,
+        "scrollWidth": 224,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "words": [
+      {
+        "text": "Daily habits",
+        "w": 212,
+        "h": 17,
+        "scrollWidth": 212,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "Travel to work/school",
+        "w": 199,
+        "h": 17,
+        "scrollWidth": 199,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "High efficiency",
+        "w": 191,
+        "h": 17,
+        "scrollWidth": 191,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "text": "ạt hàng ngày, đi lại & năng suất\n\nMaster essential expressions for daily routines, commuting to work/school, and maintaining high productivity.\n\nformat_list_bulleted\n4 TỪ VỰNG MỤC TIÊU:\nroutine\nDaily habits\ncommute\nTravel to work/school\nproductive\nHigh efficiency\nefficient\nTime-saving\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n10 mins\nTravel & Exploration\nDu lịch, lịch trình & trải nghiệm\n\nDescribe famous landmarks, detailed travel itineraries, and reserving hotel rooms.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nitinerary\nTrip schedule\naccommodation\nLodging\nlandmark\nFamous site\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n10 mins\nHobbies & Creative Arts\nSở thích, thư giãn & nghệ thuật\n\nExpress passion for photography, cooking, gardening, and work-life balance.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nphotography\nTaking photos\ngardening\nPlant care\ncooking\nCulinary arts\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n12 mins\nTechnology & Digital Era\nCông nghệ, đổi mới & kết nối số\n\nDiscuss technological innovation, remote collaboration, accessibility, and AI revolution.\n\nformat_list_bulleted\n4 TỪ VỰNG MỤC TIÊU:\ninnovation\nGroundbreaking\ncollaboration\nTeamwork\naccessible\nEasy to reach\nrevolutionize\nTransform\nplay_circle\nBắt đầu học (12 mins)\nB2\nschedule\n10 mins\nEnvironment & Sustainability\nMôi trường, sinh thái & phát triển bền vững\n\nDiscuss biodiversity, climate action, fragile ecosystems, and sustainable development.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nsustainable\nEco-friendly\nbiodiversity\nBiological variety\necosystem\nLiving network\nplay_circle\nBắt đầu học (10 mins)",
+    "errors": []
+  },
+  {
+    "path": "/student/explore",
+    "width": 1100,
+    "language": "vi",
+    "theme": "light",
+    "bodyWidth": 1094,
+    "viewport": 1100,
+    "over": [],
+    "main": [],
+    "grid": [
+      {
+        "text": "A2\nschedule\n10 mins\nDaily Life & Routines\nSinh hoạt hàng ngày, đi lại & năng suất\n\nMaster essential ",
+        "w": 750,
+        "h": 1952,
+        "scrollWidth": 750,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "363px 363px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (12 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "srs": [],
+    "infoBadge": [
+      {
+        "text": "explore\nThư viện bộ từ vựng theo chủ đề",
+        "w": 226,
+        "h": 24,
+        "scrollWidth": 224,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "words": [
+      {
+        "text": "Daily habits",
+        "w": 222,
+        "h": 17,
+        "scrollWidth": 222,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "Travel to work/school",
+        "w": 209,
+        "h": 17,
+        "scrollWidth": 209,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "High efficiency",
+        "w": 201,
+        "h": 17,
+        "scrollWidth": 201,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "text": "ạt hàng ngày, đi lại & năng suất\n\nMaster essential expressions for daily routines, commuting to work/school, and maintaining high productivity.\n\nformat_list_bulleted\n4 TỪ VỰNG MỤC TIÊU:\nroutine\nDaily habits\ncommute\nTravel to work/school\nproductive\nHigh efficiency\nefficient\nTime-saving\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n10 mins\nTravel & Exploration\nDu lịch, lịch trình & trải nghiệm\n\nDescribe famous landmarks, detailed travel itineraries, and reserving hotel rooms.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nitinerary\nTrip schedule\naccommodation\nLodging\nlandmark\nFamous site\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n10 mins\nHobbies & Creative Arts\nSở thích, thư giãn & nghệ thuật\n\nExpress passion for photography, cooking, gardening, and work-life balance.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nphotography\nTaking photos\ngardening\nPlant care\ncooking\nCulinary arts\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n12 mins\nTechnology & Digital Era\nCông nghệ, đổi mới & kết nối số\n\nDiscuss technological innovation, remote collaboration, accessibility, and AI revolution.\n\nformat_list_bulleted\n4 TỪ VỰNG MỤC TIÊU:\ninnovation\nGroundbreaking\ncollaboration\nTeamwork\naccessible\nEasy to reach\nrevolutionize\nTransform\nplay_circle\nBắt đầu học (12 mins)\nB2\nschedule\n10 mins\nEnvironment & Sustainability\nMôi trường, sinh thái & phát triển bền vững\n\nDiscuss biodiversity, climate action, fragile ecosystems, and sustainable development.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nsustainable\nEco-friendly\nbiodiversity\nBiological variety\necosystem\nLiving network\nplay_circle\nBắt đầu học (10 mins)",
+    "errors": []
+  },
+  {
+    "path": "/student/explore",
+    "width": 1440,
+    "language": "vi",
+    "theme": "light",
+    "bodyWidth": 1434,
+    "viewport": 1440,
+    "over": [],
+    "main": [],
+    "grid": [
+      {
+        "text": "A2\nschedule\n10 mins\nDaily Life & Routines\nSinh hoạt hàng ngày, đi lại & năng suất\n\nMaster essential ",
+        "w": 1090,
+        "h": 1305,
+        "scrollWidth": 1090,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "347.328px 347.328px 347.344px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (12 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(30, 64, 175)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "srs": [],
+    "infoBadge": [
+      {
+        "text": "explore\nThư viện bộ từ vựng theo chủ đề",
+        "w": 226,
+        "h": 24,
+        "scrollWidth": 224,
+        "color": "rgb(15, 23, 42)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "words": [
+      {
+        "text": "Daily habits",
+        "w": 206,
+        "h": 17,
+        "scrollWidth": 206,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "Travel to work/school",
+        "w": 193,
+        "h": 17,
+        "scrollWidth": 193,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "High efficiency",
+        "w": 185,
+        "h": 17,
+        "scrollWidth": 185,
+        "color": "rgb(71, 85, 105)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "text": "ạt hàng ngày, đi lại & năng suất\n\nMaster essential expressions for daily routines, commuting to work/school, and maintaining high productivity.\n\nformat_list_bulleted\n4 TỪ VỰNG MỤC TIÊU:\nroutine\nDaily habits\ncommute\nTravel to work/school\nproductive\nHigh efficiency\nefficient\nTime-saving\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n10 mins\nTravel & Exploration\nDu lịch, lịch trình & trải nghiệm\n\nDescribe famous landmarks, detailed travel itineraries, and reserving hotel rooms.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nitinerary\nTrip schedule\naccommodation\nLodging\nlandmark\nFamous site\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n10 mins\nHobbies & Creative Arts\nSở thích, thư giãn & nghệ thuật\n\nExpress passion for photography, cooking, gardening, and work-life balance.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nphotography\nTaking photos\ngardening\nPlant care\ncooking\nCulinary arts\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n12 mins\nTechnology & Digital Era\nCông nghệ, đổi mới & kết nối số\n\nDiscuss technological innovation, remote collaboration, accessibility, and AI revolution.\n\nformat_list_bulleted\n4 TỪ VỰNG MỤC TIÊU:\ninnovation\nGroundbreaking\ncollaboration\nTeamwork\naccessible\nEasy to reach\nrevolutionize\nTransform\nplay_circle\nBắt đầu học (12 mins)\nB2\nschedule\n10 mins\nEnvironment & Sustainability\nMôi trường, sinh thái & phát triển bền vững\n\nDiscuss biodiversity, climate action, fragile ecosystems, and sustainable development.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nsustainable\nEco-friendly\nbiodiversity\nBiological variety\necosystem\nLiving network\nplay_circle\nBắt đầu học (10 mins)",
+    "errors": []
+  },
+  {
+    "path": "/student/game",
+    "width": 360,
+    "language": "vi",
+    "theme": "light",
+    "bodyWidth": 354,
+    "viewport": 360,
+    "over": [],
+    "main": [],
+    "grid": [],
+    "primary": [],
+    "srs": [],
+    "infoBadge": [],
+    "words": [],
+    "text": "Ô Chữ Hàng Ngày\n\nHoàn thành ô chữ hôm nay để nhận đom đóm & ươm mầm hoa hiếm. Khám phá gốc từ và từ đồng nghĩa trong ngữ cảnh.\n\nTiến độ nảy mầm: Đã giải 2 / 6 manh mối\n+120 XP Đom đóm\ngrade\nPhần thưởng: +80 XP & 1 Mầm cây\nPLAY NOW\narrow_forward\nCác chế độ Arcade Arena\n4 Chế độ có sẵn\n\nChọn một chế độ rèn luyện chuyên sâu về tốc độ, ngữ pháp, hình thái từ hoặc khả năng ghi nhớ.\n\nPHẢN XẠ NHANH\nmilitary_tech\n45 từ vựng\nsports_esports\nThợ săn từ vựng\nLuyện tốc độ · Thử thách 90 giây\n\nPhản xạ nhanh! Bắn hạ bong bóng từ vựng đang rơi tương ứng với định nghĩa được yêu cầu.\n\nTarget speed: 45 WPM\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nLUYỆN ĐỌC & ĐIỀN KHUYẾT\ngrade\nTTR 65%\npsychology\nĐiền từ ngữ cảnh\nĐiền từ ngữ cảnh theo trích đoạn báo chí & văn học\n\nHọc theo ngữ cảnh! Điền từ vựng thích hợp vào chỗ trống trong các câu ví dụ thực tế.\n\n\"Her lexical precision was ___.\"\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nCHÍNH TẢ & PHIÊN ÂM\nexplore\nTier: B2\nspellcheck\nGiải mã chữ cái\nXếp chữ & Nhận diện phiên âm\n\nLuyện chính tả! Sắp xếp các chữ cái bị xáo trộn thành từ hoàn chỉnh dựa trên gợi ý.\n\nPhonetic IPA clues\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nTRÍ NHỚ & GHÉP THẺ\nmilitary_tech\nActive 4x4\nextension\nGhép cặp từ vựng\nLật thẻ tìm cặp từ đồng nghĩa\n\nThách thức trí nhớ! Ghép từ vựng tiếng Anh với định nghĩa tương ứng trên các thẻ lật 3D.\n\n16 Cards · Grid 4x4\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nsports_esports\nMỤC TIÊU NHIỆM VỤ NGÀY\nĐã giải 2 / 6 từ\ngrade\nKINH NGHIỆM TUẦN NÀY\n0 XP\nmilitary_tech\nCẤP ĐỘ HIỆN TẠI\nCấp độ 3 · 250 XP",
+    "errors": []
+  },
+  {
+    "path": "/student/game",
+    "width": 768,
+    "language": "vi",
+    "theme": "light",
+    "bodyWidth": 762,
+    "viewport": 768,
+    "over": [],
+    "main": [],
+    "grid": [],
+    "primary": [],
+    "srs": [],
+    "infoBadge": [],
+    "words": [],
+    "text": "Ô Chữ Hàng Ngày\n\nHoàn thành ô chữ hôm nay để nhận đom đóm & ươm mầm hoa hiếm. Khám phá gốc từ và từ đồng nghĩa trong ngữ cảnh.\n\nTiến độ nảy mầm: Đã giải 2 / 6 manh mối\n+120 XP Đom đóm\ngrade\nPhần thưởng: +80 XP & 1 Mầm cây\nPLAY NOW\narrow_forward\nCác chế độ Arcade Arena\n4 Chế độ có sẵn\n\nChọn một chế độ rèn luyện chuyên sâu về tốc độ, ngữ pháp, hình thái từ hoặc khả năng ghi nhớ.\n\nPHẢN XẠ NHANH\nmilitary_tech\n45 từ vựng\nsports_esports\nThợ săn từ vựng\nLuyện tốc độ · Thử thách 90 giây\n\nPhản xạ nhanh! Bắn hạ bong bóng từ vựng đang rơi tương ứng với định nghĩa được yêu cầu.\n\nTarget speed: 45 WPM\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nLUYỆN ĐỌC & ĐIỀN KHUYẾT\ngrade\nTTR 65%\npsychology\nĐiền từ ngữ cảnh\nĐiền từ ngữ cảnh theo trích đoạn báo chí & văn học\n\nHọc theo ngữ cảnh! Điền từ vựng thích hợp vào chỗ trống trong các câu ví dụ thực tế.\n\n\"Her lexical precision was ___.\"\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nCHÍNH TẢ & PHIÊN ÂM\nexplore\nTier: B2\nspellcheck\nGiải mã chữ cái\nXếp chữ & Nhận diện phiên âm\n\nLuyện chính tả! Sắp xếp các chữ cái bị xáo trộn thành từ hoàn chỉnh dựa trên gợi ý.\n\nPhonetic IPA clues\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nTRÍ NHỚ & GHÉP THẺ\nmilitary_tech\nActive 4x4\nextension\nGhép cặp từ vựng\nLật thẻ tìm cặp từ đồng nghĩa\n\nThách thức trí nhớ! Ghép từ vựng tiếng Anh với định nghĩa tương ứng trên các thẻ lật 3D.\n\n16 Cards · Grid 4x4\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nsports_esports\nMỤC TIÊU NHIỆM VỤ NGÀY\nĐã giải 2 / 6 từ\ngrade\nKINH NGHIỆM TUẦN NÀY\n0 XP\nmilitary_tech\nCẤP ĐỘ HIỆN TẠI\nCấp độ 3 · 250 XP",
+    "errors": []
+  },
+  {
+    "path": "/student/game",
+    "width": 1100,
+    "language": "vi",
+    "theme": "light",
+    "bodyWidth": 1094,
+    "viewport": 1100,
+    "over": [],
+    "main": [],
+    "grid": [],
+    "primary": [],
+    "srs": [],
+    "infoBadge": [],
+    "words": [],
+    "text": "Ô Chữ Hàng Ngày\n\nHoàn thành ô chữ hôm nay để nhận đom đóm & ươm mầm hoa hiếm. Khám phá gốc từ và từ đồng nghĩa trong ngữ cảnh.\n\nTiến độ nảy mầm: Đã giải 2 / 6 manh mối\n+120 XP Đom đóm\ngrade\nPhần thưởng: +80 XP & 1 Mầm cây\nPLAY NOW\narrow_forward\nCác chế độ Arcade Arena\n4 Chế độ có sẵn\n\nChọn một chế độ rèn luyện chuyên sâu về tốc độ, ngữ pháp, hình thái từ hoặc khả năng ghi nhớ.\n\nPHẢN XẠ NHANH\nmilitary_tech\n45 từ vựng\nsports_esports\nThợ săn từ vựng\nLuyện tốc độ · Thử thách 90 giây\n\nPhản xạ nhanh! Bắn hạ bong bóng từ vựng đang rơi tương ứng với định nghĩa được yêu cầu.\n\nTarget speed: 45 WPM\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nLUYỆN ĐỌC & ĐIỀN KHUYẾT\ngrade\nTTR 65%\npsychology\nĐiền từ ngữ cảnh\nĐiền từ ngữ cảnh theo trích đoạn báo chí & văn học\n\nHọc theo ngữ cảnh! Điền từ vựng thích hợp vào chỗ trống trong các câu ví dụ thực tế.\n\n\"Her lexical precision was ___.\"\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nCHÍNH TẢ & PHIÊN ÂM\nexplore\nTier: B2\nspellcheck\nGiải mã chữ cái\nXếp chữ & Nhận diện phiên âm\n\nLuyện chính tả! Sắp xếp các chữ cái bị xáo trộn thành từ hoàn chỉnh dựa trên gợi ý.\n\nPhonetic IPA clues\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nTRÍ NHỚ & GHÉP THẺ\nmilitary_tech\nActive 4x4\nextension\nGhép cặp từ vựng\nLật thẻ tìm cặp từ đồng nghĩa\n\nThách thức trí nhớ! Ghép từ vựng tiếng Anh với định nghĩa tương ứng trên các thẻ lật 3D.\n\n16 Cards · Grid 4x4\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nsports_esports\nMỤC TIÊU NHIỆM VỤ NGÀY\nĐã giải 2 / 6 từ\ngrade\nKINH NGHIỆM TUẦN NÀY\n0 XP\nmilitary_tech\nCẤP ĐỘ HIỆN TẠI\nCấp độ 3 · 250 XP",
+    "errors": []
+  },
+  {
+    "path": "/student/game",
+    "width": 1440,
+    "language": "vi",
+    "theme": "light",
+    "bodyWidth": 1434,
+    "viewport": 1440,
+    "over": [],
+    "main": [],
+    "grid": [],
+    "primary": [],
+    "srs": [],
+    "infoBadge": [],
+    "words": [],
+    "text": "Ô Chữ Hàng Ngày\n\nHoàn thành ô chữ hôm nay để nhận đom đóm & ươm mầm hoa hiếm. Khám phá gốc từ và từ đồng nghĩa trong ngữ cảnh.\n\nTiến độ nảy mầm: Đã giải 2 / 6 manh mối\n+120 XP Đom đóm\ngrade\nPhần thưởng: +80 XP & 1 Mầm cây\nPLAY NOW\narrow_forward\nCác chế độ Arcade Arena\n4 Chế độ có sẵn\n\nChọn một chế độ rèn luyện chuyên sâu về tốc độ, ngữ pháp, hình thái từ hoặc khả năng ghi nhớ.\n\nPHẢN XẠ NHANH\nmilitary_tech\n45 từ vựng\nsports_esports\nThợ săn từ vựng\nLuyện tốc độ · Thử thách 90 giây\n\nPhản xạ nhanh! Bắn hạ bong bóng từ vựng đang rơi tương ứng với định nghĩa được yêu cầu.\n\nTarget speed: 45 WPM\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nLUYỆN ĐỌC & ĐIỀN KHUYẾT\ngrade\nTTR 65%\npsychology\nĐiền từ ngữ cảnh\nĐiền từ ngữ cảnh theo trích đoạn báo chí & văn học\n\nHọc theo ngữ cảnh! Điền từ vựng thích hợp vào chỗ trống trong các câu ví dụ thực tế.\n\n\"Her lexical precision was ___.\"\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nCHÍNH TẢ & PHIÊN ÂM\nexplore\nTier: B2\nspellcheck\nGiải mã chữ cái\nXếp chữ & Nhận diện phiên âm\n\nLuyện chính tả! Sắp xếp các chữ cái bị xáo trộn thành từ hoàn chỉnh dựa trên gợi ý.\n\nPhonetic IPA clues\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nTRÍ NHỚ & GHÉP THẺ\nmilitary_tech\nActive 4x4\nextension\nGhép cặp từ vựng\nLật thẻ tìm cặp từ đồng nghĩa\n\nThách thức trí nhớ! Ghép từ vựng tiếng Anh với định nghĩa tương ứng trên các thẻ lật 3D.\n\n16 Cards · Grid 4x4\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nsports_esports\nMỤC TIÊU NHIỆM VỤ NGÀY\nĐã giải 2 / 6 từ\ngrade\nKINH NGHIỆM TUẦN NÀY\n0 XP\nmilitary_tech\nCẤP ĐỘ HIỆN TẠI\nCấp độ 3 · 250 XP",
+    "errors": []
+  },
+  {
+    "path": "/student/dashboard",
+    "width": 360,
+    "language": "vi",
+    "theme": "dark",
+    "bodyWidth": 354,
+    "viewport": 360,
+    "over": [
+      {
+        "class": "",
+        "right": 532,
+        "text": "Bài viết về sự bảo tồn tài nguyên thiên nhiên và động vật ho"
+      },
+      {
+        "class": "student-dash__essay-title",
+        "right": 532,
+        "text": "Bài viết về sự bảo tồn tài nguyên thiên nhiên và động vật ho"
+      },
+      {
+        "class": "student-dash__essay-meta",
+        "right": 532,
+        "text": "1 thg 10, 2026 · 88 từ"
+      }
+    ],
+    "main": [
+      {
+        "text": "schedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · defor",
+        "w": 322,
+        "h": 1521,
+        "scrollWidth": 322,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "grid": [
+      {
+        "text": "schedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · defor",
+        "w": 322,
+        "h": 2418,
+        "scrollWidth": 322,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "322px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nTiếp tục học",
+        "w": 172,
+        "h": 48,
+        "scrollWidth": 170,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      },
+      {
+        "text": "Ôn tập Flashcard\narrow_forward",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "srs": [
+      {
+        "text": "style\nSpaced Repetition\n12 Từ cần ôn tập hôm nay\n\nNhấp vào thẻ để xem định nghĩa\n\nÔn tập Flashcard\na",
+        "w": 322,
+        "h": 177,
+        "scrollWidth": 320,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgb(239, 246, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "infoBadge": [],
+    "words": [],
+    "text": "auto_stories\nLexiGrow\n\nHọc tập & Tăng trưởng\n\nclose\nhome\nHôm nay\nexplore\nKhám phá\nedit_note\nLuyện viết AI\nhistory_edu\nLịch sử & Bản nháp\nmenu_book\nTừ vựng của tôi\nschool\nLớp học của tôi\nforest\nVườn tri thức\nworkspace_premium\nNâng cấp gói\nadd\nViết bài mới\nsettings\nCài đặt\nlogout\nĐăng xuất\nmenu\nrocket_launch\nNâng cấp\nVI\nexpand_more\nlight_mode\nnotifications\nperson\nschedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · deforestation\n\nĐề xuất bộ từ luyện tập về bảo tồn tài nguyên thiên nhiên.\n\nplay_circle\nTiếp tục học\nexplore\nKhám phá bộ từ vựng\nBài viết đã nộp\ndescription\n\n8\n\nTừ vựng tích lũy\ntrending_up\n\n+19\n\n+20% vs last month\n\nĐộ đa dạng từ vựng\nanalytics\n\n42%\n\nCấp độ CEFR ước tính\nequalizer\n\nB2\n\nDựa trên các bài viết thực tế\n\nVocabulary Growth\nWeekly\nMonthly\nMon\nTue\nWed\nBài luận gần đây\n\nTrack your completed essays and review feedback\n\nTất cả →\narticle\nBài viết về sự bảo tồn tài nguyên thiên nhiên và động vật hoang dã\n1 thg 10, 2026 · 88 từ\nĐã chấm bởi AI\nlocal_fire_department\n7 Chuỗi ngày học\nHãy duy trì đà học tập tuyệt vời này nhé!\nstyle\nSpaced Repetition\n12 Từ cần ôn tập hôm nay\n\nNhấp vào thẻ để xem định nghĩa\n\nÔn tập Flashcard\narrow_forward\nMục tiêu tuần\nCài đặt\n53%\n\nTừ mới tích lũy\n\n8 / 15 từ\n\n40%\n\nKhối lượng viết\n\n200 / 500 từ\n\n50%\n\nCấp độ mục tiêu\n\nLevel: B2\n\nyard\nVườn Tri Thức\nTrực quan hóa quá trình tích lũy từ vựng của bạn. Mỗi từ đã thuộc sẽ tưới xanh cho cây tri thức!\n\nMỗi từ thuộc sẽ tưới nước cho cây.\n\npotted_plant",
+    "errors": []
+  },
+  {
+    "path": "/student/dashboard",
+    "width": 768,
+    "language": "vi",
+    "theme": "dark",
+    "bodyWidth": 762,
+    "viewport": 768,
+    "over": [],
+    "main": [
+      {
+        "text": "schedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · defor",
+        "w": 730,
+        "h": 1182,
+        "scrollWidth": 730,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "grid": [
+      {
+        "text": "schedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · defor",
+        "w": 730,
+        "h": 2007,
+        "scrollWidth": 730,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "730px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nTiếp tục học",
+        "w": 172,
+        "h": 48,
+        "scrollWidth": 170,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      },
+      {
+        "text": "Ôn tập Flashcard\narrow_forward",
+        "w": 688,
+        "h": 40,
+        "scrollWidth": 686,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "srs": [
+      {
+        "text": "style\nSpaced Repetition\n12 Từ cần ôn tập hôm nay\n\nNhấp vào thẻ để xem định nghĩa\n\nÔn tập Flashcard\na",
+        "w": 730,
+        "h": 177,
+        "scrollWidth": 728,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgb(239, 246, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "infoBadge": [],
+    "words": [],
+    "text": "auto_stories\nLexiGrow\n\nHọc tập & Tăng trưởng\n\nclose\nhome\nHôm nay\nexplore\nKhám phá\nedit_note\nLuyện viết AI\nhistory_edu\nLịch sử & Bản nháp\nmenu_book\nTừ vựng của tôi\nschool\nLớp học của tôi\nforest\nVườn tri thức\nworkspace_premium\nNâng cấp gói\nadd\nViết bài mới\nsettings\nCài đặt\nlogout\nĐăng xuất\nmenu\nsearch\nrocket_launch\nNâng cấp\nVI\nexpand_more\nlight_mode\nnotifications\n\nHọc viên kiểm tra\n\nHọc sinh (B2)\n\nperson\nschedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · deforestation\n\nĐề xuất bộ từ luyện tập về bảo tồn tài nguyên thiên nhiên.\n\nplay_circle\nTiếp tục học\nexplore\nKhám phá bộ từ vựng\nBài viết đã nộp\ndescription\n\n11\n\nTừ vựng tích lũy\ntrending_up\n\n+29\n\n+20% vs last month\n\nĐộ đa dạng từ vựng\nanalytics\n\n62%\n\nCấp độ CEFR ước tính\nequalizer\n\nB2\n\nDựa trên các bài viết thực tế\n\nVocabulary Growth\nWeekly\nMonthly\nMon\nTue\nWed\nBài luận gần đây\n\nTrack your completed essays and review feedback\n\nTất cả →\narticle\nBài viết về sự bảo tồn tài nguyên thiên nhiên và động vật hoang dã\n1 thg 10, 2026 · 88 từ\nĐã chấm bởi AI\nlocal_fire_department\n7 Chuỗi ngày học\nHãy duy trì đà học tập tuyệt vời này nhé!\nstyle\nSpaced Repetition\n12 Từ cần ôn tập hôm nay\n\nNhấp vào thẻ để xem định nghĩa\n\nÔn tập Flashcard\narrow_forward\nMục tiêu tuần\nCài đặt\n53%\n\nTừ mới tích lũy\n\n8 / 15 từ\n\n40%\n\nKhối lượng viết\n\n200 / 500 từ\n\n50%\n\nCấp độ mục tiêu\n\nLevel: B2\n\nyard\nVườn Tri Thức\nTrực quan hóa quá trình tích lũy từ vựng của bạn. Mỗi từ đã thuộc sẽ tưới xanh cho cây tri thức!\n\nMỗi từ thuộc sẽ tưới nước cho cây.\n\npotted_plant",
+    "errors": []
+  },
+  {
+    "path": "/student/dashboard",
+    "width": 1100,
+    "language": "vi",
+    "theme": "dark",
+    "bodyWidth": 1094,
+    "viewport": 1100,
+    "over": [],
+    "main": [
+      {
+        "text": "schedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · defor",
+        "w": 386,
+        "h": 1395,
+        "scrollWidth": 538,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "grid": [
+      {
+        "text": "schedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · defor",
+        "w": 750,
+        "h": 1395,
+        "scrollWidth": 750,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "386px 340px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nTiếp tục học",
+        "w": 172,
+        "h": 48,
+        "scrollWidth": 170,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      },
+      {
+        "text": "Ôn tập Flashcard\narrow_forward",
+        "w": 298,
+        "h": 40,
+        "scrollWidth": 296,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "srs": [
+      {
+        "text": "style\nSpaced Repetition\n12 Từ cần ôn tập hôm nay\n\nNhấp vào thẻ để xem định nghĩa\n\nÔn tập Flashcard\na",
+        "w": 340,
+        "h": 177,
+        "scrollWidth": 338,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgb(239, 246, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "infoBadge": [],
+    "words": [],
+    "text": "auto_stories\nLexiGrow\n\nHọc tập & Tăng trưởng\n\nhome\nHôm nay\nexplore\nKhám phá\nedit_note\nLuyện viết AI\nhistory_edu\nLịch sử & Bản nháp\nmenu_book\nTừ vựng của tôi\nschool\nLớp học của tôi\nforest\nVườn tri thức\nworkspace_premium\nNâng cấp gói\nadd\nViết bài mới\nsettings\nCài đặt\nlogout\nĐăng xuất\nsearch\nrocket_launch\nNâng cấp\nVI\nexpand_more\nlight_mode\nnotifications\n\nHọc viên kiểm tra\n\nHọc sinh (B2)\n\nperson\nschedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · deforestation\n\nĐề xuất bộ từ luyện tập về bảo tồn tài nguyên thiên nhiên.\n\nplay_circle\nTiếp tục học\nexplore\nKhám phá bộ từ vựng\nBài viết đã nộp\ndescription\n\n11\n\nTừ vựng tích lũy\ntrending_up\n\n+28\n\n+20% vs last month\n\nĐộ đa dạng từ vựng\nanalytics\n\n61%\n\nCấp độ CEFR ước tính\nequalizer\n\nB2\n\nDựa trên các bài viết thực tế\n\nVocabulary Growth\nWeekly\nMonthly\nMon\nTue\nWed\nBài luận gần đây\n\nTrack your completed essays and review feedback\n\nTất cả →\narticle\nBài viết về sự bảo tồn tài nguyên thiên nhiên và động vật hoang dã\n1 thg 10, 2026 · 88 từ\nĐã chấm bởi AI\nlocal_fire_department\n7 Chuỗi ngày học\nHãy duy trì đà học tập tuyệt vời này nhé!\nstyle\nSpaced Repetition\n12 Từ cần ôn tập hôm nay\n\nNhấp vào thẻ để xem định nghĩa\n\nÔn tập Flashcard\narrow_forward\nMục tiêu tuần\nCài đặt\n53%\n\nTừ mới tích lũy\n\n8 / 15 từ\n\n40%\n\nKhối lượng viết\n\n200 / 500 từ\n\n50%\n\nCấp độ mục tiêu\n\nLevel: B2\n\nyard\nVườn Tri Thức\nTrực quan hóa quá trình tích lũy từ vựng của bạn. Mỗi từ đã thuộc sẽ tưới xanh cho cây tri thức!\n\nMỗi từ thuộc sẽ tưới nước cho cây.\n\npotted_plant",
+    "errors": []
+  },
+  {
+    "path": "/student/dashboard",
+    "width": 1440,
+    "language": "vi",
+    "theme": "dark",
+    "bodyWidth": 1434,
+    "viewport": 1440,
+    "over": [],
+    "main": [
+      {
+        "text": "schedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · defor",
+        "w": 698,
+        "h": 1182,
+        "scrollWidth": 698,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "grid": [
+      {
+        "text": "schedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · defor",
+        "w": 1090,
+        "h": 1182,
+        "scrollWidth": 1090,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "698px 360px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nTiếp tục học",
+        "w": 172,
+        "h": 48,
+        "scrollWidth": 170,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      },
+      {
+        "text": "Ôn tập Flashcard\narrow_forward",
+        "w": 318,
+        "h": 40,
+        "scrollWidth": 316,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "srs": [
+      {
+        "text": "style\nSpaced Repetition\n12 Từ cần ôn tập hôm nay\n\nNhấp vào thẻ để xem định nghĩa\n\nÔn tập Flashcard\na",
+        "w": 360,
+        "h": 177,
+        "scrollWidth": 358,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgb(239, 246, 255)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "infoBadge": [],
+    "words": [],
+    "text": "auto_stories\nLexiGrow\n\nHọc tập & Tăng trưởng\n\nhome\nHôm nay\nexplore\nKhám phá\nedit_note\nLuyện viết AI\nhistory_edu\nLịch sử & Bản nháp\nmenu_book\nTừ vựng của tôi\nschool\nLớp học của tôi\nforest\nVườn tri thức\nworkspace_premium\nNâng cấp gói\nadd\nViết bài mới\nsettings\nCài đặt\nlogout\nĐăng xuất\nsearch\nrocket_launch\nNâng cấp\nVI\nexpand_more\nlight_mode\nnotifications\n\nHọc viên kiểm tra\n\nHọc sinh (B2)\n\nperson\nschedule\nTiếp tục học\nCEFR: B2\nBộ từ vựng gợi ý cho bạn\nconservation · renewable · emissions · deforestation\n\nĐề xuất bộ từ luyện tập về bảo tồn tài nguyên thiên nhiên.\n\nplay_circle\nTiếp tục học\nexplore\nKhám phá bộ từ vựng\nBài viết đã nộp\ndescription\n\n11\n\nTừ vựng tích lũy\ntrending_up\n\n+28\n\n+20% vs last month\n\nĐộ đa dạng từ vựng\nanalytics\n\n60%\n\nCấp độ CEFR ước tính\nequalizer\n\nB2\n\nDựa trên các bài viết thực tế\n\nVocabulary Growth\nWeekly\nMonthly\nMon\nTue\nWed\nBài luận gần đây\n\nTrack your completed essays and review feedback\n\nTất cả →\narticle\nBài viết về sự bảo tồn tài nguyên thiên nhiên và động vật hoang dã\n1 thg 10, 2026 · 88 từ\nĐã chấm bởi AI\nlocal_fire_department\n7 Chuỗi ngày học\nHãy duy trì đà học tập tuyệt vời này nhé!\nstyle\nSpaced Repetition\n12 Từ cần ôn tập hôm nay\n\nNhấp vào thẻ để xem định nghĩa\n\nÔn tập Flashcard\narrow_forward\nMục tiêu tuần\nCài đặt\n53%\n\nTừ mới tích lũy\n\n8 / 15 từ\n\n40%\n\nKhối lượng viết\n\n200 / 500 từ\n\n50%\n\nCấp độ mục tiêu\n\nLevel: B2\n\nyard\nVườn Tri Thức\nTrực quan hóa quá trình tích lũy từ vựng của bạn. Mỗi từ đã thuộc sẽ tưới xanh cho cây tri thức!\n\nMỗi từ thuộc sẽ tưới nước cho cây.\n\npotted_plant",
+    "errors": []
+  },
+  {
+    "path": "/student/explore",
+    "width": 360,
+    "language": "vi",
+    "theme": "dark",
+    "bodyWidth": 354,
+    "viewport": 360,
+    "over": [],
+    "main": [],
+    "grid": [
+      {
+        "text": "A2\nschedule\n10 mins\nDaily Life & Routines\nSinh hoạt hàng ngày, đi lại & năng suất\n\nMaster essential ",
+        "w": 322,
+        "h": 3424,
+        "scrollWidth": 322,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "322px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (12 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 280,
+        "h": 40,
+        "scrollWidth": 278,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "srs": [],
+    "infoBadge": [
+      {
+        "text": "explore\nThư viện bộ từ vựng theo chủ đề",
+        "w": 226,
+        "h": 24,
+        "scrollWidth": 224,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "words": [
+      {
+        "text": "Daily habits",
+        "w": 232,
+        "h": 17,
+        "scrollWidth": 232,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "Travel to work/school",
+        "w": 232,
+        "h": 17,
+        "scrollWidth": 232,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "High efficiency",
+        "w": 232,
+        "h": 17,
+        "scrollWidth": 232,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "text": "ạt hàng ngày, đi lại & năng suất\n\nMaster essential expressions for daily routines, commuting to work/school, and maintaining high productivity.\n\nformat_list_bulleted\n4 TỪ VỰNG MỤC TIÊU:\nroutine\nDaily habits\ncommute\nTravel to work/school\nproductive\nHigh efficiency\nefficient\nTime-saving\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n10 mins\nTravel & Exploration\nDu lịch, lịch trình & trải nghiệm\n\nDescribe famous landmarks, detailed travel itineraries, and reserving hotel rooms.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nitinerary\nTrip schedule\naccommodation\nLodging\nlandmark\nFamous site\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n10 mins\nHobbies & Creative Arts\nSở thích, thư giãn & nghệ thuật\n\nExpress passion for photography, cooking, gardening, and work-life balance.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nphotography\nTaking photos\ngardening\nPlant care\ncooking\nCulinary arts\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n12 mins\nTechnology & Digital Era\nCông nghệ, đổi mới & kết nối số\n\nDiscuss technological innovation, remote collaboration, accessibility, and AI revolution.\n\nformat_list_bulleted\n4 TỪ VỰNG MỤC TIÊU:\ninnovation\nGroundbreaking\ncollaboration\nTeamwork\naccessible\nEasy to reach\nrevolutionize\nTransform\nplay_circle\nBắt đầu học (12 mins)\nB2\nschedule\n10 mins\nEnvironment & Sustainability\nMôi trường, sinh thái & phát triển bền vững\n\nDiscuss biodiversity, climate action, fragile ecosystems, and sustainable development.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nsustainable\nEco-friendly\nbiodiversity\nBiological variety\necosystem\nLiving network\nplay_circle\nBắt đầu học (10 mins)",
+    "errors": []
+  },
+  {
+    "path": "/student/explore",
+    "width": 768,
+    "language": "vi",
+    "theme": "dark",
+    "bodyWidth": 762,
+    "viewport": 768,
+    "over": [],
+    "main": [],
+    "grid": [
+      {
+        "text": "A2\nschedule\n10 mins\nDaily Life & Routines\nSinh hoạt hàng ngày, đi lại & năng suất\n\nMaster essential ",
+        "w": 730,
+        "h": 1935,
+        "scrollWidth": 730,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "353px 353px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (12 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 311,
+        "h": 40,
+        "scrollWidth": 309,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "srs": [],
+    "infoBadge": [
+      {
+        "text": "explore\nThư viện bộ từ vựng theo chủ đề",
+        "w": 226,
+        "h": 24,
+        "scrollWidth": 224,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "words": [
+      {
+        "text": "Daily habits",
+        "w": 212,
+        "h": 17,
+        "scrollWidth": 212,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "Travel to work/school",
+        "w": 199,
+        "h": 17,
+        "scrollWidth": 199,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "High efficiency",
+        "w": 191,
+        "h": 17,
+        "scrollWidth": 191,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "text": "ạt hàng ngày, đi lại & năng suất\n\nMaster essential expressions for daily routines, commuting to work/school, and maintaining high productivity.\n\nformat_list_bulleted\n4 TỪ VỰNG MỤC TIÊU:\nroutine\nDaily habits\ncommute\nTravel to work/school\nproductive\nHigh efficiency\nefficient\nTime-saving\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n10 mins\nTravel & Exploration\nDu lịch, lịch trình & trải nghiệm\n\nDescribe famous landmarks, detailed travel itineraries, and reserving hotel rooms.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nitinerary\nTrip schedule\naccommodation\nLodging\nlandmark\nFamous site\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n10 mins\nHobbies & Creative Arts\nSở thích, thư giãn & nghệ thuật\n\nExpress passion for photography, cooking, gardening, and work-life balance.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nphotography\nTaking photos\ngardening\nPlant care\ncooking\nCulinary arts\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n12 mins\nTechnology & Digital Era\nCông nghệ, đổi mới & kết nối số\n\nDiscuss technological innovation, remote collaboration, accessibility, and AI revolution.\n\nformat_list_bulleted\n4 TỪ VỰNG MỤC TIÊU:\ninnovation\nGroundbreaking\ncollaboration\nTeamwork\naccessible\nEasy to reach\nrevolutionize\nTransform\nplay_circle\nBắt đầu học (12 mins)\nB2\nschedule\n10 mins\nEnvironment & Sustainability\nMôi trường, sinh thái & phát triển bền vững\n\nDiscuss biodiversity, climate action, fragile ecosystems, and sustainable development.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nsustainable\nEco-friendly\nbiodiversity\nBiological variety\necosystem\nLiving network\nplay_circle\nBắt đầu học (10 mins)",
+    "errors": []
+  },
+  {
+    "path": "/student/explore",
+    "width": 1100,
+    "language": "vi",
+    "theme": "dark",
+    "bodyWidth": 1094,
+    "viewport": 1100,
+    "over": [],
+    "main": [],
+    "grid": [
+      {
+        "text": "A2\nschedule\n10 mins\nDaily Life & Routines\nSinh hoạt hàng ngày, đi lại & năng suất\n\nMaster essential ",
+        "w": 750,
+        "h": 1952,
+        "scrollWidth": 750,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "363px 363px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (12 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 321,
+        "h": 40,
+        "scrollWidth": 319,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "srs": [],
+    "infoBadge": [
+      {
+        "text": "explore\nThư viện bộ từ vựng theo chủ đề",
+        "w": 226,
+        "h": 24,
+        "scrollWidth": 224,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "words": [
+      {
+        "text": "Daily habits",
+        "w": 222,
+        "h": 17,
+        "scrollWidth": 222,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "Travel to work/school",
+        "w": 209,
+        "h": 17,
+        "scrollWidth": 209,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "High efficiency",
+        "w": 201,
+        "h": 17,
+        "scrollWidth": 201,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "text": "ạt hàng ngày, đi lại & năng suất\n\nMaster essential expressions for daily routines, commuting to work/school, and maintaining high productivity.\n\nformat_list_bulleted\n4 TỪ VỰNG MỤC TIÊU:\nroutine\nDaily habits\ncommute\nTravel to work/school\nproductive\nHigh efficiency\nefficient\nTime-saving\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n10 mins\nTravel & Exploration\nDu lịch, lịch trình & trải nghiệm\n\nDescribe famous landmarks, detailed travel itineraries, and reserving hotel rooms.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nitinerary\nTrip schedule\naccommodation\nLodging\nlandmark\nFamous site\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n10 mins\nHobbies & Creative Arts\nSở thích, thư giãn & nghệ thuật\n\nExpress passion for photography, cooking, gardening, and work-life balance.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nphotography\nTaking photos\ngardening\nPlant care\ncooking\nCulinary arts\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n12 mins\nTechnology & Digital Era\nCông nghệ, đổi mới & kết nối số\n\nDiscuss technological innovation, remote collaboration, accessibility, and AI revolution.\n\nformat_list_bulleted\n4 TỪ VỰNG MỤC TIÊU:\ninnovation\nGroundbreaking\ncollaboration\nTeamwork\naccessible\nEasy to reach\nrevolutionize\nTransform\nplay_circle\nBắt đầu học (12 mins)\nB2\nschedule\n10 mins\nEnvironment & Sustainability\nMôi trường, sinh thái & phát triển bền vững\n\nDiscuss biodiversity, climate action, fragile ecosystems, and sustainable development.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nsustainable\nEco-friendly\nbiodiversity\nBiological variety\necosystem\nLiving network\nplay_circle\nBắt đầu học (10 mins)",
+    "errors": []
+  },
+  {
+    "path": "/student/explore",
+    "width": 1440,
+    "language": "vi",
+    "theme": "dark",
+    "bodyWidth": 1434,
+    "viewport": 1440,
+    "over": [],
+    "main": [],
+    "grid": [
+      {
+        "text": "A2\nschedule\n10 mins\nDaily Life & Routines\nSinh hoạt hàng ngày, đi lại & năng suất\n\nMaster essential ",
+        "w": 1090,
+        "h": 1305,
+        "scrollWidth": 1090,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "347.328px 347.328px 347.344px",
+        "minWidth": "auto"
+      }
+    ],
+    "primary": [
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (12 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "play_circle\nBắt đầu học (10 mins)",
+        "w": 305,
+        "h": 40,
+        "scrollWidth": 303,
+        "color": "rgb(255, 255, 255)",
+        "bg": "rgb(120, 157, 255)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "srs": [],
+    "infoBadge": [
+      {
+        "text": "explore\nThư viện bộ từ vựng theo chủ đề",
+        "w": 226,
+        "h": 24,
+        "scrollWidth": 224,
+        "color": "rgb(226, 232, 240)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "auto"
+      }
+    ],
+    "words": [
+      {
+        "text": "Daily habits",
+        "w": 206,
+        "h": 17,
+        "scrollWidth": 206,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "Travel to work/school",
+        "w": 193,
+        "h": 17,
+        "scrollWidth": 193,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      },
+      {
+        "text": "High efficiency",
+        "w": 185,
+        "h": 17,
+        "scrollWidth": 185,
+        "color": "rgb(148, 163, 184)",
+        "bg": "rgba(0, 0, 0, 0)",
+        "grid": "none",
+        "minWidth": "0px"
+      }
+    ],
+    "text": "ạt hàng ngày, đi lại & năng suất\n\nMaster essential expressions for daily routines, commuting to work/school, and maintaining high productivity.\n\nformat_list_bulleted\n4 TỪ VỰNG MỤC TIÊU:\nroutine\nDaily habits\ncommute\nTravel to work/school\nproductive\nHigh efficiency\nefficient\nTime-saving\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n10 mins\nTravel & Exploration\nDu lịch, lịch trình & trải nghiệm\n\nDescribe famous landmarks, detailed travel itineraries, and reserving hotel rooms.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nitinerary\nTrip schedule\naccommodation\nLodging\nlandmark\nFamous site\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n10 mins\nHobbies & Creative Arts\nSở thích, thư giãn & nghệ thuật\n\nExpress passion for photography, cooking, gardening, and work-life balance.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nphotography\nTaking photos\ngardening\nPlant care\ncooking\nCulinary arts\nplay_circle\nBắt đầu học (10 mins)\nB1\nschedule\n12 mins\nTechnology & Digital Era\nCông nghệ, đổi mới & kết nối số\n\nDiscuss technological innovation, remote collaboration, accessibility, and AI revolution.\n\nformat_list_bulleted\n4 TỪ VỰNG MỤC TIÊU:\ninnovation\nGroundbreaking\ncollaboration\nTeamwork\naccessible\nEasy to reach\nrevolutionize\nTransform\nplay_circle\nBắt đầu học (12 mins)\nB2\nschedule\n10 mins\nEnvironment & Sustainability\nMôi trường, sinh thái & phát triển bền vững\n\nDiscuss biodiversity, climate action, fragile ecosystems, and sustainable development.\n\nformat_list_bulleted\n3 TỪ VỰNG MỤC TIÊU:\nsustainable\nEco-friendly\nbiodiversity\nBiological variety\necosystem\nLiving network\nplay_circle\nBắt đầu học (10 mins)",
+    "errors": []
+  },
+  {
+    "path": "/student/game",
+    "width": 360,
+    "language": "vi",
+    "theme": "dark",
+    "bodyWidth": 354,
+    "viewport": 360,
+    "over": [],
+    "main": [],
+    "grid": [],
+    "primary": [],
+    "srs": [],
+    "infoBadge": [],
+    "words": [],
+    "text": "Ô Chữ Hàng Ngày\n\nHoàn thành ô chữ hôm nay để nhận đom đóm & ươm mầm hoa hiếm. Khám phá gốc từ và từ đồng nghĩa trong ngữ cảnh.\n\nTiến độ nảy mầm: Đã giải 2 / 6 manh mối\n+120 XP Đom đóm\ngrade\nPhần thưởng: +80 XP & 1 Mầm cây\nPLAY NOW\narrow_forward\nCác chế độ Arcade Arena\n4 Chế độ có sẵn\n\nChọn một chế độ rèn luyện chuyên sâu về tốc độ, ngữ pháp, hình thái từ hoặc khả năng ghi nhớ.\n\nPHẢN XẠ NHANH\nmilitary_tech\n45 từ vựng\nsports_esports\nThợ săn từ vựng\nLuyện tốc độ · Thử thách 90 giây\n\nPhản xạ nhanh! Bắn hạ bong bóng từ vựng đang rơi tương ứng với định nghĩa được yêu cầu.\n\nTarget speed: 45 WPM\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nLUYỆN ĐỌC & ĐIỀN KHUYẾT\ngrade\nTTR 65%\npsychology\nĐiền từ ngữ cảnh\nĐiền từ ngữ cảnh theo trích đoạn báo chí & văn học\n\nHọc theo ngữ cảnh! Điền từ vựng thích hợp vào chỗ trống trong các câu ví dụ thực tế.\n\n\"Her lexical precision was ___.\"\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nCHÍNH TẢ & PHIÊN ÂM\nexplore\nTier: B2\nspellcheck\nGiải mã chữ cái\nXếp chữ & Nhận diện phiên âm\n\nLuyện chính tả! Sắp xếp các chữ cái bị xáo trộn thành từ hoàn chỉnh dựa trên gợi ý.\n\nPhonetic IPA clues\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nTRÍ NHỚ & GHÉP THẺ\nmilitary_tech\nActive 4x4\nextension\nGhép cặp từ vựng\nLật thẻ tìm cặp từ đồng nghĩa\n\nThách thức trí nhớ! Ghép từ vựng tiếng Anh với định nghĩa tương ứng trên các thẻ lật 3D.\n\n16 Cards · Grid 4x4\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nsports_esports\nMỤC TIÊU NHIỆM VỤ NGÀY\nĐã giải 2 / 6 từ\ngrade\nKINH NGHIỆM TUẦN NÀY\n0 XP\nmilitary_tech\nCẤP ĐỘ HIỆN TẠI\nCấp độ 3 · 250 XP",
+    "errors": []
+  },
+  {
+    "path": "/student/game",
+    "width": 768,
+    "language": "vi",
+    "theme": "dark",
+    "bodyWidth": 762,
+    "viewport": 768,
+    "over": [],
+    "main": [],
+    "grid": [],
+    "primary": [],
+    "srs": [],
+    "infoBadge": [],
+    "words": [],
+    "text": "Ô Chữ Hàng Ngày\n\nHoàn thành ô chữ hôm nay để nhận đom đóm & ươm mầm hoa hiếm. Khám phá gốc từ và từ đồng nghĩa trong ngữ cảnh.\n\nTiến độ nảy mầm: Đã giải 2 / 6 manh mối\n+120 XP Đom đóm\ngrade\nPhần thưởng: +80 XP & 1 Mầm cây\nPLAY NOW\narrow_forward\nCác chế độ Arcade Arena\n4 Chế độ có sẵn\n\nChọn một chế độ rèn luyện chuyên sâu về tốc độ, ngữ pháp, hình thái từ hoặc khả năng ghi nhớ.\n\nPHẢN XẠ NHANH\nmilitary_tech\n45 từ vựng\nsports_esports\nThợ săn từ vựng\nLuyện tốc độ · Thử thách 90 giây\n\nPhản xạ nhanh! Bắn hạ bong bóng từ vựng đang rơi tương ứng với định nghĩa được yêu cầu.\n\nTarget speed: 45 WPM\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nLUYỆN ĐỌC & ĐIỀN KHUYẾT\ngrade\nTTR 65%\npsychology\nĐiền từ ngữ cảnh\nĐiền từ ngữ cảnh theo trích đoạn báo chí & văn học\n\nHọc theo ngữ cảnh! Điền từ vựng thích hợp vào chỗ trống trong các câu ví dụ thực tế.\n\n\"Her lexical precision was ___.\"\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nCHÍNH TẢ & PHIÊN ÂM\nexplore\nTier: B2\nspellcheck\nGiải mã chữ cái\nXếp chữ & Nhận diện phiên âm\n\nLuyện chính tả! Sắp xếp các chữ cái bị xáo trộn thành từ hoàn chỉnh dựa trên gợi ý.\n\nPhonetic IPA clues\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nTRÍ NHỚ & GHÉP THẺ\nmilitary_tech\nActive 4x4\nextension\nGhép cặp từ vựng\nLật thẻ tìm cặp từ đồng nghĩa\n\nThách thức trí nhớ! Ghép từ vựng tiếng Anh với định nghĩa tương ứng trên các thẻ lật 3D.\n\n16 Cards · Grid 4x4\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nsports_esports\nMỤC TIÊU NHIỆM VỤ NGÀY\nĐã giải 2 / 6 từ\ngrade\nKINH NGHIỆM TUẦN NÀY\n0 XP\nmilitary_tech\nCẤP ĐỘ HIỆN TẠI\nCấp độ 3 · 250 XP",
+    "errors": []
+  },
+  {
+    "path": "/student/game",
+    "width": 1100,
+    "language": "vi",
+    "theme": "dark",
+    "bodyWidth": 1094,
+    "viewport": 1100,
+    "over": [],
+    "main": [],
+    "grid": [],
+    "primary": [],
+    "srs": [],
+    "infoBadge": [],
+    "words": [],
+    "text": "Ô Chữ Hàng Ngày\n\nHoàn thành ô chữ hôm nay để nhận đom đóm & ươm mầm hoa hiếm. Khám phá gốc từ và từ đồng nghĩa trong ngữ cảnh.\n\nTiến độ nảy mầm: Đã giải 2 / 6 manh mối\n+120 XP Đom đóm\ngrade\nPhần thưởng: +80 XP & 1 Mầm cây\nPLAY NOW\narrow_forward\nCác chế độ Arcade Arena\n4 Chế độ có sẵn\n\nChọn một chế độ rèn luyện chuyên sâu về tốc độ, ngữ pháp, hình thái từ hoặc khả năng ghi nhớ.\n\nPHẢN XẠ NHANH\nmilitary_tech\n45 từ vựng\nsports_esports\nThợ săn từ vựng\nLuyện tốc độ · Thử thách 90 giây\n\nPhản xạ nhanh! Bắn hạ bong bóng từ vựng đang rơi tương ứng với định nghĩa được yêu cầu.\n\nTarget speed: 45 WPM\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nLUYỆN ĐỌC & ĐIỀN KHUYẾT\ngrade\nTTR 65%\npsychology\nĐiền từ ngữ cảnh\nĐiền từ ngữ cảnh theo trích đoạn báo chí & văn học\n\nHọc theo ngữ cảnh! Điền từ vựng thích hợp vào chỗ trống trong các câu ví dụ thực tế.\n\n\"Her lexical precision was ___.\"\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nCHÍNH TẢ & PHIÊN ÂM\nexplore\nTier: B2\nspellcheck\nGiải mã chữ cái\nXếp chữ & Nhận diện phiên âm\n\nLuyện chính tả! Sắp xếp các chữ cái bị xáo trộn thành từ hoàn chỉnh dựa trên gợi ý.\n\nPhonetic IPA clues\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nTRÍ NHỚ & GHÉP THẺ\nmilitary_tech\nActive 4x4\nextension\nGhép cặp từ vựng\nLật thẻ tìm cặp từ đồng nghĩa\n\nThách thức trí nhớ! Ghép từ vựng tiếng Anh với định nghĩa tương ứng trên các thẻ lật 3D.\n\n16 Cards · Grid 4x4\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nsports_esports\nMỤC TIÊU NHIỆM VỤ NGÀY\nĐã giải 2 / 6 từ\ngrade\nKINH NGHIỆM TUẦN NÀY\n0 XP\nmilitary_tech\nCẤP ĐỘ HIỆN TẠI\nCấp độ 3 · 250 XP",
+    "errors": []
+  },
+  {
+    "path": "/student/game",
+    "width": 1440,
+    "language": "vi",
+    "theme": "dark",
+    "bodyWidth": 1434,
+    "viewport": 1440,
+    "over": [],
+    "main": [],
+    "grid": [],
+    "primary": [],
+    "srs": [],
+    "infoBadge": [],
+    "words": [],
+    "text": "Ô Chữ Hàng Ngày\n\nHoàn thành ô chữ hôm nay để nhận đom đóm & ươm mầm hoa hiếm. Khám phá gốc từ và từ đồng nghĩa trong ngữ cảnh.\n\nTiến độ nảy mầm: Đã giải 2 / 6 manh mối\n+120 XP Đom đóm\ngrade\nPhần thưởng: +80 XP & 1 Mầm cây\nPLAY NOW\narrow_forward\nCác chế độ Arcade Arena\n4 Chế độ có sẵn\n\nChọn một chế độ rèn luyện chuyên sâu về tốc độ, ngữ pháp, hình thái từ hoặc khả năng ghi nhớ.\n\nPHẢN XẠ NHANH\nmilitary_tech\n45 từ vựng\nsports_esports\nThợ săn từ vựng\nLuyện tốc độ · Thử thách 90 giây\n\nPhản xạ nhanh! Bắn hạ bong bóng từ vựng đang rơi tương ứng với định nghĩa được yêu cầu.\n\nTarget speed: 45 WPM\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nLUYỆN ĐỌC & ĐIỀN KHUYẾT\ngrade\nTTR 65%\npsychology\nĐiền từ ngữ cảnh\nĐiền từ ngữ cảnh theo trích đoạn báo chí & văn học\n\nHọc theo ngữ cảnh! Điền từ vựng thích hợp vào chỗ trống trong các câu ví dụ thực tế.\n\n\"Her lexical precision was ___.\"\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nCHÍNH TẢ & PHIÊN ÂM\nexplore\nTier: B2\nspellcheck\nGiải mã chữ cái\nXếp chữ & Nhận diện phiên âm\n\nLuyện chính tả! Sắp xếp các chữ cái bị xáo trộn thành từ hoàn chỉnh dựa trên gợi ý.\n\nPhonetic IPA clues\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nTRÍ NHỚ & GHÉP THẺ\nmilitary_tech\nActive 4x4\nextension\nGhép cặp từ vựng\nLật thẻ tìm cặp từ đồng nghĩa\n\nThách thức trí nhớ! Ghép từ vựng tiếng Anh với định nghĩa tương ứng trên các thẻ lật 3D.\n\n16 Cards · Grid 4x4\nChỉ luyện tập · chưa có điểm XP\nCHƠI NGAY\narrow_forward\nsports_esports\nMỤC TIÊU NHIỆM VỤ NGÀY\nĐã giải 2 / 6 từ\ngrade\nKINH NGHIỆM TUẦN NÀY\n0 XP\nmilitary_tech\nCẤP ĐỘ HIỆN TẠI\nCấp độ 3 · 250 XP",
+    "errors": []
+  }
+]

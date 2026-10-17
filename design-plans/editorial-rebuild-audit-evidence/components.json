@@ -1,0 +1,48 @@
+{
+  "image": {
+    "before": "auto_stories\nBROKEN COVER",
+    "after": "auto_stories\nVALID COVER",
+    "imgsAfter": 0
+  },
+  "tabs": {
+    "activeAfterArrow": "tab-one",
+    "focusAfterTab": "",
+    "style": {
+      "padding": "0px",
+      "borderRadius": "0px"
+    }
+  },
+  "components": {
+    "inputIds": [
+      "lexi-input-email",
+      "lexi-input-email"
+    ],
+    "selectInvalid": null,
+    "selectDescribedBy": null,
+    "badge": {
+      "color": "rgb(226, 232, 240)",
+      "bg": "rgba(0, 0, 0, 0)"
+    },
+    "card": {
+      "tag": "DIV",
+      "tabindex": null,
+      "role": null
+    },
+    "button": {
+      "color": "rgb(255, 255, 255)",
+      "bg": "rgb(120, 157, 255)"
+    }
+  },
+  "loader": [
+    {
+      "bg": "rgb(239, 246, 255)",
+      "title": "rgb(226, 232, 240)",
+      "desc": "rgb(148, 163, 184)"
+    },
+    {
+      "bg": "rgb(240, 253, 244)",
+      "title": "rgb(226, 232, 240)",
+      "desc": "rgb(148, 163, 184)"
+    }
+  ]
+}

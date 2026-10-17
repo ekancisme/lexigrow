@@ -31,13 +31,10 @@ export default function useDailyQuest() {
       let initial = data.cells || {}
       try {
         const draft = JSON.parse(sessionStorage.getItem(draftKey(data.id)))
-        if (
-          !data.completedAt &&
-          draft?.revision === data.revision &&
-          draft.cells &&
-          typeof draft.cells === 'object'
-        )
-          initial = draft.cells
+        if (!data.completedAt && draft?.cells && typeof draft.cells === 'object') {
+          // Merge draft with server cells (server answers take priority, client preserves typed unsubmitted letters)
+          initial = { ...draft.cells, ...(data.cells || {}) }
+        }
       } catch {
         /* Ignore invalid drafts. */
       }
@@ -129,13 +126,6 @@ export default function useDailyQuest() {
   const reload = useCallback(() => {
     setLoading(true)
     setError(null)
-    if (questRef.current) {
-      try {
-        sessionStorage.removeItem(draftKey(questRef.current.id))
-      } catch {
-        /* Optional draft. */
-      }
-    }
     return load()
   }, [load])
 

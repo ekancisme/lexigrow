@@ -122,9 +122,9 @@ export default function SetWeeklyGoals() {
                 <input
                   type="range"
                   className="weekly-goals__slider"
-                  min={goal.label.includes('Complexity') ? 1 : goal.label.includes('Length') ? 1000 : 1}
-                  max={goal.label.includes('Complexity') ? 10 : goal.label.includes('Length') ? 10000 : 100}
-                  step={goal.label.includes('Length') ? 500 : 1}
+                  min={goal.label.includes('Complexity') ? 1 : goal.label.includes('Length') ? 50 : 1}
+                  max={goal.label.includes('Complexity') ? 10 : goal.label.includes('Length') ? 3000 : 100}
+                  step={goal.label.includes('Length') ? 25 : 1}
                   value={goal.target}
                   onChange={(e) => updateTarget(goal.label, e.target.value)}
                 />

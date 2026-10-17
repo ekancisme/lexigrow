@@ -4,7 +4,7 @@ import api from '../services/api.js'
 import { connectSocket, disconnectSocket } from '../services/socket.js'
 
 const AuthContext = createContext(null)
-const MIN_AUTH_LOADING_MS = 3000
+const MIN_AUTH_LOADING_MS = 800
 
 const waitForMinimumAuthLoading = async (startedAt) => {
   const remaining = MIN_AUTH_LOADING_MS - (Date.now() - startedAt)
@@ -63,7 +63,7 @@ export function AuthProvider({ children }) {
     const startedAt = Date.now()
     setLoading(true)
     try {
-      const data = await api.post('/auth/login', { email, password })
+      const data = await api.post('/auth/login', { email, password }, { timeoutMs: 3000 })
       api.setUser(data.user)
       setUser(data.user)
       setSelectedParentChildId(getStoredParentChildId(data.user) || data.user.children?.[0]?._id || '')
@@ -136,7 +136,7 @@ export function AuthProvider({ children }) {
     setLoading(true)
     try {
       const payload = typeof googlePayload === 'string' ? { code: googlePayload } : googlePayload
-      const data = await api.post('/auth/google', payload)
+      const data = await api.post('/auth/google', payload, { timeoutMs: 3000 })
       api.setUser(data.user)
       setUser(data.user)
       setSelectedParentChildId(getStoredParentChildId(data.user) || data.user.children?.[0]?._id || '')

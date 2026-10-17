@@ -43,11 +43,6 @@ export default function StudentClassDetail() {
         const pending = pendingRes.data || []
         setClasses(data)
         setPendingRequests(pending)
-
-        // UX Shortcut: If student belongs to exactly 1 class, auto-redirect
-        if (data.length === 1) {
-          navigate(`/student/class/${data[0]._id}`, { replace: true })
-        }
       } catch (err) {
         console.error('Error fetching classes:', err)
         setError(err.message || 'Failed to load classes.')
@@ -152,9 +147,6 @@ export default function StudentClassDetail() {
           const data = classesRes.data || []
           setClasses(data)
           setPendingRequests(pendingRes.data || [])
-          if (data.length === 1) {
-            navigate(`/student/class/${data[0]._id}`, { replace: true })
-          }
         } catch (err) {
           console.error('Error refreshing classes after join notification:', err)
         }
@@ -325,16 +317,14 @@ export default function StudentClassDetail() {
   // ── RENDER SINGLE CLASS DETAIL (TABS VIEW) ──
   return (
     <div className="student-class">
-      {/* Back to list button if enrolled in multiple classes */}
-      {classes.length > 1 && (
-        <button 
-          className="assignment-detail__back" 
-          onClick={() => navigate('/student/class')}
-          style={{ marginBottom: 12 }}
-        >
-          <span className="material-symbols-outlined">arrow_back</span> Back to Classes
-        </button>
-      )}
+      {/* Back to list and join class button */}
+      <button 
+        className="assignment-detail__back" 
+        onClick={() => navigate('/student/class')}
+        style={{ marginBottom: 12, display: 'inline-flex', alignItems: 'center', gap: 6, cursor: 'pointer' }}
+      >
+        <span className="material-symbols-outlined">arrow_back</span> Back to My Classes
+      </button>
 
       {/* Class title header */}
       <div className="student-class__header">

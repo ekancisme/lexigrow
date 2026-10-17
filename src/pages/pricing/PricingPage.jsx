@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import paymentService from '../../services/payment.service.js'
+import api from '../../services/api.js'
 import './PricingPage.css'
 
 const FEATURE_TRANSLATIONS = {
@@ -156,9 +157,10 @@ const FAQ_ITEMS = [
 ]
 
 export default function PricingPage() {
-  const { user, isAuthenticated } = useAuth()
+  const { user, isAuthenticated, selectedParentChildId } = useAuth()
   const { t, language } = useLanguage()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
   const [plans, setPlans] = useState([])
   const [currentTierInfo, setCurrentTierInfo] = useState(null)
@@ -167,6 +169,10 @@ export default function PricingPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [processingSlug, setProcessingSlug] = useState(null)
+
+  // Parent beneficiary support
+  const [parentChildren, setParentChildren] = useState([])
+  const [selectedChildId, setSelectedChildId] = useState(() => searchParams.get('studentId') || selectedParentChildId || '')
 
   useEffect(() => {
     let isMounted = true
@@ -183,6 +189,19 @@ export default function PricingPage() {
           if (isMounted && subData.success && subData.data) {
             setCurrentTierInfo(subData.data)
           }
+
+          if (user?.role === 'parent') {
+            try {
+              const res = await api.get('/parent/children')
+              const childrenList = Array.isArray(res.data) ? res.data : []
+              if (isMounted) {
+                setParentChildren(childrenList)
+                setSelectedChildId(prev => prev || searchParams.get('studentId') || selectedParentChildId || childrenList[0]?._id || '')
+              }
+            } catch (pErr) {
+              console.error('Failed to load parent children for pricing:', pErr)
+            }
+          }
         }
       } catch (err) {
         if (isMounted) setError(err.message || t('pricing.fetchError', 'Could not load subscription plans.'))
@@ -192,7 +211,7 @@ export default function PricingPage() {
     }
     fetchData()
     return () => { isMounted = false }
-  }, [isAuthenticated, t])
+  }, [isAuthenticated, user?.role, searchParams, selectedParentChildId, t])
 
   const handleSubscribe = async (planSlug) => {
     if (!isAuthenticated) {
@@ -203,7 +222,17 @@ export default function PricingPage() {
     try {
       setProcessingSlug(planSlug)
       setError(null)
-      const res = await paymentService.createPaymentLink(planSlug, billingCycle)
+      const selectedPlan = plans.find(p => p.slug === planSlug)
+      let beneficiaryId = null
+
+      if (user?.role === 'parent' && selectedPlan?.targetRole === 'student') {
+        beneficiaryId = selectedChildId
+        if (!beneficiaryId) {
+          throw new Error(language === 'vi' ? 'Phụ huynh vui lòng chọn học sinh được thụ hưởng gói cước.' : 'Please select the student beneficiary for this plan.')
+        }
+      }
+
+      const res = await paymentService.createPaymentLink(planSlug, billingCycle, beneficiaryId)
       if (res.success && res.data?.checkoutUrl) {
         window.location.assign(res.data.checkoutUrl)
       } else {
@@ -310,6 +339,78 @@ export default function PricingPage() {
           <div className="eduvia-error-alert">
             <span className="material-symbols-outlined">error</span>
             <span>{error}</span>
+          </div>
+        )}
+
+        {user?.role === 'parent' && activeTab === 'student' && (
+          <div style={{
+            background: 'var(--color-surface, #fff)',
+            border: '1.5px solid var(--color-primary, #6366f1)',
+            borderRadius: '16px',
+            padding: '16px 20px',
+            margin: '0 auto 32px',
+            maxWidth: '680px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '16px',
+            flexWrap: 'wrap',
+            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.08)'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: 28, color: 'var(--color-primary, #6366f1)' }}>
+                family_restroom
+              </span>
+              <div>
+                <strong style={{ display: 'block', fontSize: '15px' }}>
+                  {language === 'vi' ? 'Mua gói cho học sinh:' : 'Purchasing plan for student:'}
+                </strong>
+                <span style={{ fontSize: '13px', color: 'var(--color-text-secondary, #64748b)' }}>
+                  {parentChildren.length === 0
+                    ? (language === 'vi' ? 'Bạn chưa liên kết tài khoản học sinh nào.' : 'You have not linked any students yet.')
+                    : (language === 'vi' ? 'Gói học sẽ được kích hoạt trực tiếp cho học sinh được chọn.' : 'The subscription will be directly activated for the selected student.')}
+                </span>
+              </div>
+            </div>
+
+            {parentChildren.length > 0 ? (
+              <select
+                value={selectedChildId}
+                onChange={(e) => setSelectedChildId(e.target.value)}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '10px',
+                  border: '1.5px solid #cbd5e1',
+                  background: 'var(--color-bg, #f8fafc)',
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  color: 'inherit',
+                  cursor: 'pointer',
+                  outline: 'none'
+                }}
+              >
+                {parentChildren.map(c => (
+                  <option key={c._id} value={c._id}>
+                    {c.name} ({c.email || c.username || 'Student'})
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <Link
+                to="/parent/dashboard?link=1"
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '10px',
+                  background: 'var(--color-primary, #6366f1)',
+                  color: '#fff',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  textDecoration: 'none'
+                }}
+              >
+                {language === 'vi' ? '+ Liên kết học sinh' : '+ Link a student'}
+              </Link>
+            )}
           </div>
         )}
 

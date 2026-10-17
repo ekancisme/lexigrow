@@ -11,8 +11,12 @@ export const paymentService = {
     return api.get('/payments/my-subscription')
   },
 
-  createPaymentLink(planSlug, billingCycle = 'monthly') {
-    return api.post('/payments/create-payment-link', { planSlug, billingCycle })
+  createPaymentLink(planSlug, billingCycle = 'monthly', beneficiaryStudentId = null) {
+    const payload = { planSlug, billingCycle }
+    if (beneficiaryStudentId) {
+      payload.beneficiaryStudentId = beneficiaryStudentId
+    }
+    return api.post('/payments/create-payment-link', payload)
   },
 
   getTeacherSponsorship() {

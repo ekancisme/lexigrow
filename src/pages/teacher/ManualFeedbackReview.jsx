@@ -187,6 +187,32 @@ export default function ManualFeedbackReview() {
     }
   }
 
+  async function handleDeleteFeedback() {
+    if (!feedbackId) return
+    if (!window.confirm('Are you sure you want to delete this feedback? This will restore original AI scores.')) {
+      return
+    }
+    setSaving(true)
+    try {
+      await api.delete(`/feedback/${feedbackId}`)
+      alert('Feedback deleted successfully.')
+      setFeedbackId(null)
+      setFeedbackText('')
+      if (aiAnalysis?.scores) {
+        setScores({
+          grammar: aiAnalysis.scores.grammar || 8,
+          vocabulary: aiAnalysis.scores.vocabulary || 7,
+          coherence: aiAnalysis.scores.coherence || 7,
+          complexity: aiAnalysis.scores.complexity || 8,
+        })
+      }
+    } catch (err) {
+      alert('Error deleting feedback: ' + err.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
   if (loading) {
     return (
       <div className="manual-feedback" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '80vh' }}>
@@ -315,6 +341,33 @@ export default function ManualFeedbackReview() {
                 <span className="material-symbols-outlined" style={{ fontSize: 18 }}>assignment_return</span>
                 Request Revision
               </button>
+              {feedbackId && (
+                <button
+                  type="button"
+                  className="manual-feedback__delete-btn"
+                  onClick={handleDeleteFeedback}
+                  disabled={saving}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '10px 20px',
+                    borderRadius: 'var(--radius-lg)',
+                    background: 'rgba(239, 68, 68, 0.12)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    color: '#ef4444',
+                    fontSize: 'var(--text-label-md-size)',
+                    fontWeight: 'var(--text-label-md-weight)',
+                    transition: 'all var(--transition-fast)',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.22)' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(239, 68, 68, 0.12)' }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 18 }}>delete</span>
+                  Delete Feedback
+                </button>
+              )}
             </div>
           </div>
         </div>

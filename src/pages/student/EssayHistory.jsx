@@ -22,6 +22,16 @@ export default function EssayHistory() {
 
   const limit = 10
 
+  const [debouncedSearch, setDebouncedSearch] = useState('')
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm)
+      setPage(1)
+    }, 350)
+    return () => clearTimeout(timer)
+  }, [searchTerm])
+
   useEffect(() => {
     let active = true
     async function fetchEssays() {
@@ -29,7 +39,8 @@ export default function EssayHistory() {
         setLoading(true)
         setLoadError('')
         const statusParam = filterStatus === 'all' ? '' : `&status=${filterStatus}`
-        const res = await api.get(`/essays?page=${page}&limit=${limit}${statusParam}`)
+        const searchParam = debouncedSearch.trim() ? `&search=${encodeURIComponent(debouncedSearch.trim())}` : ''
+        const res = await api.get(`/essays?page=${page}&limit=${limit}${statusParam}${searchParam}`)
         if (res.success) {
           if (active) {
             setEssays(res.data || [])
@@ -48,7 +59,7 @@ export default function EssayHistory() {
     }
     fetchEssays()
     return () => { active = false }
-  }, [filterStatus, page, reloadToken])
+  }, [filterStatus, page, debouncedSearch, reloadToken])
 
   // Reset page when filter changes
   const handleFilterChange = (status) => {
@@ -56,13 +67,8 @@ export default function EssayHistory() {
     setPage(1)
   }
 
-  // Local search filtering
-  const filteredEssays = essays.filter(essay => {
-    const title = String(essay?.title || '').toLowerCase()
-    const theme = String(essay?.theme || '').toLowerCase()
-    const search = String(searchTerm || '').toLowerCase()
-    return title.includes(search) || theme.includes(search)
-  })
+  // Essays are filtered server-side with pagination
+  const filteredEssays = essays
 
   const getStatusClass = (status) => {
     switch (status) {

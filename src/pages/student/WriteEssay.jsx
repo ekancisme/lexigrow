@@ -89,12 +89,24 @@ export default function WriteEssay() {
         if (essay.theme) setSelectedTheme(essay.theme)
         if (essay.status) setStatus(essay.status)
         if (essay.updatedAt) setLastSavedAt(new Date(essay.updatedAt))
+
+        if (essay.assignment && !assignmentId) {
+          const assignId = typeof essay.assignment === 'object' ? essay.assignment._id : essay.assignment
+          try {
+            const assignRes = await api.get(`/assignments/${assignId}`)
+            if (assignRes?.data) {
+              setAssignmentData(assignRes.data)
+            }
+          } catch (assignErr) {
+            console.error('Error loading related assignment for draft:', assignErr)
+          }
+        }
       } catch (err) {
         console.error('Error loading essay draft:', err)
       }
     }
     loadEssay()
-  }, [essayId])
+  }, [essayId, assignmentId])
 
   // Load assignment data if assignmentId is present
   useEffect(() => {
@@ -235,10 +247,39 @@ export default function WriteEssay() {
     }
   }
 
+  const [remainingSeconds, setRemainingSeconds] = useState(null)
+
+  useEffect(() => {
+    if (!assignmentData?.dueDate || assignmentData.status === 'closed') {
+      setRemainingSeconds(null)
+      return
+    }
+
+    const calcRemaining = () => {
+      const diff = Math.floor((new Date(assignmentData.dueDate).getTime() - Date.now()) / 1000)
+      setRemainingSeconds(Math.max(0, diff))
+    }
+
+    calcRemaining()
+    const interval = setInterval(calcRemaining, 1000)
+    return () => clearInterval(interval)
+  }, [assignmentData?.dueDate, assignmentData?.status])
+
+  const formatCountdown = (secs) => {
+    if (secs === null || secs <= 0) return '00:00:00'
+    const h = Math.floor(secs / 3600)
+    const m = Math.floor((secs % 3600) / 60)
+    const s = secs % 60
+    if (h > 0) {
+      return `${h}h ${m.toString().padStart(2, '0')}m ${s.toString().padStart(2, '0')}s`
+    }
+    return `${m.toString().padStart(2, '0')}m ${s.toString().padStart(2, '0')}s`
+  }
+
   const isAssignmentClosed = Boolean(
     assignmentData && (
       assignmentData.status === 'closed' || 
-      (assignmentData.dueDate && new Date(assignmentData.dueDate) < new Date())
+      (remainingSeconds !== null ? remainingSeconds <= 0 : (assignmentData.dueDate && new Date(assignmentData.dueDate) < new Date()))
     )
   )
 
@@ -514,6 +555,19 @@ export default function WriteEssay() {
         </div>
       )}
 
+      {/* Approaching Deadline Alert (<= 5 minutes) */}
+      {!isAssignmentClosed && remainingSeconds !== null && remainingSeconds <= 300 && remainingSeconds > 0 && (
+        <div className="card-base" style={{ background: '#fef2f2', border: '1px solid #ef4444', color: '#b91c1c', padding: '12px 16px', borderRadius: 8, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span className="material-symbols-outlined" style={{ color: '#ef4444', fontSize: 24 }}>timer</span>
+          <div>
+            <strong>{language === 'vi' ? 'Cảnh báo sắp hết hạn nộp bài:' : 'Approaching Assignment Deadline:'}</strong>{' '}
+            {language === 'vi' 
+              ? `Chỉ còn ${formatCountdown(remainingSeconds)}! Vui lòng lưu nháp và nộp bài trước khi cổng nộp bài đóng.` 
+              : `Only ${formatCountdown(remainingSeconds)} remaining! Please save your draft and submit your work before the deadline.`}
+          </div>
+        </div>
+      )}
+
       {/* Main Workspace Layout */}
       <div className="write-essay__layout">
         {/* Editor Column */}
@@ -739,11 +793,34 @@ export default function WriteEssay() {
                 <p className="text-body-sm write-essay__brief-desc">{assignmentData.description}</p>
               )}
               {assignmentData.dueDate && (
-                <div className="write-essay__brief-meta">
-                  <span className="material-symbols-outlined">calendar_today</span>
-                  <span>
-                    Due: {new Date(assignmentData.dueDate).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US')}
-                  </span>
+                <div className="write-essay__brief-meta" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <span className="material-symbols-outlined">calendar_today</span>
+                    <span>
+                      Due: {new Date(assignmentData.dueDate).toLocaleDateString(language === 'vi' ? 'vi-VN' : 'en-US')} ({new Date(assignmentData.dueDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })})
+                    </span>
+                  </div>
+                  {remainingSeconds !== null && (
+                    <div style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      padding: '4px 8px',
+                      borderRadius: 6,
+                      fontSize: 12,
+                      fontWeight: 600,
+                      background: remainingSeconds <= 300 ? '#fee2e2' : '#e0f2fe',
+                      color: remainingSeconds <= 300 ? '#b91c1c' : '#0369a1',
+                      width: 'fit-content'
+                    }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: 15 }}>timer</span>
+                      <span>
+                        {remainingSeconds > 0 
+                          ? (language === 'vi' ? `Còn lại: ${formatCountdown(remainingSeconds)}` : `Time left: ${formatCountdown(remainingSeconds)}`)
+                          : (language === 'vi' ? 'Đã hết hạn nộp' : 'Submission closed')}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
               {assignmentData.keywords?.length > 0 && (

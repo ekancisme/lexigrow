@@ -233,6 +233,7 @@ export default function ParentDashboard() {
                     <span>{t('parent.viewChildDetail', 'View progress')}</span>
                   </button>
                   <button type="button" onClick={() => openChildView(child._id, 'essays')}><span className="material-symbols-outlined">history_edu</span><span>{t('nav.essays', 'Essays')}</span></button>
+                  <button type="button" onClick={() => navigate(`/pricing?studentId=${child._id}`)}><span className="material-symbols-outlined">workspace_premium</span><span>{t('pricing.upgrade', 'Upgrade')}</span></button>
                   <details className="parent-dashboard__more">
                     <summary aria-label={`More actions for ${child.name}`}><span className="material-symbols-outlined">more_vert</span></summary>
                     <button type="button" className="parent-dashboard__unlink" onClick={() => handleUnlink(child)}><span className="material-symbols-outlined">link_off</span>Unlink student</button>
