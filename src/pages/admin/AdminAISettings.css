@@ -311,6 +311,19 @@
   overscroll-behavior: contain;
 }
 
+.admin-ai-settings__add-custom-model {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.5rem 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.admin-ai-settings__add-custom-model .material-symbols-outlined {
+  font-size: 1.1rem;
+}
+
 .admin-ai-settings__model-row {
   display: flex;
   align-items: center;

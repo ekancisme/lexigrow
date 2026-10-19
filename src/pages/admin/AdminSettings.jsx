@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../../services/api'
+import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import './AdminAISettings.css'
 
 const AI_ROUTE_OPTIONS = [
@@ -9,7 +10,11 @@ const AI_ROUTE_OPTIONS = [
   'vocabulary_analysis',
 ]
 
+// Aggregators can expose thousands of models; keep rendering bounded.
+const MODEL_RENDER_LIMIT = 200
+
 export default function AdminSettings({ section = 'all' }) {
+  const { t } = useLanguage()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
@@ -141,6 +146,22 @@ export default function AdminSettings({ section = 'all' }) {
       setDiscoveringModels(false)
     }
   }
+
+  // Allow model IDs that an OpenAI-compatible aggregator has not listed yet.
+  const addCustomProviderModel = () => {
+    const modelId = modelSearch.trim()
+    if (!modelId) return
+    const entry = { modelId, displayName: modelId }
+    setDiscoveredModels((current) => current.some((item) => item.modelId === modelId) ? current : [entry, ...current])
+    setSelectedProviderModels((current) => current.some((item) => item.modelId === modelId) ? current : [...current, entry])
+    setModelSearch('')
+  }
+
+  const modelQuery = modelSearch.trim().toLowerCase()
+  const filteredProviderModels = discoveredModels.filter((model) => `${model.displayName} ${model.modelId}`.toLowerCase().includes(modelQuery))
+  const visibleProviderModels = filteredProviderModels.slice(0, MODEL_RENDER_LIMIT)
+  const canAddCustomModel = Boolean(modelSearch.trim())
+    && !discoveredModels.some((model) => model.modelId.toLowerCase() === modelQuery)
 
   const closeProviderModal = () => {
     setShowProviderModal(false)
@@ -484,7 +505,10 @@ Rules:
                 </label>
                 <label className="admin-ai-settings__field">
                   Base URL {providerDraft.provider === 'openai-compatible' ? '(required)' : '(optional)'}
-                  <input required={providerDraft.provider === 'openai-compatible'} type="url" value={providerDraft.baseUrl} onChange={(e) => { setProviderDraft({ ...providerDraft, baseUrl: e.target.value }); setDiscoveredModels([]); setSelectedProviderModels([]) }} placeholder={providerDraft.provider === 'gemini' ? 'https://generativelanguage.googleapis.com/v1beta' : 'https://api.example.com/v1'} />
+                  <input required={providerDraft.provider === 'openai-compatible'} type="url" value={providerDraft.baseUrl} onChange={(e) => { setProviderDraft({ ...providerDraft, baseUrl: e.target.value }); setDiscoveredModels([]); setSelectedProviderModels([]) }} placeholder={providerDraft.provider === 'gemini' ? 'https://generativelanguage.googleapis.com/v1beta' : 'https://your-9router-host/v1'} />
+                  {providerDraft.provider === 'openai-compatible' && (
+                    <span className="admin-ai-settings__muted">{t('adminProviderModels.baseUrlHint', 'OpenAI-compatible endpoint root, e.g. a 9Router/OpenRouter gateway at https://host/v1')}</span>
+                  )}
                 </label>
                 <label className="admin-ai-settings__field">
                   API key (write-only)
@@ -510,15 +534,25 @@ Rules:
 
               {modelDiscoveryError && <p role="alert" className="admin-ai-settings__form-error">{modelDiscoveryError}</p>}
 
-              {discoveredModels.length > 0 && (
-                <div className="admin-ai-settings__model-picker">
-                  <div className="admin-ai-settings__picker-header">
-                    <strong>Select supported models</strong>
-                    <span className="admin-ai-settings__muted">{selectedProviderModels.length} selected</span>
-                  </div>
-                  <input aria-label="Search supported models" value={modelSearch} onChange={(e) => setModelSearch(e.target.value)} placeholder="Filter models…" />
+              <div className="admin-ai-settings__model-picker">
+                <div className="admin-ai-settings__picker-header">
+                  <strong>Select supported models</strong>
+                  <span className="admin-ai-settings__muted">{selectedProviderModels.length} selected</span>
+                </div>
+                <input aria-label="Search supported models" value={modelSearch} onChange={(e) => setModelSearch(e.target.value)} placeholder="Filter models…" />
+                {canAddCustomModel && (
+                  <button
+                    type="button"
+                    className="btn-secondary admin-ai-settings__add-custom-model"
+                    onClick={addCustomProviderModel}
+                  >
+                    <span className="material-symbols-outlined" aria-hidden="true">add_circle</span>
+                    {t('adminProviderModels.addCustomModel', 'Add custom model ID "{id}"', { id: modelSearch.trim() })}
+                  </button>
+                )}
+                {visibleProviderModels.length > 0 && (
                   <div className="admin-ai-settings__model-list">
-                    {discoveredModels.filter((model) => `${model.displayName} ${model.modelId}`.toLowerCase().includes(modelSearch.trim().toLowerCase())).map((model) => {
+                    {visibleProviderModels.map((model) => {
                       const selected = selectedProviderModels.some((item) => item.modelId === model.modelId)
                       return (
                         <label key={model.modelId} className="admin-ai-settings__model-row">
@@ -537,8 +571,14 @@ Rules:
                       )
                     })}
                   </div>
-                </div>
-              )}
+                )}
+                {filteredProviderModels.length > visibleProviderModels.length && (
+                  <p className="admin-ai-settings__muted">{t('adminCommon.showingFilteredModels', 'Showing {shown} of {total} — type to filter', { shown: visibleProviderModels.length, total: filteredProviderModels.length })}</p>
+                )}
+                {discoveredModels.length === 0 && !modelDiscoveryError && (
+                  <p className="admin-ai-settings__muted">{t('adminProviderModels.noModelsYet', 'Browse models, or type a model ID above to add it directly.')}</p>
+                )}
+              </div>
 
               <div className="admin-ai-settings__modal-actions">
                 <button type="button" className="btn-secondary" disabled={addingProvider} onClick={closeProviderModal}>Cancel</button>

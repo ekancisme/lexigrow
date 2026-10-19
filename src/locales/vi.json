@@ -798,7 +798,13 @@
     "totalEssays": "Tổng bài luận đã nộp",
     "systemHealth": "Trạng thái hệ thống",
     "aiLatency": "Độ trễ phản hồi AI",
-    "activeUsers": "Người dùng tích cực (7 ngày)"
+    "activeUsers": "Người dùng tích cực (7 ngày)",
+    "showingFilteredModels": "Hiển thị {shown}/{total} — gõ để lọc"
+  },
+  "adminProviderModels": {
+    "baseUrlHint": "Địa chỉ gốc tương thích OpenAI, ví dụ gateway 9Router/OpenRouter tại https://host/v1",
+    "addCustomModel": "Thêm model ID tuỳ chỉnh \"{id}\"",
+    "noModelsYet": "Tải danh sách model hoặc nhập model ID ở trên để thêm trực tiếp."
   },
   "notif": {
     "title": "Thông Báo",

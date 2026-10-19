@@ -798,7 +798,13 @@
     "totalEssays": "Total Essays Written",
     "systemHealth": "System Health",
     "aiLatency": "AI Average Latency",
-    "activeUsers": "Active Users (7 Days)"
+    "activeUsers": "Active Users (7 Days)",
+    "showingFilteredModels": "Showing {shown} of {total} — type to filter"
+  },
+  "adminProviderModels": {
+    "baseUrlHint": "OpenAI-compatible endpoint root, e.g. a 9Router/OpenRouter gateway at https://host/v1",
+    "addCustomModel": "Add custom model ID \"{id}\"",
+    "noModelsYet": "Browse models, or type a model ID above to add it directly."
   },
   "notif": {
     "title": "Notifications",
