@@ -1,343 +1,883 @@
-/* ============================================
-   LexiGrow Modern Academic Student Dashboard
-   Editorial Layout: 68% Main / 32% Secondary Rail
-   ============================================ */
+/* ============================================================
+   Figma Redesign: Student Dashboard / My Courses & Wishlist
+   Matches Figma Frames: My Course - 1 (543:687) & Wishlist - 1 (625:10616)
+   ============================================================ */
 
-.student-dash {
+.figma-mycourses {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 36px;
   max-width: 1360px;
   margin: 0 auto;
+  padding: 8px 16px 48px;
   width: 100%;
 }
 
-.student-dash--loading {
+/* ── 1. HERO SPOTLIGHT BANNER ── */
+.figma-hero-spotlight {
+  position: relative;
+  background: linear-gradient(108deg, #FFC928 0%, #FFA800 48%, #E59500 100%);
+  border-radius: var(--radius-2xl, 24px);
+  padding: 56px 48px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 70vh;
+  justify-content: space-between;
+  align-items: flex-end;
+  min-height: 280px;
+  overflow: hidden;
+  box-shadow: 0 12px 32px rgba(255, 168, 0, 0.15);
 }
 
-/* ── 2-Column Responsive Layout ── */
-.student-dash__grid {
+.figma-hero-spotlight::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 48%;
+  height: 100%;
+  background-image: url('/assets/editorial/home/mycourse-hero-banner.png');
+  background-size: cover;
+  background-position: center right;
+  opacity: 0.9;
+  pointer-events: none;
+  mask-image: linear-gradient(to right, transparent, black 30%);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 30%);
+}
+
+.figma-hero-spotlight__content {
+  position: relative;
+  z-index: 2;
+  max-width: 580px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.figma-hero-spotlight__title {
+  font-family: var(--font-family, 'Plus Jakarta Sans', sans-serif);
+  font-size: clamp(28px, 3.5vw, 42px);
+  font-weight: 800;
+  line-height: 1.15;
+  color: #111827;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.figma-hero-spotlight__subtitle {
+  font-size: 16px;
+  line-height: 1.5;
+  color: #374151;
+  margin: 0;
+}
+
+.figma-hero-spotlight__actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.figma-pill-cta {
+  border-radius: var(--radius-full, 9999px) !important;
+  font-weight: 700 !important;
+  padding: 12px 28px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.figma-pill-outline {
+  border-radius: var(--radius-full, 9999px) !important;
+  font-weight: 700 !important;
+  padding: 12px 24px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 1.5px solid rgba(0, 0, 0, 0.25) !important;
+  color: #111827 !important;
+}
+
+.figma-hero-spotlight__creator {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 12px 20px;
+  border-radius: var(--radius-full, 9999px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.figma-creator-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #FFD130;
+}
+
+.figma-creator-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.figma-creator-role {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.figma-creator-awards {
+  font-size: 11px;
+  font-weight: 600;
+  color: #059669;
+}
+
+/* ── 2. DASHBOARD HEADER & TABS ── */
+.figma-dash-header {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (min-width: 900px) {
+  .figma-dash-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 32px;
+  }
+}
+
+.figma-dash-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--color-on-surface, #1B1B1B);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.figma-dash-subtitle {
+  font-size: 14px;
+  color: var(--color-on-surface-variant, #6B7280);
+  margin: 4px 0 0;
+}
+
+/* Tabs */
+.figma-dash-tabs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.figma-dash-tab {
+  background: none;
+  border: none;
+  padding: 10px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant, #6B7280);
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+  border-radius: var(--radius-full, 9999px);
+}
+
+.figma-dash-tab:hover {
+  color: var(--color-on-surface, #1B1B1B);
+  background-color: var(--color-surface-container, rgba(0, 0, 0, 0.04));
+}
+
+.figma-dash-tab--active {
+  color: var(--color-primary, #3DCBB1) !important;
+  font-weight: 700;
+}
+
+.figma-dash-tab--active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 16px;
+  right: 16px;
+  height: 3px;
+  background: var(--color-primary, #3DCBB1);
+  border-radius: 9999px;
+}
+
+.figma-tab-badge {
+  background: #FE416D;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 9999px;
+}
+
+.figma-tab-icon {
+  font-size: 18px;
+}
+
+/* Controls / Dropdowns */
+.figma-dash-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.figma-select-pill {
+  appearance: none;
+  background-color: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-outline, #E5E7EB);
+  border-radius: var(--radius-full, 9999px);
+  padding: 8px 36px 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-on-surface, #1B1B1B);
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 14px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.figma-select-pill:focus {
+  outline: none;
+  border-color: var(--color-primary, #3DCBB1);
+  box-shadow: 0 0 0 3px rgba(61, 203, 177, 0.15);
+}
+
+/* ── 3. 4-COLUMN COURSE CARDS GRID ── */
+.figma-course-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 24px;
 }
 
-@media (min-width: 1180px) {
-  .student-dash__grid {
-    grid-template-columns: minmax(0, 1fr) 340px;
-    align-items: start;
+@media (min-width: 640px) {
+  .figma-course-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-@media (min-width: 1360px) {
-  .student-dash__grid {
-    grid-template-columns: minmax(0, 1fr) 360px;
-    gap: 32px;
+@media (min-width: 1024px) {
+  .figma-course-grid {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
-.student-dash__main {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  min-width: 0;
+@media (min-width: 1280px) {
+  .figma-course-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
-.student-dash__rail {
+.figma-course-card {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-outline-variant, #F3F4F6);
+  border-radius: var(--radius-xl, 18px);
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  min-width: 0;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
 }
 
-/* ── 1. Hero Action Banner (Clean Academic) ── */
-.student-dash__hero-card {
-  background-color: var(--color-surface-container-lowest, #ffffff);
-  border: 1px solid var(--color-outline-variant, #e2e8f0);
-  border-radius: var(--radius-lg, 12px);
-  padding: 28px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.figma-course-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.08);
+  border-color: rgba(61, 203, 177, 0.35);
+}
+
+.figma-course-card__media {
   position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #1B1B1B;
+  overflow: hidden;
 }
 
-.student-dash__hero-header {
+.figma-course-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.figma-course-card:hover .figma-course-card__img {
+  transform: scale(1.04);
+}
+
+.figma-course-card__badges {
+  position: absolute;
+  top: 10px;
+  left: 10px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  gap: 6px;
+  z-index: 2;
 }
 
-.student-dash__hero-title {
-  font-family: var(--font-family);
-  font-size: 22px;
+.figma-badge-bestseller {
+  background: rgba(18, 53, 47, 0.85);
+  color: #3DCBB1;
+  font-size: 11px;
   font-weight: 700;
-  color: var(--color-on-surface, #0f172a);
-  margin: 0;
-  line-height: 1.35;
-  letter-spacing: -0.01em;
+  padding: 4px 10px;
+  border-radius: var(--radius-full, 9999px);
+  backdrop-filter: blur(8px);
+  letter-spacing: 0.02em;
 }
 
-.student-dash__hero-words {
-  color: var(--color-primary, #051A2E);
-  font-weight: 600;
-  background-color: var(--color-primary-fixed, #dbeafe);
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-size: 0.95em;
-  display: inline-block;
-  margin-top: 4px;
+.figma-badge-discount {
+  background: #FE416D;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full, 9999px);
 }
 
-.student-dash__hero-desc {
-  font-size: 14px;
-  color: var(--color-on-surface-variant, #475569);
-  margin: 0;
-  line-height: 1.5;
-  max-width: 720px;
-}
-
-.student-dash__hero-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding-top: 8px;
-}
-
-/* ── 2. Stats Grid ── */
-.student-dash__stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 14px;
-  min-width: 0;
-}
-
-@media (max-width: 640px) {
-  .student-dash__stats-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
-  }
-}
-
-@media (max-width: 360px) {
-  .student-dash__stats-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* ── 3. Recent Essays ── */
-.student-dash__essays-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.student-dash__essay-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: var(--radius-md, 8px);
-  border: 1px solid var(--color-outline-variant, #f1f5f9);
-  background-color: var(--color-surface-container-low, #f8fafc);
-  cursor: pointer;
-  transition: all var(--transition-fast, 150ms ease);
-}
-
-.student-dash__essay-item:hover {
-  background-color: var(--color-surface-container-lowest, #ffffff);
-  border-color: var(--color-outline, #cbd5e1);
-  transform: translateY(-1px);
-}
-
-.student-dash__essay-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.student-dash__essay-left > div {
-  min-width: 0;
-  flex: 1 1 auto;
-  overflow: hidden;
-}
-
-.student-dash__essay-icon {
-  font-size: 20px;
-  color: var(--color-primary, #051A2E);
-  flex-shrink: 0;
-}
-
-.student-dash__essay-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-on-surface, #0f172a);
-  margin: 0;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-  overflow-wrap: anywhere;
-  line-height: 1.35;
-  max-width: 100%;
-}
-
-.student-dash__essay-badge {
-  flex-shrink: 0;
-}
-
-.student-dash__essay-meta {
-  font-size: 12px;
-  color: var(--color-on-surface-variant, #64748b);
-  margin-top: 2px;
-}
-
-.student-dash__essays-empty {
-  text-align: center;
-  padding: 32px 16px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  color: var(--color-on-surface-variant, #64748b);
-}
-
-/* ── 4. Secondary Rail Cards ── */
-/* Streak Widget */
-.student-dash__streak-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.student-dash__streak-icon-wrap {
-  width: 44px;
-  height: 44px;
+.figma-heart-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background-color: #fffbeb;
-  border: 1px solid #fde68a;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(6px);
+  border: none;
+  cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #b45309;
+  color: #9CA3AF;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.figma-heart-btn:hover {
+  transform: scale(1.1);
+}
+
+.figma-heart-btn .material-symbols-outlined {
+  font-size: 18px;
+}
+
+.figma-heart-btn--active {
+  background: #FE416D;
+  color: #ffffff !important;
+}
+
+.figma-card-progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  z-index: 2;
+}
+
+.figma-card-progress-fill {
+  height: 100%;
+  background: var(--color-primary, #3DCBB1);
+}
+
+.figma-card-progress-bar--completed .figma-card-progress-fill {
+  background: #00DDC0;
+}
+
+.figma-course-card__content {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.figma-course-card__title {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.35;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.figma-course-card__title a {
+  color: var(--color-on-surface, #1B1B1B);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.figma-course-card__title a:hover {
+  color: var(--color-primary, #3DCBB1);
+}
+
+.figma-course-card__instructor {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-on-surface-variant, #6B7280);
+}
+
+.figma-inst-icon {
+  font-size: 16px;
+}
+
+.figma-course-card__status {
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.figma-status-completed {
+  color: var(--color-primary, #3DCBB1);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.figma-status-completed .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.figma-status-progress {
+  color: #374151;
+}
+
+.figma-status-notstarted {
+  color: #9CA3AF;
+}
+
+.figma-course-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-outline-variant, #F3F4F6);
+}
+
+.figma-course-card__rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.figma-stars {
+  color: #FFD130;
+  font-size: 13px;
+  letter-spacing: 1px;
+}
+
+.figma-review-count {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.figma-course-card__price {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.figma-price-current {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-on-surface, #1B1B1B);
+}
+
+.figma-price-strike {
+  font-size: 12px;
+  color: #9CA3AF;
+  text-decoration: line-through;
+}
+
+.figma-card-action-btn {
+  width: 100%;
+  border-radius: var(--radius-full, 9999px) !important;
+  font-weight: 700 !important;
+  margin-top: 6px;
+}
+
+/* ── 4. PAGINATION ROW ── */
+.figma-pagination-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 40px;
+}
+
+.figma-page-arrow,
+.figma-page-num {
+  min-width: 38px;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 8px;
+  border: 1px solid var(--color-outline, #E5E7EB);
+  background: var(--color-surface, #ffffff);
+  color: var(--color-on-surface, #1B1B1B);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.figma-page-arrow:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.figma-page-num:hover,
+.figma-page-arrow:hover:not(:disabled) {
+  border-color: var(--color-primary, #3DCBB1);
+  color: var(--color-primary, #3DCBB1);
+}
+
+.figma-page-num--active {
+  border-color: var(--color-primary, #3DCBB1) !important;
+  color: var(--color-primary, #3DCBB1) !important;
+  background-color: var(--color-primary-container, #EBF9F6) !important;
+  font-weight: 700;
+}
+
+.figma-page-ellipsis {
+  padding: 0 6px;
+  color: #9CA3AF;
+  font-weight: 600;
+}
+
+/* ── 5. WISHLIST EMPTY STATE ── */
+.figma-wishlist-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 72px 24px;
+  background: var(--color-surface, #ffffff);
+  border: 1px dashed var(--color-outline, #E5E7EB);
+  border-radius: var(--radius-2xl, 24px);
+  gap: 14px;
+  max-width: 600px;
+  margin: 32px auto;
+}
+
+.figma-empty-heart {
+  font-size: 56px;
+  color: #FE416D;
+}
+
+.figma-wishlist-empty h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-on-surface, #1B1B1B);
+  margin: 0;
+}
+
+.figma-wishlist-empty p {
+  font-size: 14px;
+  color: var(--color-on-surface-variant, #6B7280);
+  margin: 0;
+  max-width: 440px;
+}
+
+/* ── 6. METRICS TAB WORKSPACE ── */
+.figma-metrics-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.figma-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.figma-metrics-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 1080px) {
+  .figma-metrics-layout {
+    grid-template-columns: minmax(0, 1fr) 360px;
+  }
+}
+
+.figma-metrics-main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.figma-metrics-side {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.figma-card {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-outline-variant, #F3F4F6);
+  border-radius: var(--radius-xl, 18px);
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.figma-streak-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.figma-streak-flame {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF9800, #F44336);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
   flex-shrink: 0;
 }
 
-[data-theme='dark'] .student-dash__streak-icon-wrap {
-  background-color: rgba(245, 158, 11, 0.15);
-  border-color: rgba(245, 158, 11, 0.3);
-  color: #fbbf24;
+.figma-streak-flame .material-symbols-outlined {
+  font-size: 28px;
 }
 
-.student-dash__streak-number {
-  font-size: 18px;
+.figma-streak-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-on-surface, #1B1B1B);
+}
+
+.figma-streak-sub {
+  font-size: 13px;
+  color: var(--color-on-surface-variant, #6B7280);
+}
+
+.figma-srs-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.figma-srs-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.figma-srs-icon {
+  font-size: 32px;
+  color: var(--color-primary, #3DCBB1);
+}
+
+.figma-srs-title {
+  font-size: 16px;
   font-weight: 700;
-  color: var(--color-on-surface, #0f172a);
+  margin: 0;
+  color: var(--color-on-surface, #1B1B1B);
 }
 
-.student-dash__streak-label {
-  font-size: 12px;
-  color: var(--color-on-surface-variant, #64748b);
+.figma-srs-sub {
+  font-size: 13px;
+  color: var(--color-on-surface-variant, #6B7280);
+  margin: 4px 0 0;
 }
 
-/* SRS Due Card */
-.student-dash__srs-card {
-  background-color: var(--color-surface-container-low, #eff6ff);
-  border: 1px solid var(--color-outline-variant, #bfdbfe);
+.figma-goals-card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.figma-goals-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.figma-goals-header h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.figma-goals-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary, #3DCBB1);
+  text-decoration: none;
+}
+
+.figma-goals-rings {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.figma-essays-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  margin-top: 12px;
 }
 
-[data-theme='dark'] .student-dash__srs-card {
-  background-color: rgba(30, 64, 175, 0.15);
-  border-color: rgba(120, 157, 255, 0.3);
-}
-
-.student-dash__srs-header {
+.figma-essay-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 14px 18px;
+  border-radius: var(--radius-lg, 12px);
+  background: var(--color-surface-container, #F9FAFB);
+  text-decoration: none;
+  transition: background 0.15s ease;
 }
 
-.student-dash__srs-title {
-  margin: 8px 0 2px 0;
-  font-size: 16px;
+.figma-essay-row:hover {
+  background: var(--color-primary-container, #EBF9F6);
+}
+
+.figma-essay-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.figma-essay-icon {
+  font-size: 24px;
+  color: var(--color-primary, #3DCBB1);
+}
+
+.figma-essay-title {
+  font-size: 14px;
   font-weight: 700;
-  color: var(--color-primary, #051A2E);
-}
-
-.student-dash__srs-subtitle {
+  color: var(--color-on-surface, #1B1B1B);
   margin: 0;
+}
+
+.figma-essay-meta {
   font-size: 12px;
-  color: var(--color-on-surface-variant, #64748b);
+  color: #6B7280;
 }
 
-.student-dash__srs-count-badge {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--color-primary, #1d4ed8);
-}
-
-/* Goals Rail */
-.student-dash__goals-list {
+/* ── 7. BOTTOM NEWSLETTER DISCOUNT CTA ── */
+.figma-newsletter-banner {
+  background: #2563EB;
+  background-image: radial-gradient(circle at 10% 20%, rgba(61, 203, 177, 0.4) 0%, transparent 40%),
+                    radial-gradient(circle at 90% 80%, rgba(254, 65, 109, 0.4) 0%, transparent 40%);
+  border-radius: var(--radius-2xl, 24px);
+  padding: 48px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-}
-
-/* Garden Teaser */
-.student-dash__garden-card {
-  display: flex;
+  gap: 24px;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  color: #ffffff;
+  margin-top: 24px;
+}
+
+@media (min-width: 900px) {
+  .figma-newsletter-banner {
+    flex-direction: row;
+    padding: 44px 56px;
+  }
+}
+
+.figma-newsletter-banner__left {
+  max-width: 520px;
+}
+
+.figma-newsletter-banner__title {
+  font-size: clamp(22px, 2.5vw, 32px);
+  font-weight: 800;
+  margin: 0 0 8px;
+  line-height: 1.25;
+}
+
+.figma-newsletter-banner__subtitle {
+  font-size: 15px;
+  opacity: 0.9;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.figma-newsletter-form {
+  min-width: 320px;
+  max-width: 440px;
+  width: 100%;
+}
+
+.figma-newsletter-input-group {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-full, 9999px);
+  padding: 6px 6px 6px 20px;
+  backdrop-filter: blur(8px);
+}
+
+.figma-newsletter-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 14px;
+  outline: none;
+}
+
+.figma-newsletter-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.figma-newsletter-btn {
+  background: #3DCBB1;
+  color: #111827;
+  border: none;
+  font-weight: 700;
+  font-size: 14px;
+  padding: 10px 24px;
+  border-radius: var(--radius-full, 9999px);
   cursor: pointer;
-  transition: all var(--transition-fast, 150ms ease);
-}
-.student-dash__garden-card:hover {
-  border-color: #86efac;
+  transition: transform 0.15s ease, background 0.15s ease;
 }
 
-.student-dash__garden-icon {
-  font-size: 28px;
-  color: #16a34a;
+.figma-newsletter-btn:hover {
+  background: #32b59d;
+  transform: translateY(-1px);
 }
 
-[data-theme='dark'] .student-dash__garden-icon {
-  color: #4ade80;
+.figma-newsletter-thanks {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 15px;
 }
 
-[data-theme='dark'] .student-dash__essay-item {
-  background-color: var(--color-surface-container-lowest, #152333);
-  border-color: rgba(255, 255, 255, 0.08);
-}
-[data-theme='dark'] .student-dash__essay-item:hover {
-  background-color: #1e293b;
-  border-color: rgba(255, 255, 255, 0.15);
-}
-[data-theme='dark'] .student-dash__essay-title {
-  color: #F1F5F9;
-}
-[data-theme='dark'] .student-dash__srs-card {
-  background-color: var(--color-surface-container-lowest, #152333);
-  border-color: rgba(255, 255, 255, 0.08);
-}
-[data-theme='dark'] .student-dash__srs-title {
-  color: #789DFF;
-}
-[data-theme='dark'] .student-dash__srs-subtitle {
-  color: #94A3B8;
-}
-[data-theme='dark'] .student-dash__srs-count-badge {
-  color: #789DFF;
+.dash-notice-box {
+  background: var(--color-surface-container, #F9FAFB);
+  border: 1px solid var(--color-outline-variant, #E5E7EB);
+  border-radius: var(--radius-md, 8px);
+  padding: 12px 16px;
+  font-size: 13px;
 }

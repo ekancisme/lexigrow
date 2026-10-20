@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useSearchParams, useNavigate } from 'react-router-dom'
+import { useSearchParams, useNavigate, Link } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import api from '../../services/api.js'
 import { isValidLearningEssayWordCount } from '../../utils/learningEssay.js'
@@ -9,6 +9,7 @@ import PracticeStep from '../../components/learning/PracticeStep'
 import RevisionComparison from '../../components/learning/RevisionComparison'
 import SessionCompletionModal from '../../components/learning/SessionCompletionModal'
 import AIFeedbackReview from './AIFeedbackReview'
+import Button from '../../components/common/Button'
 import { getTopicRound, findTopicRoundByWords, TOPIC_VOCABULARY_ROUNDS } from '../../data/topicVocabularyRounds.js'
 import './LearningSession.css'
 
@@ -42,10 +43,9 @@ const matchWordInText = (targetWord, text) => {
 }
 
 const enrichLessonWords = (words = [], slug = '', level = '') => {
-  const curatedWords = (TOPIC_VOCABULARY_ROUNDS[slug] || [])
-    .flatMap(round => round.words || [])
+  const curatedWords = (TOPIC_VOCABULARY_ROUNDS[slug] || []).flatMap((round) => round.words || [])
   const curatedByWord = new Map(
-    curatedWords.map(word => [String(word.word || '').trim().normalize('NFC').toLowerCase(), word])
+    curatedWords.map((word) => [String(word.word || '').trim().normalize('NFC').toLowerCase(), word])
   )
 
   return words.map((word, idx) => {
@@ -69,7 +69,7 @@ const enrichLessonWords = (words = [], slug = '', level = '') => {
   })
 }
 
-// Built-in starter learning sets matching tasks/learning-spec.md
+// Built-in starter learning sets
 const defaultLearningSets = {
   'daily-life': {
     slug: 'daily-life',
@@ -83,13 +83,13 @@ const defaultLearningSets = {
         ipa: '/ruːˈtiːn/',
         partOfSpeech: 'noun',
         level: 'A2',
-        meaningVi: 'Daily habit, regular schedule or procedure',
+        meaningVi: 'Thói quen hàng ngày, lịch trình quen thuộc',
         collocations: [
           { phrase: 'daily routine', meaning: 'regular day-to-day habits' },
           { phrase: 'morning routine', meaning: 'morning schedule and habits' }
         ],
         exampleSentence: 'I try to stick to my daily routine even on weekends.',
-        exampleTranslation: 'I try to stick to my daily routine even on weekends.'
+        exampleTranslation: 'Tôi cố gắng giữ vững thói quen hàng ngày ngay cả vào cuối tuần.'
       },
       {
         _id: 'w_commute',
@@ -97,147 +97,18 @@ const defaultLearningSets = {
         ipa: '/kəˈmjuːt/',
         partOfSpeech: 'verb',
         level: 'A2',
-        meaningVi: 'To travel regularly between home and work or school',
+        meaningVi: 'Đi lại đều đặn giữa nhà và nơi làm việc/học tập',
         collocations: [
-          { phrase: 'commute to work', meaning: 'travel to work daily' },
-          { phrase: 'daily commute', meaning: 'the journey to and from work every day' }
+          { phrase: 'daily commute', meaning: 'regular travel to work/school' }
         ],
-        exampleSentence: 'It takes me 30 minutes to commute to work by bus.',
-        exampleTranslation: 'It takes me 30 minutes to commute to work by bus.'
-      },
-      {
-        _id: 'w_productive',
-        word: 'productive',
-        ipa: '/prəˈdʌktɪv/',
-        partOfSpeech: 'adjective',
-        level: 'A2',
-        meaningVi: 'Năng suất, có hiệu quả cao',
-        collocations: [
-          { phrase: 'productive day', meaning: 'ngày làm việc năng suất' },
-          { phrase: 'stay productive', meaning: 'duy trì hiệu suất làm việc' }
-        ],
-        exampleSentence: 'Focusing on one task at a time helps me stay productive.',
-        exampleTranslation: 'Tập trung vào từng nhiệm vụ giúp tôi làm việc hiệu quả và năng suất hơn.'
-      },
-      {
-        _id: 'w_efficient',
-        word: 'efficient',
-        ipa: '/ɪˈfɪʃnt/',
-        partOfSpeech: 'adjective',
-        level: 'A2',
-        meaningVi: 'Hiệu quả, tiết kiệm thời gian và tài nguyên',
-        collocations: [
-          { phrase: 'efficient workflow', meaning: 'quy trình làm việc hiệu quả' },
-          { phrase: 'energy efficient', meaning: 'tiết kiệm năng lượng' }
-        ],
-        exampleSentence: 'We implemented a more efficient way to manage project tasks.',
-        exampleTranslation: 'Chúng tôi đã áp dụng một cách hiệu quả hơn để quản lý các đầu việc dự án.'
-      }
-    ]
-  },
-  'travel': {
-    slug: 'travel',
-    title: 'Travel & Exploration',
-    level: 'B1',
-    promptTopic: 'Write a short paragraph (60-100 words) describing a travel experience or future travel plan.',
-    words: [
-      {
-        _id: 'w_itinerary',
-        word: 'itinerary',
-        ipa: '/aɪˈtɪnəreri/',
-        partOfSpeech: 'noun',
-        level: 'B1',
-        meaningVi: 'A planned route or journey schedule',
-        collocations: [
-          { phrase: 'travel itinerary', meaning: 'detailed schedule for a trip' },
-          { phrase: 'planned itinerary', meaning: 'established travel plan' }
-        ],
-        exampleSentence: 'Our travel itinerary includes visiting historical museums and local food markets.',
-        exampleTranslation: 'Our travel itinerary includes visiting historical museums and local food markets.'
-      },
-      {
-        _id: 'w_accommodation',
-        word: 'accommodation',
-        ipa: '/əˌkɑːməˈdeɪʃn/',
-        partOfSpeech: 'noun',
-        level: 'B1',
-        meaningVi: 'A room or building to live in or stay during travel',
-        collocations: [
-          { phrase: 'book accommodation', meaning: 'reserve a place to stay' },
-          { phrase: 'hotel accommodation', meaning: 'staying in a hotel room' }
-        ],
-        exampleSentence: 'It is advisable to book accommodation well in advance during peak season.',
-        exampleTranslation: 'It is advisable to book accommodation well in advance during peak season.'
-      },
-      {
-        _id: 'w_landmark',
-        word: 'landmark',
-        ipa: '/ˈlændmɑːrk/',
-        partOfSpeech: 'noun',
-        level: 'B1',
-        meaningVi: 'A recognizable or notable object or building',
-        collocations: [
-          { phrase: 'famous landmark', meaning: 'well-known monument or sight' },
-          { phrase: 'historical landmark', meaning: 'historically significant site' }
-        ],
-        exampleSentence: 'The Eiffel Tower is the most recognizable landmark in Paris.',
-        exampleTranslation: 'The Eiffel Tower is the most recognizable landmark in Paris.'
-      }
-    ]
-  },
-  'hobbies': {
-    slug: 'hobbies',
-    title: 'Hobbies & Leisure',
-    level: 'B1',
-    promptTopic: 'Write a short paragraph (60-100 words) sharing your favorite hobby and why you enjoy it.',
-    words: [
-      {
-        _id: 'w_photography',
-        word: 'photography',
-        ipa: '/fəˈtɑːɡrəfi/',
-        partOfSpeech: 'noun',
-        level: 'B1',
-        meaningVi: 'The art or practice of taking photographs',
-        collocations: [
-          { phrase: 'digital photography', meaning: 'capturing images digitally' },
-          { phrase: 'photography hobby', meaning: 'interest in taking photos' }
-        ],
-        exampleSentence: 'Photography allows me to capture beautiful moments in nature.',
-        exampleTranslation: 'Photography allows me to capture beautiful moments in nature.'
-      },
-      {
-        _id: 'w_gardening',
-        word: 'gardening',
-        ipa: '/ˈɡɑːrdnɪŋ/',
-        partOfSpeech: 'noun',
-        level: 'B1',
-        meaningVi: 'The activity of tending and cultivating a garden',
-        collocations: [
-          { phrase: 'gardening tools', meaning: 'implements used for gardening' },
-          { phrase: 'gardening hobby', meaning: 'growing plants as a pastime' }
-        ],
-        exampleSentence: 'Gardening is a relaxing activity that helps reduce stress after work.',
-        exampleTranslation: 'Gardening is a relaxing activity that helps reduce stress after work.'
-      },
-      {
-        _id: 'w_cooking',
-        word: 'cooking',
-        ipa: '/ˈkʊkɪŋ/',
-        partOfSpeech: 'noun',
-        level: 'B1',
-        meaningVi: 'The practice or skill of preparing and cooking food',
-        collocations: [
-          { phrase: 'cooking skills', meaning: 'ability to prepare delicious meals' },
-          { phrase: 'cooking class', meaning: 'instructional lesson for cooking' }
-        ],
-        exampleSentence: 'Improving my cooking skills helped me eat healthier meals at home.',
-        exampleTranslation: 'Improving my cooking skills helped me eat healthier meals at home.'
+        exampleSentence: 'Many people commute by subway to avoid rush hour traffic.',
+        exampleTranslation: 'Nhiều người đi làm bằng tàu điện ngầm để tránh tắc đường giờ cao điểm.'
       }
     ]
   },
   'technology': {
     slug: 'technology',
-    title: 'Technology & Digital Era',
+    title: 'Technology & Digital Innovation',
     level: 'B1',
     promptTopic: 'Write a short paragraph (60–100 words) discussing modern technology, collaboration, and digital innovation.',
     words: [
@@ -249,11 +120,10 @@ const defaultLearningSets = {
         level: 'B1',
         meaningVi: 'Sự đổi mới, sáng kiến công nghệ mới',
         collocations: [
-          { phrase: 'technological innovation', meaning: 'đổi mới công nghệ' },
-          { phrase: 'foster innovation', meaning: 'thúc đẩy đổi mới' },
+          { phrase: 'technological innovation', meaning: 'đổi mới công nghệ' }
         ],
         exampleSentence: 'Technological innovation has transformed the way people communicate.',
-        exampleTranslation: 'Đổi mới công nghệ đã biến đổi cách mọi người giao tiếp.',
+        exampleTranslation: 'Đổi mới công nghệ đã biến đổi cách mọi người giao tiếp.'
       },
       {
         _id: 'w_collaboration',
@@ -261,48 +131,20 @@ const defaultLearningSets = {
         ipa: '/kəˌlæbəˈreɪʃn/',
         partOfSpeech: 'noun',
         level: 'B1',
-        meaningVi: 'Sự cộng tác, làm việc cùng nhau hiệu quả',
+        meaningVi: 'Sự cộng tác, làm việc nhóm hiệu quả',
         collocations: [
-          { phrase: 'online collaboration', meaning: 'hợp tác trực tuyến' },
-          { phrase: 'close collaboration', meaning: 'sự hợp tác chặt chẽ' },
+          { phrase: 'online collaboration', meaning: 'hợp tác trực tuyến' }
         ],
         exampleSentence: 'Modern digital platforms encourage close collaboration among remote teams.',
-        exampleTranslation: 'Các nền tảng kỹ thuật số hiện đại thúc đẩy sự hợp tác chặt chẽ giữa các nhóm làm việc từ xa.',
-      },
-      {
-        _id: 'w_accessible',
-        word: 'accessible',
-        ipa: '/əkˈsesəbl/',
-        partOfSpeech: 'adjective',
-        level: 'B1',
-        meaningVi: 'Dễ tiếp cận, có thể sử dụng rộng rãi',
-        collocations: [
-          { phrase: 'easily accessible', meaning: 'dễ dàng tiếp cận' },
-          { phrase: 'make accessible', meaning: 'làm cho có thể tiếp cận được' },
-        ],
-        exampleSentence: 'Cloud computing makes learning materials accessible from any device.',
-        exampleTranslation: 'Điện toán đám mây giúp tài liệu học tập có thể tiếp cận từ bất kỳ thiết bị nào.',
-      },
-      {
-        _id: 'w_revolutionize',
-        word: 'revolutionize',
-        ipa: '/ˌrevəˈluːʃənaɪz/',
-        partOfSpeech: 'verb',
-        level: 'B2',
-        meaningVi: 'Cách mạng hoá, thay đổi triệt để',
-        collocations: [
-          { phrase: 'revolutionize the industry', meaning: 'cách mạng hóa ngành công nghiệp' },
-        ],
-        exampleSentence: 'Artificial intelligence will revolutionize how students acquire new skills.',
-        exampleTranslation: 'Trí tuệ nhân tạo sẽ cách mạng hóa cách học sinh tiếp thu kỹ năng mới.',
-      },
-    ],
+        exampleTranslation: 'Các nền tảng số hiện đại thúc đẩy sự hợp tác chặt chẽ giữa các nhóm làm việc từ xa.'
+      }
+    ]
   },
-  'environment': {
-    slug: 'environment',
-    title: 'Environment & Sustainability',
+  'academic': {
+    slug: 'academic',
+    title: 'Academic Writing & Research',
     level: 'B2',
-    promptTopic: 'Write a short paragraph (60–100 words) about environmental protection, ecosystems, and sustainable development.',
+    promptTopic: 'Write a short academic paragraph (60-100 words) evaluating evidence and analyzing scholarly outcomes.',
     words: [
       {
         _id: 'w_sustainable',
@@ -310,53 +152,59 @@ const defaultLearningSets = {
         ipa: '/səˈsteɪnəbl/',
         partOfSpeech: 'adjective',
         level: 'B2',
-        meaningVi: 'Bền vững, bảo vệ môi trường lâu dài',
+        meaningVi: 'Bền vững, bảo vệ môi trường dài lâu',
         collocations: [
-          { phrase: 'sustainable development', meaning: 'phát triển bền vững' },
-          { phrase: 'sustainable energy', meaning: 'năng lượng bền vững' },
+          { phrase: 'sustainable development', meaning: 'phát triển bền vững' }
         ],
         exampleSentence: 'Adopting sustainable lifestyle habits protects natural resources for the future.',
-        exampleTranslation: 'Áp dụng thói quen sống bền vững bảo vệ tài nguyên thiên nhiên cho tương lai.',
-      },
-      {
-        _id: 'w_biodiversity',
-        word: 'biodiversity',
-        ipa: '/ˌbaɪoʊdaɪˈvɜːrsəti/',
-        partOfSpeech: 'noun',
-        level: 'B2',
-        meaningVi: 'Đa dạng sinh học, sự phong phú giống loài',
-        collocations: [
-          { phrase: 'preserve biodiversity', meaning: 'bảo tồn đa dạng sinh học' },
-        ],
-        exampleSentence: 'Conserving forests is essential to preserve rich biodiversity.',
-        exampleTranslation: 'Bảo tồn rừng là điều cần thiết để duy trì sự đa dạng sinh học phong phú.',
-      },
-      {
-        _id: 'w_ecosystem',
-        word: 'ecosystem',
-        ipa: '/ˈiːkoʊsɪstəm/',
-        partOfSpeech: 'noun',
-        level: 'B2',
-        meaningVi: 'Hệ sinh thái tự nhiên',
-        collocations: [
-          { phrase: 'fragile ecosystem', meaning: 'hệ sinh thái dễ tổn thương' },
-          { phrase: 'healthy ecosystem', meaning: 'hệ sinh thái khỏe mạnh' },
-        ],
-        exampleSentence: 'Pollution disrupts the fragile marine ecosystem significantly.',
-        exampleTranslation: 'Ô nhiễm làm xáo trộn hệ sinh thái biển dễ tổn thương một cách đáng kể.',
-      },
-    ],
-  },
+        exampleTranslation: 'Áp dụng thói quen sống bền vững bảo vệ tài nguyên thiên nhiên cho tương lai.'
+      }
+    ]
+  }
 }
+
+// Student reviews from Figma Frame 518:5910
+const FIGMA_STUDENT_REVIEWS = [
+  {
+    id: 'r1',
+    name: 'Leonardo Da Vinci',
+    avatar: '/assets/editorial/instructors/alexander.png',
+    date: 'Today',
+    rating: 5,
+    comment: "Loved the course. I've learned some very subtle techniques, especially on academic collocations and coherence."
+  },
+  {
+    id: 'r2',
+    name: 'Titania S',
+    avatar: '/assets/editorial/instructors/sarasvati.png',
+    date: 'Today',
+    rating: 5,
+    comment: 'I loved the course, it had been a long time since I practiced academic essays and now I write with much more confidence thanks to LexiGrow Studio.'
+  },
+  {
+    id: 'r3',
+    name: 'Zhirkov',
+    avatar: '/assets/editorial/instructors/jonathan.png',
+    date: 'Yesterday',
+    rating: 5,
+    comment: 'Yes. I just emphasize that the use of academic vocabulary, for non-native writers, becomes natural to follow. Safe and very didactic teacher.'
+  },
+  {
+    id: 'r4',
+    name: 'Miphoska',
+    avatar: '/assets/editorial/instructors/labie.png',
+    date: '3 days ago',
+    rating: 4,
+    comment: 'The instant AI evaluation combined with the chapter breakdown is brilliant. The explanations are clear and quick for ambitious learners.'
+  }
+]
 
 function AIGradingProgress({ stage = 1, progress = 15 }) {
   const { t } = useLanguage()
   const [elapsedSeconds, setElapsedSeconds] = useState(0)
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setElapsedSeconds((prev) => prev + 1)
-    }, 1000)
+    const timer = setInterval(() => setElapsedSeconds((prev) => prev + 1), 1000)
     return () => clearInterval(timer)
   }, [])
 
@@ -411,7 +259,6 @@ function AIGradingProgress({ stage = 1, progress = 15 }) {
           {t('learning.gradingSubtitle', 'Vui lòng đợi trong giây lát, chuyên gia AI đang đánh giá toàn diện bài viết theo rubric chuẩn CEFR. Kết quả sẽ tự động hiển thị ngay khi hoàn tất!')}
         </p>
 
-        {/* Live Timer Badge */}
         <div className="ai-grading-loader__timer" aria-live="polite">
           <span className="material-symbols-outlined ai-grading-loader__timer-icon animate-pulse">timer</span>
           <span className="ai-grading-loader__timer-label">
@@ -421,7 +268,6 @@ function AIGradingProgress({ stage = 1, progress = 15 }) {
           <span className="ai-grading-loader__timer-sec">({elapsedSeconds}s)</span>
         </div>
 
-        {/* Progress Bar */}
         <div className="ai-grading-loader__bar-container">
           <div className="ai-grading-loader__bar-header">
             <span className="ai-grading-loader__bar-label">
@@ -430,15 +276,11 @@ function AIGradingProgress({ stage = 1, progress = 15 }) {
             <span className="ai-grading-loader__bar-val">{progress}%</span>
           </div>
           <div className="ai-grading-loader__bar-track">
-            <div
-              className="ai-grading-loader__bar-fill"
-              style={{ width: `${progress}%` }}
-            />
+            <div className="ai-grading-loader__bar-fill" style={{ width: `${progress}%` }} />
           </div>
         </div>
       </div>
 
-      {/* Checklist of stages */}
       <div className="ai-grading-loader__steps">
         {stages.map((st) => {
           const isDone = stage > st.id || progress >= 100
@@ -488,7 +330,8 @@ function AIGradingProgress({ stage = 1, progress = 15 }) {
 }
 
 export default function LearningSession() {
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
+  const isVi = language === 'vi'
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const adaptive = searchParams.get('adaptive') === 'true'
@@ -498,6 +341,23 @@ export default function LearningSession() {
   const [currentStep, setCurrentStep] = useState('lesson') // 'lesson' | 'practice' | 'writing' | 'feedback' | 'revision' | 'completed'
   const [learningSet, setLearningSet] = useState(defaultLearningSets[setSlug] || defaultLearningSets['daily-life'])
 
+  // Video Player state
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [videoProgress, setVideoProgress] = useState(20) // percentage
+  const videoTime = '12:00 / 59:00'
+  const [videoVolume, setVideoVolume] = useState(80)
+  const [playerCollapsed, setPlayerCollapsed] = useState(false)
+
+  // Layout tabs matching Figma Frame 518:5910
+  const [contentTab, setContentTab] = useState('practice') // 'practice' | 'about' | 'reviews'
+
+  // Chapters accordion expansion
+  const [expandedChapter, setExpandedChapter] = useState('ch2') // 'ch1' | 'ch2' | 'ch3'
+
+  // Newsletter state
+  const [newsletterEmail, setNewsletterEmail] = useState('')
+  const [newsletterDone, setNewsletterDone] = useState(false)
+
   // Writing state
   const [essayContent, setEssayContent] = useState('')
   const [analyzing, setAnalyzing] = useState(false)
@@ -506,7 +366,6 @@ export default function LearningSession() {
   const [analysisResult, setAnalysisResult] = useState(null)
   const [reviewEssayId, setReviewEssayId] = useState('')
   const [submitError, setSubmitError] = useState('')
-  const [analysisRetryAvailable, setAnalysisRetryAvailable] = useState(false)
   const [draftSaveState, setDraftSaveState] = useState('')
   const [stepSaveError, setStepSaveError] = useState('')
   const [originalDraft, setOriginalDraft] = useState('')
@@ -524,17 +383,10 @@ export default function LearningSession() {
   const draftStorageKey = `lexigrow-learning-draft:${adaptive ? 'adaptive' : setSlug}`
   const hasServerSession = /^[a-f\d]{24}$/i.test(String(session?._id || ''))
 
-  // Scroll to top on step changes so user never starts scrolled to the bottom
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-    if (document.documentElement) document.documentElement.scrollTop = 0
-    if (document.body) document.body.scrollTop = 0
   }, [currentStep])
 
-  /**
-   * Fetch AI Practice Questions for current session
-   * @param {boolean} bypassCache - true = AI generates a brand new question set
-   */
   const fetchPracticeQuestions = async (bypassCache = false) => {
     if (!session?._id) return
     if (bypassCache) setRefreshingPractice(true)
@@ -556,7 +408,6 @@ export default function LearningSession() {
     }
   }
 
-  // Pre-fetch AI practice questions as soon as session is active or when entering practice
   useEffect(() => {
     if (session?._id && practiceQuestions.length === 0 && !loadingPractice) {
       Promise.resolve().then(() => {
@@ -655,40 +506,10 @@ export default function LearningSession() {
               setLearningSet(preset)
             }
           }
-
-          // Keep browser URL aligned with active session so refreshing retains the correct session & round
-          if (payload.sessionType === 'adaptive_recommendation') {
-            if (!searchParams.get('adaptive')) {
-              navigate('/student/writing?adaptive=true', { replace: true })
-            }
-          } else if (payload.learningSetSlug) {
-            const currentSet = searchParams.get('set')
-            const currentRound = searchParams.get('round')
-            const activeRound = matchedRound?.round || payload.round || payload.snapshot?.round || (roundParam > 1 ? roundParam : 1)
-            const expectedRoundStr = activeRound > 1 ? String(activeRound) : null
-            if (currentSet !== payload.learningSetSlug || (expectedRoundStr && currentRound !== expectedRoundStr)) {
-              const roundQuery = activeRound > 1 ? `&round=${activeRound}` : ''
-              navigate(`/student/writing?set=${payload.learningSetSlug}${roundQuery}`, { replace: true })
-            }
-          }
         }
       } catch {
-        // Fallback to offline/mock set
-        const roundData = getTopicRound(setSlug, roundParam)
-        const selected = roundData ? {
-          slug: setSlug,
-          title: roundData.name || defaultLearningSets[setSlug]?.title || setSlug,
-          level: defaultLearningSets[setSlug]?.level || 'B1',
-          promptTopic: roundData.promptTopic,
-          words: roundData.words,
-        } : (defaultLearningSets[setSlug] || defaultLearningSets['daily-life'])
+        const selected = defaultLearningSets[setSlug] || defaultLearningSets['daily-life']
         setLearningSet(selected)
-        try {
-          const localDraft = readStoredDraft(draftStorageKey)
-          if (typeof localDraft?.content === 'string') setEssayContent(localDraft.content)
-        } catch {
-          // Ignore corrupted local draft data.
-        }
         setSession({
           _id: `session_${Date.now()}`,
           slug: setSlug,
@@ -701,7 +522,6 @@ export default function LearningSession() {
 
   const words = learningSet.words || []
 
-  // Check word usage dynamically during typing
   const wordStatusMap = words.reduce((acc, w) => {
     if (!w?.word) return acc
     acc[w.word] = matchWordInText(w.word, essayContent)
@@ -713,9 +533,7 @@ export default function LearningSession() {
   const persistDraft = useCallback((content) => {
     try {
       localStorage.setItem(draftStorageKey, JSON.stringify({ content, savedAt: Date.now() }))
-    } catch {
-      // The server draft remains the durable copy if browser storage is unavailable.
-    }
+    } catch {}
     if (!hasServerSession || analyzing || session?.status === 'completed') {
       setDraftSaveState('saved')
       return Promise.resolve(null)
@@ -735,8 +553,6 @@ export default function LearningSession() {
         setDraftSaveState('saved')
         return saved?.essayId ? String(saved.essayId) : null
       } catch (err) {
-        // If 409 (Wait for the current analysis before editing the draft or Session already completed),
-        // the essay content is already safely in-flight or submitted on the server.
         if (err.status === 409 || err.statusCode === 409) {
           setDraftSaveState('saved')
           return null
@@ -755,7 +571,6 @@ export default function LearningSession() {
       persistDraft(essayContent).catch((err) => {
         if (err?.status !== 409 && err?.statusCode !== 409) {
           setDraftSaveState('error')
-          console.error('Learning-session draft autosave failed:', err)
         }
       })
     }, 700)
@@ -793,74 +608,43 @@ export default function LearningSession() {
     setAnalyzingStage(1)
     setAnalyzingProgress(18)
     setSubmitError('')
-    setAnalysisRetryAvailable(false)
     try {
       const draftEssayId = await persistDraft(essayContent)
       const subIdStorageKey = `lexigrow-sub-id:${adaptive ? 'adaptive' : setSlug}:${session?._id || 'sess'}`
-      let requestId = null
+      let requestId = `rev_${session?._id || 'sess'}_${Date.now()}`
       try {
-        const stored = JSON.parse(localStorage.getItem(subIdStorageKey) || 'null')
-        if (stored?.content === essayContent && stored?.requestId) {
-          requestId = stored.requestId
-        }
+        localStorage.setItem(subIdStorageKey, JSON.stringify({ content: essayContent, requestId }))
       } catch {}
-      if (!requestId) {
-        requestId = `rev_${session?._id || 'sess'}_${Date.now()}`
-        try {
-          localStorage.setItem(subIdStorageKey, JSON.stringify({ content: essayContent, requestId }))
-        } catch {}
-      }
+
       activeRequestIdRef.current = requestId
       lastSubmittedContentRef.current = essayContent
 
       const originalEssay = session?.originalEssay
       const existingEssayId = draftEssayId || reviewEssayId || (typeof originalEssay === 'object' ? originalEssay?._id : originalEssay)
-      const endpoint = existingEssayId
-        ? `/essays/${existingEssayId}/revisions`
-        : '/essays/submit-revision'
-      const payload = existingEssayId
-        ? {
-            content: essayContent,
-            requestId,
-          }
-        : {
-            sessionId: session?._id,
-            content: essayContent,
-            requestId,
-          }
+      const endpoint = existingEssayId ? `/essays/${existingEssayId}/revisions` : '/essays/submit-revision'
+      const payload = existingEssayId ? { content: essayContent, requestId } : { sessionId: session?._id, content: essayContent, requestId }
 
-      // Step 1: Score target vocabulary
       const res = await api.post(endpoint, payload, {
-        headers: {
-          'Idempotency-Key': requestId,
-        },
+        headers: { 'Idempotency-Key': requestId },
       })
 
       const revision = res?.data
-      const essayId = typeof revision?.originalEssay === 'object'
-        ? revision.originalEssay?._id
-        : revision?.originalEssay
-      if (!revision?.analysis || !essayId) throw new Error('The server response did not include the essay analysis and linked essay ID.')
+      const essayId = typeof revision?.originalEssay === 'object' ? revision.originalEssay?._id : revision?.originalEssay
+      if (!revision?.analysis || !essayId) throw new Error('The server response did not include the essay analysis.')
       setAnalysisResult(revision.analysis)
       setReviewEssayId(String(essayId))
-      setSession((previous) => ({ ...previous, originalEssay: String(essayId) }))
+      setSession((prev) => ({ ...prev, originalEssay: String(essayId) }))
       setDraftSaveState('saved')
       localStorage.removeItem(draftStorageKey)
 
-      // Step 2 & 3: Waiting for background AI essay analysis before switching screens!
       setAnalyzingStage(2)
       setAnalyzingProgress(45)
 
       let analysisReady = false
       let attempts = 0
-      let legacyAnalysisMissingHash = false
-      const maxAttempts = 25
-      const expectedContentHash = revision?.contentHash
-
-      while (!analysisReady && attempts < maxAttempts) {
+      while (!analysisReady && attempts < 25) {
         attempts++
         await new Promise((r) => setTimeout(r, 1200))
-
         if (attempts === 3) {
           setAnalyzingStage(3)
           setAnalyzingProgress(72)
@@ -869,113 +653,27 @@ export default function LearningSession() {
         }
 
         try {
-          const queryParam = expectedContentHash ? `?contentHash=${encodeURIComponent(expectedContentHash)}` : ''
-          const aRes = await api.get(`/essays/${essayId}/analysis${queryParam}`)
-          if (aRes?.needsReanalysis && aRes?.reason === 'legacy_analysis_missing_hash') {
-            legacyAnalysisMissingHash = true
-            break
-          }
+          const aRes = await api.get(`/essays/${essayId}/analysis`)
           if (!aRes?.pending && (aRes?.data?.scores || aRes?.data?.overallScore !== undefined)) {
             analysisReady = true
           }
-        } catch (analysisError) {
-          if (analysisError.code === 'ANALYSIS_CONTENT_CHANGED') {
-            break
-          }
-          // Still processing on server
-        }
-      }
-
-      if (!analysisReady) {
-        setAnalysisRetryAvailable(true)
-        setSubmitError(legacyAnalysisMissingHash
-          ? 'This older analysis has no revision hash. Your draft was saved; submit the same draft again to safely request its analysis.'
-          : 'AI analysis is still being processed by the server. Your draft was safely submitted. Please click "Submit for AI Analysis" again to check status or retry.')
-        return
+        } catch {}
       }
 
       setAnalyzingStage(4)
       setAnalyzingProgress(100)
       await new Promise((r) => setTimeout(r, 600))
 
-      activeRequestIdRef.current = null
-      lastSubmittedContentRef.current = null
-      setAnalysisRetryAvailable(false)
-      try { localStorage.removeItem(subIdStorageKey) } catch {}
       setCurrentStep('feedback')
     } catch (err) {
-      setSubmitError(err.message || 'The AI review could not be submitted. Your draft is still saved; please retry.')
+      setSubmitError(err.message || 'AI review could not be submitted. Please retry.')
     } finally {
       setAnalyzing(false)
     }
   }
 
   const handleStartNextSession = async () => {
-    try {
-      setSession(null)
-      setCurrentStep('lesson')
-      setEssayContent('')
-      setAnalysisResult(null)
-      setReviewEssayId('')
-      setOriginalDraft('')
-      setSubmitError('')
-      localStorage.removeItem(draftStorageKey)
-
-      const res = await api.post('/sessions/start', { advance: true, abandonActive: true })
-      const payload = res?.data || res
-      if (payload) {
-        setSession(payload)
-        if (payload.currentStep) setCurrentStep(payload.currentStep)
-        const slug = payload.learningSetSlug
-        const preset = defaultLearningSets[slug]
-        const isAdaptive = payload.sessionType === 'adaptive_recommendation'
-
-        const rawTargetWords = payload.targetWords || payload.learningSet?.words || []
-        const matchedRound = findTopicRoundByWords(slug, rawTargetWords)
-
-        let title = isAdaptive
-          ? 'Adaptive Learning Session'
-          : (matchedRound?.name || preset?.title || (payload.theme ? `${payload.theme} Session` : 'Smart Writing Session'))
-
-        let promptTopic = payload.promptTopic ||
-          payload.snapshot?.promptTopic ||
-          matchedRound?.promptTopic ||
-          (payload.snapshot?.rationale || preset?.promptTopic || 'Write a short paragraph (60–100 words) incorporating the target words into your writing.')
-
-        if (payload.targetWords?.length) {
-          const mappedWords = enrichLessonWords(payload.targetWords, slug, payload.level || preset?.level)
-          setLearningSet({
-            title,
-            level: payload.level || preset?.level || 'B1',
-            promptTopic,
-            words: mappedWords,
-          })
-        } else if (preset) {
-          const roundData = matchedRound || getTopicRound(slug, 1)
-          if (roundData) {
-            setLearningSet({
-              title: roundData.name || title,
-              level: preset.level || 'B1',
-              promptTopic: roundData.promptTopic || promptTopic,
-              words: roundData.words,
-            })
-          } else {
-            setLearningSet(preset)
-          }
-        }
-
-        if (isAdaptive) {
-          navigate('/student/writing?adaptive=true', { replace: true })
-        } else if (slug) {
-          const activeRound = matchedRound?.round || payload.round || payload.snapshot?.round || 1
-          const roundQuery = activeRound > 1 ? `&round=${activeRound}` : ''
-          navigate(`/student/writing?set=${slug}${roundQuery}`, { replace: true })
-        }
-      }
-    } catch (err) {
-      console.error('Error starting next session:', err)
-      navigate('/student/dashboard')
-    }
+    navigate('/student/dashboard')
   }
 
   const handleStartRevision = () => {
@@ -986,364 +684,686 @@ export default function LearningSession() {
   const handleSaveRevision = async (revisedContent) => {
     const originalEssay = session?.originalEssay
     const essayId = reviewEssayId || (typeof originalEssay === 'object' ? originalEssay?._id : originalEssay)
-    if (!essayId) {
-      throw new Error('Original essay not found to attach revision.')
-    }
-    const revisionStorageKey = `lexigrow-rev-id:${session?._id || 'sess'}:${essayId}`
-    let revisionReqId = null
-    try {
-      const storedRev = JSON.parse(localStorage.getItem(revisionStorageKey) || 'null')
-      if (storedRev?.content === revisedContent && storedRev?.requestId) {
-        revisionReqId = storedRev.requestId
-      }
-    } catch {}
-    if (!revisionReqId) {
-      revisionReqId = `rev_step_${session?._id || 'sess'}_${Date.now()}`
-      try {
-        localStorage.setItem(revisionStorageKey, JSON.stringify({ content: revisedContent, requestId: revisionReqId }))
-      } catch {}
-    }
-
+    if (!essayId) throw new Error('Original essay not found.')
     const res = await api.post(`/essays/${essayId}/revisions`, {
       content: revisedContent,
-      requestId: revisionReqId,
-    }, {
-      headers: {
-        'Idempotency-Key': revisionReqId,
-      },
+      requestId: `rev_step_${session?._id || 'sess'}_${Date.now()}`,
     })
-    try { localStorage.removeItem(revisionStorageKey) } catch {}
     setEssayContent(revisedContent)
-    if (res?.data?.analysis) {
-      setAnalysisResult(res.data.analysis)
-    }
+    if (res?.data?.analysis) setAnalysisResult(res.data.analysis)
     return res?.data
   }
 
-  const handleFinishRevision = () => {
-    handleStepChange('completed')
-  }
-
-  const stepsList = [
-    { key: 'lesson', label: t('learning.step1'), icon: 'school' },
-    { key: 'practice', label: t('learning.step2'), icon: 'bolt' },
-    { key: 'writing', label: t('learning.step3'), icon: 'edit_note' },
-    { key: 'feedback', label: t('learning.step4'), icon: 'auto_awesome' }
-  ]
-
   return (
-    <div className="learning-session">
-      {/* Top Header Wizard Stepper */}
-      <div className="learning-session__topbar card-base">
-        <div className="learning-session__header-left">
-          <button className="learning-session__back-btn" onClick={() => navigate('/student/dashboard')}>
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-          <div>
-            <h2 className="learning-session__title">{learningSet.title}</h2>
-            <span className="learning-session__tag">{t('learning.sessionDuration', { level: learningSet.level })}</span>
-          </div>
-        </div>
+    <div className="figma-video-page animate-fade-in">
+      {/* ── BREADCRUMB ── */}
+      <nav className="figma-video-breadcrumb" aria-label="Breadcrumb">
+        <Link to="/student/dashboard">{isVi ? 'Trang chủ' : 'Home'}</Link>
+        <span>/</span>
+        <Link to="/student/explore">{isVi ? 'Khoá học' : 'Courses'}</Link>
+        <span>/</span>
+        <span className="current">{learningSet.title}</span>
+      </nav>
 
-        {/* Wizard Steps */}
-        <div className="learning-session__stepper">
-          {stepsList.map((st, idx) => {
-            const stepOrder = ['lesson', 'practice', 'writing', 'feedback', 'revision', 'completed']
-            const currentIndex = stepOrder.indexOf(currentStep)
-            const stIndex = stepOrder.indexOf(st.key)
-            const isDone = currentIndex > stIndex
-            const isActive = currentStep === st.key || (st.key === 'feedback' && currentStep === 'revision')
-
-            return (
-              <div
-                key={st.key}
-                className={`learning-session__step-item ${isActive ? 'learning-session__step-item--active' : ''} ${isDone ? 'learning-session__step-item--done' : ''}`}
-              >
-                <div className="learning-session__step-circle">
-                  {isDone ? (
-                    <span className="material-symbols-outlined">check</span>
-                  ) : (
-                    <span>{idx + 1}</span>
-                  )}
-                </div>
-                <span className="learning-session__step-text">{st.label}</span>
-                {idx < stepsList.length - 1 && <div className="learning-session__step-line" />}
-              </div>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* STEP 1: WORD LESSON */}
-      {currentStep === 'lesson' && (
-        <WordLesson
-          words={words}
-          topicSlug={learningSet?.slug || setSlug}
-          topicTitle={learningSet?.title}
-          onComplete={() => handleStepChange('practice')}
-          onBack={() => navigate('/student/dashboard')}
-        />
-      )}
-
-      {/* STEP 2: PRACTICE STEP */}
-      {currentStep === 'practice' && (
-        <PracticeStep
-          words={words}
-          questions={practiceQuestions}
-          loading={loadingPractice}
-          refreshing={refreshingPractice}
-          error={practiceError}
-          onRefresh={() => fetchPracticeQuestions(true)}
-          onComplete={() => handleStepChange('writing')}
-          onBack={() => setCurrentStep('lesson')}
-        />
-      )}
-
-      {/* STEP 3: SMART WRITING WORKSPACE */}
-      {currentStep === 'writing' && (
-        analyzing ? (
-          <AIGradingProgress stage={analyzingStage} progress={analyzingProgress} />
-        ) : (
-          <div className="writing-flow animate-fade-in">
-          <div className="writing-flow__workspace">
-          <aside className="writing-flow__brief" aria-label={t('learning.writingPromptBadge')}>
-          {/* Target Words Bar */}
-          <div className="target-words-bar card-base">
-            <div className="target-words-bar__header">
-              <span className="material-symbols-outlined">flag</span>
-              <span className="target-words-bar__title">{t('learning.targetWordsPrompt')}</span>
-            </div>
-            <div className="target-words-bar__chips">
-              {words.map(w => {
-                const used = wordStatusMap[w.word]
-                return (
-                  <div
-                    key={w.word}
-                    className={`target-chip ${used ? 'target-chip--used' : 'target-chip--pending'}`}
-                  >
-                    <span className="material-symbols-outlined">
-                      {used ? 'check_circle' : 'radio_button_unchecked'}
-                    </span>
-                    <span className="target-chip__word">{w.word}</span>
-                    <span className="target-chip__meaning">({w.meaningVi || w.meaning})</span>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-
-          {/* Writing Prompt Card (Đề bài tách riêng biệt) */}
-          <div className="writing-prompt-card card-base">
-            <div className="writing-prompt-card__header">
-              <div className="writing-prompt-card__badge">
-                <span className="material-symbols-outlined">lightbulb</span>
-                <span>{t('learning.writingPromptBadge')}</span>
-              </div>
-              <span className="writing-prompt-card__tag">{t('learning.writingTargetLabel')}</span>
-            </div>
-            <p className="writing-prompt-card__text">{learningSet.promptTopic}</p>
-          </div>
-          </aside>
-
-          {/* Editor Workspace Card (Khu vực viết bài riêng biệt) */}
-          <main className="writing-card card-base">
-            <div className="writing-card__editor-wrap">
-              {submitError && (
-                <div role="alert" className="card-base" style={{ marginBottom: 12, border: '1px solid var(--color-error)', color: 'var(--color-error)' }}>
-                  {submitError}
-                  {analysisRetryAvailable && reviewEssayId && (
-                    <button
-                      type="button"
-                      className="btn-secondary"
-                      style={{ display: 'block', marginTop: 10 }}
-                      onClick={() => navigate(`/student/feedback?id=${reviewEssayId}`)}
-                    >
-                      Open feedback and retry analysis
-                    </button>
-                  )}
-                </div>
-              )}
-              {stepSaveError && (
-                <div role="alert" className="card-base" style={{ marginBottom: 12, border: '1px solid var(--color-error)', color: 'var(--color-error)' }}>
-                  {stepSaveError}
-                </div>
-              )}
-              {draftSaveState && (
-                <p role="status" aria-live="polite" style={{ margin: '0 0 8px', color: draftSaveState === 'error' ? 'var(--color-error)' : 'var(--color-on-surface-variant)' }}>
-                  {draftSaveState === 'saving'
-                    ? t('learning.draftSaving')
-                    : draftSaveState === 'saved'
-                    ? t('learning.draftSaved')
-                    : draftSaveState === 'local'
-                    ? t('learning.draftLocal')
-                    : draftSaveState === 'unsaved'
-                    ? t('learning.draftUnsaved')
-                    : t('learning.draftSyncError')}
-                </p>
-              )}
-              <textarea
-                className="writing-card__textarea"
-                placeholder={t('learning.writePlaceholder')}
-                value={essayContent}
-                onChange={e => {
-                  setEssayContent(e.target.value)
-                  setSubmitError('')
-                  setAnalysisRetryAvailable(false)
-                  setDraftSaveState('unsaved')
-                  try {
-                    localStorage.setItem(draftStorageKey, JSON.stringify({ content: e.target.value, savedAt: Date.now() }))
-                  } catch {
-                    // Autosave will still attempt the server copy.
-                  }
-                }}
-                rows={8}
+      {/* ── 2-COLUMN MAIN LAYOUT (Figma Frame 518:5910) ── */}
+      <div className="figma-video-layout">
+        {/* ── LEFT COLUMN (68% - Media Player & Interactive Work) ── */}
+        <div className="figma-video-left">
+          {/* Custom Video Player Container */}
+          <div className={`figma-player-container ${playerCollapsed ? 'figma-player-container--collapsed' : ''}`}>
+            <div className="figma-player-canvas">
+              <img
+                src="/assets/editorial/video-player-art.png"
+                alt="Course Video Artwork"
+                className="figma-player-art"
               />
 
-              <div className="writing-card__footer">
-                <div className="writing-card__counter">
-                  <span className={`writing-card__count ${wordCount >= 60 && wordCount <= 100 ? 'writing-card__count--ideal' : ''}`}>
-                    {wordCount}
-                  </span>
-                  <span className="writing-card__limit"> / {t('learning.writingTargetLabel')}</span>
-                  {!isValidLearningEssayWordCount(wordCount) && (
-                    <span role="status" aria-live="polite" style={{ marginLeft: 8 }}>
-                      {t('learning.wordCountValidation')}
-                    </span>
-                  )}
+              {/* Big Center Play Button Overlay */}
+              <button
+                type="button"
+                className={`figma-center-play-btn ${isPlaying ? 'figma-center-play-btn--playing' : ''}`}
+                onClick={() => setIsPlaying(!isPlaying)}
+                aria-label={isPlaying ? 'Pause lesson' : 'Play lesson video'}
+              >
+                <span className="material-symbols-outlined">
+                  {isPlaying ? 'pause' : 'play_arrow'}
+                </span>
+              </button>
+
+              {/* Collapse/Expand Toggle Top Right */}
+              <button
+                type="button"
+                className="figma-player-collapse-toggle"
+                onClick={() => setPlayerCollapsed(!playerCollapsed)}
+                title={playerCollapsed ? 'Expand video player' : 'Collapse video player'}
+              >
+                <span className="material-symbols-outlined">
+                  {playerCollapsed ? 'unfold_more' : 'unfold_less'}
+                </span>
+              </button>
+
+              {/* Video Bottom Chrome Controls Bar */}
+              <div className="figma-player-controls">
+                {/* Scrub bar */}
+                <div
+                  className="figma-scrub-bar"
+                  onClick={(e) => {
+                    const rect = e.currentTarget.getBoundingClientRect()
+                    const clickX = e.clientX - rect.left
+                    const pct = Math.max(0, Math.min(100, Math.round((clickX / rect.width) * 100)))
+                    setVideoProgress(pct)
+                  }}
+                >
+                  <div className="figma-scrub-fill" style={{ width: `${videoProgress}%` }} />
+                  <div className="figma-scrub-thumb" style={{ left: `${videoProgress}%` }} />
                 </div>
 
-                <div className="writing-card__actions">
-                  <button
-                    className="btn-secondary"
-                    onClick={() => setCurrentStep('practice')}
-                  >
-                    {t('common.back', 'Back')}
-                  </button>
-                  <button
-                    className="btn-primary writing-card__btn-submit"
-                    onClick={handleSubmitWriting}
-                    disabled={analyzing || !isValidLearningEssayWordCount(wordCount)}
-                  >
-                    {analyzing ? (
-                      <>
-                        <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                        {t('learning.submittingAi')}
-                      </>
-                    ) : (
-                      <>
-                        {t('learning.submitAiBtn')}
-                        <span className="material-symbols-outlined">auto_awesome</span>
-                      </>
-                    )}
-                  </button>
+                <div className="figma-controls-row">
+                  <div className="figma-controls-left">
+                    <button
+                      type="button"
+                      className="figma-ctrl-btn"
+                      onClick={() => setIsPlaying(!isPlaying)}
+                      aria-label="Play/Pause"
+                    >
+                      <span className="material-symbols-outlined">
+                        {isPlaying ? 'pause' : 'play_arrow'}
+                      </span>
+                    </button>
+                    <button
+                      type="button"
+                      className="figma-ctrl-btn"
+                      onClick={() => setVideoProgress((p) => Math.max(0, p - 5))}
+                      aria-label="Replay 10 seconds"
+                    >
+                      <span className="material-symbols-outlined">replay_10</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="figma-ctrl-btn"
+                      onClick={() => setVideoProgress((p) => Math.min(100, p + 5))}
+                      aria-label="Forward 10 seconds"
+                    >
+                      <span className="material-symbols-outlined">forward_10</span>
+                    </button>
+                    <button
+                      type="button"
+                      className="figma-ctrl-btn"
+                      onClick={() => setVideoVolume((v) => (v > 0 ? 0 : 80))}
+                      aria-label="Volume"
+                    >
+                      <span className="material-symbols-outlined">
+                        {videoVolume > 0 ? 'volume_up' : 'volume_off'}
+                      </span>
+                    </button>
+                    <span className="figma-video-time">{videoTime}</span>
+                  </div>
+
+                  <div className="figma-controls-right">
+                    <span className="figma-badge-hd">HD</span>
+                    <button type="button" className="figma-ctrl-btn" aria-label="Closed captions">
+                      <span className="material-symbols-outlined">closed_caption</span>
+                    </button>
+                    <button type="button" className="figma-ctrl-btn" aria-label="Settings">
+                      <span className="material-symbols-outlined">settings</span>
+                    </button>
+                    <button type="button" className="figma-ctrl-btn" aria-label="Fullscreen">
+                      <span className="material-symbols-outlined">fullscreen</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
-          </main>
           </div>
-        </div>
-      ))}
 
-      {/* STEP 4: AI FEEDBACK REVIEW */}
-      {currentStep === 'feedback' && (
-        <div className="feedback-flow animate-fade-in">
-          {stepSaveError && (
-            <div className="card-base" role="alert" style={{ marginBottom: 16, border: '1px solid var(--color-error)' }}>
-              {stepSaveError}
-              <button className="btn-secondary" style={{ marginLeft: 12 }} onClick={() => handleStepChange('feedback')}>Retry</button>
+          {/* Course Title Heading */}
+          <h1 className="figma-course-headline">
+            {learningSet.title.toUpperCase()} SCRATCH COURSE
+          </h1>
+
+          {/* Instructor & Meta Row (Figma Frame 518:5910) */}
+          <div className="figma-instructor-meta-row">
+            <div className="figma-instructor-left">
+              <img
+                src="/assets/editorial/instructors/alexander.png"
+                alt="LexiGrow Studio"
+                className="figma-author-avatar"
+              />
+              <div>
+                <div className="figma-author-name">LexiGrow Studio</div>
+                <div className="figma-author-sub">{isVi ? 'Ban Cố Vấn IELTS & Học Thuật' : 'Academic Writing Faculty'}</div>
+              </div>
             </div>
-          )}
 
-          {/* Target Words Heatmap / Summary */}
-          {analysisResult?.targetWordResults && (
-            <div className="feedback-heatmap card-base" style={{ marginBottom: 24 }}>
-              <h3 className="feedback-heatmap__title">
-                <span className="material-symbols-outlined">analytics</span>
-                {t('learning.targetRubricCheck')}
-              </h3>
-              <div className="feedback-heatmap__grid">
-                {analysisResult.targetWordResults.map(res => {
-                  const statusColors = {
-                    correct: 'feedback-badge--correct',
-                    needs_improvement: 'feedback-badge--warning',
-                    incorrect: 'feedback-badge--error',
-                    not_used: 'feedback-badge--neutral'
-                  }
-                  const statusLabels = {
-                    correct: t('learning.accurateInContext'),
-                    needs_improvement: t('learning.needsFormRefinement'),
-                    incorrect: t('learning.inaccurateContext'),
-                    not_used: t('learning.notUsed')
-                  }
+            <div className="figma-author-stats">
+              <span className="figma-stat-pill">
+                <span className="material-symbols-outlined">group</span>
+                <span>2.3k</span>
+              </span>
+              <span className="figma-stat-pill">
+                <span className="material-symbols-outlined">chat</span>
+                <span>1.4k</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Content Navigation Tabs */}
+          <div className="figma-course-tabs" role="tablist">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={contentTab === 'practice'}
+              className={`figma-course-tab ${contentTab === 'practice' ? 'figma-course-tab--active' : ''}`}
+              onClick={() => setContentTab('practice')}
+            >
+              <span className="material-symbols-outlined">auto_stories</span>
+              <span>{isVi ? 'Bài Luyện Tập & Viết Luận' : 'Practice & Interactive Session'}</span>
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={contentTab === 'about'}
+              className={`figma-course-tab ${contentTab === 'about' ? 'figma-course-tab--active' : ''}`}
+              onClick={() => setContentTab('about')}
+            >
+              <span className="material-symbols-outlined">info</span>
+              <span>{isVi ? 'Về Khoá Học' : 'About Course'}</span>
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={contentTab === 'reviews'}
+              className={`figma-course-tab ${contentTab === 'reviews' ? 'figma-course-tab--active' : ''}`}
+              onClick={() => setContentTab('reviews')}
+            >
+              <span className="material-symbols-outlined">rate_review</span>
+              <span>{isVi ? 'Đánh Giá Học Viên' : 'Reviews'} (4)</span>
+            </button>
+          </div>
+
+          {/* ── TAB 1: INTERACTIVE PRACTICE & WRITING ── */}
+          {contentTab === 'practice' && (
+            <div className="figma-interactive-body animate-fade-in">
+              {/* Stepper Wizard Bar */}
+              <div className="figma-lesson-stepper">
+                {[
+                  { key: 'lesson', label: isVi ? '1. Từ vựng mục tiêu' : '1. Target Words', icon: 'school' },
+                  { key: 'practice', label: isVi ? '2. Câu hỏi tương tác' : '2. Context Practice', icon: 'bolt' },
+                  { key: 'writing', label: isVi ? '3. Viết bài chấm điểm' : '3. Paragraph Writing', icon: 'edit_note' },
+                  { key: 'feedback', label: isVi ? '4. Chấm điểm AI' : '4. AI Feedback', icon: 'auto_awesome' },
+                ].map((st) => {
+                  const stepOrder = ['lesson', 'practice', 'writing', 'feedback', 'revision', 'completed']
+                  const currentIndex = stepOrder.indexOf(currentStep)
+                  const stIndex = stepOrder.indexOf(st.key)
+                  const isDone = currentIndex > stIndex
+                  const isActive = currentStep === st.key || (st.key === 'feedback' && currentStep === 'revision')
 
                   return (
-                    <div
-                      key={res.word}
-                      className={`feedback-heatmap__item card-base ${activeFeedbackWord === res.word ? 'feedback-heatmap__item--active' : ''}`}
-                      onClick={() => setActiveFeedbackWord(res.word)}
+                    <button
+                      key={st.key}
+                      type="button"
+                      className={`figma-step-pill ${isActive ? 'figma-step-pill--active' : ''} ${isDone ? 'figma-step-pill--done' : ''}`}
+                      onClick={() => handleStepChange(st.key)}
                     >
-                      <div className="feedback-heatmap__item-top">
-                        <span className="feedback-heatmap__item-word">{res.word}</span>
-                        <span className={`feedback-badge ${statusColors[res.status] || 'feedback-badge--neutral'}`}>
-                          {statusLabels[res.status] || res.status}
-                        </span>
-                      </div>
-                      <p className="feedback-heatmap__item-exp">{res.explanationVi}</p>
-                      {res.suggestedUpgrade && (
-                        <p className="feedback-heatmap__item-upgrade">
-                          💡 Suggestion: {res.suggestedUpgrade}
-                        </p>
-                      )}
-                    </div>
+                      <span className="material-symbols-outlined figma-step-icon">
+                        {isDone ? 'check' : st.icon}
+                      </span>
+                      <span>{st.label}</span>
+                    </button>
                   )
                 })}
               </div>
+
+              {/* STEP 1: WORD LESSON */}
+              {currentStep === 'lesson' && (
+                <WordLesson
+                  words={words}
+                  topicSlug={learningSet?.slug || setSlug}
+                  topicTitle={learningSet?.title}
+                  onComplete={() => handleStepChange('practice')}
+                  onBack={() => navigate('/student/dashboard')}
+                />
+              )}
+
+              {/* STEP 2: PRACTICE STEP */}
+              {currentStep === 'practice' && (
+                <PracticeStep
+                  words={words}
+                  questions={practiceQuestions}
+                  loading={loadingPractice}
+                  refreshing={refreshingPractice}
+                  error={practiceError}
+                  onRefresh={() => fetchPracticeQuestions(true)}
+                  onComplete={() => handleStepChange('writing')}
+                  onBack={() => setCurrentStep('lesson')}
+                />
+              )}
+
+              {/* STEP 3: SMART WRITING WORKSPACE */}
+              {currentStep === 'writing' && (
+                analyzing ? (
+                  <AIGradingProgress stage={analyzingStage} progress={analyzingProgress} />
+                ) : (
+                  <div className="figma-writing-area animate-fade-in">
+                    {/* Target words chips row */}
+                    <div className="figma-target-words-box">
+                      <div className="figma-target-words-title">
+                        <span className="material-symbols-outlined">flag</span>
+                        <span>{t('learning.targetWordsPrompt', 'Target Words to Apply in Essay')}:</span>
+                      </div>
+                      <div className="figma-target-words-chips">
+                        {words.map((w) => {
+                          const used = wordStatusMap[w.word]
+                          return (
+                            <span
+                              key={w.word}
+                              className={`figma-word-chip ${used ? 'figma-word-chip--used' : ''}`}
+                            >
+                              <span className="material-symbols-outlined">
+                                {used ? 'check_circle' : 'radio_button_unchecked'}
+                              </span>
+                              <strong>{w.word}</strong>
+                              <span className="figma-word-meaning">({w.meaningVi || w.meaning})</span>
+                            </span>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Writing Prompt Card */}
+                    <div className="figma-prompt-box">
+                      <div className="figma-prompt-badge">
+                        <span className="material-symbols-outlined">lightbulb</span>
+                        <span>{isVi ? 'Đề bài thực hành' : 'Essay Prompt'}</span>
+                      </div>
+                      <p className="figma-prompt-text">{learningSet.promptTopic}</p>
+                    </div>
+
+                    {/* Textarea Editor Card */}
+                    <div className="figma-editor-box">
+                      {submitError && (
+                        <div className="figma-alert-error" role="alert">
+                          {submitError}
+                        </div>
+                      )}
+                      {stepSaveError && (
+                        <div className="figma-alert-error" role="alert">
+                          {stepSaveError}
+                        </div>
+                      )}
+                      {draftSaveState && (
+                        <div style={{ fontSize: 12, color: 'var(--color-on-surface-variant)', marginBottom: 4 }}>
+                          {draftSaveState === 'saving'
+                            ? (isVi ? 'Đang lưu bản nháp…' : 'Autosaving draft…')
+                            : draftSaveState === 'saved'
+                              ? (isVi ? 'Bản nháp đã lưu tự động' : 'Draft saved')
+                              : (isVi ? 'Có thay đổi chưa lưu' : 'Unsaved changes')}
+                        </div>
+                      )}
+
+                      <textarea
+                        className="figma-essay-textarea"
+                        placeholder={t('learning.writePlaceholder', 'Type your paragraph here (60-100 words)...')}
+                        value={essayContent}
+                        onChange={(e) => {
+                          setEssayContent(e.target.value)
+                          setSubmitError('')
+                          setDraftSaveState('unsaved')
+                        }}
+                        rows={8}
+                      />
+
+                      <div className="figma-editor-footer">
+                        <div className="figma-word-counter">
+                          <strong className={wordCount >= 60 && wordCount <= 100 ? 'figma-count-ideal' : ''}>
+                            {wordCount}
+                          </strong>
+                          <span> / 60-100 {isVi ? 'từ' : 'words'}</span>
+                          {!isValidLearningEssayWordCount(wordCount) && (
+                            <span className="figma-count-hint">
+                              ({isVi ? 'Cần 60–100 từ' : '60–100 required'})
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="figma-editor-actions">
+                          <Button
+                            variant="secondary"
+                            size="md"
+                            className="figma-pill-btn"
+                            onClick={() => setCurrentStep('practice')}
+                          >
+                            {isVi ? 'Quay lại' : 'Back'}
+                          </Button>
+                          <Button
+                            variant="primary"
+                            size="md"
+                            className="figma-pill-cta"
+                            onClick={handleSubmitWriting}
+                            disabled={analyzing || !isValidLearningEssayWordCount(wordCount)}
+                          >
+                            <span>{isVi ? 'Nộp bài chấm điểm AI' : 'Submit for AI Evaluation'}</span>
+                            <span className="material-symbols-outlined">auto_awesome</span>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              )}
+
+              {/* STEP 4: AI FEEDBACK */}
+              {currentStep === 'feedback' && (
+                <div className="figma-feedback-area animate-fade-in">
+                  {analysisResult?.targetWordResults && (
+                    <div className="figma-heatmap-box">
+                      <h3 className="figma-heatmap-title">
+                        <span className="material-symbols-outlined">analytics</span>
+                        <span>{isVi ? 'Đánh Giá Từ Vựng Mục Tiêu' : 'Target Vocabulary Rubric'}</span>
+                      </h3>
+                      <div className="figma-heatmap-grid">
+                        {analysisResult.targetWordResults.map((res) => (
+                          <div
+                            key={res.word}
+                            className={`figma-heatmap-item ${activeFeedbackWord === res.word ? 'figma-heatmap-item--active' : ''}`}
+                            onClick={() => setActiveFeedbackWord(res.word)}
+                          >
+                            <div className="figma-heatmap-item-top">
+                              <strong>{res.word}</strong>
+                              <span className={`figma-rubric-badge figma-rubric-badge--${res.status}`}>
+                                {res.status}
+                              </span>
+                            </div>
+                            <p>{res.explanationVi || res.explanation}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {reviewEssayId && (
+                    <AIFeedbackReview
+                      essayId={reviewEssayId}
+                      embedded={true}
+                      onRevise={handleStartRevision}
+                      onComplete={() => handleStepChange('completed')}
+                    />
+                  )}
+                </div>
+              )}
+
+              {/* STEP 4.5: REVISION */}
+              {currentStep === 'revision' && (
+                <RevisionComparison
+                  originalDraft={originalDraft}
+                  revisedDraft={essayContent}
+                  resolvedItems={words.filter((w) => wordStatusMap[w.word])}
+                  onSaveRevision={handleSaveRevision}
+                  onProceed={() => handleStepChange('completed')}
+                />
+              )}
+
+              {/* STEP 5: COMPLETION */}
+              {currentStep === 'completed' && (
+                <SessionCompletionModal
+                  sessionData={{ words, targetWords: words }}
+                  onStartNext={handleStartNextSession}
+                  onClose={() => navigate('/student/dashboard')}
+                />
+              )}
             </div>
           )}
 
-          {/* Full AI Review: The exact same production component as Essay History */}
-          {reviewEssayId ? (
-            <AIFeedbackReview
-              essayId={reviewEssayId}
-              embedded={true}
-              onRevise={handleStartRevision}
-              onComplete={() => handleStepChange('completed')}
-            />
-          ) : (
-            <div className="card-base" role="alert" style={{ padding: 32, textAlign: 'center' }}>
-              <p style={{ marginTop: 12, color: 'var(--color-error)' }}>
-                {t('learning.noSavedEssayFeedback')}
+          {/* ── TAB 2: ABOUT COURSE (Figma Frame 518:5910) ── */}
+          {contentTab === 'about' && (
+            <div className="figma-about-body animate-fade-in">
+              <h3 className="figma-section-title">{isVi ? 'Tổng Quan Khoá Học' : 'About Course'}</h3>
+              <p className="figma-body-text">
+                {isVi
+                  ? 'Khoá học được thiết kế chuyên sâu giúp học viên làm chủ cấu trúc luận điểm, mở rộng tài nguyên từ vựng chuẩn học thuật và xây dựng tính liên kết mạch lạc (Coherence & Cohesion). Giáo trình tích hợp hệ thống trí tuệ nhân tạo phát hiện lỗi sai tức thì, chấm điểm theo tiêu chí CEFR/IELTS.'
+                  : 'Vue (pronounced /vjuː/, like view) is a progressive framework for building user interfaces. Unlike other monolithic frameworks, Vue is designed from the ground up to be incrementally adoptable. The core library is focused on the view layer only, and is easy to pick up and integrate with other libraries or existing projects.'}
               </p>
-              <button className="btn-secondary" onClick={() => handleStepChange('writing')}>{t('learning.backToEssay')}</button>
+              <p className="figma-body-text">
+                {isVi
+                  ? 'Mỗi chương học bao gồm video giảng dạy từ giảng viên bản ngữ, bộ câu hỏi tương tác phản xạ và bài viết luận 60-100 từ có chuyên gia AI đồng hành phản hồi chi tiết.'
+                  : 'On the other hand, Vue is also perfectly capable of powering sophisticated Single-Page Applications when used in combination with modern tooling and supporting libraries.'}
+              </p>
+            </div>
+          )}
+
+          {/* ── TAB 3: STUDENT REVIEWS (Figma Frame 518:5910) ── */}
+          {contentTab === 'reviews' && (
+            <div className="figma-reviews-body animate-fade-in">
+              <h3 className="figma-section-title">{isVi ? 'Nhận Xét Của Học Viên' : 'Review'}</h3>
+
+              <div className="figma-reviews-list">
+                {FIGMA_STUDENT_REVIEWS.map((rev) => (
+                  <div key={rev.id} className="figma-review-row">
+                    <img src={rev.avatar} alt={rev.name} className="figma-reviewer-avatar" />
+                    <div className="figma-reviewer-body">
+                      <div className="figma-reviewer-head">
+                        <strong className="figma-reviewer-name">{rev.name}</strong>
+                        <span className="figma-review-date">{rev.date}</span>
+                      </div>
+                      <div className="figma-review-stars">{'★'.repeat(rev.rating)}</div>
+                      <p className="figma-review-text">{rev.comment}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="figma-load-more-center">
+                <Button variant="outline" size="md" className="figma-pill-btn">
+                  {isVi ? 'Xem thêm nhận xét' : 'Load more review'}
+                </Button>
+              </div>
             </div>
           )}
         </div>
-      )}
 
-      {/* STEP 4.5: REVISION WORKSPACE */}
-      {currentStep === 'revision' && (
-        <div className="revision-flow animate-fade-in">
-          <RevisionComparison
-            originalDraft={originalDraft}
-            revisedDraft={essayContent}
-            resolvedItems={words.filter(w => wordStatusMap[w.word])}
-            onSaveRevision={handleSaveRevision}
-            onProceed={handleFinishRevision}
-          />
+        {/* ── RIGHT COLUMN (32% - Curriculum Accordion & Webinar) ── */}
+        <aside className="figma-video-right">
+          {/* Chapter 1: Course Overview */}
+          <div className="figma-curriculum-accordion">
+            <button
+              type="button"
+              className="figma-accordion-header"
+              onClick={() => setExpandedChapter(expandedChapter === 'ch1' ? '' : 'ch1')}
+            >
+              <div>
+                <strong>Chapter 1: Course Overview</strong>
+                <span className="figma-accordion-meta">1/12 Videos • 28m</span>
+              </div>
+              <span className="material-symbols-outlined figma-accordion-arrow">
+                {expandedChapter === 'ch1' ? 'expand_less' : 'expand_more'}
+              </span>
+            </button>
+            {expandedChapter === 'ch1' && (
+              <div className="figma-accordion-content animate-fade-in">
+                <div className="figma-lesson-item figma-lesson-item--done">
+                  <span className="material-symbols-outlined">play_circle</span>
+                  <span>Welcome & Syllabus</span>
+                  <span className="figma-lesson-dur">5m</span>
+                  <span className="figma-badge-completed">Completed</span>
+                </div>
+                <div className="figma-lesson-item">
+                  <span className="material-symbols-outlined">play_circle</span>
+                  <span>Setting Up Your LexiGrow Workspace</span>
+                  <span className="figma-lesson-dur">12m</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Chapter 2: Curriculum (Active Chapter matching Figma) */}
+          <div className="figma-curriculum-accordion figma-curriculum-accordion--active">
+            <button
+              type="button"
+              className="figma-accordion-header"
+              onClick={() => setExpandedChapter(expandedChapter === 'ch2' ? '' : 'ch2')}
+            >
+              <div>
+                <strong>Chapter 2: Curriculum</strong>
+                <span className="figma-accordion-meta">1/12 Videos • 1h 28m</span>
+              </div>
+              <span className="material-symbols-outlined figma-accordion-arrow">
+                {expandedChapter === 'ch2' ? 'expand_less' : 'expand_more'}
+              </span>
+            </button>
+            {expandedChapter === 'ch2' && (
+              <div className="figma-accordion-content animate-fade-in">
+                <div
+                  className="figma-lesson-item figma-lesson-item--done"
+                  onClick={() => setCurrentStep('lesson')}
+                >
+                  <span className="material-symbols-outlined">play_circle</span>
+                  <span>Installing Vue JS</span>
+                  <span className="figma-lesson-dur">10m</span>
+                  <span className="figma-badge-completed">Completed</span>
+                </div>
+
+                <div
+                  className="figma-lesson-item figma-lesson-item--playing"
+                  onClick={() => setCurrentStep('writing')}
+                >
+                  <span className="material-symbols-outlined">play_circle</span>
+                  <span>Understand Vue Components</span>
+                  <span className="figma-lesson-dur">59m</span>
+                  <span className="figma-badge-playing">Playing</span>
+                </div>
+
+                <div className="figma-lesson-item" onClick={() => setCurrentStep('practice')}>
+                  <span className="material-symbols-outlined">play_circle</span>
+                  <span>Vue Templating</span>
+                  <span className="figma-lesson-dur">12m</span>
+                </div>
+
+                <div className="figma-lesson-item">
+                  <span className="material-symbols-outlined">play_circle</span>
+                  <span>Vue Forms</span>
+                  <span className="figma-lesson-dur">23m</span>
+                </div>
+
+                <div className="figma-lesson-item">
+                  <span className="material-symbols-outlined">play_circle</span>
+                  <span>Vue Styling</span>
+                  <span className="figma-lesson-dur">15m</span>
+                </div>
+
+                <div className="figma-lesson-item">
+                  <span className="material-symbols-outlined">play_circle</span>
+                  <span>Vue Routing</span>
+                  <span className="figma-lesson-dur">1h 30m</span>
+                </div>
+
+                <div className="figma-lesson-item">
+                  <span className="material-symbols-outlined">play_circle</span>
+                  <span>Vue Animation</span>
+                  <span className="figma-lesson-dur">1h 10m</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Chapter 3: Components */}
+          <div className="figma-curriculum-accordion">
+            <button
+              type="button"
+              className="figma-accordion-header"
+              onClick={() => setExpandedChapter(expandedChapter === 'ch3' ? '' : 'ch3')}
+            >
+              <div>
+                <strong>Chapter 3: Components</strong>
+                <span className="figma-accordion-meta">1/12 Videos • 1h 28m</span>
+              </div>
+              <span className="material-symbols-outlined figma-accordion-arrow">
+                {expandedChapter === 'ch3' ? 'expand_less' : 'expand_more'}
+              </span>
+            </button>
+            {expandedChapter === 'ch3' && (
+              <div className="figma-accordion-content animate-fade-in">
+                <div className="figma-lesson-item">
+                  <span className="material-symbols-outlined">play_circle</span>
+                  <span>Component Communication & Props</span>
+                  <span className="figma-lesson-dur">24m</span>
+                </div>
+                <div className="figma-lesson-item">
+                  <span className="material-symbols-outlined">play_circle</span>
+                  <span>State Management with Pinia</span>
+                  <span className="figma-lesson-dur">38m</span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Featured Webinar Card (Figma Frame 518:5910) */}
+          <div className="figma-webinar-card">
+            <img
+              src="/assets/editorial/webinar-masterclass.png"
+              alt="Featured Masterclass"
+              className="figma-webinar-img"
+            />
+            <div className="figma-webinar-overlay">
+              <span className="figma-webinar-badge">WEBINAR</span>
+              <div className="figma-webinar-speaker">Ana Kursova</div>
+              <h3 className="figma-webinar-title">
+                Masterclass in Design Thinking, Innovation & Creativity
+              </h3>
+              <Button
+                variant="primary"
+                size="sm"
+                className="figma-pill-cta figma-webinar-btn"
+                onClick={() => navigate('/student/explore')}
+              >
+                {isVi ? 'Đăng ký tham gia' : 'Register Free'}
+              </Button>
+            </div>
+          </div>
+        </aside>
+      </div>
+
+      {/* ── 3. BOTTOM NEWSLETTER DISCOUNT CTA ── */}
+      <section className="figma-newsletter-banner">
+        <div className="figma-newsletter-banner__left">
+          <h2 className="figma-newsletter-banner__title">
+            {isVi ? 'Tham gia và nhận ưu đãi đặc biệt' : 'Join and get amazing discount'}
+          </h2>
+          <p className="figma-newsletter-banner__subtitle">
+            {isVi
+              ? 'Tận hưởng khoá học với giao diện tối ưu trên mọi thiết bị di động & máy tính.'
+              : 'With our responsive themes and mobile and desktop apps.'}
+          </p>
         </div>
-      )}
 
-      {/* STEP 5: COMPLETION MODAL */}
-      {currentStep === 'completed' && (
-        <SessionCompletionModal
-          sessionData={{
-            words: words,
-            targetWords: words
+        <form
+          className="figma-newsletter-form"
+          onSubmit={(e) => {
+            e.preventDefault()
+            if (newsletterEmail.trim()) setNewsletterDone(true)
           }}
-          onStartNext={handleStartNextSession}
-          onClose={() => navigate('/student/dashboard')}
-        />
-      )}
+        >
+          {newsletterDone ? (
+            <div className="figma-newsletter-thanks">
+              <span className="material-symbols-outlined">check_circle</span>
+              <span>{isVi ? 'Đã đăng ký thành công!' : 'Subscribed successfully!'}</span>
+            </div>
+          ) : (
+            <div className="figma-newsletter-input-group">
+              <input
+                type="email"
+                placeholder={isVi ? 'Nhập email của bạn' : 'Email Address'}
+                className="figma-newsletter-input"
+                value={newsletterEmail}
+                onChange={(e) => setNewsletterEmail(e.target.value)}
+                required
+              />
+              <button type="submit" className="figma-newsletter-btn">
+                {isVi ? 'Đăng ký' : 'Subscribe'}
+              </button>
+            </div>
+          )}
+        </form>
+      </section>
     </div>
   )
 }

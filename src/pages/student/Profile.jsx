@@ -4,6 +4,7 @@ import api from '../../services/api.js'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useModal } from '../../contexts/ModalContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
+import Button from '../../components/common/Button'
 import './Profile.css'
 
 const INTEREST_MAP = {
@@ -26,15 +27,29 @@ export default function Profile() {
   const { t, language } = useLanguage()
   const isVi = language === 'vi'
 
-  const [name, setName] = useState('')
+  // Tab state matching Figma Frame 625:14214
+  // Options: 'profile' | 'personalisation' | 'account' | 'payment' | 'notifications' | 'privacy'
+  const [activeTab, setActiveTab] = useState('profile')
+
+  // Form Fields
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
+  const [headline, setHeadline] = useState('')
+  const [profileLink, setProfileLink] = useState('www.lexigrow.io')
   const [institution, setInstitution] = useState('')
+  const [selectedLanguage, setSelectedLanguage] = useState('English')
   const [englishLevel, setEnglishLevel] = useState('B2')
+  const [avatar, setAvatar] = useState('/assets/editorial/user-avatar.png')
   const [learningProfile, setLearningProfile] = useState(null)
-  const [avatar, setAvatar] = useState('')
+
+  // Loading & Action states
   const avatarInputRef = useRef(null)
   const [loading, setLoading] = useState(true)
   const [savingProfile, setSavingProfile] = useState(false)
+  const [saveSuccess, setSaveSuccess] = useState(false)
+
+  // Guardians link state
   const [linkCode, setLinkCode] = useState(null)
   const [generatingLinkCode, setGeneratingLinkCode] = useState(false)
   const [linkCodeSecondsLeft, setLinkCodeSecondsLeft] = useState(0)
@@ -44,16 +59,38 @@ export default function Profile() {
   const [guardiansError, setGuardiansError] = useState('')
   const [removingGuardianId, setRemovingGuardianId] = useState(null)
 
+  // Notification toggles
+  const [notifDailyStreak, setNotifDailyStreak] = useState(true)
+  const [notifAiEvaluation, setNotifAiEvaluation] = useState(true)
+  const [notifNewsletter, setNotifNewsletter] = useState(false)
+
+  // Privacy toggles
+  const [privacyPublicProfile, setPrivacyPublicProfile] = useState(true)
+  const [privacyShowRank, setPrivacyShowRank] = useState(true)
+
   useEffect(() => {
     async function loadProfile() {
       try {
         const res = await api.get('/profile')
         const user = res?.data?.data || res?.data || res
-        setName(user.name || '')
-        setEmail(user.email || '')
-        setInstitution(user.institution || '')
+        
+        // Split name into first and last name if possible
+        const fullName = user.name || authUser?.name || 'Jonathan Doe'
+        const parts = fullName.trim().split(' ')
+        if (parts.length > 1) {
+          setFirstName(parts.slice(0, -1).join(' '))
+          setLastName(parts[parts.length - 1])
+        } else {
+          setFirstName(fullName)
+          setLastName('')
+        }
+
+        setEmail(user.email || authUser?.email || '')
+        setHeadline(user.headline || 'IELTS Aspirant & Dedicated LexiGrow Learner')
+        setProfileLink(user.website || 'www.lexigrow.io')
+        setInstitution(user.institution || 'LexiGrow Academy')
         setEnglishLevel(user.englishLevel || 'B2')
-        setAvatar(user.avatar || '')
+        if (user.avatar) setAvatar(user.avatar)
         setLearningProfile(user.learningProfile || authUser?.learningProfile || null)
       } catch (err) {
         console.error('Error fetching profile:', err)
@@ -62,7 +99,20 @@ export default function Profile() {
       }
     }
     loadProfile()
-  }, [authUser?.learningProfile])
+  }, [authUser])
+
+  async function loadGuardians() {
+    setGuardiansLoading(true)
+    setGuardiansError('')
+    try {
+      const response = await api.get('/parent/guardians')
+      setGuardians(response.data || [])
+    } catch (err) {
+      setGuardiansError(err.message || 'Could not load linked guardians.')
+    } finally {
+      setGuardiansLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (authUser?.role === 'student') {
@@ -83,32 +133,26 @@ export default function Profile() {
     return () => window.clearInterval(timer)
   }, [linkCode])
 
-  async function loadGuardians() {
-    setGuardiansLoading(true)
-    setGuardiansError('')
-    try {
-      const response = await api.get('/parent/guardians')
-      setGuardians(response.data || [])
-    } catch (err) {
-      setGuardiansError(err.message || 'Could not load linked guardians.')
-    } finally {
-      setGuardiansLoading(false)
-    }
-  }
-
-  async function handleSaveProfile() {
+  async function handleSaveProfile(e) {
+    if (e) e.preventDefault()
     setSavingProfile(true)
+    setSaveSuccess(false)
     try {
+      const fullName = `${firstName.trim()} ${lastName.trim()}`.trim()
       const res = await api.put('/profile', {
-        name,
+        name: fullName,
         email,
         institution,
         englishLevel,
         avatar,
+        headline,
+        website: profileLink,
       })
       if (updateUser) {
         updateUser(res?.data?.data || res?.data || res)
       }
+      setSaveSuccess(true)
+      setTimeout(() => setSaveSuccess(false), 3000)
       showAlert(t('profileSettings.profileSaved', 'Profile updated successfully!'), '', 'success')
     } catch (err) {
       showAlert(t('profileSettings.profileSaveError', 'Error updating profile:'), err.message, 'error')
@@ -120,10 +164,10 @@ export default function Profile() {
   function handleAvatarChange(event) {
     const file = event.target.files?.[0]
     if (!file) return
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 1024 * 1024) {
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 2 * 1024 * 1024) {
       showAlert(
         isVi ? 'Ảnh không hợp lệ' : 'Invalid image',
-        isVi ? 'Chọn ảnh JPG, PNG hoặc WebP có dung lượng tối đa 1 MB.' : 'Choose a JPG, PNG or WebP image up to 1 MB.',
+        isVi ? 'Chọn ảnh JPG, PNG hoặc WebP có dung lượng tối đa 2 MB.' : 'Choose a JPG, PNG or WebP image up to 2 MB.',
         'warning'
       )
       event.target.value = ''
@@ -168,8 +212,8 @@ export default function Profile() {
         setRemovingGuardianId(guardian.linkId)
         try {
           await api.delete(`/parent/guardians/${guardian.linkId}`)
-          setGuardians(current => current.filter(item => item.linkId !== guardian.linkId))
-          showAlert('Access removed', `${guardian.parent.name} no longer has access to your learning progress.`, 'success')
+          setGuardians((current) => current.filter((item) => item.linkId !== guardian.linkId))
+          showAlert('Access removed', `${guardian.parent.name} no longer has access.`, 'success')
         } catch (err) {
           showAlert('Could not remove access', err.message, 'error')
         } finally {
@@ -191,8 +235,8 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="profile-settings-loading-screen">
-        <span className="material-symbols-outlined animate-spin" style={{ fontSize: 48, color: 'var(--color-primary)' }}>
+      <div className="figma-account-loading">
+        <span className="material-symbols-outlined animate-spin" style={{ fontSize: 44, color: '#3DCBB1' }}>
           progress_activity
         </span>
       </div>
@@ -201,311 +245,578 @@ export default function Profile() {
 
   // Active learning profile data
   const lp = learningProfile || authUser?.learningProfile || {
-    targetLevel: englishLevel || 'B1',
+    targetLevel: englishLevel || 'B2',
     dailyGoalMinutes: 10,
     pace: 'steady',
-    interests: ['daily-life', 'technology']
+    interests: ['daily-life', 'technology', 'academic']
   }
 
-  const selectedInterestsList = (lp?.interests || ['daily-life']).map(id => ({
+  const selectedInterestsList = (lp?.interests || ['daily-life', 'academic']).map((id) => ({
     id,
     ...(INTEREST_MAP[id] || { labelVi: id, labelEn: id, icon: 'label' })
   }))
 
   return (
-    <div className="profile-settings-page animate-fade-in">
-      {/* Page Header */}
-      <header className="profile-settings__header">
-        <div className="profile-settings__title-group">
-          <div className="profile-settings__header-icon">
-            <span className="material-symbols-outlined">manage_accounts</span>
-          </div>
-          <div>
-            <h1 className="profile-settings__title">{t('profileSettings.title', 'My Profile')}</h1>
-            <p className="profile-settings__subtitle">
-              {t('profileSettings.subtitle', 'Manage your personal details, learning roadmap and linked guardians')}
-            </p>
-          </div>
-        </div>
-      </header>
+    <div className="figma-account-page animate-fade-in">
+      {/* ── 1. CENTERED PAGE TITLE (Figma Frame 625:14214) ── */}
+      <h1 className="figma-account-title">{isVi ? 'Tài Khoản Của Tôi' : 'My Account'}</h1>
 
-      <div className="profile-settings__layout">
-        {/* SECTION 1: AI Learning Roadmap (Highlighted for Students & Learners) */}
-        {(authUser?.role === 'student' || lp?.onboardingCompleted || lp?.targetLevel) && (
-          <section className="settings-card settings-card--roadmap profile-settings__roadmap">
-            <div className="roadmap-card-header">
-              <div className="roadmap-card-header__left">
-                <div className="roadmap-header-badge">
-                  <span className="pulsing-dot"></span>
-                  <span>{t('profileSettings.srsEngine', 'AI Spaced Repetition Engine')} • {t('profileSettings.active', 'Active')}</span>
-                </div>
-                <h2 className="roadmap-title">{t('profileSettings.roadmapCardTitle', 'Personalized AI Learning Roadmap')}</h2>
-                <p className="roadmap-desc">
-                  {t('profileSettings.roadmapCardDesc', 'Your learning goals and pace are configured so AI can schedule SRS vocabulary and calibrate essay scoring.')}
-                </p>
-              </div>
+      {/* ── 2. CENTERED TAB NAVIGATION ── */}
+      <nav className="figma-account-tabs" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'profile'}
+          className={`figma-account-tab ${activeTab === 'profile' ? 'figma-account-tab--active' : ''}`}
+          onClick={() => setActiveTab('profile')}
+        >
+          {isVi ? 'Hồ sơ' : 'Profile'}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'personalisation'}
+          className={`figma-account-tab ${activeTab === 'personalisation' ? 'figma-account-tab--active' : ''}`}
+          onClick={() => setActiveTab('personalisation')}
+        >
+          {isVi ? 'Cá nhân hoá' : 'Personalisation'}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'account'}
+          className={`figma-account-tab ${activeTab === 'account' ? 'figma-account-tab--active' : ''}`}
+          onClick={() => setActiveTab('account')}
+        >
+          {isVi ? 'Tài khoản & Bảo mật' : 'Account'}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'payment'}
+          className={`figma-account-tab ${activeTab === 'payment' ? 'figma-account-tab--active' : ''}`}
+          onClick={() => setActiveTab('payment')}
+        >
+          {isVi ? 'Phương thức thanh toán' : 'Payment Methods'}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'notifications'}
+          className={`figma-account-tab ${activeTab === 'notifications' ? 'figma-account-tab--active' : ''}`}
+          onClick={() => setActiveTab('notifications')}
+        >
+          {isVi ? 'Thông báo' : 'Notifications'}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={activeTab === 'privacy'}
+          className={`figma-account-tab ${activeTab === 'privacy' ? 'figma-account-tab--active' : ''}`}
+          onClick={() => setActiveTab('privacy')}
+        >
+          {isVi ? 'Quyền riêng tư' : 'Privacy'}
+        </button>
+      </nav>
 
-              <div className="roadmap-card-header__right">
-                <button
-                  type="button"
-                  className="btn-edit-roadmap"
-                  onClick={() => navigate('/student/onboarding')}
+      {/* ── 3. TAB 1: PROFILE (Direct Figma Frame 625:14214 Layout) ── */}
+      {activeTab === 'profile' && (
+        <div className="figma-account-body animate-fade-in">
+          {/* Centered Avatar with Camera Badge */}
+          <div className="figma-avatar-center-wrap">
+            <div className="figma-avatar-container">
+              <img
+                src={avatar || '/assets/editorial/user-avatar.png'}
+                alt="Profile Avatar"
+                className="figma-avatar-circle"
+              />
+              <button
+                type="button"
+                className="figma-avatar-camera-btn"
+                onClick={() => avatarInputRef.current?.click()}
+                aria-label="Upload new photo"
+              >
+                <span className="material-symbols-outlined">photo_camera</span>
+              </button>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="figma-avatar-file-input"
+                onChange={handleAvatarChange}
+              />
+            </div>
+          </div>
+
+          {/* Minimal Underline Form Grid */}
+          <form className="figma-profile-form" onSubmit={handleSaveProfile}>
+            <div className="figma-form-field">
+              <label htmlFor="first-name" className="figma-field-label">
+                {isVi ? 'Tên' : 'First Name'}
+              </label>
+              <input
+                id="first-name"
+                type="text"
+                className="figma-underline-input"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                placeholder="Jonathan"
+                required
+              />
+            </div>
+
+            <div className="figma-form-field">
+              <label htmlFor="last-name" className="figma-field-label">
+                {isVi ? 'Họ' : 'Last Name'}
+              </label>
+              <input
+                id="last-name"
+                type="text"
+                className="figma-underline-input"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                placeholder="Doe"
+              />
+            </div>
+
+            <div className="figma-form-field">
+              <label htmlFor="headline" className="figma-field-label">
+                {isVi ? 'Dòng giới thiệu' : 'Headline'}
+              </label>
+              <input
+                id="headline"
+                type="text"
+                className="figma-underline-input"
+                value={headline}
+                onChange={(e) => setHeadline(e.target.value)}
+                placeholder="IELTS Aspirant & Senior Learner"
+              />
+            </div>
+
+            <div className="figma-form-field">
+              <label htmlFor="language-select" className="figma-field-label">
+                {isVi ? 'Ngôn ngữ' : 'Language'}
+              </label>
+              <div className="figma-select-wrap">
+                <select
+                  id="language-select"
+                  className="figma-underline-input figma-select-input"
+                  value={selectedLanguage}
+                  onChange={(e) => setSelectedLanguage(e.target.value)}
                 >
-                  <span className="material-symbols-outlined">tune</span>
-                  <span>{t('profileSettings.editRoadmap', 'Edit Roadmap')}</span>
-                </button>
+                  <option value="English">English</option>
+                  <option value="Vietnamese">Tiếng Việt</option>
+                  <option value="French">Français</option>
+                  <option value="Japanese">日本語</option>
+                </select>
+                <span className="material-symbols-outlined figma-select-chevron">expand_more</span>
               </div>
             </div>
 
-            {/* Metrics Row */}
-            <div className="roadmap-metrics-grid">
-              <div className="roadmap-metric-item">
-                <span className="material-symbols-outlined metric-icon">school</span>
+            <div className="figma-form-field">
+              <label htmlFor="profile-link" className="figma-field-label">
+                {isVi ? 'Liên kết website / mạng xã hội' : 'Link'}
+              </label>
+              <input
+                id="profile-link"
+                type="text"
+                className="figma-underline-input"
+                value={profileLink}
+                onChange={(e) => setProfileLink(e.target.value)}
+                placeholder="www.lexigrow.io"
+              />
+            </div>
+
+            <div className="figma-form-field">
+              <label htmlFor="profile-institution" className="figma-field-label">
+                {isVi ? 'Trường học / Tổ chức' : 'Institution / School'}
+              </label>
+              <input
+                id="profile-institution"
+                type="text"
+                className="figma-underline-input"
+                value={institution}
+                onChange={(e) => setInstitution(e.target.value)}
+                placeholder="LexiGrow Academy"
+              />
+            </div>
+
+            <div className="figma-form-field">
+              <label htmlFor="english-level" className="figma-field-label">
+                {isVi ? 'Trình độ CEFR mục tiêu' : 'Target CEFR Level'}
+              </label>
+              <div className="figma-select-wrap">
+                <select
+                  id="english-level"
+                  className="figma-underline-input figma-select-input"
+                  value={englishLevel}
+                  onChange={(e) => setEnglishLevel(e.target.value)}
+                >
+                  <option value="A1">A1 - Beginner</option>
+                  <option value="A2">A2 - Elementary</option>
+                  <option value="B1">B1 - Intermediate</option>
+                  <option value="B2">B2 - Upper Intermediate</option>
+                  <option value="C1">C1 - Advanced (IELTS 7.0 - 8.0)</option>
+                  <option value="C2">C2 - Proficient (IELTS 8.5+)</option>
+                </select>
+                <span className="material-symbols-outlined figma-select-chevron">expand_more</span>
+              </div>
+            </div>
+
+            {/* Save Button */}
+            <div className="figma-form-action-center">
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                className="figma-save-btn"
+                disabled={savingProfile}
+              >
+                {savingProfile ? (
+                  <>
+                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                    <span>{isVi ? 'Đang lưu…' : 'Saving…'}</span>
+                  </>
+                ) : saveSuccess ? (
+                  <>
+                    <span className="material-symbols-outlined">check</span>
+                    <span>{isVi ? 'Đã lưu!' : 'Saved!'}</span>
+                  </>
+                ) : (
+                  <span>{isVi ? 'Lưu thay đổi' : 'Save'}</span>
+                )}
+              </Button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* ── 4. TAB 2: PERSONALISATION (Learning Roadmap & Preferences) ── */}
+      {activeTab === 'personalisation' && (
+        <div className="figma-account-body figma-tab-container animate-fade-in">
+          <div className="figma-section-box">
+            <div className="figma-box-header">
+              <div>
+                <div className="figma-badge-pill">
+                  <span className="pulsing-teal-dot" />
+                  <span>{isVi ? 'Động cơ AI ngắt quãng (SRS) • Đang hoạt động' : 'AI Spaced Repetition Engine • Active'}</span>
+                </div>
+                <h3 className="figma-box-title">
+                  {isVi ? 'Lộ Trình Cá Nhân Hoá' : 'Personalized AI Learning Roadmap'}
+                </h3>
+                <p className="figma-box-desc">
+                  {isVi
+                    ? 'AI tự động sắp xếp bộ từ vựng ngắt quãng và chấm bài viết dựa trên lộ trình của bạn.'
+                    : 'Your goals and pace are configured so AI can schedule SRS vocabulary and calibrate essay feedback.'}
+                </p>
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="figma-pill-btn"
+                leftIcon="tune"
+                onClick={() => navigate('/student/onboarding')}
+              >
+                {isVi ? 'Chỉnh sửa lộ trình' : 'Edit Roadmap'}
+              </Button>
+            </div>
+
+            {/* Roadmap metrics grid */}
+            <div className="figma-roadmap-metrics">
+              <div className="figma-metric-card">
+                <span className="material-symbols-outlined figma-metric-icon">school</span>
                 <div>
-                  <span className="metric-label">{t('profileSettings.targetGoal', 'Target Goal')}</span>
-                  <strong className="metric-val">{lp.targetLevel || 'B1'} CEFR</strong>
+                  <div className="figma-metric-label">{isVi ? 'Mục tiêu' : 'Target Goal'}</div>
+                  <strong className="figma-metric-value">{lp.targetLevel || 'B2'} CEFR</strong>
                 </div>
               </div>
 
-              <div className="roadmap-metric-item">
-                <span className="material-symbols-outlined metric-icon">speed</span>
+              <div className="figma-metric-card">
+                <span className="material-symbols-outlined figma-metric-icon">speed</span>
                 <div>
-                  <span className="metric-label">{t('profileSettings.learningPace', 'Learning Pace')}</span>
-                  <strong className="metric-val">
-                    {lp.pace === 'intensive' ? (isVi ? 'Cấp tốc (30 ngày)' : 'Intensive (30 Days)') : (isVi ? 'Bền vững (60-90 ngày)' : 'Steady (60-90 Days)')}
+                  <div className="figma-metric-label">{isVi ? 'Tốc độ học' : 'Pace'}</div>
+                  <strong className="figma-metric-value">
+                    {lp.pace === 'intensive'
+                      ? (isVi ? 'Cấp tốc (30 ngày)' : 'Intensive (30 Days)')
+                      : (isVi ? 'Bền vững (60-90 ngày)' : 'Steady (60-90 Days)')}
                   </strong>
                 </div>
               </div>
 
-              <div className="roadmap-metric-item">
-                <span className="material-symbols-outlined metric-icon">schedule</span>
+              <div className="figma-metric-card">
+                <span className="material-symbols-outlined figma-metric-icon">schedule</span>
                 <div>
-                  <span className="metric-label">{t('profileSettings.dailyCommitment', 'Daily Study Time')}</span>
-                  <strong className="metric-val">{lp.dailyGoalMinutes || 10} {isVi ? 'phút / ngày' : 'mins / day'}</strong>
+                  <div className="figma-metric-label">{isVi ? 'Thời gian mỗi ngày' : 'Daily Time'}</div>
+                  <strong className="figma-metric-value">
+                    {lp.dailyGoalMinutes || 10} {isVi ? 'phút / ngày' : 'mins / day'}
+                  </strong>
                 </div>
               </div>
             </div>
 
-            {/* Topics Selected Chips */}
-            <div className="roadmap-topics-section">
-              <span className="topics-heading">{t('profileSettings.focusTopics', 'Focus Topics')}:</span>
-              <div className="topics-chips-row">
-                {selectedInterestsList.map(item => (
-                  <span key={item.id} className="topic-chip-badge">
+            {/* Topic chips */}
+            <div className="figma-topics-area">
+              <div className="figma-topics-label">{isVi ? 'Chủ đề trọng tâm' : 'Focus Topics'}:</div>
+              <div className="figma-topics-wrap">
+                {selectedInterestsList.map((item) => (
+                  <span key={item.id} className="figma-topic-pill">
                     <span className="material-symbols-outlined">{item.icon}</span>
                     <span>{isVi ? item.labelVi : item.labelEn}</span>
                   </span>
                 ))}
               </div>
             </div>
-          </section>
-        )}
+          </div>
+        </div>
+      )}
 
-        {/* SECTION 2: Parents & Guardians (For Students) */}
-        {authUser?.role === 'student' && (
-          <section className="settings-card profile-settings__guardians">
-            <div className="profile-settings__guardians-header">
-              <div>
-                <h3 className="settings-card-title">{t('profileSettings.parentsCardTitle', 'Parents & Guardians')}</h3>
-                <p className="settings-card-desc">
-                  {t('profileSettings.parentsCardDesc', 'Manage parent accounts authorized to monitor your learning progress and essays.')}
-                </p>
-              </div>
-              <button
-                type="button"
-                className="btn btn--outline btn--sm profile-settings__add-guardian-btn"
-                onClick={handleGenerateLinkCode}
-                disabled={generatingLinkCode}
-              >
-                <span className="material-symbols-outlined">person_add</span>
-                <span>{generatingLinkCode ? t('profileSettings.generating', 'Generating...') : linkCode ? t('profileSettings.newCode', 'New code') : t('profileSettings.addGuardian', 'Add guardian')}</span>
-              </button>
+      {/* ── 5. TAB 3: ACCOUNT & GUARDIANS ── */}
+      {activeTab === 'account' && (
+        <div className="figma-account-body figma-tab-container animate-fade-in">
+          {/* Email & Credentials */}
+          <div className="figma-section-box">
+            <h3 className="figma-box-title">{isVi ? 'Thông tin đăng nhập' : 'Login Credentials'}</h3>
+            <div className="figma-form-field" style={{ marginTop: 16 }}>
+              <label className="figma-field-label">Email</label>
+              <input
+                type="email"
+                className="figma-underline-input"
+                value={email}
+                disabled
+                style={{ opacity: 0.7 }}
+              />
             </div>
+          </div>
 
-            {linkCode ? (
-              <div className={`profile-settings__link-code-panel ${linkCodeSecondsLeft === 0 ? 'profile-settings__link-code-panel--expired' : ''}`} role="status">
+          {/* Linked Guardians (for students) */}
+          {authUser?.role === 'student' && (
+            <div className="figma-section-box" style={{ marginTop: 24 }}>
+              <div className="figma-box-header">
                 <div>
-                  <p className="text-label-md">{t('profileSettings.oneTimeCode', 'One-time guardian link code')}</p>
-                  <strong aria-label={`Parent link code ${linkCode.code}`}>{linkCode.code}</strong>
-                  <p className="text-label-sm">
-                    {linkCodeSecondsLeft > 0 ? `${t('profileSettings.codeExpiresIn', 'Expires in')} ${formatCountdown(linkCodeSecondsLeft)}` : t('profileSettings.codeExpired', 'Code expired')}
+                  <h3 className="figma-box-title">
+                    {isVi ? 'Phụ huynh & Người giám hộ' : 'Parents & Guardians'}
+                  </h3>
+                  <p className="figma-box-desc">
+                    {isVi
+                      ? 'Quản lý tài khoản phụ huynh được phép theo dõi tiến độ và bài viết của bạn.'
+                      : 'Authorize parent accounts to monitor your learning progress and writing feedback.'}
                   </p>
                 </div>
-                <button
-                  type="button"
-                  className="profile-settings__copy-code-btn"
-                  onClick={handleCopyLinkCode}
-                  disabled={linkCodeSecondsLeft === 0}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="figma-pill-btn"
+                  leftIcon="person_add"
+                  onClick={handleGenerateLinkCode}
+                  disabled={generatingLinkCode}
                 >
-                  <span className="material-symbols-outlined">
-                    {linkCodeCopied ? 'check' : 'content_copy'}
-                  </span>
-                  <span>{linkCodeCopied ? t('profileSettings.copied', 'Copied') : t('profileSettings.copy', 'Copy')}</span>
-                </button>
+                  {generatingLinkCode
+                    ? (isVi ? 'Đang tạo…' : 'Generating…')
+                    : linkCode
+                      ? (isVi ? 'Mã mới' : 'New code')
+                      : (isVi ? 'Thêm phụ huynh' : 'Add guardian')}
+                </Button>
               </div>
-            ) : null}
 
-            {linkCode ? (
-              <p className="text-label-sm profile-settings__link-code-note">
-                {t('profileSettings.shareCodeNote', 'Share this code directly with your parent or guardian to link accounts.')}
-              </p>
-            ) : null}
-
-            <div className="profile-settings__guardian-list" aria-live="polite">
-              {guardiansLoading ? (
-                <div className="profile-settings__guardians-loading">
-                  <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                  <span>Loading linked guardians...</span>
-                </div>
-              ) : guardiansError ? (
-                <div className="profile-settings__guardians-error">
-                  <span>{guardiansError}</span>
-                  <button type="button" onClick={loadGuardians}>Retry</button>
-                </div>
-              ) : guardians.length === 0 ? (
-                <div className="profile-settings__guardians-empty">
-                  <span className="material-symbols-outlined">family_restroom</span>
+              {linkCode && (
+                <div className="figma-linkcode-box">
                   <div>
-                    <p className="text-label-md">{t('profileSettings.noGuardians', 'No guardians linked yet')}</p>
-                    <p className="text-body-sm">{t('profileSettings.noGuardiansDesc', 'Generate a one-time code to invite a parent or guardian.')}</p>
+                    <div className="figma-linkcode-label">
+                      {isVi ? 'Mã liên kết một lần của bạn' : 'One-time guardian link code'}
+                    </div>
+                    <strong className="figma-linkcode-val">{linkCode.code}</strong>
+                    <div className="figma-linkcode-sub">
+                      {linkCodeSecondsLeft > 0
+                        ? `${isVi ? 'Hết hạn sau' : 'Expires in'} ${formatCountdown(linkCodeSecondsLeft)}`
+                        : (isVi ? 'Mã đã hết hạn' : 'Code expired')}
+                    </div>
                   </div>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    className="figma-pill-btn"
+                    leftIcon={linkCodeCopied ? 'check' : 'content_copy'}
+                    onClick={handleCopyLinkCode}
+                  >
+                    {linkCodeCopied ? (isVi ? 'Đã sao chép' : 'Copied') : (isVi ? 'Sao chép' : 'Copy')}
+                  </Button>
                 </div>
-              ) : (
-                guardians.map(guardian => (
-                  <div className="profile-settings__guardian-row" key={guardian.linkId}>
-                    <div className="profile-settings__guardian-avatar">
-                      {guardian.parent.avatar ? (
-                        <img src={guardian.parent.avatar} alt="" />
-                      ) : (
-                        <span className="material-symbols-outlined">person</span>
-                      )}
-                    </div>
-                    <div className="profile-settings__guardian-identity">
-                      <p className="guardian-name">{guardian.parent.name}</p>
-                      <p className="guardian-email">{guardian.parent.email}</p>
-                    </div>
-                    <div className="profile-settings__guardian-meta">
-                      <span>{formatRelationship(guardian.relationship)}</span>
-                      <span>{new Date(guardian.linkedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
-                    </div>
-                    <button
-                      type="button"
-                      className="profile-settings__remove-guardian-btn"
-                      onClick={() => handleRemoveGuardian(guardian)}
-                      disabled={removingGuardianId === guardian.linkId}
-                    >
-                      <span className="material-symbols-outlined">person_remove</span>
-                      <span>{removingGuardianId === guardian.linkId ? 'Removing...' : t('profileSettings.removeGuardian', 'Remove')}</span>
-                    </button>
+              )}
+
+              {/* Guardians list */}
+              <div className="figma-guardians-list">
+                {guardiansLoading ? (
+                  <div className="figma-loading-row">
+                    <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                    <span>{isVi ? 'Đang tải danh sách…' : 'Loading linked guardians…'}</span>
                   </div>
-                ))
-              )}
-            </div>
-          </section>
-        )}
-
-        {/* SECTION 3: Personal Information */}
-        <section className="settings-card profile-settings__personal">
-          <div className="settings-card-header-simple">
-            <span className="material-symbols-outlined card-header-icon">badge</span>
-            <h3 className="settings-card-title">{t('profileSettings.personalInfo', 'Personal Information')}</h3>
-          </div>
-
-          <div className="profile-settings__avatar-section">
-            <div className="profile-settings__avatar-wrap">
-              <div className="profile-settings__avatar">
-                {avatar
-                  ? <img src={avatar} alt={isVi ? 'Ảnh đại diện hiện tại' : 'Current profile avatar'} />
-                  : <span className="material-symbols-outlined" aria-hidden="true">person</span>}
+                ) : guardiansError ? (
+                  <div className="figma-guardians-empty" style={{ borderColor: '#FE416D' }}>
+                    <span className="material-symbols-outlined" style={{ color: '#FE416D' }}>error</span>
+                    <div>
+                      <p className="figma-empty-head">{guardiansError}</p>
+                      <Button variant="secondary" size="sm" onClick={loadGuardians} style={{ marginTop: 6 }}>
+                        {isVi ? 'Thử lại' : 'Retry'}
+                      </Button>
+                    </div>
+                  </div>
+                ) : guardians.length === 0 ? (
+                  <div className="figma-guardians-empty">
+                    <span className="material-symbols-outlined">family_restroom</span>
+                    <div>
+                      <p className="figma-empty-head">{isVi ? 'Chưa liên kết phụ huynh nào' : 'No guardians linked yet'}</p>
+                      <p className="figma-empty-text">{isVi ? 'Tạo mã mời một lần để phụ huynh theo dõi tiến độ của bạn.' : 'Generate a one-time code to link a parent or guardian.'}</p>
+                    </div>
+                  </div>
+                ) : (
+                  guardians.map((g) => (
+                    <div className="figma-guardian-item" key={g.linkId}>
+                      <div className="figma-guardian-avatar">
+                        <span className="material-symbols-outlined">person</span>
+                      </div>
+                      <div className="figma-guardian-details">
+                        <strong>{g.parent.name}</strong>
+                        <span>{g.parent.email}</span>
+                      </div>
+                      <div className="figma-guardian-rel">{formatRelationship(g.relationship)}</div>
+                      <button
+                        type="button"
+                        className="figma-remove-btn"
+                        onClick={() => handleRemoveGuardian(g)}
+                        disabled={removingGuardianId === g.linkId}
+                      >
+                        <span className="material-symbols-outlined">person_remove</span>
+                        <span>{isVi ? 'Gỡ' : 'Remove'}</span>
+                      </button>
+                    </div>
+                  ))
+                )}
               </div>
-              <div className="profile-settings__avatar-info">
-                <strong className="avatar-user-name">{name || 'User'}</strong>
-                <span className="avatar-user-role">{authUser?.role?.toUpperCase() || 'STUDENT'}</span>
-                <input ref={avatarInputRef} className="profile-settings__avatar-input" type="file" accept="image/jpeg,image/png,image/webp" onChange={handleAvatarChange} aria-label={isVi ? 'Chọn ảnh đại diện' : 'Choose profile avatar'} tabIndex={-1} />
-                <button type="button" className="profile-settings__avatar-button" onClick={() => avatarInputRef.current?.click()}>
-                  <span className="material-symbols-outlined" aria-hidden="true">photo_camera</span>
-                  {isVi ? 'Đổi ảnh đại diện' : 'Change avatar'}
-                </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── 6. TAB 4: PAYMENT METHODS ── */}
+      {activeTab === 'payment' && (
+        <div className="figma-account-body figma-tab-container animate-fade-in">
+          <div className="figma-section-box">
+            <h3 className="figma-box-title">{isVi ? 'Gói Dịch Vụ Của Bạn' : 'Active Subscription'}</h3>
+            <p className="figma-box-desc">{isVi ? 'Quản lý phương thức thanh toán và các gói học LexiGrow Pro.' : 'Manage payment cards and active learning tiers.'}</p>
+
+            <div className="figma-plan-card">
+              <div className="figma-plan-header">
+                <div>
+                  <span className="figma-badge-pro">PRO STUDENT</span>
+                  <h4 className="figma-plan-title">{isVi ? 'LexiGrow Toàn Diện (Annual)' : 'LexiGrow All-Access Pass'}</h4>
+                  <p className="figma-plan-desc">{isVi ? 'Gia hạn tiếp theo: 28/12/2026' : 'Next billing cycle: Dec 28, 2026'}</p>
+                </div>
+                <div className="figma-plan-price">
+                  <strong>$24.92</strong>
+                  <span>/ month</span>
+                </div>
+              </div>
+
+              <div className="figma-plan-actions">
+                <Button variant="primary" size="sm" className="figma-pill-cta" onClick={() => navigate('/pricing')}>
+                  {isVi ? 'Nâng cấp gói' : 'Upgrade Plan'}
+                </Button>
+                <Button variant="outline" size="sm" className="figma-pill-btn">
+                  {isVi ? 'Lịch sử thanh toán' : 'Billing Receipts'}
+                </Button>
               </div>
             </div>
           </div>
+        </div>
+      )}
 
-          <div className="profile-settings__form-grid">
-            <div className="profile-settings__field">
-              <label className="text-label-md" htmlFor="profile-name">{t('profileSettings.fullName', 'Full Name')}</label>
-              <input
-                id="profile-name"
-                type="text"
-                className="profile-settings__input"
-                value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder="Nguyen Van A"
-              />
-            </div>
-            <div className="profile-settings__field">
-              <label className="text-label-md" htmlFor="profile-email">{t('profileSettings.email', 'Email Address')}</label>
-              <input
-                id="profile-email"
-                type="email"
-                className="profile-settings__input"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder="email@domain.com"
-              />
-            </div>
-            <div className="profile-settings__field">
-              <label className="text-label-md" htmlFor="profile-institution">{t('profileSettings.institution', 'Institution / School')}</label>
-              <input
-                id="profile-institution"
-                type="text"
-                className="profile-settings__input"
-                value={institution}
-                onChange={e => setInstitution(e.target.value)}
-                placeholder="LexiGrow University"
-              />
-            </div>
-            <div className="profile-settings__field">
-              <label className="text-label-md" htmlFor="profile-english-level">{t('profileSettings.englishLevel', 'Current English Level')}</label>
-              <select
-                id="profile-english-level"
-                className="profile-settings__input"
-                value={englishLevel}
-                onChange={e => setEnglishLevel(e.target.value)}
-              >
-                <option value="A1">A1 - Beginner</option>
-                <option value="A2">A2 - Elementary</option>
-                <option value="B1">B1 - Intermediate</option>
-                <option value="B2">B2 - Upper Intermediate</option>
-                <option value="C1">C1 - Advanced</option>
-                <option value="C2">C2 - Proficient</option>
-              </select>
+      {/* ── 7. TAB 5: NOTIFICATIONS ── */}
+      {activeTab === 'notifications' && (
+        <div className="figma-account-body figma-tab-container animate-fade-in">
+          <div className="figma-section-box">
+            <h3 className="figma-box-title">{isVi ? 'Cài Đặt Thông Báo' : 'Notification Preferences'}</h3>
+
+            <div className="figma-toggle-list">
+              <label className="figma-toggle-row">
+                <div>
+                  <strong>{isVi ? 'Nhắc nhở chuỗi học (Daily Streak)' : 'Daily Streak Reminders'}</strong>
+                  <p>{isVi ? 'Nhận thông báo khi gần hết ngày mà chưa hoàn thành bài tập SRS.' : 'Get notified before your streak resets.'}</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={notifDailyStreak}
+                  onChange={(e) => setNotifDailyStreak(e.target.checked)}
+                  className="figma-switch"
+                />
+              </label>
+
+              <label className="figma-toggle-row">
+                <div>
+                  <strong>{isVi ? 'Thông báo chấm bài AI' : 'Instant AI Essay Evaluation'}</strong>
+                  <p>{isVi ? 'Nhận thông báo ngay khi bài viết được chấm điểm và phân tích.' : 'Receive an alert as soon as AI grades your draft.'}</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={notifAiEvaluation}
+                  onChange={(e) => setNotifAiEvaluation(e.target.checked)}
+                  className="figma-switch"
+                />
+              </label>
+
+              <label className="figma-toggle-row">
+                <div>
+                  <strong>{isVi ? 'Bản tin khoá học mới & Ưu đãi' : 'New Courses & Special Offers'}</strong>
+                  <p>{isVi ? 'Nhận khuyến mãi và các workshop viết luận miễn phí từ giảng viên.' : 'Hear about free writing webinars and discounts.'}</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={notifNewsletter}
+                  onChange={(e) => setNotifNewsletter(e.target.checked)}
+                  className="figma-switch"
+                />
+              </label>
             </div>
           </div>
+        </div>
+      )}
 
-          <div className="profile-settings__actions-bar">
-            <button
-              type="button"
-              className="btn btn--primary profile-settings__save-btn"
-              onClick={handleSaveProfile}
-              disabled={savingProfile}
-            >
-              {savingProfile ? (
-                <>
-                  <span className="material-symbols-outlined animate-spin">progress_activity</span>
-                  <span>{t('profileSettings.saving', 'Saving...')}</span>
-                </>
-              ) : (
-                <>
-                  <span className="material-symbols-outlined">save</span>
-                  <span>{t('profileSettings.saveProfile', 'Save Changes')}</span>
-                </>
-              )}
-            </button>
+      {/* ── 8. TAB 6: PRIVACY ── */}
+      {activeTab === 'privacy' && (
+        <div className="figma-account-body figma-tab-container animate-fade-in">
+          <div className="figma-section-box">
+            <h3 className="figma-box-title">{isVi ? 'Quyền Riêng Tư & Bảo Mật Dữ Liệu' : 'Data & Privacy'}</h3>
+
+            <div className="figma-toggle-list">
+              <label className="figma-toggle-row">
+                <div>
+                  <strong>{isVi ? 'Hồ sơ công khai' : 'Public Profile Visibility'}</strong>
+                  <p>{isVi ? 'Cho phép học viên khác xem huy hiệu và thành tích của bạn.' : 'Allow other students to view your badges and garden tree.'}</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={privacyPublicProfile}
+                  onChange={(e) => setPrivacyPublicProfile(e.target.checked)}
+                  className="figma-switch"
+                />
+              </label>
+
+              <label className="figma-toggle-row">
+                <div>
+                  <strong>{isVi ? 'Xếp hạng Bảng vàng' : 'Show Rank on Leaderboards'}</strong>
+                  <p>{isVi ? 'Hiển thị điểm từ vựng của bạn trên bảng xếp hạng tuần.' : 'Display your monthly vocabulary gains on the leaderboard.'}</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={privacyShowRank}
+                  onChange={(e) => setPrivacyShowRank(e.target.checked)}
+                  className="figma-switch"
+                />
+              </label>
+            </div>
           </div>
-        </section>
-
-      </div>
+        </div>
+      )}
     </div>
   )
 }
-
