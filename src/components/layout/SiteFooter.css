@@ -3,7 +3,7 @@
    ========================================================================== */
 
 .eduvia-footer {
-  background-color: #051A2E;
+  background-color: #14181E;
   color: #D3E0EA;
   font-family: var(--font-family);
   margin-top: 60px;
@@ -16,7 +16,7 @@
   transition: color 0.16s ease;
 }
 .eduvia-footer a:hover {
-  color: #1CB886;
+  color: var(--figma-primary, #3DCBB1);
 }
 
 .eduvia-footer__inner {
@@ -134,6 +134,27 @@
 
 .eduvia-footer__copy-text {
   margin: 0;
+}
+
+.eduvia-footer__socials {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.eduvia-footer__socials a {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: #9BB3C8;
+  transition: all 0.2s ease;
+}
+.eduvia-footer__socials a:hover {
+  background: var(--figma-primary, #3DCBB1);
+  color: #FFFFFF;
+  transform: translateY(-2px);
 }
 
 .eduvia-footer__legal-links {

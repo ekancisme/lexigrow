@@ -69,10 +69,26 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
         : t('header.parent')
       : role === 'admin' ? t('headerNavigation.administrator') : `${t('header.student')} (${user?.englishLevel || '—'})`
   const searchLabel = role === 'teacher' ? t('header.searchStudent') : t('header.searchEssay')
-  const searchInput = <label className="topnav__search-field">
-    <span className="material-symbols-outlined" aria-hidden="true">search</span>
-    <input type="search" aria-label={searchLabel} placeholder={searchLabel} />
-  </label>
+  const searchInput = (
+    <form className="topnav__search-field" onSubmit={(e) => {
+      e.preventDefault()
+      const val = e.currentTarget.searchQuery?.value?.trim()
+      if (val) {
+        navigate(`/student/explore?q=${encodeURIComponent(val)}`)
+        closeNavigation()
+      }
+    }}>
+      <input
+        name="searchQuery"
+        type="search"
+        aria-label={searchLabel}
+        placeholder={language === 'vi' ? 'Tìm kiếm khóa học, bài học...' : 'Search for course...'}
+      />
+      <button type="submit" className="topnav__search-submit" aria-label="Search">
+        <span className="material-symbols-outlined" aria-hidden="true">search</span>
+      </button>
+    </form>
+  )
 
   const isHome = location.pathname === '/' || location.pathname === '/student/home'
 
@@ -92,15 +108,24 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
           </span>
           <span className="topnav__brand-name">LexiGrow</span>
         </Link>
+        <div className="topnav__center-search">
+          {searchInput}
+        </div>
         <div id="topnav-main-navigation" className={`topnav__navigation ${menuOpen ? 'is-open' : ''}`}>
           <HeaderNavigation role={role} openId={openId} setOpenId={setOpenId} onNavigate={closeNavigation} />
           <div className="topnav__mobile-tools">
-            {role !== 'parent' && searchInput}
+            {searchInput}
             {!user && (
-              <Link to="/login" className="header-navigation__link" onClick={closeNavigation}>
-                <span className="material-symbols-outlined" aria-hidden="true">login</span>
-                <span>{t('auth.loginBtn', 'Đăng nhập')}</span>
-              </Link>
+              <div className="topnav__mobile-auth">
+                <Link to="/login" className="header-navigation__link" onClick={closeNavigation}>
+                  <span className="material-symbols-outlined" aria-hidden="true">login</span>
+                  <span>{t('auth.loginBtn', 'Đăng nhập')}</span>
+                </Link>
+                <Link to="/register" className="header-navigation__link" onClick={closeNavigation}>
+                  <span className="material-symbols-outlined" aria-hidden="true">person_add</span>
+                  <span>{language === 'vi' ? 'Đăng ký tài khoản' : 'Sign Up'}</span>
+                </Link>
+              </div>
             )}
             <button type="button" className="header-navigation__link" onClick={toggleTheme}>
               <span className="material-symbols-outlined" aria-hidden="true">{theme === 'light' ? 'dark_mode' : 'light_mode'}</span>
@@ -109,13 +134,10 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
           </div>
         </div>
         <div className="topnav__actions">
-          {role !== 'parent' && <NavigationDisclosure className="topnav__search-disclosure" align="end"
-            label={<span className="material-symbols-outlined" aria-hidden="true">search</span>} triggerLabel={searchLabel}
-            triggerClassName="topnav__icon-btn" open={openId === 'search'}
-            onOpen={() => setOpenId('search')} onClose={() => setOpenId(current => current === 'search' ? null : current)}
-            onToggle={() => setOpenId(current => current === 'search' ? null : 'search')}>
-            <span className="topnav__search-label">{searchLabel}</span>{searchInput}
-          </NavigationDisclosure>}
+          <Link to="/pricing" className="topnav__instructor-link" title={language === 'vi' ? 'Nâng cấp gói' : 'Upgrade Plan'}>
+            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>school</span>
+            <span className="topnav__instructor-text">{language === 'vi' ? 'Khóa học VIP' : 'Become Pro'}</span>
+          </Link>
           <LanguageSwitcher />
           <button type="button" className="topnav__icon-btn topnav__theme-btn" onClick={toggleTheme}
             aria-label={theme === 'light' ? t('header.themeDark') : t('header.themeLight')}
@@ -148,9 +170,15 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
               </NavigationDisclosure>
             </>
           ) : (
-            <Link to="/login" className="topnav__login-btn" onClick={closeNavigation}>
-              <span>{language === 'vi' ? 'Bắt đầu ngay' : 'Get Started'}</span>
-            </Link>
+            <div className="topnav__auth-group">
+              <Link to="/login" className="topnav__btn-outline" onClick={closeNavigation}>
+                <span>{language === 'vi' ? 'Đăng nhập' : 'Login'}</span>
+              </Link>
+              <Link to="/register" className="topnav__btn-primary" onClick={closeNavigation}>
+                <span className="material-symbols-outlined" style={{ fontSize: 16 }}>explore</span>
+                <span>{language === 'vi' ? 'Đăng ký' : 'Sign Up'}</span>
+              </Link>
+            </div>
           )}
           <button ref={menuButtonRef} type="button" className="topnav__icon-btn topnav__menu-btn" onClick={() => { setOpenId(null); onMenuToggle() }}
             aria-label={menuOpen ? t('headerNavigation.closeMenu') : t('headerNavigation.openMenu')}

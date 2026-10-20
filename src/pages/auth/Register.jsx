@@ -150,235 +150,261 @@ export default function Register() {
   return (
     <div className="register-page" aria-busy={loading || isVerifying}>
       <AuthThemeToggle />
-      <main className="register__main">
-        {/* Brand */}
-        <div className="register__brand">
-          <div className="register__logo">
-            <img src="/assets/brand/lexigrow-emblem.png" alt="LexiGrow" width="56" height="56" className="register__logo-img" />
+      <main className="login__main login__main--split">
+        <div className="login__split-card">
+          {/* Left Art Visual */}
+          <div className="login__visual-side">
+            <img src="/assets/auth/signup-art.png" alt="Student Showcase" className="login__visual-img" />
+            <div className="login__visual-overlay">
+              <div className="login__creator-badge">
+                <img src="/assets/lexigrow/educator-portrait-2.webp" alt="Joe" className="login__creator-avatar" />
+                <div>
+                  <strong>Joe Kitanoe</strong>
+                  <span>Software Developer</span>
+                </div>
+              </div>
+            </div>
           </div>
-          <h1 className="text-headline-lg">
-            {verificationEmail ? 'Verify Your Email' : t('auth.registerTitle', 'Create Account')}
-          </h1>
-          <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-            {verificationEmail 
-              ? 'Enter the 6-digit verification code to activate your account.'
-              : t('auth.registerSubtitle', 'Join LexiGrow and start tracking your vocabulary growth')
-            }
-          </p>
-        </div>
 
-        {/* Card */}
-        <div className="register__card">
-          {error && (
-            <div style={{ background: 'rgba(186, 26, 26, 0.08)', color: 'var(--color-error, #ba1a1a)', padding: '12px 16px', borderRadius: 12, marginBottom: 16, fontSize: 14, border: '1px solid rgba(186, 26, 26, 0.15)' }}>
-              {error}
+          {/* Right Form Side */}
+          <div className="login__form-side">
+            <div className="login__brand-header">
+              <Link to="/student/home" className="login__brand-link">
+                <img src="/assets/brand/lexigrow-emblem.png" alt="LexiGrow" width="38" height="38" className="login__logo-img" />
+                <span className="login__brand-title">LexiGrow</span>
+              </Link>
+              <h1 className="text-headline-md" style={{ margin: '4px 0 6px', fontWeight: 800 }}>
+                {verificationEmail ? 'Verify Your Email' : t('auth.registerTitle', 'Create Account')}
+              </h1>
+              <p className="login__brand-subtitle">
+                {verificationEmail 
+                  ? 'Enter the 6-digit verification code to activate your account.'
+                  : t('auth.registerSubtitle', 'Join us and get more benefits. We promise to keep your data safely.')
+                }
+              </p>
             </div>
-          )}
 
-          {successMessage && (
-            <div style={{ background: 'rgba(26, 115, 232, 0.08)', color: 'var(--color-primary, #1a73e8)', padding: '12px 16px', borderRadius: 12, marginBottom: 16, fontSize: 14, border: '1px solid rgba(26, 115, 232, 0.15)' }}>
-              {successMessage}
-            </div>
-          )}
-
-          {verificationEmail ? (
-            /* VERIFICATION FORM STEP */
-            <form onSubmit={handleVerifySubmit} className="register__form">
-
-              <div className="register__field">
-                <label className="register__label text-label-md">Verification Code</label>
-                <div className="register__input-wrap">
-                  <span className="material-symbols-outlined register__input-icon">pin</span>
-                  <input 
-                    type="text" 
-                    className="register__input" 
-                    style={{ letterSpacing: '4px', textAlign: 'center', fontSize: '20px', fontWeight: 'bold' }} 
-                    maxLength={6} 
-                    placeholder="X X X X X X" 
-                    value={verificationCode}
-                    onChange={(e) => setVerificationCode(e.target.value)}
-                    required 
-                  />
-                </div>
+            {error && (
+              <div className="login__alert login__alert--error">
+                {error}
               </div>
+            )}
 
-              <button type="submit" className="register__submit" disabled={isVerifying}>
-                {isVerifying ? (
-                    <>
-                      <span className="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>
-                      <span>{t('auth.loadingVerify', 'Verifying your account…')}</span>
-                    </>
-                ) : (
-                  <>
-                    <span>Verify & Activate</span>
-                    <span className="material-symbols-outlined" style={{ fontSize: 20 }}>done</span>
-                  </>
-                )}
-              </button>
-
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16 }}>
-                <button 
-                  type="button" 
-                  onClick={handleResendCode}
-                  style={{ background: 'none', border: 'none', color: 'var(--color-primary)', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold', padding: 0 }}
-                >
-                  Resend Code
-                </button>
-                <button 
-                  type="button" 
-                  onClick={() => { setVerificationEmail(''); setDevCode(''); }}
-                  style={{ background: 'none', border: 'none', color: 'var(--color-outline)', cursor: 'pointer', fontSize: '13px', padding: 0 }}
-                >
-                  Back to Register
-                </button>
+            {successMessage && (
+              <div className="login__alert login__alert--info">
+                {successMessage}
               </div>
-            </form>
-          ) : (
-            /* REGISTRATION FORM STEP */
-            <>
-              {/* Role Selection */}
-              <div className="register__roles">
-                <button
-                  type="button"
-                  className={`register__role-btn ${role === 'student' ? 'register__role-btn--active' : ''}`}
-                  onClick={() => setRole('student')}
-                >
-                  <span className="material-symbols-outlined">school</span>
-                  <span>{t('auth.roleStudent', 'Student')}</span>
-                </button>
-                <button
-                  type="button"
-                  className={`register__role-btn ${role === 'teacher' ? 'register__role-btn--active' : ''}`}
-                  onClick={() => setRole('teacher')}
-                >
-                  <span className="material-symbols-outlined">cast_for_education</span>
-                  <span>{t('auth.roleTeacher', 'Teacher')}</span>
-                </button>
-                <button
-                  type="button"
-                  className={`register__role-btn ${role === 'parent' ? 'register__role-btn--active' : ''}`}
-                  onClick={() => setRole('parent')}
-                >
-                  <span className="material-symbols-outlined">family_restroom</span>
-                  <span>{t('auth.roleParent', 'Parent')}</span>
-                </button>
-              </div>
+            )}
 
-              <form onSubmit={handleSubmit} className="register__form">
-                {/* Name */}
+            {verificationEmail ? (
+              /* VERIFICATION FORM STEP */
+              <form onSubmit={handleVerifySubmit} className="register__form">
                 <div className="register__field">
-                  <label htmlFor="reg-name" className="register__label text-label-md">{t('auth.fullName', 'Full Name')}</label>
+                  <label className="register__label text-label-md">Verification Code</label>
                   <div className="register__input-wrap">
-                    <span className="material-symbols-outlined register__input-icon">person</span>
-                    <input id="reg-name" type="text" className="register__input" placeholder="Enter your full name" required />
-                  </div>
-                </div>
-
-                {/* Email */}
-                <div className="register__field">
-                  <label htmlFor="reg-email" className="register__label text-label-md">{t('auth.emailLabel', 'Email Address')}</label>
-                  <div className="register__input-wrap">
-                    <span className="material-symbols-outlined register__input-icon">mail</span>
-                    <input id="reg-email" type="email" className="register__input" placeholder="name@example.com" required />
-                  </div>
-                </div>
-
-                {/* Password */}
-                <div className="register__field">
-                  <label htmlFor="reg-password" className="register__label text-label-md">{t('auth.passwordLabel', 'Password')}</label>
-                  <div className="register__input-wrap">
-                    <span className="material-symbols-outlined register__input-icon">lock</span>
-                    <input
-                      id="reg-password"
-                      type={showPassword ? 'text' : 'password'}
-                      className="register__input register__input--password"
-                      placeholder="Create a password"
-                      required
-                      minLength={6}
+                    <span className="material-symbols-outlined register__input-icon">pin</span>
+                    <input 
+                      type="text" 
+                      className="register__input" 
+                      style={{ letterSpacing: '4px', textAlign: 'center', fontSize: '20px', fontWeight: 'bold' }} 
+                      maxLength={6} 
+                      placeholder="X X X X X X" 
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value)}
+                      required 
                     />
-                    <button type="button" className="register__toggle-pw" onClick={() => setShowPassword(!showPassword)}>
-                      <span className="material-symbols-outlined">{showPassword ? 'visibility_off' : 'visibility'}</span>
-                    </button>
                   </div>
                 </div>
 
-                {role === 'student' && (
-                  <div className="register__field">
-                    <label htmlFor="reg-level" className="register__label text-label-md">English Level</label>
-                    <div className="register__input-wrap">
-                      <span className="material-symbols-outlined register__input-icon">translate</span>
-                      <select id="reg-level" className="register__input register__select">
-                        <option value="">Select your level</option>
-                        <option value="A1">A1 - Beginner</option>
-                        <option value="A2">A2 - Elementary</option>
-                        <option value="B1">B1 - Intermediate</option>
-                        <option value="B2">B2 - Upper Intermediate</option>
-                        <option value="C1">C1 - Advanced</option>
-                        <option value="C2">C2 - Proficient</option>
-                      </select>
-                    </div>
-                  </div>
-                )}
-
-                {role === 'teacher' && (
-                  <div className="register__field">
-                    <label htmlFor="reg-institution" className="register__label text-label-md">Institution</label>
-                    <div className="register__input-wrap">
-                      <span className="material-symbols-outlined register__input-icon">apartment</span>
-                      <input id="reg-institution" type="text" className="register__input" placeholder="Your school or institution" />
-                    </div>
-                  </div>
-                )}
-
-                {/* Terms */}
-                <label className="register__terms">
-                  <input type="checkbox" className="register__checkbox" required />
-                  <span className="text-label-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-                    I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
-                  </span>
-                </label>
-
-                {/* Submit */}
-                <button type="submit" className="register__submit" disabled={loading}>
-                  {loading ? (
+                <button type="submit" className="login__submit-figma" disabled={isVerifying}>
+                  {isVerifying ? (
                     <>
                       <span className="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>
-                      <span>{t('auth.loadingRegister', 'Creating your account…')}</span>
+                      <span>{t('auth.loadingVerify', 'Verifying…')}</span>
                     </>
                   ) : (
-                    <>
-                      <span>{t('auth.registerBtn', 'Create Account')}</span>
-                      <span className="material-symbols-outlined" style={{ fontSize: 20 }}>arrow_forward</span>
-                    </>
+                    <span>Verify & Activate</span>
                   )}
                 </button>
 
-                {/* Divider */}
-                <div className="register__divider">
-                  <span>{t('auth.orContinueWith', 'or sign up with')}</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16 }}>
+                  <button 
+                    type="button" 
+                    onClick={handleResendCode}
+                    style={{ background: 'none', border: 'none', color: 'var(--figma-primary, #3DCBB1)', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold', padding: 0 }}
+                  >
+                    Resend Code
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={() => { setVerificationEmail(''); }}
+                    style={{ background: 'none', border: 'none', color: 'var(--color-outline)', cursor: 'pointer', fontSize: '13px', padding: 0 }}
+                  >
+                    Back to Register
+                  </button>
+                </div>
+              </form>
+            ) : (
+              /* REGISTRATION FORM STEP */
+              <>
+                {/* Social Stack First (Figma style) */}
+                <div className="login__social-stack" style={{ marginBottom: 16 }}>
+                  <button type="button" className="login__social-btn login__social-btn--facebook" onClick={() => {}}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    <span>Sign Up with Facebook</span>
+                  </button>
+
+                  <button type="button" className="login__social-btn login__social-btn--apple" onClick={() => {}}>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 1.01-2.87-1 .04-2.18.66-2.79 1.41-.55.65-.99 1.7-1.01 2.76 1.13.09 2.19-.55 2.79-1.3"/></svg>
+                    <span>Sign Up with Apple</span>
+                  </button>
+
+                  <button type="button" className="login__social-btn login__social-btn--google" onClick={handleGoogleSignIn}>
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+                      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+                      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+                      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+                    </svg>
+                    <span>Sign Up with Google</span>
+                  </button>
                 </div>
 
-                {/* Social */}
-                <button type="button" className="register__social-btn" onClick={handleGoogleSignIn}>
-                  <svg width="20" height="20" viewBox="0 0 24 24">
-                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
-                    <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                    <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                    <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-                  </svg>
-                  <span>{t('auth.googleSignIn', 'Sign up with Google')}</span>
-                </button>
-              </form>
-            </>
-          )}
-        </div>
+                <div className="login__divider-figma">
+                  <span>{t('auth.orYouCan', 'or you can')}</span>
+                </div>
 
-        {/* Login CTA */}
-        <div className="register__login-cta">
-          <p className="text-body-md" style={{ color: 'var(--color-on-surface-variant)' }}>
-            {t('auth.alreadyHaveAccount', 'Already have an account?')}{' '}
-            <Link to="/login" className="register__login-link">{t('auth.loginBtn', 'Sign in')}</Link>
-          </p>
+                {/* Role Selection */}
+                <div className="register__roles">
+                  <button
+                    type="button"
+                    className={`register__role-btn ${role === 'student' ? 'register__role-btn--active' : ''}`}
+                    onClick={() => setRole('student')}
+                  >
+                    <span className="material-symbols-outlined">school</span>
+                    <span>{t('auth.roleStudent', 'Student')}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`register__role-btn ${role === 'teacher' ? 'register__role-btn--active' : ''}`}
+                    onClick={() => setRole('teacher')}
+                  >
+                    <span className="material-symbols-outlined">cast_for_education</span>
+                    <span>{t('auth.roleTeacher', 'Teacher')}</span>
+                  </button>
+                  <button
+                    type="button"
+                    className={`register__role-btn ${role === 'parent' ? 'register__role-btn--active' : ''}`}
+                    onClick={() => setRole('parent')}
+                  >
+                    <span className="material-symbols-outlined">family_restroom</span>
+                    <span>{t('auth.roleParent', 'Parent')}</span>
+                  </button>
+                </div>
+
+                <form onSubmit={handleSubmit} className="register__form">
+                  {/* Name */}
+                  <div className="register__field">
+                    <label htmlFor="reg-name" className="register__label text-label-md">{t('auth.fullName', 'Full Name')}</label>
+                    <div className="register__input-wrap">
+                      <span className="material-symbols-outlined register__input-icon">person</span>
+                      <input id="reg-name" type="text" className="register__input" placeholder="Enter your full name" required />
+                    </div>
+                  </div>
+
+                  {/* Email */}
+                  <div className="register__field">
+                    <label htmlFor="reg-email" className="register__label text-label-md">{t('auth.emailLabel', 'Email Address')}</label>
+                    <div className="register__input-wrap">
+                      <span className="material-symbols-outlined register__input-icon">mail</span>
+                      <input id="reg-email" type="email" className="register__input" placeholder="name@example.com" required />
+                    </div>
+                  </div>
+
+                  {/* Password */}
+                  <div className="register__field">
+                    <label htmlFor="reg-password" className="register__label text-label-md">{t('auth.passwordLabel', 'Password')}</label>
+                    <div className="register__input-wrap">
+                      <span className="material-symbols-outlined register__input-icon">lock</span>
+                      <input
+                        id="reg-password"
+                        type={showPassword ? 'text' : 'password'}
+                        className="register__input register__input--password"
+                        placeholder="••••••••"
+                        required
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        className="register__toggle-password"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label="Toggle password visibility"
+                      >
+                        <span className="material-symbols-outlined">
+                          {showPassword ? 'visibility_off' : 'visibility'}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Level selection for student */}
+                  {role === 'student' && (
+                    <div className="register__field">
+                      <label htmlFor="reg-level" className="register__label text-label-md">{t('auth.englishLevel', 'Current English Level')}</label>
+                      <div className="register__input-wrap">
+                        <span className="material-symbols-outlined register__input-icon">bar_chart</span>
+                        <select id="reg-level" className="register__input register__select" defaultValue="A2">
+                          <option value="A1">A1 - Beginner</option>
+                          <option value="A2">A2 - Elementary</option>
+                          <option value="B1">B1 - Intermediate</option>
+                          <option value="B2">B2 - Upper Intermediate</option>
+                          <option value="C1">C1 - Advanced</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {role === 'teacher' && (
+                    <div className="register__field">
+                      <label htmlFor="reg-institution" className="register__label text-label-md">Institution</label>
+                      <div className="register__input-wrap">
+                        <span className="material-symbols-outlined register__input-icon">apartment</span>
+                        <input id="reg-institution" type="text" className="register__input" placeholder="Your school or institution" />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Terms */}
+                  <label className="register__terms">
+                    <input type="checkbox" className="register__checkbox" required />
+                    <span className="text-label-md" style={{ color: 'var(--color-on-surface-variant)' }}>
+                      I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+                    </span>
+                  </label>
+
+                  {/* Submit */}
+                  <button type="submit" className="login__submit-figma" disabled={loading}>
+                    {loading ? (
+                      <>
+                        <span className="material-symbols-outlined animate-spin" aria-hidden="true">progress_activity</span>
+                        <span>{t('auth.loadingRegister', 'Creating account…')}</span>
+                      </>
+                    ) : (
+                      <span>{t('auth.registerBtn', 'Create Account')}</span>
+                    )}
+                  </button>
+                </form>
+
+                {/* Login CTA */}
+                <div className="login__footer-prompt">
+                  <span>{t('auth.alreadyHaveAccount', 'Already have an Account?')}{' '}</span>
+                  <Link to="/login" className="login__signup-link">
+                    {t('auth.loginBtn', 'Sign In')}
+                  </Link>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       </main>
       {(loading || isVerifying) && (

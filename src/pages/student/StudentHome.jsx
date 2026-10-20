@@ -1,87 +1,187 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import api from '../../services/api.js'
 import './StudentHome.css'
 
-const featuredTopics = [
-  { id: 'environment', image: '/assets/editorial/home/environment.jpg', level: 'B2', titleKey: 'topicEnvironment', descriptionKey: 'topicEnvironmentDescription' },
-  { id: 'technology', image: '/assets/editorial/home/technology.jpg', level: 'B1', titleKey: 'topicTechnology', descriptionKey: 'topicTechnologyDescription' },
-  { id: 'daily-life', image: '/assets/editorial/topics/daily-life.webp', level: 'A2', titleKey: 'topicDailyLife', descriptionKey: 'topicDailyLifeDescription' },
-  { id: 'hobbies', image: '/assets/editorial/topics/hobbies.webp', level: 'B1', titleKey: 'topicHobbies', descriptionKey: 'topicHobbiesDescription' },
+const CATEGORY_PILLS = [
+  { id: 'all', labelVi: 'Tất cả gợi ý', labelEn: 'All Recommendation' },
+  { id: 'writing', labelVi: 'Viết luận học thuật', labelEn: 'Academic Writing' },
+  { id: 'ielts', labelVi: 'Luyện thi IELTS & TOEFL', labelEn: 'IELTS & TOEFL Prep' },
+  { id: 'vocab', labelVi: 'Luyện từ vựng chuyên sâu', labelEn: 'Vocabulary Mastery' },
+  { id: 'grammar', labelVi: 'Ngữ pháp & Cấu trúc câu', labelEn: 'Grammar & Style' },
+  { id: 'daily', labelVi: 'Giao tiếp hàng ngày', labelEn: 'Daily Conversation' },
+  { id: 'tech', labelVi: 'Tiếng Anh Công nghệ & AI', labelEn: 'Tech & AI English' },
+  { id: 'business', labelVi: 'Tiếng Anh Thương mại', labelEn: 'Business English' },
 ]
 
-const learningLinks = [
+const STUDIO_COURSES = [
   {
-    id: 'explore',
-    icon: 'travel_explore',
-    image: '/assets/lexigrow/study-group.webp',
-    href: '/student/explore',
-    titleKey: 'topicsTitle',
-    descriptionKey: 'topicsDesc',
-    actionKey: 'topicsAction',
-  },
-  {
-    id: 'writing',
-    icon: 'edit_note',
-    image: '/assets/lexigrow/writing-practice.webp',
+    id: 'course-1',
+    image: '/assets/editorial/courses/vue-course.png',
+    title: 'ACADEMIC ESSAY WRITING TASK 2',
+    category: 'writing',
+    instructor: 'LexiGrow Studio',
+    desc: 'Master essay structure, coherence, and lexical resource with instant AI feedback.',
+    rating: 5.0,
+    reviews: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    bestSeller: true,
+    discount: '20% OFF',
     href: '/student/writing',
-    titleKey: 'writingTitle',
-    descriptionKey: 'writingDesc',
-    actionKey: 'writingAction',
   },
   {
-    id: 'review',
-    icon: 'style',
-    image: '/assets/lexigrow/tutor-guidance.webp',
-    href: '/student/vocabulary/review',
-    titleKey: 'reviewTitle',
-    descriptionKey: 'reviewDesc',
-    actionKey: 'reviewAction',
+    id: 'course-2',
+    image: '/assets/editorial/courses/ui-design.png',
+    title: 'VOCABULARY FOR TECHNOLOGY & AI',
+    category: 'vocab',
+    instructor: 'LexiGrow Studio',
+    desc: 'Build specialized technology and engineering vocabulary for international careers.',
+    rating: 5.0,
+    reviews: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    bestSeller: true,
+    discount: '20% OFF',
+    href: '/student/vocabulary',
   },
   {
-    id: 'garden',
-    icon: 'yard',
-    image: '/assets/editorial/topics/hobbies.webp',
-    href: '/student/garden',
-    title: {
-      vi: 'Trò chơi & Vườn tri thức',
-      en: 'Games & Growth Garden',
-    },
-    description: {
-      vi: 'Củng cố khả năng ghi nhớ qua thử thách từ vựng và chăm sóc khu vườn học tập mỗi ngày.',
-      en: 'Strengthen recall through arcade challenges and nurture your daily learning garden.',
-    },
-    action: {
-      vi: 'Chăm sóc vườn',
-      en: 'Open Garden',
-    },
+    id: 'course-3',
+    image: '/assets/editorial/courses/mobile-dev.png',
+    title: 'IELTS INTENSIVE BAND 7.0+',
+    category: 'ielts',
+    instructor: 'LexiGrow Studio',
+    desc: 'High-scoring strategies and comprehensive diagnostic tests designed by senior examiners.',
+    rating: 5.0,
+    reviews: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    bestSeller: true,
+    discount: '20% OFF',
+    href: '/student/explore',
+  },
+  {
+    id: 'course-4',
+    image: '/assets/editorial/courses/website-zero.png',
+    title: 'BUSINESS COMMUNICATION ZERO TO HERO',
+    category: 'business',
+    instructor: 'LexiGrow Studio',
+    desc: 'Professional emails, meeting presentations, and persuasive negotiation techniques.',
+    rating: 5.0,
+    reviews: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    bestSeller: true,
+    discount: '20% OFF',
+    href: '/student/explore',
   },
 ]
 
-const methodSteps = [
-  { number: '01', icon: 'explore', titleKey: 'stepExploreTitle', bodyKey: 'stepExploreBody' },
-  { number: '02', icon: 'quiz', titleKey: 'stepPracticeTitle', bodyKey: 'stepPracticeBody' },
-  { number: '03', icon: 'edit_note', titleKey: 'stepWriteTitle', bodyKey: 'stepWriteBody' },
-  { number: '04', icon: 'insights', titleKey: 'stepReviewTitle', bodyKey: 'stepReviewBody' },
+const TRENDING_COURSES = [
+  {
+    id: 'trend-1',
+    image: '/assets/editorial/home/environment.jpg',
+    title: 'ENVIRONMENT & SUSTAINABILITY ESSAYS',
+    category: 'writing',
+    instructor: 'Academic Team',
+    desc: 'Topic vocabulary and cohesive writing models for environmental science essays.',
+    rating: 4.9,
+    reviews: '980',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    bestSeller: true,
+    discount: '20% OFF',
+    href: '/student/writing',
+  },
+  {
+    id: 'trend-2',
+    image: '/assets/editorial/home/technology.jpg',
+    title: 'AI & DIGITAL TRANSFORMATION VOCAB',
+    category: 'tech',
+    instructor: 'LexiGrow AI Labs',
+    desc: 'Learn key collocations, idiomatic expressions, and technical definitions.',
+    rating: 5.0,
+    reviews: '1.5K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    bestSeller: true,
+    discount: '20% OFF',
+    href: '/student/vocabulary/review',
+  },
+  {
+    id: 'trend-3',
+    image: '/assets/editorial/topics/daily-life.webp',
+    title: 'DAILY LIFE CONVERSATION MASTERY',
+    category: 'daily',
+    instructor: 'Global Tutors',
+    desc: 'Confident communication for travel, everyday dialogue, and social interactions.',
+    rating: 4.8,
+    reviews: '740',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    bestSeller: true,
+    discount: '20% OFF',
+    href: '/student/game/matching',
+  },
+  {
+    id: 'trend-4',
+    image: '/assets/editorial/topics/hobbies.webp',
+    title: 'GROWTH GARDEN VOCABULARY QUEST',
+    category: 'vocab',
+    instructor: 'Gamified Learning',
+    desc: 'Grow knowledge trees by completing daily active recall quizzes and streak goals.',
+    rating: 5.0,
+    reviews: '2.1K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    bestSeller: true,
+    discount: '20% OFF',
+    href: '/student/garden',
+  },
+]
+
+const POPULAR_MENTORS = [
+  {
+    name: 'Alexander Bastian',
+    role: 'Lead IELTS Examiner & Coach',
+    image: '/assets/editorial/instructors/alexander.png',
+  },
+  {
+    name: 'Labie Carthaline',
+    role: 'Linguistic Specialist & Author',
+    image: '/assets/editorial/instructors/labie.png',
+  },
+  {
+    name: 'Jonathan Doe',
+    role: 'Academic Research Director',
+    image: '/assets/editorial/instructors/jonathan.png',
+  },
+  {
+    name: 'Jane Sarasvati',
+    role: 'Senior English Pedagogy Lead',
+    image: '/assets/editorial/instructors/sarasvati.png',
+  },
 ]
 
 export default function StudentHome() {
-  const { t, language } = useLanguage()
+  const { language } = useLanguage()
   const { user } = useAuth()
+  const navigate = useNavigate()
+
+  const [activeSlide, setActiveSlide] = useState(0)
+  const [selectedCategory, setSelectedCategory] = useState('all')
   const [announcements, setAnnouncements] = useState([])
-  const [activeAnnouncement, setActiveAnnouncement] = useState(0)
+  const [subscribeEmail, setSubscribeEmail] = useState('')
+  const [subscribeStatus, setSubscribeStatus] = useState('')
 
   useEffect(() => {
     let current = true
     if (!user) return undefined
     api.get('/announcements/active')
       .then(({ data }) => {
-        if (current) {
-          setAnnouncements(Array.isArray(data?.data) ? data.data : [])
-          setActiveAnnouncement(0)
-        }
+        if (current) setAnnouncements(Array.isArray(data?.data) ? data.data : [])
       })
       .catch(() => {
         if (current) setAnnouncements([])
@@ -89,256 +189,330 @@ export default function StudentHome() {
     return () => { current = false }
   }, [user])
 
-  const visibleAnnouncements = user ? announcements : []
-  const currentAnnouncementIndex = Math.min(activeAnnouncement, Math.max(visibleAnnouncements.length - 1, 0))
-  const announcement = visibleAnnouncements[currentAnnouncementIndex]
-  const announcementTitle = language === 'vi' ? announcement?.titleVi : announcement?.titleEn
-  const announcementBody = language === 'vi' ? announcement?.bodyVi : announcement?.bodyEn
-  const actionLabel = language === 'vi' ? announcement?.actionLabelVi : announcement?.actionLabelEn
-  const imageAlt = language === 'vi' ? announcement?.imageAltVi : announcement?.imageAltEn
-  const hasAnnouncementImage = Boolean(announcement?.bannerUrl || announcement?.imageUrl)
+  const filteredStudio = selectedCategory === 'all'
+    ? STUDIO_COURSES
+    : STUDIO_COURSES.filter(c => c.category === selectedCategory)
+
+  const handleSubscribe = (e) => {
+    e.preventDefault()
+    if (!subscribeEmail) return
+    setSubscribeStatus(language === 'vi' ? 'Đã đăng ký thành công! Cảm ơn bạn.' : 'Successfully subscribed! Thank you.')
+    setSubscribeEmail('')
+  }
 
   return (
-    <div className="student-home">
-      {/* ── ANNOUNCEMENTS BANNER ── */}
-      {announcement && (
-        <section
-          className={`student-home__announcement ${hasAnnouncementImage ? '' : 'student-home__announcement--no-image'}`}
-          aria-labelledby="student-home-announcement-title"
-        >
-          <div className="student-home__announcement-copy">
-            <span className="student-home__eyebrow">
-              <span aria-hidden="true" />
-              {t('homePage.eventLabel')}
-            </span>
-            <h2 id="student-home-announcement-title">{announcementTitle}</h2>
-            <p>{announcementBody}</p>
-            {announcement.actionUrl && actionLabel && (
-              /^https?:\/\//i.test(announcement.actionUrl) ? (
-                <a
-                  className="student-home__text-link"
-                  href={announcement.actionUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {actionLabel}
-                  <span className="material-symbols-outlined" aria-hidden="true">arrow_outward</span>
-                </a>
-              ) : (
-                <Link className="student-home__text-link" to={announcement.actionUrl}>
-                  {actionLabel}
-                  <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                </Link>
-              )
-            )}
-            {visibleAnnouncements.length > 1 && (
-              <div className="student-home__announcement-controls" role="group" aria-label={t('homePage.eventsTitle')}>
-                <span aria-live="polite" aria-atomic="true">
-                  {t('homePage.slideCount', { current: currentAnnouncementIndex + 1, total: visibleAnnouncements.length })}
-                </span>
-                <button
-                  type="button"
-                  aria-label={t('homePage.previousEvent')}
-                  onClick={() => setActiveAnnouncement((currentAnnouncementIndex - 1 + visibleAnnouncements.length) % visibleAnnouncements.length)}
-                >
-                  <span className="material-symbols-outlined" aria-hidden="true">arrow_back</span>
-                </button>
-                <button
-                  type="button"
-                  aria-label={t('homePage.nextEvent')}
-                  onClick={() => setActiveAnnouncement((currentAnnouncementIndex + 1) % visibleAnnouncements.length)}
-                >
-                  <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                </button>
-              </div>
-            )}
-          </div>
-          {(announcement.bannerUrl || announcement.imageUrl) && (
-            <img
-              className="student-home__announcement-image"
-              src={announcement.bannerUrl || announcement.imageUrl}
-              alt={announcement.bannerUrl ? '' : (imageAlt || announcementTitle)}
-              loading="lazy"
-              decoding="async"
-            />
+    <div className="student-home-figma">
+      {/* ── Optional Announcement Banner ── */}
+      {announcements.length > 0 && announcements[0] && (
+        <div className="figma-announcement-bar">
+          <span className="material-symbols-outlined">campaign</span>
+          <span>{language === 'vi' ? announcements[0].titleVi : announcements[0].titleEn}</span>
+          {announcements[0].actionUrl && (
+            <Link to={announcements[0].actionUrl} className="figma-announcement-link">
+              {language === 'vi' ? 'Xem ngay' : 'View now'} →
+            </Link>
           )}
-        </section>
+        </div>
       )}
 
-      {/* ── HERO BANNER ── */}
-      <section className="student-home__intro" aria-labelledby="student-home-title">
-        <div className="student-home__intro-copy">
-          <p className="student-home__eyebrow">{t('homePage.eyebrow')}</p>
-          <h1 id="student-home-title">{t('homePage.title')}</h1>
-          <p className="student-home__lead">{t('homePage.intro')}</p>
-          <div className="student-home__actions">
-            <Link className="student-home__button student-home__button--primary" to="/student/explore">
-              {t('homePage.exploreAction')}
-              <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-            </Link>
-            <Link className="student-home__button student-home__button--secondary" to={user ? '/student/dashboard' : '/login'}>
-              {user ? t('homePage.dashboardAction') : t('homePage.loginAction')}
-            </Link>
-          </div>
-          <ul className="student-home__promise-list" aria-label={t('homePage.learningAreas')}>
-            {[
-              ['travel_explore', 'heroPointTopics'],
-              ['edit_note', 'heroPointWriting'],
-              ['update', 'heroPointReview'],
-            ].map(([icon, key]) => (
-              <li key={key}>
-                <span className="material-symbols-outlined" aria-hidden="true">{icon}</span>
-                {t(`homePage.${key}`)}
-              </li>
-            ))}
-          </ul>
+      {/* ── 1. Hero Spotlight Carousel (Figma Design) ── */}
+      <section className="figma-hero" aria-label="Hero Spotlight">
+        <div className="figma-hero__slider">
+          {activeSlide === 0 ? (
+            <div className="figma-hero__slide figma-hero__slide--teal">
+              <div className="figma-hero__content">
+                <h1 className="figma-hero__title">
+                  {language === 'vi' ? 'Học điều mới mỗi ngày cùng LexiGrow.' : 'Learn something new everyday.'}
+                </h1>
+                <p className="figma-hero__subtitle">
+                  {language === 'vi'
+                    ? 'Nâng cao năng lực tiếng Anh học thuật và sẵn sàng hội nhập toàn cầu.'
+                    : 'Become professionals and ready to join the world.'
+                  }
+                </p>
+                <Link to="/student/explore" className="figma-hero__cta">
+                  <span>{language === 'vi' ? 'Khám phá khóa học' : 'Explore Courses'}</span>
+                </Link>
+              </div>
+
+              <div className="figma-hero__media">
+                <img
+                  src="/assets/editorial/home/figma-hero-banner.png"
+                  alt="Spotlight Showcase"
+                  className="figma-hero__banner-img"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="figma-hero__slide figma-hero__slide--yellow">
+              <div className="figma-hero__content">
+                <h1 className="figma-hero__title">
+                  {language === 'vi' ? 'Chinh phục từ vựng và bài luận xuất sắc.' : 'Master vocabulary and writing excellence.'}
+                </h1>
+                <p className="figma-hero__subtitle">
+                  {language === 'vi'
+                    ? 'Phương pháp học tập cá nhân hóa được hỗ trợ bởi công nghệ AI thông minh.'
+                    : 'Personalized practice powered by our advanced linguistic engine.'
+                  }
+                </p>
+                <Link to="/student/writing" className="figma-hero__cta">
+                  <span>{language === 'vi' ? 'Bắt đầu luyện viết' : 'Start Writing Practice'}</span>
+                </Link>
+              </div>
+
+              <div className="figma-hero__media">
+                <img
+                  src="/assets/editorial/home/figma-hero-banner-2.png"
+                  alt="Spotlight Showcase 2"
+                  className="figma-hero__banner-img"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Slider Controls */}
+          <button
+            type="button"
+            className="figma-hero__arrow figma-hero__arrow--prev"
+            onClick={() => setActiveSlide(prev => (prev === 0 ? 1 : 0))}
+            aria-label="Previous Slide"
+          >
+            <span className="material-symbols-outlined">chevron_left</span>
+          </button>
+          <button
+            type="button"
+            className="figma-hero__arrow figma-hero__arrow--next"
+            onClick={() => setActiveSlide(prev => (prev === 0 ? 1 : 0))}
+            aria-label="Next Slide"
+          >
+            <span className="material-symbols-outlined">chevron_right</span>
+          </button>
         </div>
-        <figure className="student-home__hero-visual">
-          <img
-            className="student-home__intro-image"
-            src="/assets/lexigrow/study-hero.webp"
-            alt={language === 'vi' ? 'Học viên đang ôn tiếng Anh bên cửa sổ tại thư viện đại học' : 'Learner studying English by a window in a university library'}
-            width="1400"
-            height="933"
-            fetchPriority="high"
+
+        {/* Carousel Dots */}
+        <div className="figma-hero__dots">
+          <button
+            type="button"
+            className={`figma-hero__dot ${activeSlide === 0 ? 'is-active' : ''}`}
+            onClick={() => setActiveSlide(0)}
+            aria-label="Slide 1"
           />
-          <figcaption>
-            <span className="material-symbols-outlined" aria-hidden="true">menu_book</span>
-            <span>{t('homePage.heroCaption')}</span>
-          </figcaption>
-        </figure>
+          <button
+            type="button"
+            className={`figma-hero__dot ${activeSlide === 1 ? 'is-active' : ''}`}
+            onClick={() => setActiveSlide(1)}
+            aria-label="Slide 2"
+          />
+        </div>
       </section>
 
-      {/* ── LEARNING PILLARS / AREAS ── */}
-      <section className="student-home__practice" aria-labelledby="student-home-practice-title">
-        <div className="student-home__section-heading">
-          <div>
-            <p className="student-home__eyebrow">{t('homePage.practiceEyebrow')}</p>
-            <h2 id="student-home-practice-title">{t('homePage.practiceTitle')}</h2>
-            <p>{t('homePage.practiceDescription')}</p>
-          </div>
-          <Link className="student-home__section-link" to="/student/explore">
-            {t('homePage.allTopics')}
-            <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-          </Link>
-        </div>
-        <div className="student-home__learning-grid">
-          {learningLinks.map((item) => {
-            const cardTitle = item.titleKey ? t(`homePage.${item.titleKey}`) : (language === 'vi' ? item.title.vi : item.title.en)
-            const cardDesc = item.descriptionKey ? t(`homePage.${item.descriptionKey}`) : (language === 'vi' ? item.description.vi : item.description.en)
-            const cardAction = item.actionKey ? t(`homePage.${item.actionKey}`) : (language === 'vi' ? item.action.vi : item.action.en)
+      {/* ── 2. Category Filter Pills (Figma Design) ── */}
+      <section className="figma-category-bar" aria-label="Course Categories">
+        <div className="figma-category-list">
+          {CATEGORY_PILLS.map((pill) => {
+            const label = language === 'vi' ? pill.labelVi : pill.labelEn
+            const isActive = selectedCategory === pill.id
             return (
-              <Link className="student-home__learning-card" to={item.href} key={item.id}>
-                <img
-                  className="student-home__learning-image"
-                  src={item.image}
-                  alt={cardTitle}
-                  loading="lazy"
-                  decoding="async"
-                  width="800"
-                  height="450"
-                />
-                <div className="student-home__learning-copy">
-                  <span className="student-home__learning-icon material-symbols-outlined" aria-hidden="true">
-                    {item.icon}
-                  </span>
-                  <h3>{cardTitle}</h3>
-                  <p>{cardDesc}</p>
-                  <span className="student-home__card-link">
-                    {cardAction}
-                    <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                  </span>
-                </div>
-              </Link>
+              <button
+                key={pill.id}
+                type="button"
+                className={`figma-pill ${isActive ? 'figma-pill--active' : ''}`}
+                onClick={() => setSelectedCategory(pill.id)}
+              >
+                {label}
+              </button>
             )
           })}
         </div>
       </section>
 
-      {/* ── TOPICS PREVIEW ── */}
-      <section className="student-home__topics" aria-labelledby="student-home-topics-title">
-        <div className="student-home__section-heading">
+      {/* ── 3. More from LexiGrow Studio (Figma Design) ── */}
+      <section className="figma-section" aria-labelledby="heading-studio">
+        <div className="figma-section__header">
           <div>
-            <p className="student-home__eyebrow">{t('homePage.pathwaysEyebrow')}</p>
-            <h2 id="student-home-topics-title">{t('homePage.topicsSectionTitle')}</h2>
-            <p>{t('homePage.topicsSectionDescription')}</p>
+            <h2 id="heading-studio" className="figma-section__title">
+              {language === 'vi' ? 'Khóa học nổi bật từ LexiGrow Studio' : 'More from LexiGrow Studio'}
+            </h2>
+            <p className="figma-section__subtitle">
+              {language === 'vi'
+                ? 'Được tuyển chọn kỹ lưỡng để nâng cao toàn diện kỹ năng của bạn.'
+                : 'We know the best things for You. Top picks for You.'}
+            </p>
           </div>
-          <Link className="student-home__section-link" to="/student/explore">
-            {t('homePage.allTopics')}
-            <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+          <Link to="/student/explore" className="figma-section__more-link">
+            <span>{language === 'vi' ? 'Xem tất cả' : 'View all'}</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
           </Link>
         </div>
-        <div className="student-home__topic-grid">
-          {featuredTopics.map((topic) => (
-            <Link className="student-home__topic-card" to="/student/explore" key={topic.id}>
-              <div className="student-home__topic-image-wrap">
-                <img
-                  className="student-home__topic-image"
-                  src={topic.image}
-                  alt={t(`homePage.${topic.titleKey}`)}
-                  loading="lazy"
-                  decoding="async"
-                  width="512"
-                  height="279"
-                />
-                <span className="student-home__level">{topic.level}</span>
+
+        <div className="figma-card-grid">
+          {filteredStudio.map((course) => (
+            <div
+              key={course.id}
+              className="figma-course-card"
+              onClick={() => navigate(course.href)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter') navigate(course.href) }}
+            >
+              <div className="figma-course-card__thumb-wrap">
+                <img src={course.image} alt={course.title} className="figma-course-card__thumb" />
+                <div className="figma-course-card__badges">
+                  {course.bestSeller && (
+                    <span className="figma-badge figma-badge--bestseller">Best Seller</span>
+                  )}
+                  {course.discount && (
+                    <span className="figma-badge figma-badge--discount">{course.discount}</span>
+                  )}
+                </div>
               </div>
-              <div className="student-home__topic-copy">
-                <span className="student-home__topic-category">{t('homePage.topicCollection')}</span>
-                <h3>{t(`homePage.${topic.titleKey}`)}</h3>
-                <p>{t(`homePage.${topic.descriptionKey}`)}</p>
-                <span className="student-home__card-link">
-                  {t('homePage.openTopic')}
-                  <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                </span>
+
+              <div className="figma-course-card__body">
+                <h3 className="figma-course-card__title">{course.title}</h3>
+                <div className="figma-course-card__instructor">
+                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>person</span>
+                  <span>{course.instructor}</span>
+                </div>
+                <p className="figma-course-card__desc">{course.desc}</p>
+                <div className="figma-course-card__rating">
+                  <div className="figma-stars" aria-label={`Rating ${course.rating}`}>
+                    {'★'.repeat(5)}
+                  </div>
+                  <span className="figma-reviews">({course.reviews})</span>
+                </div>
+                <div className="figma-course-card__price-row">
+                  <span className="figma-price-current">{course.price}</span>
+                  <span className="figma-price-original">{course.originalPrice}</span>
+                </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </section>
 
-      {/* ── METHOD STEPS ── */}
-      <section className="student-home__steps-section" aria-labelledby="student-home-steps-title">
-        <div className="student-home__steps-intro">
-          <p className="student-home__eyebrow">{t('homePage.methodEyebrow')}</p>
-          <h2 id="student-home-steps-title">{t('homePage.stepsTitle')}</h2>
-          <p>{t('homePage.stepsDescription')}</p>
-          <Link className="student-home__text-link" to="/student/explore">
-            {t('homePage.methodAction')}
-            <span aria-hidden="true">→</span>
+      {/* ── 4. Trending Topics & Courses (Figma Design) ── */}
+      <section className="figma-section" aria-labelledby="heading-trending">
+        <div className="figma-section__header">
+          <div>
+            <h2 id="heading-trending" className="figma-section__title">
+              {language === 'vi' ? 'Chủ đề & Lộ trình xu hướng' : 'Trending Courses'}
+            </h2>
+            <p className="figma-section__subtitle">
+              {language === 'vi'
+                ? 'Được cộng đồng người học thực hành và đánh giá cao nhất trong tuần.'
+                : 'We know the best things for You. Top picks for You.'}
+            </p>
+          </div>
+          <Link to="/student/explore" className="figma-section__more-link">
+            <span>{language === 'vi' ? 'Xem tất cả' : 'View all'}</span>
+            <span className="material-symbols-outlined" style={{ fontSize: 18 }}>arrow_forward</span>
           </Link>
         </div>
-        <ol className="student-home__steps">
-          {methodSteps.map((step) => (
-            <li key={step.number}>
-              <span className="student-home__step-number">{step.number}</span>
-              <span className="material-symbols-outlined student-home__step-icon" aria-hidden="true">
-                {step.icon}
-              </span>
-              <div>
-                <h3>{t(`homePage.${step.titleKey}`)}</h3>
-                <p>{t(`homePage.${step.bodyKey}`)}</p>
+
+        <div className="figma-card-grid">
+          {TRENDING_COURSES.map((course) => (
+            <div
+              key={course.id}
+              className="figma-course-card"
+              onClick={() => navigate(course.href)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => { if (e.key === 'Enter') navigate(course.href) }}
+            >
+              <div className="figma-course-card__thumb-wrap">
+                <img src={course.image} alt={course.title} className="figma-course-card__thumb" />
+                <div className="figma-course-card__badges">
+                  {course.bestSeller && (
+                    <span className="figma-badge figma-badge--bestseller">Best Seller</span>
+                  )}
+                  {course.discount && (
+                    <span className="figma-badge figma-badge--discount">{course.discount}</span>
+                  )}
+                </div>
               </div>
-            </li>
+
+              <div className="figma-course-card__body">
+                <h3 className="figma-course-card__title">{course.title}</h3>
+                <div className="figma-course-card__instructor">
+                  <span className="material-symbols-outlined" style={{ fontSize: 16 }}>person</span>
+                  <span>{course.instructor}</span>
+                </div>
+                <p className="figma-course-card__desc">{course.desc}</p>
+                <div className="figma-course-card__rating">
+                  <div className="figma-stars" aria-label={`Rating ${course.rating}`}>
+                    {'★'.repeat(5)}
+                  </div>
+                  <span className="figma-reviews">({course.reviews})</span>
+                </div>
+                <div className="figma-course-card__price-row">
+                  <span className="figma-price-current">{course.price}</span>
+                  <span className="figma-price-original">{course.originalPrice}</span>
+                </div>
+              </div>
+            </div>
           ))}
-        </ol>
+        </div>
       </section>
 
-      {/* ── CLOSING BANNER ── */}
-      <section className="student-home__closing" aria-labelledby="student-home-closing-title">
-        <div>
-          <p className="student-home__eyebrow">{t('homePage.closingEyebrow')}</p>
-          <h2 id="student-home-closing-title">{t('homePage.closingTitle')}</h2>
-          <p>{t('homePage.closingDescription')}</p>
+      {/* ── 5. Popular Instructors / Mentors (Figma Design) ── */}
+      <section className="figma-section" aria-labelledby="heading-mentors">
+        <div className="figma-section__header">
+          <div>
+            <h2 id="heading-mentors" className="figma-section__title">
+              {language === 'vi' ? 'Giảng viên & Chuyên gia AI được yêu thích' : 'Popular Instructor'}
+            </h2>
+            <p className="figma-section__subtitle">
+              {language === 'vi'
+                ? 'Đội ngũ đồng hành mang lại kết quả học tập vượt trội cho bạn.'
+                : 'We know the best things for You. Top picks for You.'}
+            </p>
+          </div>
         </div>
-        <div className="student-home__actions">
-          <Link className="student-home__button student-home__button--primary" to="/student/explore">
-            {t('homePage.exploreAction')}
-            <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-          </Link>
-          <Link className="student-home__button student-home__button--secondary" to={user ? '/student/dashboard' : '/login'}>
-            {user ? t('homePage.dashboardAction') : t('homePage.loginAction')}
-          </Link>
+
+        <div className="figma-instructors-grid">
+          {POPULAR_MENTORS.map((mentor) => (
+            <div key={mentor.name} className="figma-instructor-card">
+              <img src={mentor.image} alt={mentor.name} className="figma-instructor-card__img" />
+              <div className="figma-instructor-card__overlay">
+                <h3 className="figma-instructor-card__name">{mentor.name}</h3>
+                <p className="figma-instructor-card__role">{mentor.role}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── 6. Newsletter / Discount CTA Banner (Figma Design) ── */}
+      <section className="figma-newsletter-banner" aria-label="Discount Community">
+        <div className="figma-newsletter-banner__content">
+          <h2 className="figma-newsletter-banner__title">
+            {language === 'vi' ? 'Nhận thông tin ưu đãi và bài học mới nhất' : 'Join and get amazing discount'}
+          </h2>
+          <p className="figma-newsletter-banner__subtitle">
+            {language === 'vi'
+              ? 'Trải nghiệm học tiếng Anh mượt mà trên cả trình duyệt máy tính và thiết bị di động'
+              : 'With our responsive themes and mobile and desktop apps'}
+          </p>
+
+          <form onSubmit={handleSubscribe} className="figma-newsletter-banner__form">
+            <div className="figma-newsletter-banner__input-wrap">
+              <input
+                type="email"
+                placeholder={language === 'vi' ? 'Nhập email của bạn...' : 'Email Address'}
+                value={subscribeEmail}
+                onChange={(e) => setSubscribeEmail(e.target.value)}
+                required
+              />
+              <span className="material-symbols-outlined figma-newsletter-banner__search-icon">search</span>
+            </div>
+            <button type="submit" className="figma-newsletter-banner__submit">
+              {language === 'vi' ? 'Đăng ký' : 'Subscribe'}
+            </button>
+          </form>
+
+          {subscribeStatus && (
+            <p className="figma-newsletter-banner__status">{subscribeStatus}</p>
+          )}
         </div>
       </section>
     </div>

@@ -22,7 +22,11 @@ const EDUVIA_COURSES = [
       { word: 'commute', meaning: 'Travel to work/school' },
       { word: 'productive', meaning: 'High efficiency' },
       { word: 'schedule', meaning: 'Daily plan' }
-    ]
+    ],
+    rating: 4.8,
+    reviews: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
   },
   {
     slug: 'pronunciation-coach',
@@ -39,7 +43,11 @@ const EDUVIA_COURSES = [
       { word: 'intonation', meaning: 'Pitch modulation' },
       { word: 'articulation', meaning: 'Clear pronunciation' },
       { word: 'syllable', meaning: 'Sound unit' }
-    ]
+    ],
+    rating: 4.9,
+    reviews: '850',
+    price: '$24.92',
+    originalPrice: '$32.90',
   },
   {
     slug: 'grammar-mastery',
@@ -56,7 +64,11 @@ const EDUVIA_COURSES = [
       { word: 'conditional', meaning: 'Hypothetical' },
       { word: 'passive', meaning: 'Subject receives action' },
       { word: 'cohesion', meaning: 'Logical flow' }
-    ]
+    ],
+    rating: 5.0,
+    reviews: '1.4K',
+    price: '$24.92',
+    originalPrice: '$32.90',
   },
   {
     slug: 'academic-writing',
@@ -73,7 +85,11 @@ const EDUVIA_COURSES = [
       { word: 'thesis', meaning: 'Main proposition' },
       { word: 'coherence', meaning: 'Logical connection' },
       { word: 'counterargument', meaning: 'Opposing perspective' }
-    ]
+    ],
+    rating: 5.0,
+    reviews: '2.1K',
+    price: '$24.92',
+    originalPrice: '$32.90',
   },
   {
     slug: 'technology',
@@ -90,7 +106,11 @@ const EDUVIA_COURSES = [
       { word: 'innovation', meaning: 'Groundbreaking idea' },
       { word: 'collaboration', meaning: 'Teamwork' },
       { word: 'accessible', meaning: 'Easy to reach' }
-    ]
+    ],
+    rating: 4.9,
+    reviews: '1.5K',
+    price: '$24.92',
+    originalPrice: '$32.90',
   },
   {
     slug: 'environment',
@@ -107,16 +127,26 @@ const EDUVIA_COURSES = [
       { word: 'sustainable', meaning: 'Eco-friendly' },
       { word: 'biodiversity', meaning: 'Biological variety' },
       { word: 'ecosystem', meaning: 'Living network' }
-    ]
+    ],
+    rating: 4.8,
+    reviews: '910',
+    price: '$24.92',
+    originalPrice: '$32.90',
   }
 ]
 
 export default function Explore() {
   const navigate = useNavigate()
   const { language } = useLanguage()
+
   const [selectedTag, setSelectedTag] = useState('ALL')
+  const [selectedLevel, setSelectedLevel] = useState('ALL')
+  const [selectedRating, setSelectedRating] = useState(0)
   const [statusTab, setStatusTab] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [sortBy, setSortBy] = useState('popular')
+  const [currentPage, setCurrentPage] = useState(1)
+
   const [topicSets, setTopicSets] = useState(EDUVIA_COURSES)
   const [completedCounts, setCompletedCounts] = useState({})
   const [recentSessions, setRecentSessions] = useState([])
@@ -169,6 +199,10 @@ export default function Explore() {
               descVi: set.descriptionVi || preset?.descVi || set.description || '',
               words: words.length ? words : (preset?.words || []),
               timeEstimate: preset?.timeEstimate || '10 mins',
+              rating: preset?.rating || 4.9,
+              reviews: preset?.reviews || '1.1K',
+              price: '$24.92',
+              originalPrice: '$32.90',
             }
           })
           const serverCoursesBySlug = new Map(serverCourses.map((course) => [course.slug, course]))
@@ -224,6 +258,8 @@ export default function Explore() {
 
   const filteredCourses = coursesWithProgress.filter(course => {
     const matchesTag = selectedTag === 'ALL' || course.tag.toLowerCase() === selectedTag.toLowerCase()
+    const matchesLevel = selectedLevel === 'ALL' || course.level.toUpperCase() === selectedLevel.toUpperCase()
+    const matchesRating = selectedRating === 0 || (course.rating || 5) >= selectedRating
     const matchesStatus = statusTab === 'all' || course.isCompleted
     const query = searchQuery.trim().toLowerCase()
     const matchesSearch = !query ||
@@ -234,31 +270,24 @@ export default function Explore() {
       course.descVi.toLowerCase().includes(query) ||
       course.level.toLowerCase().includes(query) ||
       course.displayWords.some(w => `${w.word} ${w.meaning}`.toLowerCase().includes(query))
-    return matchesTag && matchesStatus && matchesSearch
+    return matchesTag && matchesLevel && matchesRating && matchesStatus && matchesSearch
   })
 
-  const completedCount = Object.values(completedCounts).filter((count) => Number(count) > 0).length
+  const handleClearFilters = () => {
+    setSelectedTag('ALL')
+    setSelectedLevel('ALL')
+    setSelectedRating(0)
+    setStatusTab('all')
+    setSearchQuery('')
+  }
+
+  const activeCategoryLabel = selectedTag === 'ALL'
+    ? (language === 'vi' ? 'Tất cả chuyên mục' : 'All Categories')
+    : selectedTag
 
   return (
-    <div className="eduvia-courses-page">
-      {/* ── BREADCRUMB HERO BANNER ── */}
-      <section className="eduvia-page-hero">
-        <h1 className="eduvia-page-hero__title">
-          {language === 'vi' ? 'Chủ đề & Luyện viết thông minh' : 'Smart Writing & Topics'}
-        </h1>
-        <p className="eduvia-page-hero__desc">
-          {language === 'vi'
-            ? 'Chọn chủ đề bạn muốn rèn luyện, nắm vững từ vựng trọng tâm và chuyển tiếp ngay sang phòng viết luận cùng trợ lý AI LexiGrow.'
-            : 'Select a topic to master target vocabulary and transition directly into AI-powered Smart Writing.'}
-        </p>
-        <div className="eduvia-breadcrumbs">
-          <Link to="/student/home">{language === 'vi' ? 'Trang chủ' : 'Home'}</Link>
-          <span className="eduvia-breadcrumbs__sep">·</span>
-          <span>{language === 'vi' ? 'Chủ đề luyện viết' : 'Writing Topics'}</span>
-        </div>
-      </section>
-
-      {/* ── PERSONALIZED ROADMAP HERO (When available) ── */}
+    <div className="figma-search-page">
+      {/* ── Optional Roadmap Banner ── */}
       {userRoadmap?.activeTopic && (
         <section className="eduvia-roadmap-banner" aria-label="Personalized Learning Roadmap">
           <div className="eduvia-roadmap-badge">
@@ -275,37 +304,13 @@ export default function Explore() {
               <h2 className="eduvia-roadmap-title">
                 {language === 'vi' ? (userRoadmap.activeTopic.titleVi || userRoadmap.activeTopic.title) : userRoadmap.activeTopic.title}
               </h2>
-              <p className="eduvia-roadmap-prompt">
-                {userRoadmap.activeTopic.promptTopic}
-              </p>
-              {userRoadmap.activeTopic.words?.length > 0 && (
-                <div className="eduvia-roadmap-words">
-                  {userRoadmap.activeTopic.words.map((w) => (
-                    <span key={w.word} className={`eduvia-roadmap-chip eduvia-roadmap-chip--${w.status || 'ready'}`}>
-                      <strong>{w.word}</strong>
-                      {w.definitionVi ? ` · ${w.definitionVi}` : ''}
-                    </span>
-                  ))}
-                </div>
-              )}
+              <p className="eduvia-roadmap-prompt">{userRoadmap.activeTopic.promptTopic}</p>
             </div>
 
             <div className="eduvia-roadmap-action">
-              <div className="eduvia-roadmap-progress-wrap">
-                <div className="eduvia-roadmap-progress-bar">
-                  <div
-                    className="eduvia-roadmap-progress-fill"
-                    style={{ width: `${userRoadmap.activeTopic.progressPercent || 0}%` }}
-                  />
-                </div>
-                <span className="eduvia-roadmap-progress-text">
-                  {userRoadmap.activeTopic.progressPercent || 0}% {language === 'vi' ? 'hoàn thành' : 'completed'}
-                </span>
-              </div>
-
               <button
                 type="button"
-                className="btn-primary eduvia-roadmap-btn"
+                className="figma-btn-teal"
                 onClick={() => navigate(`/student/writing?set=${userRoadmap.activeTopic.topicSlug}&roadmap=true`)}
               >
                 <span className="material-symbols-outlined">play_arrow</span>
@@ -313,197 +318,273 @@ export default function Explore() {
               </button>
             </div>
           </div>
-
-          {/* Up next topics preview */}
-          {userRoadmap.topics?.filter((t) => t.status !== 'active').length > 0 && (
-            <div className="eduvia-roadmap-upcoming">
-              <span className="eduvia-upcoming-label">
-                {language === 'vi' ? 'Chủ đề kế tiếp:' : 'Up next:'}
-              </span>
-              <div className="eduvia-upcoming-pills">
-                {userRoadmap.topics
-                  .filter((t) => t.status !== 'active')
-                  .slice(0, 3)
-                  .map((t) => (
-                    <span key={t.topicSlug} className={`eduvia-upcoming-pill ${t.status === 'completed' ? 'eduvia-upcoming-pill--done' : ''}`}>
-                      {t.status === 'completed' && <span className="material-symbols-outlined">check</span>}
-                      <span>{language === 'vi' ? (t.titleVi || t.title) : t.title}</span>
-                    </span>
-                  ))}
-              </div>
-            </div>
-          )}
         </section>
       )}
 
-      <div className="eduvia-courses-container">
-        {/* ── SECTION HEADER & SEARCH ── */}
-        <div className="eduvia-section-header">
-          <div>
-            <span className="eduvia-kicker eduvia-kicker--green">
-              {language === 'vi' ? 'Chủ đề nổi bật' : 'Writing Topics'}
-            </span>
-            <h2 className="eduvia-section-title">
-              {language === 'vi' ? 'Chọn chủ đề để học từ & viết luận' : 'Select A Topic To Learn & Write'}
-            </h2>
-          </div>
-          <div className="eduvia-courses-search">
-            <span className="material-symbols-outlined">search</span>
-            <input
-              type="search"
-              placeholder={language === 'vi' ? 'Tìm bài học, chủ đề, từ vựng...' : 'Search courses, topics, vocabulary...'}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label={language === 'vi' ? 'Tìm kiếm chủ đề' : 'Search topics'}
-            />
-          </div>
-        </div>
-
-        {/* ── CATEGORY FILTER PILLS ── */}
-        <div className="eduvia-courses-filter-pills" role="group" aria-label={language === 'vi' ? 'Lọc theo chuyên mục' : 'Filter by category'}>
-          {[
-            { id: 'ALL', labelVi: 'Tất cả chủ đề', labelEn: 'All Topics' },
-            { id: 'Speaking', labelVi: 'Giao tiếp', labelEn: 'Speaking' },
-            { id: 'Pronunciation', labelVi: 'Phát âm', labelEn: 'Pronunciation' },
-            { id: 'Grammar', labelVi: 'Ngữ pháp', labelEn: 'Grammar' },
-            { id: 'Writing', labelVi: 'Viết luận', labelEn: 'Writing' },
-            { id: 'Vocabulary', labelVi: 'Từ vựng', labelEn: 'Vocabulary' },
-            { id: 'Business English', labelVi: 'Tiếng Anh thương mại', labelEn: 'Business English' },
-          ].map(tag => (
-            <button
-              key={tag.id}
-              type="button"
-              className={`eduvia-filter-pill ${selectedTag === tag.id ? 'active' : ''}`}
-              aria-pressed={selectedTag === tag.id}
-              onClick={() => setSelectedTag(tag.id)}
-            >
-              {language === 'vi' ? tag.labelVi : tag.labelEn}
+      {/* ── Main Figma Search 2-Column Layout ── */}
+      <div className="figma-search-layout">
+        {/* ── Left Sidebar Filter ── */}
+        <aside className="figma-sidebar">
+          <div className="figma-sidebar__header">
+            <h3>{language === 'vi' ? 'Bộ lọc' : 'Filter'}</h3>
+            <button type="button" className="figma-sidebar__clear" onClick={handleClearFilters}>
+              {language === 'vi' ? 'Xóa lọc' : 'Clear'}
             </button>
-          ))}
-        </div>
-
-        <div className="eduvia-courses-filter-pills eduvia-courses-filter-pills--status" role="group" aria-label={language === 'vi' ? 'Lọc theo tiến độ' : 'Filter by progress'}>
-          <button type="button" className={`eduvia-filter-pill ${statusTab === 'all' ? 'active' : ''}`} aria-pressed={statusTab === 'all'} onClick={() => setStatusTab('all')}>
-            {language === 'vi' ? 'Tất cả tiến độ' : 'All progress'}
-          </button>
-          <button type="button" className={`eduvia-filter-pill ${statusTab === 'completed' ? 'active' : ''}`} aria-pressed={statusTab === 'completed'} onClick={() => setStatusTab('completed')}>
-            {language === 'vi' ? 'Đã hoàn thành' : 'Completed'}{completedCount > 0 ? ` (${completedCount})` : ''}
-          </button>
-        </div>
-
-        {filteredCourses.length === 0 ? (
-          <div className="eduvia-courses-empty" role="status">
-            <span className="material-symbols-outlined" aria-hidden="true">{statusTab === 'completed' && completedCount === 0 ? 'task_alt' : 'search_off'}</span>
-            <h3>{statusTab === 'completed' && completedCount === 0
-              ? (language === 'vi' ? 'Chưa có chủ đề hoàn thành' : 'No completed topics yet')
-              : (language === 'vi' ? 'Không tìm thấy chủ đề phù hợp' : 'No matching topics found')}</h3>
-            <p>{statusTab === 'completed' && completedCount === 0
-              ? (language === 'vi' ? 'Hoàn thành một chủ đề để xem lại tiến độ tại đây.' : 'Complete a topic to see your progress here.')
-              : (language === 'vi' ? 'Thử từ khóa khác hoặc chọn một chuyên mục khác.' : 'Try another search term or category.')}</p>
-            {statusTab === 'completed' && <button type="button" className="eduvia-filter-pill active" onClick={() => setStatusTab('all')}>{language === 'vi' ? 'Xem tất cả chủ đề' : 'View all topics'}</button>}
           </div>
-        ) : <div className="eduvia-courses-grid">
-          {filteredCourses.map(course => {
-            const isDone = course.isCompleted
-            const targetRound = course.isNewRound ? `&round=${course.roundNumber}&forceSet=true` : ''
-            const writingUrl = `/student/writing?set=${encodeURIComponent(course.slug)}${targetRound}`
 
-            return (
-              <article className="eduvia-course-card" key={course.slug}>
-                <div className="eduvia-course-card__image-wrap">
-                  <img src={course.image} alt={course.title} className="eduvia-course-card__img" loading="lazy" />
-                  <span className={`eduvia-course-card__tag eduvia-course-card__tag--${course.tagColor}`}>
-                    {language === 'vi' ? ({ Speaking: 'Giao tiếp', Pronunciation: 'Phát âm', Grammar: 'Ngữ pháp', Writing: 'Viết luận', Vocabulary: 'Từ vựng', 'Business English': 'Tiếng Anh thương mại' }[course.tag] || course.tag) : course.tag}
-                  </span>
-                  {course.isCompleted && <span className="eduvia-course-card__completed">{language === 'vi' ? 'Đã hoàn thành' : 'Completed'}</span>}
-                  <span className="eduvia-course-card__level-badge">
-                    {course.level}
-                  </span>
-                </div>
+          {/* Rating Section */}
+          <div className="figma-sidebar__group">
+            <h4 className="figma-sidebar__group-title">{language === 'vi' ? 'Đánh giá' : 'Rating'}</h4>
+            <div className="figma-sidebar__options">
+              {[
+                { val: 4.5, label: '4.5 & up', count: '5.8K' },
+                { val: 3.5, label: '3.5 & up', count: '1.2K' },
+                { val: 3.0, label: '3.0 & up', count: '867' },
+              ].map(r => (
+                <label key={r.val} className="figma-radio-label">
+                  <input
+                    type="radio"
+                    name="filter-rating"
+                    checked={selectedRating === r.val}
+                    onChange={() => setSelectedRating(selectedRating === r.val ? 0 : r.val)}
+                  />
+                  <span className="figma-radio-custom" />
+                  <span className="figma-sidebar-stars">{'★'.repeat(Math.floor(r.val))}</span>
+                  <span className="figma-sidebar-label">{r.label}</span>
+                  <span className="figma-sidebar-count">({r.count})</span>
+                </label>
+              ))}
+            </div>
+          </div>
 
-                <div className="eduvia-course-card__body">
-                  <div className="eduvia-course-card__meta-top">
-                    <span className="eduvia-course-card__badge-time">
-                      <span className="material-symbols-outlined">schedule</span>
-                      {course.timeEstimate}
-                    </span>
-                    <span className="eduvia-course-card__badge-words">
-                      <span className="material-symbols-outlined">style</span>
-                      {course.displayWords.length} {language === 'vi' ? 'từ vựng' : 'words'}
-                    </span>
-                  </div>
+          {/* Category Section */}
+          <div className="figma-sidebar__group">
+            <h4 className="figma-sidebar__group-title">{language === 'vi' ? 'Chuyên mục' : 'Categories'}</h4>
+            <div className="figma-sidebar__options">
+              {[
+                { id: 'ALL', labelVi: 'Tất cả chuyên mục', labelEn: 'All Categories' },
+                { id: 'Writing', labelVi: 'Viết luận học thuật', labelEn: 'Academic Writing' },
+                { id: 'Vocabulary', labelVi: 'Từ vựng trọng tâm', labelEn: 'Vocabulary' },
+                { id: 'Grammar', labelVi: 'Ngữ pháp & Cấu trúc câu', labelEn: 'Grammar' },
+                { id: 'Speaking', labelVi: 'Giao tiếp hàng ngày', labelEn: 'Speaking' },
+                { id: 'Pronunciation', labelVi: 'Phát âm chuẩn', labelEn: 'Pronunciation' },
+                { id: 'Business English', labelVi: 'Tiếng Anh thương mại', labelEn: 'Business English' },
+              ].map(cat => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  className={`figma-category-item ${selectedTag === cat.id ? 'is-active' : ''}`}
+                  onClick={() => setSelectedTag(cat.id)}
+                >
+                  <span>{language === 'vi' ? cat.labelVi : cat.labelEn}</span>
+                </button>
+              ))}
+            </div>
+          </div>
 
-                  <h3 className="eduvia-course-card__title">
-                    <Link to={writingUrl}>
-                      {language === 'vi' ? course.titleVi : course.title}
-                    </Link>
-                  </h3>
+          {/* Level Section */}
+          <div className="figma-sidebar__group">
+            <h4 className="figma-sidebar__group-title">{language === 'vi' ? 'Trình độ CEFR' : 'Level'}</h4>
+            <div className="figma-sidebar__options">
+              {[
+                { id: 'ALL', label: 'All Levels' },
+                { id: 'A2', label: 'Beginner (A1 - A2)' },
+                { id: 'B1', label: 'Intermediate (B1)' },
+                { id: 'B2', label: 'Upper Intermediate (B2)' },
+                { id: 'C1', label: 'Advanced (C1)' },
+              ].map(lvl => (
+                <label key={lvl.id} className="figma-radio-label">
+                  <input
+                    type="radio"
+                    name="filter-level"
+                    checked={selectedLevel === lvl.id}
+                    onChange={() => setSelectedLevel(lvl.id)}
+                  />
+                  <span className="figma-radio-custom" />
+                  <span className="figma-sidebar-label">{lvl.label}</span>
+                </label>
+              ))}
+            </div>
+          </div>
 
-                  <p className="eduvia-course-card__desc">
-                    {course.displayDesc}
-                  </p>
+          {/* Progress Status */}
+          <div className="figma-sidebar__group">
+            <h4 className="figma-sidebar__group-title">{language === 'vi' ? 'Tiến độ học tập' : 'Progress'}</h4>
+            <div className="figma-sidebar__options">
+              <label className="figma-radio-label">
+                <input
+                  type="radio"
+                  name="filter-status"
+                  checked={statusTab === 'all'}
+                  onChange={() => setStatusTab('all')}
+                />
+                <span className="figma-radio-custom" />
+                <span className="figma-sidebar-label">{language === 'vi' ? 'Tất cả bài học' : 'All Lessons'}</span>
+              </label>
+              <label className="figma-radio-label">
+                <input
+                  type="radio"
+                  name="filter-status"
+                  checked={statusTab === 'completed'}
+                  onChange={() => setStatusTab('completed')}
+                />
+                <span className="figma-radio-custom" />
+                <span className="figma-sidebar-label">{language === 'vi' ? 'Đã hoàn thành' : 'Completed Lessons'}</span>
+              </label>
+            </div>
+          </div>
+        </aside>
 
-                  {course.isNewRound && <span className="eduvia-course-card__round-badge">{language === 'vi' ? 'Bộ từ mới' : 'New words'} · {language === 'vi' ? 'Phiên' : 'Session'} {course.roundNumber}</span>}
+        {/* ── Right Content Area ── */}
+        <main className="figma-content">
+          {/* Header Results Bar */}
+          <div className="figma-results-header">
+            <div className="figma-results-count">
+              <span>{language === 'vi' ? `Hiển thị ${filteredCourses.length} kết quả cho ` : `Showing ${filteredCourses.length} results of `}</span>
+              <strong>"{searchQuery || activeCategoryLabel}"</strong>
+            </div>
 
-                  {/* Vocabulary preview chips */}
-                  <div className="eduvia-course-card__words">
-                    {course.displayWords.slice(0, 3).map(w => (
-                      <span key={w.word} className="eduvia-word-tag">
-                        <strong>{w.word}</strong>: {w.meaning}
-                      </span>
-                    ))}
-                  </div>
+            <div className="figma-sort-dropdown-wrap">
+              <select
+                className="figma-sort-dropdown"
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                aria-label="Sort courses"
+              >
+                <option value="popular">{language === 'vi' ? 'Phổ biến nhất' : 'Most Popular'}</option>
+                <option value="rating">{language === 'vi' ? 'Đánh giá cao nhất' : 'Highest Rated'}</option>
+                <option value="newest">{language === 'vi' ? 'Mới nhất' : 'Newest'}</option>
+              </select>
+            </div>
+          </div>
 
-                  <button
-                    type="button"
-                    className="eduvia-btn eduvia-btn--navy eduvia-btn--full"
-                    onClick={() => navigate(statusTab === 'completed' ? `/student/writing?set=${encodeURIComponent(course.slug)}&forceSet=true` : writingUrl)}
+          {/* Grid of Course Cards (3 Columns) */}
+          {filteredCourses.length === 0 ? (
+            <div className="figma-empty-state">
+              <span className="material-symbols-outlined" style={{ fontSize: 48, color: '#94A3B8' }}>search_off</span>
+              <h3>{language === 'vi' ? 'Không tìm thấy kết quả phù hợp' : 'No matching results found'}</h3>
+              <p>{language === 'vi' ? 'Thử xóa bộ lọc hoặc tìm kiếm với từ khóa khác.' : 'Try clearing your filters or searching with a different term.'}</p>
+              <button type="button" className="figma-btn-teal" onClick={handleClearFilters}>
+                {language === 'vi' ? 'Xóa toàn bộ bộ lọc' : 'Clear all filters'}
+              </button>
+            </div>
+          ) : (
+            <div className="figma-search-grid">
+              {filteredCourses.map((course) => {
+                const targetRound = course.isNewRound ? `&round=${course.roundNumber}&forceSet=true` : ''
+                const writingUrl = `/student/writing?set=${encodeURIComponent(course.slug)}${targetRound}`
+
+                return (
+                  <div
+                    key={course.slug}
+                    className="figma-course-card"
+                    onClick={() => navigate(writingUrl)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === 'Enter') navigate(writingUrl) }}
                   >
-                    <span>{statusTab === 'completed'
-                      ? (language === 'vi' ? 'Luyện lại chủ đề' : 'Practice topic again')
-                      : course.isNewRound
-                        ? (language === 'vi' ? `Bắt đầu phiên ${course.roundNumber}` : `Start session ${course.roundNumber}`)
-                        : isDone
-                          ? (language === 'vi' ? 'Luyện viết lại' : 'Practice Writing Again')
-                          : (language === 'vi' ? 'Chọn chủ đề & Viết luận' : 'Select Topic & Write')}</span>
-                    <span className="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-                  </button>
-                </div>
-              </article>
-            )
-          })}
-        </div>}
+                    <div className="figma-course-card__thumb-wrap">
+                      <img src={course.image} alt={course.title} className="figma-course-card__thumb" />
+                      <div className="figma-course-card__badges">
+                        <span className="figma-badge figma-badge--bestseller">Best Seller</span>
+                        <span className="figma-badge figma-badge--discount">20% OFF</span>
+                        {course.isCompleted && (
+                          <span className="figma-badge" style={{ background: '#00DDC0', color: '#FFFFFF' }}>Done</span>
+                        )}
+                      </div>
+                    </div>
 
-        {/* ── VIDEO PLAYER BANNER ── */}
-        <section className="eduvia-courses-video-section">
-          <div className="eduvia-video-container">
-            <img src="/assets/lexigrow/writing-practice.webp" alt={language === 'vi' ? 'Học viên luyện viết tiếng Anh tại bàn học' : 'Learner practising English writing at a study desk'} className="eduvia-video-container__poster" />
-            <button type="button" className="eduvia-video-container__play-btn" aria-label="Play video">
-              <span className="material-symbols-outlined">play_arrow</span>
+                    <div className="figma-course-card__body">
+                      <h3 className="figma-course-card__title">
+                        {language === 'vi' ? course.titleVi : course.title}
+                      </h3>
+                      <div className="figma-course-card__instructor">
+                        <span className="material-symbols-outlined" style={{ fontSize: 16 }}>person</span>
+                        <span>LexiGrow Studio · Level {course.level}</span>
+                      </div>
+                      <p className="figma-course-card__desc">{course.displayDesc}</p>
+
+                      <div className="figma-course-card__rating">
+                        <div className="figma-stars">{'★'.repeat(5)}</div>
+                        <span className="figma-reviews">({course.reviews || '1.2K'})</span>
+                      </div>
+
+                      <div className="figma-course-card__price-row">
+                        <span className="figma-price-current">{course.price || '$24.92'}</span>
+                        <span className="figma-price-original">{course.originalPrice || '$32.90'}</span>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+
+          {/* Pagination Controls (Figma Style) */}
+          <div className="figma-pagination" aria-label="Pagination">
+            <button
+              type="button"
+              className="figma-page-btn"
+              disabled={currentPage <= 1}
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              aria-label="Previous Page"
+            >
+              <span className="material-symbols-outlined">chevron_left</span>
+            </button>
+            <button
+              type="button"
+              className={`figma-page-btn ${currentPage === 1 ? 'is-active' : ''}`}
+              onClick={() => setCurrentPage(1)}
+            >
+              1
+            </button>
+            <button
+              type="button"
+              className={`figma-page-btn ${currentPage === 2 ? 'is-active' : ''}`}
+              onClick={() => setCurrentPage(2)}
+            >
+              2
+            </button>
+            <button
+              type="button"
+              className={`figma-page-btn ${currentPage === 3 ? 'is-active' : ''}`}
+              onClick={() => setCurrentPage(3)}
+            >
+              3
+            </button>
+            <span className="figma-page-dots">…</span>
+            <button
+              type="button"
+              className="figma-page-btn"
+              onClick={() => setCurrentPage(98)}
+            >
+              98
+            </button>
+            <button
+              type="button"
+              className="figma-page-btn"
+              onClick={() => setCurrentPage(prev => prev + 1)}
+              aria-label="Next Page"
+            >
+              <span className="material-symbols-outlined">chevron_right</span>
             </button>
           </div>
-        </section>
 
-        {/* ── DARK CTA BANNER ── */}
-        <section className="eduvia-dark-cta">
-          <div className="eduvia-dark-cta__inner">
-            <span className="eduvia-dark-cta__kicker">{language === 'vi' ? 'Tại sao chọn LexiGrow' : 'Why Choose LexiGrow'}</span>
-            <h2>{language === 'vi' ? 'Bắt đầu hành trình bứt phá tiếng Anh cùng LexiGrow' : 'Begin Your English Journey With Confidence'}</h2>
-            <p>
-              {language === 'vi'
-                ? 'Nâng cao khả năng sử dụng tiếng Anh toàn diện với phương pháp Spaced Repetition khoa học và hệ thống phản hồi bài viết thời gian thực của LexiGrow.'
-                : 'Advance your English skills with proven Spaced Repetition methods and real-time writing feedback on LexiGrow.'}
-            </p>
-            <div className="eduvia-dark-cta__actions">
-              <Link to="/register" className="eduvia-btn eduvia-btn--lime">
-                {language === 'vi' ? 'Bắt đầu ngay' : 'Get Started'}
-              </Link>
-              <Link to="/pricing" className="eduvia-btn eduvia-btn--mint">
-                {language === 'vi' ? 'Xem gói học' : 'Choose Plan'}
+          {/* Bottom Figma CTA Banner */}
+          <div className="figma-cta-banner">
+            <div className="figma-cta-banner__copy">
+              <h2>{language === 'vi' ? 'Tham gia LexiGrow ngay hôm nay để nhận ưu đãi 35%' : 'Join LexiGrow now to get 35% off'}</h2>
+              <p>
+                {language === 'vi'
+                  ? 'Được đồng hành cùng trợ lý AI phân tích ngữ pháp, từ vựng và bài luận chuẩn quốc tế.'
+                  : 'With our responsive themes and mobile and desktop apps, enjoy a seamless learning experience.'}
+              </p>
+              <Link to="/register" className="figma-btn-teal">
+                <span>{language === 'vi' ? 'Tham gia ngay' : 'Join LexiGrow'}</span>
               </Link>
             </div>
           </div>
-        </section>
+        </main>
       </div>
     </div>
   )

@@ -4,85 +4,101 @@
    ============================================ */
 
 :root {
-  /* ── Eduvia-inspired LexiGrow palette ── */
-  --eduvia-navy: #051A2E;
-  --eduvia-lime: #E9FA49;
-  --eduvia-mint: #1CB886;
-  --eduvia-purple: #9E89FB;
-  --eduvia-hero: #DDE9FF;
-  --eduvia-surface: #F4F7FA;
-  --eduvia-pink: #FF09AD;
-  --eduvia-muted: #576C80;
-  --eduvia-text: #051A2E;
-  --eduvia-border: rgba(5, 26, 46, 0.08);
+  /* ── Figma Design System (Lexi / MyCourse) ── */
+  --figma-primary: #3DCBB1;
+  --figma-primary-hover: #32b59d;
+  --figma-primary-active: #289a85;
+  --figma-primary-light: #EBF9F6;
+  --figma-secondary: #FFD130;
+  --figma-secondary-hover: #e6bc2b;
+  --figma-dark: #1B1B1B;
+  --figma-dark-60: rgba(27, 27, 27, 0.6);
+  --figma-dark-30: rgba(27, 27, 27, 0.15);
+  --figma-light: #F9F9F9;
+  --figma-border: rgba(27, 27, 27, 0.08);
+  --figma-error: #FE416D;
+  --figma-warning: #9F49E3;
+  --figma-success: #00DDC0;
 
-  --color-primary: #051A2E;
-  --color-primary-hover: #123650;
-  --color-primary-active: #001323;
-  --color-primary-container: #1CB886;
-  --color-primary-fixed: #DDE9FF;
-  --color-primary-fixed-dim: #C9DCF1;
+  /* ── Brand LexiGrow Figma palette ── */
+  --eduvia-navy: #1B1B1B;
+  --eduvia-lime: #FFD130;
+  --eduvia-mint: #3DCBB1;
+  --eduvia-purple: #9F49E3;
+  --eduvia-hero: #EBF9F6;
+  --eduvia-surface: #F8FAFB;
+  --eduvia-pink: #FE416D;
+  --eduvia-muted: #64748B;
+  --eduvia-text: #1B1B1B;
+  --eduvia-border: rgba(27, 27, 27, 0.08);
+
+  --color-primary: #3DCBB1;
+  --color-primary-hover: #32b59d;
+  --color-primary-active: #289a85;
+  --color-primary-container: #EBF9F6;
+  --color-primary-fixed: #D4F4ED;
+  --color-primary-fixed-dim: #BFECE2;
   --color-on-primary: #FFFFFF;
-  --color-on-primary-container: #051A2E;
-  --color-on-primary-fixed: #1E3A8A;
-  --color-on-primary-fixed-variant: #1E40AF;
-  --color-inverse-primary: #93C5FD;
+  --color-on-primary-container: #0D5C4E;
+  --color-on-primary-fixed: #0D5C4E;
+  --color-on-primary-fixed-variant: #167A68;
+  --color-inverse-primary: #8CEAD7;
 
-  --color-secondary: #1CB886;
-  --color-secondary-container: #D5F4E8;
-  --color-secondary-fixed: #D5F4E8;
-  --color-secondary-fixed-dim: #B7E9D5;
-  --color-on-secondary: #051A2E;
-  --color-on-secondary-container: #07573F;
-  --color-on-secondary-fixed: #063D2F;
-  --color-on-secondary-fixed-variant: #12664B;
+  --color-secondary: #FFD130;
+  --color-secondary-container: #FFF7D6;
+  --color-secondary-fixed: #FFF7D6;
+  --color-secondary-fixed-dim: #FEEAB0;
+  --color-on-secondary: #1B1B1B;
+  --color-on-secondary-container: #685100;
+  --color-on-secondary-fixed: #453600;
+  --color-on-secondary-fixed-variant: #685100;
 
-  --color-tertiary: #9E89FB;
-  --color-tertiary-container: #E9E4FF;
-  --color-tertiary-fixed: #E9E4FF;
-  --color-tertiary-fixed-dim: #D8CFFF;
-  --color-on-tertiary: #051A2E;
-  --color-on-tertiary-container: #251A58;
-  --color-on-tertiary-fixed: #251A58;
-  --color-on-tertiary-fixed-variant: #4B3B8D;
+  --color-tertiary: #9F49E3;
+  --color-tertiary-container: #F3E8FF;
+  --color-tertiary-fixed: #F3E8FF;
+  --color-tertiary-fixed-dim: #E5D0FD;
+  --color-on-tertiary: #FFFFFF;
+  --color-on-tertiary-container: #4A1278;
+  --color-on-tertiary-fixed: #4A1278;
+  --color-on-tertiary-fixed-variant: #65259F;
 
-  --color-error: #BA1A1A;
-  --color-error-container: #FFDAD6;
+  --color-error: #FE416D;
+  --color-error-container: #FFE5EC;
   --color-on-error: #FFFFFF;
-  --color-on-error-container: #93000A;
+  --color-on-error-container: #930026;
 
   --color-surface: #FFFFFF;
-  --color-surface-dim: #E8EEF4;
+  --color-surface-dim: #F1F4F7;
   --color-surface-bright: #FFFFFF;
   --color-surface-container-lowest: #FFFFFF;
-  --color-surface-container-low: #F4F7FA;
-  --color-surface-container: #EAF0F6;
-  --color-surface-container-high: #DCE6EF;
-  --color-surface-container-highest: #B7C6D4;
-  --color-surface-variant: #EAF0F6;
-  --color-surface-tint: #1CB886;
+  --color-surface-container-low: #F8FAFB;
+  --color-surface-container: #F1F5F8;
+  --color-surface-container-high: #E6ECF1;
+  --color-surface-container-highest: #D9E1E8;
+  --color-surface-variant: #F1F5F8;
+  --color-surface-tint: #3DCBB1;
 
-  --color-on-surface: #051A2E;
-  --color-on-surface-variant: #576C80;
-  --color-on-background: #051A2E;
-  --color-background: #F4F7FA;
+  --color-on-surface: #1B1B1B;
+  --color-on-surface-variant: #64748B;
+  --color-on-background: #1B1B1B;
+  --color-background: #F8FAFB;
 
-  --color-outline: #576C80;
-  --color-outline-variant: #DFE7EE;
+  --color-outline: #94A3B8;
+  --color-outline-variant: #E2E8F0;
 
-  --color-inverse-surface: #1E293B;
-  --color-inverse-on-surface: #F8FAFC;
+  --color-inverse-surface: #1B1B1B;
+  --color-inverse-on-surface: #F9F9F9;
 
   /* ── Semantic Colors ── */
-  --color-success: #16A34A;
-  --color-success-bg: rgba(22, 163, 74, 0.1);
-  --color-warning: #D97706;
-  --color-warning-bg: rgba(217, 119, 6, 0.1);
-  --color-danger: #BA1A1A;
-  --color-danger-bg: rgba(186, 26, 26, 0.1);
+  --color-success: #00DDC0;
+  --color-success-bg: rgba(0, 221, 192, 0.12);
+  --color-warning: #FFD130;
+  --color-warning-bg: rgba(255, 209, 48, 0.15);
+  --color-danger: #FE416D;
+  --color-danger-bg: rgba(254, 65, 109, 0.12);
 
   /* ── Typography ── */
-  --font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family: 'Gilroy', 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   /* Display */
   --text-display-size: 48px;
@@ -204,50 +220,65 @@
 }
 
 [data-theme='dark'] {
-  --eduvia-navy: #071B2D;
-  --eduvia-lime: #E9FA49;
-  --eduvia-mint: #2CCD99;
-  --eduvia-purple: #AE9BFF;
-  --eduvia-hero: #152B40;
+  --figma-primary: #4EE0C5;
+  --figma-primary-hover: #3DCBB1;
+  --figma-primary-active: #2EA891;
+  --figma-primary-light: rgba(61, 203, 177, 0.15);
+  --figma-secondary: #FFD130;
+  --figma-dark: #F9F9F9;
+  --figma-dark-60: rgba(249, 249, 249, 0.6);
+  --figma-dark-30: rgba(249, 249, 249, 0.15);
+  --figma-light: #18202F;
+  --figma-border: rgba(255, 255, 255, 0.1);
+  --figma-error: #FE416D;
+  --figma-warning: #9F49E3;
+  --figma-success: #00DDC0;
+
+  --eduvia-navy: #0E1420;
+  --eduvia-lime: #FFD130;
+  --eduvia-mint: #4EE0C5;
+  --eduvia-purple: #B678F4;
+  --eduvia-hero: #152230;
   --eduvia-surface: #152333;
-  --eduvia-pink: #FF62C6;
-  --eduvia-muted: #AFC3D1;
+  --eduvia-pink: #FE416D;
+  --eduvia-muted: #94A3B8;
   --eduvia-text: #F1F5F9;
   --eduvia-border: rgba(255, 255, 255, 0.08);
-  --color-primary: #789DFF;
-  --color-primary-hover: #93B3FF;
-  --color-primary-active: #5E88F5;
-  --color-primary-container: #1A73E8;
-  --color-primary-fixed: #004493;
-  --color-primary-fixed-dim: #00306E;
-  --color-on-primary: #002D65;
-  --color-on-primary-container: #D8E2FF;
-  --color-on-primary-fixed: #D8E2FF;
-  --color-on-primary-fixed-variant: #ADC7FF;
-  --color-inverse-primary: #005BBF;
 
-  --color-secondary: #ADC7FF;
-  --color-secondary-container: #234875;
-  --color-secondary-fixed: #001C3A;
-  --color-secondary-fixed-dim: #002D58;
-  --color-on-secondary: #002F5D;
-  --color-on-secondary-container: #D4E3FF;
-  --color-on-secondary-fixed: #D4E3FF;
-  --color-on-secondary-fixed-variant: #A6C8FD;
+  --color-primary: #4EE0C5;
+  --color-primary-hover: #3DCBB1;
+  --color-primary-active: #2EA891;
+  --color-primary-container: rgba(61, 203, 177, 0.15);
+  --color-primary-fixed: #083830;
+  --color-primary-fixed-dim: #052620;
+  --color-on-primary: #052620;
+  --color-on-primary-container: #8CEAD7;
+  --color-on-primary-fixed: #8CEAD7;
+  --color-on-primary-fixed-variant: #4EE0C5;
+  --color-inverse-primary: #289a85;
 
-  --color-tertiary: #BAC8DB;
-  --color-tertiary-container: #3B4858;
-  --color-tertiary-fixed: #0F1D2B;
-  --color-tertiary-fixed-dim: #1D2A38;
-  --color-on-tertiary: #243140;
-  --color-on-tertiary-container: #D6E4F8;
-  --color-on-tertiary-fixed: #D6E4F8;
-  --color-on-tertiary-fixed-variant: #BAC8DB;
+  --color-secondary: #FFD130;
+  --color-secondary-container: rgba(255, 209, 48, 0.15);
+  --color-secondary-fixed: #3B2E00;
+  --color-secondary-fixed-dim: #292000;
+  --color-on-secondary: #1B1B1B;
+  --color-on-secondary-container: #FFE585;
+  --color-on-secondary-fixed: #FFE585;
+  --color-on-secondary-fixed-variant: #FFD130;
 
-  --color-error: #FFB4AB;
-  --color-error-container: #93000A;
-  --color-on-error: #690005;
-  --color-on-error-container: #FFDAD6;
+  --color-tertiary: #B678F4;
+  --color-tertiary-container: rgba(182, 120, 244, 0.15);
+  --color-tertiary-fixed: #2E0B54;
+  --color-tertiary-fixed-dim: #1D0637;
+  --color-on-tertiary: #1B1B1B;
+  --color-on-tertiary-container: #E5D0FD;
+  --color-on-tertiary-fixed: #E5D0FD;
+  --color-on-tertiary-fixed-variant: #B678F4;
+
+  --color-error: #FF668B;
+  --color-error-container: rgba(254, 65, 109, 0.15);
+  --color-on-error: #5C0014;
+  --color-on-error-container: #FFB3C4;
 
   --color-surface: #0E1420;
   --color-surface-dim: #0B0F19;
@@ -258,7 +289,7 @@
   --color-surface-container-high: #242F42;
   --color-surface-container-highest: #2D3A50;
   --color-surface-variant: #2A3649;
-  --color-surface-tint: #789DFF;
+  --color-surface-tint: #4EE0C5;
 
   --color-on-surface: #E2E8F0;
   --color-on-surface-variant: #94A3B8;
@@ -272,10 +303,10 @@
   --color-inverse-on-surface: #0B1C30;
 
   /* ── Semantic Colors for Dark Theme ── */
-  --color-success: #22C55E;
-  --color-success-bg: rgba(34, 197, 94, 0.15);
-  --color-warning: #F59E0B;
-  --color-warning-bg: rgba(245, 158, 11, 0.15);
-  --color-danger: #EF4444;
-  --color-danger-bg: rgba(239, 68, 68, 0.15);
+  --color-success: #00DDC0;
+  --color-success-bg: rgba(0, 221, 192, 0.15);
+  --color-warning: #FFD130;
+  --color-warning-bg: rgba(255, 209, 48, 0.15);
+  --color-danger: #FE416D;
+  --color-danger-bg: rgba(254, 65, 109, 0.15);
 }

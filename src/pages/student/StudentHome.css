@@ -1,660 +1,625 @@
-.student-home {
-  --home-ink: var(--color-on-surface, #0f172a);
-  --home-muted: var(--color-on-surface-variant, #475569);
-  --home-line: var(--color-outline-variant, #e2e8f0);
-  width: min(100%, 1240px);
+/* ==========================================================================
+   LexiGrow Figma Redesign: Homepage Styles (Based on Figma Lexi Desktop)
+   ========================================================================== */
+
+.student-home-figma {
+  width: min(100%, 1320px);
   margin-inline: auto;
-  padding: 0 20px 80px;
-  display: grid;
-  gap: clamp(48px, 6.5vw, 80px);
-  color: var(--home-ink);
-}
-
-.student-home :is(h1, h2, h3, p) { margin-top: 0; }
-.student-home a { color: inherit; }
-.student-home a:focus-visible,
-.student-home button:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 3px; }
-
-.student-home__eyebrow {
-  display: block;
-  margin-bottom: 10px;
-  color: var(--color-primary);
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  line-height: 1.45;
-  text-transform: uppercase;
-}
-
-.student-home__intro h1,
-.student-home__announcement h2,
-.student-home__section-heading h2,
-.student-home__method-intro h2,
-.student-home__steps-intro h2,
-.student-home__closing h2 {
+  padding: 24px 24px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
   font-family: var(--font-family);
-  font-weight: 700;
-  letter-spacing: -.03em;
-  text-wrap: balance;
+  color: var(--color-on-surface, #1B1B1B);
 }
 
-.student-home__button {
-  min-height: 46px;
-  display: inline-flex;
+/* ── Announcement Bar ── */
+.figma-announcement-bar {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 11px 22px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md, 10px);
-  font-size: 15px;
-  font-weight: 650;
-  line-height: 1.3;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all .18s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.student-home__button--primary {
-  color: #ffffff !important;
-  background: var(--color-primary, #10b981);
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
-}
-.student-home__button--primary:hover {
-  background: var(--color-primary-hover, #059669);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-  transform: translateY(-1px);
-  text-decoration: none;
-}
-
-.student-home__button--secondary {
-  border-color: var(--home-line);
-  background: var(--color-surface-container-lowest, #ffffff);
-  color: var(--home-ink) !important;
-}
-.student-home__button--secondary:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary) !important;
-  background: var(--color-surface-container-low, #f8fafc);
-  text-decoration: none;
-}
-
-.student-home__button .material-symbols-outlined { font-size: 18px; }
-
-.student-home__text-link,
-.student-home__section-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  color: var(--color-primary, #10b981) !important;
+  gap: 12px;
+  background: var(--color-primary-container, #EBF9F6);
+  color: var(--color-on-primary-container, #0D5C4E);
+  padding: 12px 20px;
+  border-radius: var(--radius-full, 9999px);
   font-size: 14px;
-  font-weight: 650;
+  font-weight: 500;
+  border: 1px solid rgba(61, 203, 177, 0.2);
+}
+.figma-announcement-link {
+  margin-left: auto;
+  color: var(--figma-primary, #3DCBB1);
+  font-weight: 700;
   text-decoration: none;
-  transition: opacity .15s ease;
 }
-.student-home__text-link:hover,
-.student-home__section-link:hover {
+.figma-announcement-link:hover {
   text-decoration: underline;
-  text-underline-offset: 4px;
 }
 
-/* ── ANNOUNCEMENT BANNER ── */
-.student-home__announcement {
-  min-height: 260px;
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(300px, .9fr);
-  align-items: stretch;
+/* ── 1. Hero Spotlight Carousel ── */
+.figma-hero {
+  position: relative;
+  width: 100%;
+  border-radius: 24px;
   overflow: hidden;
-  border: 1px solid var(--home-line);
-  border-radius: var(--radius-lg, 16px);
-  background: var(--color-surface-container-lowest, #ffffff);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-}
-
-.student-home__announcement--no-image {
-  grid-template-columns: 1fr;
-  min-height: auto;
-}
-
-.student-home__announcement-copy {
-  align-self: center;
-  padding: clamp(24px, 4.5vw, 48px);
-}
-
-.student-home__announcement .student-home__eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.student-home__announcement .student-home__eyebrow > span {
-  width: 8px;
-  height: 8px;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: #f59e0b;
-}
-
-.student-home__announcement h2 {
-  max-width: 650px;
-  margin-bottom: 12px;
-  font-size: clamp(24px, 3.2vw, 36px);
-  line-height: 1.2;
-}
-
-.student-home__announcement-copy > p {
-  max-width: 610px;
-  margin-bottom: 20px;
-  color: var(--home-muted);
-  font-size: 15px;
-  line-height: 1.65;
-}
-
-.student-home__announcement-image {
-  width: 100%;
-  height: 100%;
-  min-height: 260px;
-  object-fit: cover;
-  background: var(--color-surface-container-low, #f1f5f9);
-}
-
-.student-home__announcement-controls {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 16px;
-  color: var(--home-muted);
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-}
-
-.student-home__announcement-controls button {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--home-line);
-  border-radius: 50%;
-  color: var(--home-ink);
-  background: var(--color-surface-container-lowest, #ffffff);
-  cursor: pointer;
-  transition: all .15s ease;
-}
-.student-home__announcement-controls button:hover {
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-  background: var(--color-surface-container-low, #f8fafc);
-}
-
-/* ── HERO BANNER ── */
-.student-home__intro {
-  display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(280px, .95fr);
-  align-items: center;
-  gap: clamp(36px, 6vw, 72px);
-  padding-top: 12px;
-}
-
-.student-home__intro-copy { max-width: 620px; }
-.student-home__intro h1 {
-  max-width: 670px;
-  margin-bottom: 18px;
-  font-size: clamp(36px, 4.8vw, 56px);
-  line-height: 1.08;
-  letter-spacing: -.035em;
-}
-
-.student-home__lead {
-  max-width: 570px;
-  margin-bottom: 26px;
-  color: var(--home-muted);
-  font-size: clamp(15px, 1.4vw, 17px);
-  line-height: 1.68;
-}
-
-.student-home__actions {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 14px 18px;
-}
-
-.student-home__hero-visual {
-  min-width: 0;
-  margin: 0;
-}
-
-.student-home__intro-image {
-  display: block;
-  width: 100%;
-  aspect-ratio: 1.35;
-  border: 1px solid var(--home-line);
-  border-radius: 16px;
-  object-fit: cover;
-  object-position: center;
-  background: var(--color-surface-container-low);
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.06);
 }
 
-.student-home__hero-visual figcaption {
+.figma-hero__slider {
+  position: relative;
+  width: 100%;
+  min-height: 380px;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 12px;
-  color: var(--home-muted);
-  font-size: 13px;
-  line-height: 1.5;
-}
-.student-home__hero-visual figcaption .material-symbols-outlined {
-  color: var(--color-primary);
-  font-size: 18px;
 }
 
-.student-home__promise-list {
+.figma-hero__slide {
+  width: 100%;
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px 20px;
-  margin-top: 28px;
-  padding: 16px 0 0;
-  border-top: 1px solid var(--home-line);
-  list-style: none;
+  align-items: stretch;
+  position: relative;
+  overflow: hidden;
 }
-.student-home__promise-list li {
+
+.figma-hero__slide--teal {
+  background: linear-gradient(135deg, #3DCBB1 0%, #2EB29A 100%);
+}
+
+.figma-hero__slide--yellow {
+  background: linear-gradient(135deg, #FFD130 0%, #E6BA22 100%);
+}
+.figma-hero__slide--yellow .figma-hero__title {
+  color: #1B1B1B !important;
+}
+.figma-hero__slide--yellow .figma-hero__subtitle {
+  color: rgba(27, 27, 27, 0.8) !important;
+}
+.figma-hero__slide--yellow .figma-hero__cta {
+  background: #1B1B1B !important;
+  color: #FFFFFF !important;
+}
+
+.figma-hero__content {
+  flex: 1 1 45%;
+  padding: 56px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 2;
+}
+
+.figma-hero__title {
+  font-size: clamp(28px, 3.2vw, 44px);
+  font-weight: 800;
+  line-height: 1.15;
+  color: #FFFFFF;
+  margin: 0 0 16px;
+  letter-spacing: -0.02em;
+}
+
+.figma-hero__subtitle {
+  font-size: clamp(14px, 1.2vw, 17px);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 28px;
+  max-width: 440px;
+}
+
+.figma-hero__cta {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  color: var(--home-muted);
-  font-size: 13px;
-  line-height: 1.4;
-  font-weight: 500;
+  justify-content: center;
+  align-self: flex-start;
+  padding: 12px 28px;
+  background: #FFFFFF;
+  color: var(--figma-primary, #3DCBB1);
+  border-radius: var(--radius-full, 9999px);
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
 }
-.student-home__promise-list .material-symbols-outlined {
-  color: var(--color-primary);
-  font-size: 18px;
+.figma-hero__cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  text-decoration: none;
 }
 
-/* ── LEARNING PILLARS / AREAS (4 CARDS) ── */
-.student-home__practice,
-.student-home__topics {
+.figma-hero__media {
+  flex: 1 1 55%;
+  position: relative;
+  overflow: hidden;
+}
+
+.figma-hero__banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.figma-hero__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
   display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.25);
+  color: #FFFFFF;
+  border: none;
+  cursor: pointer;
+  z-index: 5;
+  transition: background 0.2s ease;
+}
+.figma-hero__arrow:hover {
+  background: rgba(0, 0, 0, 0.45);
+}
+.figma-hero__arrow--prev {
+  left: 0;
+  border-radius: 0 8px 8px 0;
+}
+.figma-hero__arrow--next {
+  right: 0;
+  border-radius: 8px 0 0 8px;
+}
+
+.figma-hero__dots {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 5;
+}
+
+.figma-hero__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+.figma-hero__dot.is-active {
+  background: #FFFFFF;
+  width: 24px;
+  border-radius: var(--radius-full);
+}
+
+/* ── 2. Category Filter Bar ── */
+.figma-category-bar {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 0;
+}
+.figma-category-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.figma-category-list {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: max-content;
+}
+
+.figma-pill {
+  padding: 10px 22px;
+  background: transparent;
+  color: var(--color-on-surface-variant, #64748B);
+  border: 1.5px solid var(--figma-border, rgba(27, 27, 27, 0.12));
+  border-radius: var(--radius-full, 9999px);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+.figma-pill:hover {
+  border-color: var(--figma-primary, #3DCBB1);
+  color: var(--figma-primary, #3DCBB1);
+}
+.figma-pill--active {
+  border-color: var(--figma-primary, #3DCBB1) !important;
+  color: var(--figma-primary, #3DCBB1) !important;
+  background: var(--color-primary-container, #EBF9F6);
+}
+
+/* ── 3. Section Headers ── */
+.figma-section {
+  display: flex;
+  flex-direction: column;
   gap: 24px;
 }
 
-.student-home__section-heading {
+.figma-section__header {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 20px;
 }
-.student-home__section-heading > div:first-child { max-width: 760px; }
-.student-home__section-heading .student-home__eyebrow { margin-bottom: 8px; }
-.student-home__section-heading h2 {
-  margin-bottom: 8px;
-  font-size: clamp(26px, 3vw, 34px);
-  line-height: 1.2;
-}
-.student-home__section-heading > div:first-child > p:not(.student-home__eyebrow) {
-  margin-bottom: 0;
-  color: var(--home-muted);
-  font-size: 15px;
-  line-height: 1.6;
+
+.figma-section__title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-on-surface, #1B1B1B);
+  margin: 0 0 6px;
+  letter-spacing: -0.015em;
 }
 
-.student-home__section-link {
-  flex: 0 0 auto;
-  padding-bottom: 4px;
-}
-.student-home__section-link .material-symbols-outlined { font-size: 18px; }
-
-.student-home__learning-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
+.figma-section__subtitle {
+  font-size: 14px;
+  color: var(--color-on-surface-variant, #64748B);
+  margin: 0;
 }
 
-.student-home__learning-card {
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  border: 1px solid var(--home-line);
-  border-radius: var(--radius-lg, 16px);
-  background: var(--color-surface-container-lowest, #ffffff);
-  text-decoration: none;
-  transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-}
-.student-home__learning-card:hover {
-  border-color: var(--color-primary);
-  box-shadow: 0 10px 28px rgba(16, 185, 129, 0.12);
-  transform: translateY(-2px);
-  text-decoration: none;
-}
-
-.student-home__learning-image {
-  display: block;
-  width: 100%;
-  height: 160px;
-  object-fit: cover;
-  background: var(--color-surface-container-low, #f1f5f9);
-}
-
-.student-home__learning-copy {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 20px;
-}
-
-.student-home__learning-icon {
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  border-radius: 10px;
-  color: var(--color-primary, #10b981);
-  background: rgba(16, 185, 129, 0.1);
-  font-size: 22px;
-}
-
-.student-home__learning-card h3 {
-  margin-bottom: 2px;
-  font-size: 17px;
-  line-height: 1.35;
-  font-weight: 700;
-}
-
-.student-home__learning-card p {
-  margin-bottom: 12px;
-  color: var(--home-muted);
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-.student-home__card-link {
+.figma-section__more-link {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: auto;
-  color: var(--color-primary, #10b981);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
+  color: var(--figma-primary, #3DCBB1);
+  text-decoration: none;
+  white-space: nowrap;
 }
-.student-home__card-link .material-symbols-outlined { font-size: 16px; }
+.figma-section__more-link:hover {
+  text-decoration: underline;
+}
 
-/* ── TOPICS PREVIEW (4 CARDS) ── */
-.student-home__topic-grid {
+/* ── Course Card Grid (4 Columns) ── */
+.figma-card-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
 }
 
-.student-home__topic-card {
-  min-width: 0;
+.figma-course-card {
+  background: var(--color-surface, #FFFFFF);
+  border: 1px solid var(--figma-border, rgba(27, 27, 27, 0.08));
+  border-radius: 18px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  border: 1px solid var(--home-line);
-  border-radius: var(--radius-lg, 16px);
-  background: var(--color-surface-container-lowest, #ffffff);
-  text-decoration: none;
-  transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
-.student-home__topic-card:hover {
-  border-color: var(--color-primary);
-  box-shadow: 0 10px 28px rgba(16, 185, 129, 0.12);
-  transform: translateY(-2px);
-  text-decoration: none;
+.figma-course-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  border-color: rgba(61, 203, 177, 0.4);
 }
 
-.student-home__topic-image-wrap {
+.figma-course-card__thumb-wrap {
   position: relative;
-  aspect-ratio: 16 / 9;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: #F4F7FA;
   overflow: hidden;
-  background: var(--color-surface-container-low);
 }
 
-.student-home__topic-image {
-  display: block;
+.figma-course-card__thumb {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform .25s ease;
-}
-.student-home__topic-card:hover .student-home__topic-image {
-  transform: scale(1.04);
+  display: block;
 }
 
-.student-home__level {
+.figma-course-card__badges {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 4px 8px;
-  border-radius: 6px;
-  color: #7a3400;
-  background: #fff5e5;
-  font-size: 11px;
-  font-weight: 750;
-  letter-spacing: .03em;
-}
-
-.student-home__topic-copy {
-  flex: 1;
+  top: 12px;
+  left: 12px;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 18px;
+  gap: 6px;
+  z-index: 2;
 }
 
-.student-home__topic-category {
-  margin-bottom: 6px;
-  color: var(--home-muted);
+.figma-badge {
+  padding: 3px 9px;
+  border-radius: var(--radius-full, 9999px);
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: .06em;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
 }
+.figma-badge--bestseller {
+  background: var(--figma-primary, #3DCBB1);
+  color: #FFFFFF;
+}
+.figma-badge--discount {
+  background: var(--figma-warning, #9F49E3);
+  color: #FFFFFF;
+}
 
-.student-home__topic-copy h3 {
-  margin-bottom: 8px;
-  font-size: 16px;
+.figma-course-card__body {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.figma-course-card__title {
+  font-size: 15px;
+  font-weight: 800;
   line-height: 1.35;
-  font-weight: 700;
+  color: var(--color-on-surface, #1B1B1B);
+  margin: 0 0 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.student-home__topic-copy > p {
-  margin-bottom: 16px;
-  color: var(--home-muted);
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-/* ── METHOD STEPS ── */
-.student-home__steps-section {
-  display: grid;
-  grid-template-columns: minmax(220px, .7fr) minmax(0, 1.3fr);
-  gap: clamp(34px, 6vw, 72px);
-  padding: clamp(36px, 5vw, 60px) 0;
-  border-top: 1px solid var(--home-line);
-  border-bottom: 1px solid var(--home-line);
-}
-
-.student-home__steps-intro h2 {
-  margin-bottom: 10px;
-  font-size: clamp(26px, 3vw, 34px);
-  line-height: 1.2;
-}
-
-.student-home__steps-intro > p:not(.student-home__eyebrow) {
-  margin-bottom: 18px;
-  color: var(--home-muted);
-  font-size: 15px;
-  line-height: 1.65;
-}
-
-.student-home__steps {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 26px 32px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.student-home__steps li {
-  display: grid;
-  grid-template-columns: 28px 28px minmax(0, 1fr);
-  align-items: start;
-  gap: 10px;
-}
-
-.student-home__step-number {
-  padding-top: 3px;
-  color: var(--home-muted);
-  font-size: 12px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-.student-home__step-icon {
-  color: var(--color-primary, #10b981);
-  font-size: 22px;
-}
-
-.student-home__steps h3 {
-  margin-bottom: 5px;
-  font-size: 15px;
-  font-weight: 700;
-  line-height: 1.4;
-}
-
-.student-home__steps p {
-  margin-bottom: 0;
-  color: var(--home-muted);
-  font-size: 13px;
-  line-height: 1.6;
-}
-
-/* ── CLOSING BANNER ── */
-.student-home__closing {
+.figma-course-card__instructor {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 28px;
-  padding: clamp(28px, 4vw, 44px);
-  border: 1px solid var(--home-line);
-  border-radius: var(--radius-lg, 16px);
-  background: var(--color-surface-container-low, #f8fafc);
-}
-
-.student-home__closing > div:first-child { max-width: 680px; }
-.student-home__closing .student-home__eyebrow { margin-bottom: 8px; }
-.student-home__closing h2 {
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--figma-primary, #3DCBB1);
+  font-weight: 600;
   margin-bottom: 8px;
-  font-size: clamp(24px, 2.8vw, 32px);
-  line-height: 1.2;
 }
-.student-home__closing > div:first-child > p:last-child {
-  margin-bottom: 0;
-  color: var(--home-muted);
+
+.figma-course-card__desc {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-on-surface-variant, #64748B);
+  margin: 0 0 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+.figma-course-card__rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.figma-stars {
+  color: var(--figma-secondary, #FFD130);
   font-size: 15px;
-  line-height: 1.6;
+  letter-spacing: 1px;
 }
 
-.student-home__closing .student-home__actions { flex: 0 0 auto; }
+.figma-reviews {
+  font-size: 12.5px;
+  color: var(--color-on-surface-variant, #94A3B8);
+  font-weight: 500;
+}
 
-/* ── RESPONSIVE ── */
-@media (max-width: 1080px) {
-  .student-home__learning-grid,
-  .student-home__topic-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+.figma-course-card__price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--figma-border, rgba(27, 27, 27, 0.06));
+}
+
+.figma-price-current {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-on-surface, #1B1B1B);
+}
+
+.figma-price-original {
+  font-size: 14px;
+  color: var(--color-on-surface-variant, #94A3B8);
+  text-decoration: line-through;
+}
+
+/* ── 5. Popular Instructors / Mentors ── */
+.figma-instructors-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.figma-instructor-card {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  transition: transform 0.22s ease;
+}
+.figma-instructor-card:hover {
+  transform: translateY(-5px);
+}
+
+.figma-instructor-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.figma-instructor-card__overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px 20px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.2) 65%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+}
+
+.figma-instructor-card__name {
+  font-size: 18px;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0 0 4px;
+}
+
+.figma-instructor-card__role {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+}
+
+/* ── 6. Newsletter / Discount CTA Banner ── */
+.figma-newsletter-banner {
+  position: relative;
+  width: 100%;
+  background: linear-gradient(105deg, #1C67E3 0%, #297BF6 65%, #185ECE 100%);
+  border-radius: 24px;
+  padding: 48px;
+  overflow: hidden;
+  color: #FFFFFF;
+  box-shadow: 0 16px 40px rgba(28, 103, 227, 0.25);
+  display: flex;
+  align-items: center;
+}
+
+.figma-newsletter-banner::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 38%;
+  background-image: radial-gradient(circle at 70% 30%, rgba(255, 209, 48, 0.4) 0%, transparent 40%),
+                    radial-gradient(circle at 85% 70%, rgba(61, 203, 177, 0.5) 0%, transparent 45%);
+  pointer-events: none;
+}
+
+.figma-newsletter-banner__content {
+  position: relative;
+  z-index: 2;
+  max-width: 680px;
+}
+
+.figma-newsletter-banner__title {
+  font-size: clamp(24px, 2.5vw, 36px);
+  font-weight: 800;
+  line-height: 1.2;
+  color: #FFFFFF;
+  margin: 0 0 10px;
+  letter-spacing: -0.02em;
+}
+
+.figma-newsletter-banner__subtitle {
+  font-size: 15px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 24px;
+}
+
+.figma-newsletter-banner__form {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 520px;
+}
+
+.figma-newsletter-banner__input-wrap {
+  position: relative;
+  flex: 1;
+}
+
+.figma-newsletter-banner__input-wrap input {
+  width: 100%;
+  padding: 12px 18px 12px 42px;
+  background: rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: var(--radius-full, 9999px);
+  color: #FFFFFF;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+.figma-newsletter-banner__input-wrap input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+.figma-newsletter-banner__input-wrap input:focus {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: #FFFFFF;
+}
+
+.figma-newsletter-banner__search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 20px;
+}
+
+.figma-newsletter-banner__submit {
+  padding: 12px 28px;
+  background: var(--figma-primary, #3DCBB1);
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-full, 9999px);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+}
+.figma-newsletter-banner__submit:hover {
+  background: var(--figma-primary-hover, #32b59d);
+  transform: translateY(-1px);
+}
+
+.figma-newsletter-banner__status {
+  margin-top: 12px;
+  font-size: 14px;
+  color: #FFFFFF;
+  font-weight: 600;
+}
+
+/* ── Responsive Media Queries ── */
+@media (max-width: 1200px) {
+  .figma-card-grid,
+  .figma-instructors-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
   }
 }
 
-@media (max-width: 860px) {
-  .student-home__steps-section {
-    grid-template-columns: 1fr;
-    gap: 28px;
+@media (max-width: 768px) {
+  .student-home-figma {
+    padding: 16px 16px 60px;
+    gap: 36px;
   }
-  .student-home__closing {
-    align-items: flex-start;
+  .figma-hero__slide {
     flex-direction: column;
   }
-}
-
-@media (max-width: 720px) {
-  .student-home { gap: 48px; }
-  .student-home__announcement { grid-template-columns: 1fr; }
-  .student-home__announcement-image { min-height: 0; max-height: 240px; grid-row: 1; }
-  .student-home__announcement-copy { padding: 24px; }
-  .student-home__intro { grid-template-columns: 1fr; gap: 24px; }
-  .student-home__intro-image { max-height: 380px; }
-  .student-home__learning-grid { grid-template-columns: 1fr; }
-  .student-home__learning-card { min-height: 0; }
-  .student-home__learning-image { height: clamp(170px, 48vw, 240px); }
-}
-
-@media (max-width: 520px) {
-  .student-home { gap: 40px; padding-inline: 16px; }
-  .student-home__intro h1 { font-size: clamp(32px, 9vw, 42px); }
-  .student-home__actions { align-items: flex-start; }
-  .student-home__section-heading { align-items: flex-start; flex-direction: column; }
-  .student-home__topic-grid { grid-template-columns: 1fr; }
-  .student-home__topic-card { display: grid; grid-template-columns: minmax(110px, .8fr) minmax(0, 1.2fr); }
-  .student-home__topic-image-wrap { height: 100%; min-height: 150px; aspect-ratio: auto; }
-  .student-home__topic-copy { padding: 14px; }
-  .student-home__topic-copy > p { font-size: 12px; }
-  .student-home__steps { grid-template-columns: 1fr; gap: 18px; }
-  .student-home__closing .student-home__actions { align-items: stretch; flex-direction: column; width: 100%; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .student-home *, .student-home *::before, .student-home *::after {
-    scroll-behavior: auto !important;
-    transition-duration: .01ms !important;
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
+  .figma-hero__content {
+    padding: 36px 24px;
+  }
+  .figma-hero__media {
+    min-height: 200px;
+  }
+  .figma-card-grid,
+  .figma-instructors-grid {
+    grid-template-columns: 1fr;
+  }
+  .figma-newsletter-banner {
+    padding: 32px 20px;
+  }
+  .figma-newsletter-banner__form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .figma-newsletter-banner__submit {
+    width: 100%;
   }
 }
-
-/* ── DARK THEME SUPPORT ── */
-[data-theme='dark'] .student-home__announcement {
-  background: #152333;
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
-}
-[data-theme='dark'] .student-home__announcement-controls button {
-  background: #0E1726;
-  color: #F1F5F9;
-  border-color: rgba(255, 255, 255, 0.1);
-}
-[data-theme='dark'] .student-home__learning-card,
-[data-theme='dark'] .student-home__topic-card {
-  background: #152333;
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.3);
-}
-[data-theme='dark'] .student-home__learning-card:hover,
-[data-theme='dark'] .student-home__topic-card:hover {
-  border-color: var(--color-primary);
-  box-shadow: 0 10px 28px rgba(16, 185, 129, 0.2);
-}
-[data-theme='dark'] .student-home__topic-image-wrap {
-  background: #0E1726;
-}
-[data-theme='dark'] .student-home__level {
-  color: #FED7AA;
-  background: rgba(249, 115, 22, 0.18);
-}
-[data-theme='dark'] .student-home__closing {
-  background: #152333;
-  border-color: rgba(255, 255, 255, 0.08);
-}
-[data-theme='dark'] .student-home__button--secondary {
-  background: #1E293B;
-  color: #F1F5F9 !important;
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
