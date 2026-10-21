@@ -161,14 +161,28 @@ class ApiClient {
 
         if (!message) message = STATUS_FALLBACK[response.status] || `Request failed with status ${response.status}`
 
+        const publicPaths = [
+          '/login',
+          '/register',
+          '/forgot-password',
+          '/',
+          '/home',
+          '/student/home',
+          '/student/explore',
+          '/about',
+          '/contact',
+          '/pricing',
+          '/student/onboarding',
+        ]
+        const isPublicPage = typeof window !== 'undefined' && publicPaths.some(
+          p => window.location.pathname === p || window.location.pathname.startsWith(p + '/')
+        )
+
         if (
           response.status === 401 &&
+          !options.skipAuthRedirect &&
           !endpoint.includes('/auth/') &&
-          typeof window !== 'undefined' &&
-          window.location.pathname !== '/login' &&
-          window.location.pathname !== '/' &&
-          window.location.pathname !== '/home' &&
-          window.location.pathname !== '/student/home'
+          !isPublicPage
         ) {
           this.removeToken()
           window.location.href = '/login'

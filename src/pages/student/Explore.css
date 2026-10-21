@@ -362,6 +362,24 @@
   color: #FFFFFF;
 }
 
+.figma-badge--level-a1,
+.figma-badge--level-a2 {
+  background: #10B981;
+  color: #FFFFFF;
+}
+
+.figma-badge--level-b1,
+.figma-badge--level-b2 {
+  background: #0284C7;
+  color: #FFFFFF;
+}
+
+.figma-badge--level-c1,
+.figma-badge--level-c2 {
+  background: #8B5CF6;
+  color: #FFFFFF;
+}
+
 .figma-search-grid .figma-course-card__body {
   padding: 18px;
   display: flex;
@@ -369,12 +387,52 @@
   flex: 1;
 }
 
+/* Meta Top Row */
+.figma-course-card__meta-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-on-surface-variant, #64748B);
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+[data-theme="dark"] .figma-course-card__meta-top {
+  color: #94A3B8;
+}
+
+.figma-course-card__meta-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.figma-course-card__ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+  color: #0284C7;
+  background: rgba(2, 132, 199, 0.08);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+[data-theme="dark"] .figma-course-card__ai-badge {
+  background: rgba(2, 132, 199, 0.2);
+  color: #38BDF8;
+}
+
 .figma-search-grid .figma-course-card__title {
   font-size: 15px;
   font-weight: 800;
   line-height: 1.35;
   color: var(--color-on-surface, #1B1B1B);
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -399,7 +457,7 @@
   font-size: 13px;
   line-height: 1.45;
   color: var(--color-on-surface-variant, #64748B);
-  margin: 0 0 14px;
+  margin: 0 0 10px;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -411,51 +469,145 @@
   color: #94A3B8;
 }
 
+/* Vocabulary Preview Chips */
+.figma-course-card__words {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0 14px;
+}
+
+.figma-word-chip {
+  font-size: 11.5px;
+  padding: 3px 8px;
+  background: #F8FAFC;
+  border: 1px solid rgba(27, 27, 27, 0.08);
+  border-radius: 8px;
+  color: #334155;
+  line-height: 1.35;
+}
+
+[data-theme="dark"] .figma-word-chip {
+  background: #1E293B;
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #E2E8F0;
+}
+
+.figma-word-chip strong {
+  color: var(--figma-primary, #3DCBB1);
+  font-weight: 700;
+}
+
+/* Card Action Row */
+.figma-course-card__action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--figma-border, rgba(27, 27, 27, 0.06));
+}
+
+[data-theme="dark"] .figma-course-card__action-row {
+  border-top-color: rgba(255, 255, 255, 0.06);
+}
+
 .figma-search-grid .figma-course-card__rating {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 12px;
+  gap: 4px;
 }
 
 .figma-search-grid .figma-stars {
   color: var(--figma-secondary, #FFD130);
-  font-size: 15px;
+  font-size: 14px;
   letter-spacing: 1px;
 }
 
 .figma-search-grid .figma-reviews {
-  font-size: 12.5px;
+  font-size: 12px;
   color: var(--color-on-surface-variant, #94A3B8);
   font-weight: 500;
 }
 
-.figma-search-grid .figma-course-card__price-row {
+.figma-course-card__cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--figma-primary, #3DCBB1);
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-full, 9999px);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+  box-shadow: 0 2px 8px rgba(61, 203, 177, 0.25);
+}
+
+.figma-course-card__cta-btn:hover {
+  background: var(--figma-primary-hover, #32b59d);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(61, 203, 177, 0.35);
+}
+
+/* Empty Results */
+.figma-empty-results {
+  text-align: center;
+  padding: 60px 24px;
+  background: var(--color-surface, #FFFFFF);
+  border: 1px solid var(--figma-border, rgba(27, 27, 27, 0.08));
+  border-radius: 20px;
   display: flex;
-  align-items: baseline;
-  gap: 10px;
-  padding-top: 10px;
-  border-top: 1px solid var(--figma-border, rgba(27, 27, 27, 0.06));
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
 }
 
-[data-theme="dark"] .figma-search-grid .figma-course-card__price-row {
-  border-top-color: rgba(255, 255, 255, 0.06);
+[data-theme="dark"] .figma-empty-results {
+  background: #14181E;
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
-.figma-search-grid .figma-price-current {
+.figma-empty-icon {
+  font-size: 48px;
+  color: #94A3B8;
+  margin-bottom: 4px;
+}
+
+.figma-empty-results h3 {
   font-size: 18px;
   font-weight: 800;
-  color: var(--color-on-surface, #1B1B1B);
+  margin: 0;
 }
 
-[data-theme="dark"] .figma-search-grid .figma-price-current {
-  color: #FFFFFF;
-}
-
-.figma-search-grid .figma-price-original {
+.figma-empty-results p {
   font-size: 14px;
-  color: var(--color-on-surface-variant, #94A3B8);
-  text-decoration: line-through;
+  color: #64748B;
+  max-width: 420px;
+  margin: 0 0 12px;
+}
+
+.figma-cta-banner__actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.figma-cta-banner__btn--outline {
+  background: transparent !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.3) !important;
+  color: #FFFFFF !important;
+  box-shadow: none !important;
+}
+
+.figma-cta-banner__btn--outline:hover {
+  border-color: #FFFFFF !important;
+  background: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* ── Pagination ── */
