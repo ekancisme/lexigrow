@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import api from '../../services/api.js'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
@@ -80,7 +80,21 @@ const ChatWidget = () => {
   const [inputMessage, setInputMessage] = useState('')
   const [isTyping, setIsTyping] = useState(false) // AI "composing" state
   const [isDragging, setIsDragging] = useState(false)
-  const [position, setPosition] = useState(null) // null = not mounted yet, CSS fallback keeps bottom-right
+  const [position, setPosition] = useState(() => {
+    if (typeof window === 'undefined') return null
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY)
+      if (raw) {
+        const saved = JSON.parse(raw)
+        if (Number.isFinite(saved?.x) && Number.isFinite(saved?.y)) {
+          return clampPosition(saved.x, saved.y)
+        }
+      }
+    } catch {
+      /* malformed storage → fallback */
+    }
+    return getDefaultPosition()
+  })
   const messagesContainerRef = useRef(null)
   const streamTimerRef = useRef(null)
   const hasGreetedRef = useRef(false)
@@ -133,22 +147,6 @@ const ChatWidget = () => {
     }
   }
 
-  // Restore saved position on mount
-  useEffect(() => {
-    setPosition(getDefaultPosition())
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY)
-      if (raw) {
-        const saved = JSON.parse(raw)
-        if (Number.isFinite(saved?.x) && Number.isFinite(saved?.y)) {
-          setPosition(clampPosition(saved.x, saved.y))
-        }
-      }
-    } catch {
-      /* malformed storage → keep default corner */
-    }
-  }, [])
-
   // Re-clamp when the viewport resizes so Luffy never escapes the screen
   useEffect(() => {
     const handleResize = () => {
@@ -170,8 +168,14 @@ const ChatWidget = () => {
     }
   }, [messages, isTyping])
 
-  // Only show the widget if user is authenticated — AFTER all hooks so hook order stays stable
-  if (!isAuthenticated || !user) return null
+  const formatTime = useCallback(
+    (date) =>
+      new Date(date).toLocaleTimeString(language === 'vi' ? 'vi-VN' : 'en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+    [language],
+  )
 
   const toggleChat = () => {
     setIsOpen((prev) => {
@@ -183,6 +187,7 @@ const ChatWidget = () => {
           {
             id: nextId(),
             role: 'assistant',
+            time: formatTime(new Date()),
             content: t(
               'chat.aiGreeting',
               'Xin chào 👋 Mình là Luffy — trợ lý AI của LexiGrow! Mình có thể chia sẻ về gói học, lộ trình luyện từ vựng & viết, hoặc cách AI chấm bài giúp bạn. Bạn muốn tìm hiểu điều gì trước?',
@@ -201,7 +206,8 @@ const ChatWidget = () => {
   /** Reveal AI reply with a typewriter effect */
   const streamReply = useCallback((fullText) => {
     const id = nextId()
-    setMessages((prev) => [...prev, { id, role: 'assistant', content: '' }])
+    const time = formatTime(new Date())
+    setMessages((prev) => [...prev, { id, role: 'assistant', content: '', time }])
 
     if (streamTimerRef.current) clearInterval(streamTimerRef.current)
     let shown = 0
@@ -219,7 +225,36 @@ const ChatWidget = () => {
         )
       }
     }, 18)
-  }, [])
+  }, [formatTime])
+
+  const setUserMessageAndAsk = useCallback(
+    (text) => {
+      const userMsg = { id: nextId(), role: 'user', content: text, time: formatTime(new Date()) }
+      const history = messages
+        .filter((m) => !m.pending)
+        .slice(-10)
+        .map((m) => ({ role: m.role, content: m.content }))
+
+      setMessages((prev) => [...prev, userMsg])
+      setIsTyping(true)
+
+      api
+        .post('/chat/ai-assistant', { message: text, history, lang: language })
+        .then((result) => {
+          setIsTyping(false)
+          streamReply(result?.data?.reply || '')
+        })
+        .catch(() => {
+          setIsTyping(false)
+          streamReply(
+            isVi
+              ? 'Mình không gửi được tin nhắn lúc này 🥲 Bạn kiểm tra kết nối rồi thử lại giúp mình nhé!'
+              : "I couldn't connect just now 🥲 Please check your network and try again!",
+          )
+        })
+    },
+    [formatTime, isVi, language, messages, streamReply],
+  )
 
   /** Send a message (from input or preset chip) to the AI assistant */
   const handleSend = useCallback(
@@ -230,48 +265,9 @@ const ChatWidget = () => {
       setUserMessageAndAsk(text)
       setInputMessage('')
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [inputMessage, isTyping, language],
+    [inputMessage, isTyping, setUserMessageAndAsk],
   )
 
-  const setUserMessageAndAsk = (text) => {
-    const userMsg = { id: nextId(), role: 'user', content: text }
-    const history = messages
-      .filter((m) => !m.pending)
-      .slice(-10)
-      .map((m) => ({ role: m.role, content: m.content }))
-
-    setMessages((prev) => [...prev, userMsg])
-    setIsTyping(true)
-
-    api
-      .post('/chat/ai-assistant', { message: text, history, lang: language })
-      .then((result) => {
-        setIsTyping(false)
-        streamReply(result?.data?.reply || '')
-      })
-      .catch(() => {
-        setIsTyping(false)
-        streamReply(
-          isVi
-            ? 'Mình không gửi được tin nhắn lúc này 🥲 Bạn kiểm tra kết nối rồi thử lại giúp mình nhé!'
-            : "I couldn't connect just now 🥲 Please check your network and try again!",
-        )
-      })
-  }
-
-  const handleInputKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSend()
-    }
-  }
-
-  const formatTime = (date) =>
-    new Date(date).toLocaleTimeString(language === 'vi' ? 'vi-VN' : 'en-US', {
-      hour: '2-digit',
-      minute: '2-digit',
-    })
 
   // Smart window side: open above the mascot by default, below when Luffy sits near the top
   const widgetStyle = position
@@ -287,7 +283,9 @@ const ChatWidget = () => {
     .join(' ')
 
   const quickList = QUICK_QUESTIONS[isVi ? 'vi' : 'en'] || QUICK_QUESTIONS.en
-  const now = formatTime(Date.now())
+
+  // Only render floating chat assistant if user is signed in
+  if (!isAuthenticated || !user) return null
 
   return (
     <div
@@ -354,7 +352,7 @@ const ChatWidget = () => {
           {/* Messages */}
           {!isMinimized && (
             <div className="chat-messages" ref={messagesContainerRef}>
-              {messages.map((msg, idx) => (
+              {messages.map((msg) => (
                 <div key={msg.id} className={`chat-message ${msg.role === 'user' ? 'own' : 'other'}`}>
                   {msg.role === 'assistant' ? (
                     <div className="chat-message-row">
@@ -369,7 +367,7 @@ const ChatWidget = () => {
                           {t('chat.aiName', 'Monky D YunTeee 🌟')}
                         </div>
                         <div className="chat-message-text">{msg.content}</div>
-                        <div className="chat-message-time">{now}</div>
+                        <div className="chat-message-time">{msg.time || ''}</div>
                       </div>
                     </div>
                   ) : (
@@ -378,7 +376,7 @@ const ChatWidget = () => {
                         {user?.name || t('chat.system', 'You')}
                       </div>
                       <div className="chat-message-text">{msg.content}</div>
-                      <div className="chat-message-time">{now}</div>
+                      <div className="chat-message-time">{msg.time || ''}</div>
                     </div>
                   )}
                 </div>
