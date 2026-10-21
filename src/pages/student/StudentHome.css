@@ -38,15 +38,18 @@
   text-decoration: underline;
 }
 
-/* ── 1. Hero Spotlight Carousel (Strict 3:1 Locked Aspect Ratio) ── */
+/* ── 1. Hero Spotlight Carousel (Fully Coded LexiGrow Slides - Strict 3:1 Locked Aspect Ratio) ── */
 .figma-hero {
   position: relative;
   width: 100%;
   aspect-ratio: 2172 / 724;
+  min-height: 410px;
+  max-height: 460px;
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
-  background: #0A5A4D;
+  background: #02231C;
+  user-select: none;
 }
 
 .figma-hero__slider {
@@ -63,7 +66,7 @@
   height: 100%;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out;
+  transition: opacity 0.45s ease-in-out, visibility 0.45s ease-in-out;
   pointer-events: none;
 }
 
@@ -74,57 +77,896 @@
   z-index: 1;
 }
 
-.figma-hero__banner-graphic {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-/* Hotspots overlay precisely positioned over the graphical buttons in the banners */
-.figma-hero__hotspots {
+.figma-hero__ambient {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  z-index: 1;
   pointer-events: none;
 }
 
-.figma-hero__hotspot {
-  position: absolute;
-  pointer-events: auto;
+.figma-hero__ambient--vocab {
+  background:
+    radial-gradient(circle at 75% 45%, #0D6955 0%, #064539 45%, #022018 100%),
+    linear-gradient(180deg, transparent 65%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+.figma-hero__ambient--journey {
+  background:
+    radial-gradient(circle at 75% 45%, #0A6652 0%, #05483B 50%, #021F17 100%),
+    linear-gradient(180deg, transparent 65%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+.figma-hero__ambient--writing {
+  background: linear-gradient(125deg, #F8FAFC 0%, #F0FDF4 35%, #E6F7F0 70%, #D4EEE3 100%);
+}
+
+.figma-hero__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 clamp(24px, 4vw, 56px);
+  z-index: 2;
+  box-sizing: border-box;
+}
+
+/* Left Content Column */
+.figma-hero__content {
+  flex: 0 0 44%;
+  max-width: 530px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 3;
+}
+
+.figma-hero__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.28);
   border-radius: 9999px;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 700;
+  width: fit-content;
+  margin-bottom: 14px;
+  letter-spacing: 0.01em;
+}
+
+.figma-hero__tag--light {
+  background: rgba(13, 148, 136, 0.12);
+  border-color: rgba(13, 148, 136, 0.3);
+  color: #0F766E;
+}
+
+.figma-hero__title {
+  font-size: clamp(24px, 2.5vw, 38px);
+  font-weight: 800;
+  line-height: 1.18;
+  color: #FFFFFF;
+  margin: 0 0 12px;
+  letter-spacing: -0.025em;
+}
+
+.figma-hero__title--dark {
+  color: #0F172A;
+}
+
+.figma-hero__highlight--mint {
+  color: #5FE3C0;
+}
+
+.figma-hero__highlight--teal {
+  color: #0D9488;
+}
+
+.figma-hero__subtitle {
+  font-size: clamp(13px, 1.05vw, 15px);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 24px;
+  max-width: 480px;
+}
+
+.figma-hero__subtitle--dark {
+  color: rgba(30, 41, 59, 0.85);
+}
+
+.figma-hero__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.figma-hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border-radius: 9999px;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.figma-hero__cta--white {
+  background: #FFFFFF;
+  color: #064E3B;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+}
+.figma-hero__cta--white:hover {
+  background: #F8FAFB;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+}
+
+.figma-hero__cta--glass {
+  background: rgba(255, 255, 255, 0.14);
+  color: #FFFFFF;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  backdrop-filter: blur(8px);
+}
+.figma-hero__cta--glass:hover {
+  background: rgba(255, 255, 255, 0.24);
+  transform: translateY(-2px);
+}
+
+.figma-hero__cta--emerald {
+  background: #065F46;
+  color: #FFFFFF;
+  box-shadow: 0 6px 20px rgba(6, 95, 70, 0.25);
+}
+.figma-hero__cta--emerald:hover {
+  background: #044E39;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(6, 95, 70, 0.32);
+}
+
+.figma-hero__cta--outline-dark {
+  background: rgba(255, 255, 255, 0.7);
+  color: #0F766E;
+  border: 1.5px solid rgba(15, 118, 110, 0.4);
+  backdrop-filter: blur(8px);
+}
+.figma-hero__cta--outline-dark:hover {
+  background: #FFFFFF;
+  border-color: #0F766E;
+  transform: translateY(-2px);
+}
+
+/* Right Showcase Column */
+.figma-hero__showcase {
+  flex: 0 0 53%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  z-index: 2;
+}
+
+/* ── Showcase Slide 0: Vocab Flashcard & Metric Gauges ── */
+.figma-hero__showcase--vocab {
+  gap: 16px;
+}
+
+.hero-flashcard-stack {
+  position: relative;
+  width: 290px;
+  flex-shrink: 0;
+}
+
+.hero-flashcard-layer {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  background: #FFFFFF;
+  pointer-events: none;
+}
+.hero-flashcard-layer--back {
+  transform: rotate(-6deg) scale(0.94);
+  opacity: 0.35;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+.hero-flashcard-layer--mid {
+  transform: rotate(-3deg) scale(0.97);
+  opacity: 0.65;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
+}
+
+.hero-flashcard {
+  position: relative;
+  z-index: 2;
+  background: #FFFFFF;
+  border-radius: 18px;
+  padding: 18px 20px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.hero-flashcard__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.hero-flashcard__word {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0F172A;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.hero-flashcard__phonetic {
+  font-size: 13px;
+  color: #64748B;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.hero-flashcard__pos {
+  padding: 3px 10px;
+  background: #F1F5F9;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.hero-flashcard__sep {
+  height: 1px;
+  background: #F1F5F9;
+  margin: 12px 0 10px;
+}
+
+.hero-flashcard__def {
+  font-size: 13px;
+  line-height: 1.45;
+  color: #334155;
+  margin: 0 0 12px;
+}
+
+.hero-flashcard__example {
+  background: #F0FDF4;
+  border-radius: 10px;
+  padding: 9px 12px;
+  border-left: 3px solid #10B981;
+}
+
+.hero-flashcard__example-tag {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #047857;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 3px;
+}
+
+.hero-flashcard__example-sentence {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #1E293B;
+  margin: 0;
+}
+
+.hero-flashcard__highlight {
+  background: #FEF08A;
+  padding: 1px 4px;
+  border-radius: 4px;
+  font-weight: 700;
+  color: #854D0E;
+}
+
+.hero-vocab-floating {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 180px;
+  flex-shrink: 0;
+}
+
+.hero-float-card {
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 10px 14px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.hero-float-card__title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 6px;
+}
+
+.hero-float-donut {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto;
+}
+
+.hero-float-donut--sm {
+  width: 48px;
+  height: 48px;
+  margin: 0;
+}
+
+.hero-donut-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.hero-donut-bg {
+  fill: none;
+  stroke: #E2E8F0;
+  stroke-width: 6;
+}
+
+.hero-donut-val {
+  fill: none;
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.hero-donut-val--teal {
+  stroke: #0D9488;
+}
+
+.hero-donut-val--forest {
+  stroke: #059669;
+}
+
+.hero-float-donut__label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.hero-float-donut__label strong {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.1;
+}
+
+.hero-float-donut__label span {
+  font-size: 10px;
+  color: #64748B;
+}
+
+.hero-mastery-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-mastery-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11px;
+  color: #475569;
+  font-weight: 600;
+}
+
+.hero-m-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.hero-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.hero-dot--yellow { background: #EAB308; }
+.hero-dot--mint { background: #10B981; }
+.hero-dot--forest { background: #065F46; }
+
+.hero-float-card--review {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+}
+
+.hero-review-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #ECFDF5;
+  color: #059669;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.hero-review-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-review-sub {
+  font-size: 11px;
+  color: #64748B;
+  line-height: 1.2;
+}
+
+.hero-review-val {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+/* ── Showcase Slide 1: Laptop Dashboard & Stats ── */
+.figma-hero__showcase--journey {
+  gap: 16px;
+}
+
+.hero-laptop {
+  width: 330px;
+  flex-shrink: 0;
+}
+
+.hero-laptop__screen {
+  background: #FFFFFF;
+  border: 4px solid #1E293B;
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
+  padding: 10px 14px 12px;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
+}
+
+.hero-laptop__screen--editor {
+  background: #FAFAFA;
+}
+
+.hero-laptop__base {
+  height: 8px;
+  background: #334155;
+  border-radius: 0 0 10px 10px;
+  position: relative;
+}
+
+.hero-laptop__base--light {
+  background: #CBD5E1;
+}
+
+.hero-laptop__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.hero-laptop__level-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 6px 12px;
+  margin-bottom: 8px;
+}
+
+.hero-laptop__level {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hero-laptop__level strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.1;
+}
+.hero-laptop__level span {
+  font-size: 10px;
+  color: #64748B;
+}
+
+.hero-laptop__arrow {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0D9488;
+}
+
+.hero-laptop__bar-container {
+  margin-bottom: 8px;
+}
+
+.hero-laptop__progress {
+  height: 7px;
+  background: #E2E8F0;
+  border-radius: 9999px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.hero-laptop__fill {
+  height: 100%;
+  background: #10B981;
+  border-radius: 9999px;
+}
+
+.hero-laptop__bar-sub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10.5px;
+}
+.hero-laptop__bar-sub strong {
+  color: #0F172A;
+}
+.hero-laptop__bar-sub span {
+  color: #64748B;
+}
+
+.hero-laptop__activity {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 8px 10px;
+}
+
+.hero-laptop__act-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.hero-laptop__badge {
+  font-size: 9.5px;
+  padding: 2px 6px;
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 4px;
+  color: #64748B;
+}
+
+.hero-laptop__bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 48px;
+  padding-top: 6px;
+}
+
+.hero-act-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  flex: 1;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.hero-act-bar {
+  width: 14px;
+  background: #10B981;
+  border-radius: 3px 3px 0 0;
+  min-height: 4px;
+  transition: height 0.3s ease;
+}
+
+.hero-act-col span {
+  font-size: 9px;
+  color: #94A3B8;
+  font-weight: 600;
+}
+
+.hero-journey-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 175px;
+  flex-shrink: 0;
+}
+
+.hero-j-card {
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 10px 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hero-j-card__icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.hero-j-card__info {
+  flex: 1;
+}
+.hero-j-card__info strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+  color: #0F172A;
+  line-height: 1.15;
+}
+.hero-j-card__info span {
+  font-size: 10px;
+  color: #64748B;
+}
+
+.hero-j-card__bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 22px;
+  width: 22px;
+}
+.hero-j-card__bars span {
+  flex: 1;
+  background: #10B981;
+  border-radius: 1px;
+}
+
+.hero-j-card__wave {
+  width: 38px;
+  height: 18px;
+}
+
+/* ── Showcase Slide 2: AI Writing Editor & Feedback ── */
+.figma-hero__showcase--writing {
+  gap: 16px;
+}
+
+.hero-editor-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #475569;
+  border-bottom: 1px solid #E2E8F0;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.hero-editor-tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #64748B;
+  margin-bottom: 8px;
+}
+
+.hero-editor-content {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: #334155;
+  margin-bottom: 10px;
+}
+.hero-editor-content p {
+  margin: 0 0 6px;
+}
+
+.hero-err {
+  text-decoration: underline wavy #EF4444;
+  color: #B91C1C;
+  font-weight: 600;
+}
+.hero-err--active {
+  background: #FEE2E2;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.hero-hl {
+  background: #FEF08A;
+  padding: 0 2px;
+  border-radius: 2px;
+  font-weight: 600;
+}
+
+.hero-grammar-box {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 8px 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  margin-top: 6px;
+}
+
+.hero-grammar-box__head {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #DC2626;
+  margin-bottom: 4px;
+}
+
+.hero-grammar-box__diff {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.hero-grammar-del {
+  color: #DC2626;
+  text-decoration: line-through;
+}
+.hero-grammar-add {
+  color: #059669;
+}
+
+.hero-grammar-box__desc {
+  font-size: 10.5px;
+  color: #64748B;
+  margin: 0 0 6px;
+  line-height: 1.35;
+}
+
+.hero-grammar-box__btn {
+  padding: 3px 12px;
+  background: #059669;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
   cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
-  outline: none;
 }
 
-.figma-hero__hotspot:hover {
-  transform: scale(1.02);
+.hero-writing-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 185px;
+  flex-shrink: 0;
 }
 
-.figma-hero__hotspot:focus-visible {
-  outline: 3px solid #3DCBB1;
-  outline-offset: 2px;
+.hero-score-card {
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 10px 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
 }
 
-/* Coordinates calibrated to 2172 x 724 */
-/* Primary button (left): left ~3.4%, top ~67.2%, width ~18.2%, height ~11.8% */
-.figma-hero__hotspot--primary {
-  left: 3.4%;
-  top: 67.2%;
-  width: 18.2%;
-  height: 11.8%;
+.hero-score-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
 }
 
-/* Secondary button (right of primary): left ~22.6%, top ~67.2%, width ~18.5%, height ~11.8% */
-.figma-hero__hotspot--secondary {
-  left: 22.5%;
-  top: 67.2%;
-  width: 18.5%;
-  height: 11.8%;
+.hero-score-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.hero-score-donut {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-score-donut span {
+  position: absolute;
+  font-size: 13px;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.hero-score-rating {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+  color: #059669;
+  line-height: 1.1;
+}
+
+.hero-score-level {
+  font-size: 10px;
+  color: #64748B;
+}
+
+.hero-score-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.hero-s-bar-item {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2px;
+  font-size: 9.5px;
+  color: #475569;
+}
+.hero-s-bar-item strong {
+  font-weight: 700;
+  color: #0F172A;
+}
+.hero-s-track {
+  grid-column: 1 / -1;
+  height: 4px;
+  background: #F1F5F9;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.hero-s-track div {
+  height: 100%;
+  background: #10B981;
+  border-radius: 9999px;
+}
+
+.hero-sug-card {
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 10px 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
+}
+
+.hero-sug-card__head {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 6px;
+}
+
+.hero-sug-card ul {
+  margin: 0;
+  padding-left: 14px;
+  font-size: 10px;
+  color: #475569;
+  line-height: 1.4;
+}
+.hero-sug-card li {
+  margin-bottom: 3px;
 }
 
 /* Slider Arrow Controls */
@@ -135,7 +977,7 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -145,14 +987,14 @@
   justify-content: center;
   cursor: pointer;
   z-index: 10;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
   transition: all 0.2s ease;
 }
 
 .figma-hero__arrow:hover {
   background: #FFFFFF;
   transform: translateY(-50%) scale(1.08);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
 .figma-hero__arrow:focus-visible {
@@ -714,6 +1556,46 @@
 }
 
 /* ── Responsive Media Queries ── */
+@media (max-width: 1300px) {
+  .figma-hero__showcase {
+    transform: scale(0.9);
+    transform-origin: right center;
+  }
+}
+
+@media (max-width: 1100px) {
+  .figma-hero__showcase {
+    transform: scale(0.78);
+    transform-origin: right center;
+  }
+  .figma-hero__content {
+    flex: 0 0 50%;
+  }
+}
+
+@media (max-width: 900px) {
+  .figma-hero {
+    aspect-ratio: auto;
+    min-height: 340px;
+  }
+  .figma-hero__showcase {
+    display: none;
+  }
+  .figma-hero__content {
+    flex: 1 1 100%;
+    max-width: 100%;
+    padding: 36px 24px;
+    align-items: center;
+    text-align: center;
+  }
+  .figma-hero__tag {
+    align-self: center;
+  }
+  .figma-hero__actions {
+    justify-content: center;
+  }
+}
+
 @media (max-width: 1200px) {
   .figma-card-grid,
   .figma-instructors-grid {

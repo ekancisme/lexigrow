@@ -5,35 +5,7 @@ import { useAuth } from '../../contexts/AuthContext.jsx'
 import api from '../../services/api.js'
 import './StudentHome.css'
 
-const HERO_BANNERS = [
-  {
-    id: 'banner-vocab',
-    image: '/assets/banners/banner-vocab.png',
-    alt: 'Build Your Vocabulary. Unlock Your Potential.',
-    primaryHref: '/student/explore',
-    primaryLabel: 'Explore Vocabulary',
-    secondaryHref: '/student/my-words',
-    secondaryLabel: 'Start Learning',
-  },
-  {
-    id: 'banner-journey',
-    image: '/assets/banners/banner-journey.png',
-    alt: 'Every Step Forward. A Smarter You.',
-    primaryHref: '/student/dashboard',
-    primaryLabel: 'My Learning Journey',
-    secondaryHref: '/student/explore',
-    secondaryLabel: 'Explore Learning Paths',
-  },
-  {
-    id: 'banner-writing',
-    image: '/assets/banners/banner-writing.png',
-    alt: 'Write with Confidence. Improve with AI.',
-    primaryHref: '/student/writing',
-    primaryLabel: 'Practice Writing',
-    secondaryHref: '/student/explore',
-    secondaryLabel: 'Discover AI Feedback',
-  },
-]
+const SLIDES_COUNT = 3
 
 const CATEGORY_PILLS = [
   { id: 'all', labelVi: 'Tất cả gợi ý', labelEn: 'All Recommendations' },
@@ -345,17 +317,17 @@ export default function StudentHome() {
   useEffect(() => {
     if (isPaused) return undefined
     const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % HERO_BANNERS.length)
+      setActiveSlide((prev) => (prev + 1) % SLIDES_COUNT)
     }, 6000)
     return () => clearInterval(timer)
   }, [isPaused])
 
   const handlePrevSlide = () => {
-    setActiveSlide((prev) => (prev === 0 ? HERO_BANNERS.length - 1 : prev - 1))
+    setActiveSlide((prev) => (prev === 0 ? SLIDES_COUNT - 1 : prev - 1))
   }
 
   const handleNextSlide = () => {
-    setActiveSlide((prev) => (prev + 1) % HERO_BANNERS.length)
+    setActiveSlide((prev) => (prev + 1) % SLIDES_COUNT)
   }
 
   useEffect(() => {
@@ -397,7 +369,7 @@ export default function StudentHome() {
         </div>
       )}
 
-      {/* ── 1. Hero Spotlight Carousel (Custom LexiGrow AI Banners - Fixed 3:1 Ratio) ── */}
+      {/* ── 1. Hero Spotlight Carousel (Fully Coded LexiGrow Slides - Fixed 3:1 Ratio) ── */}
       <section
         className="figma-hero"
         aria-label="Hero Spotlight"
@@ -405,39 +377,493 @@ export default function StudentHome() {
         onMouseLeave={() => setIsPaused(false)}
       >
         <div className="figma-hero__slider">
-          {HERO_BANNERS.map((banner, index) => {
-            const isActive = index === activeSlide
-            return (
-              <div
-                key={banner.id}
-                className={`figma-hero__slide ${isActive ? 'is-active' : ''}`}
-                aria-hidden={!isActive}
-              >
-                <img
-                  src={banner.image}
-                  alt={banner.alt}
-                  className="figma-hero__banner-graphic"
-                  loading={index === 0 ? 'eager' : 'lazy'}
-                />
+          {/* ── Slide 0: Vocabulary Retention & AI Flashcard ── */}
+          <div
+            className={`figma-hero__slide figma-hero__slide--vocab ${activeSlide === 0 ? 'is-active' : ''}`}
+            aria-hidden={activeSlide !== 0}
+          >
+            <div className="figma-hero__ambient figma-hero__ambient--vocab" />
+            <div className="figma-hero__inner">
+              <div className="figma-hero__content">
+                <div className="figma-hero__tag">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                    <path d="M19 9l1.25-2.75L23 5l-2.75-1.25L19 1l-1.25 2.75L15 5l2.75 1.25L19 9zm-7.5.5L9 4 6.5 9.5 1 12l5.5 2.5L9 20l2.5-5.5L17 12l-5.5-2.5zM19 15l-1.25 2.75L15 19l2.75 1.25L19 23l1.25-2.75L23 19l-2.75-1.25L19 15z" />
+                  </svg>
+                  <span>{isVi ? 'Học từ vựng thông minh cùng AI' : 'AI-Powered Vocabulary Learning'}</span>
+                </div>
 
-                {/* Clickable Action Hotspots over Banner CTA Buttons */}
-                <div className="figma-hero__hotspots" aria-label={banner.title}>
-                  <Link
-                    to={banner.primaryHref}
-                    className="figma-hero__hotspot figma-hero__hotspot--primary"
-                    aria-label={banner.primaryLabel}
-                    title={banner.primaryLabel}
-                  />
-                  <Link
-                    to={banner.secondaryHref}
-                    className="figma-hero__hotspot figma-hero__hotspot--secondary"
-                    aria-label={banner.secondaryLabel}
-                    title={banner.secondaryLabel}
-                  />
+                <h1 className="figma-hero__title">
+                  {isVi ? 'Chinh phục từ vựng.' : 'Build Your Vocabulary.'}
+                  <br />
+                  <span className="figma-hero__highlight--mint">
+                    {isVi ? 'Khai phá tiềm năng.' : 'Unlock Your Potential.'}
+                  </span>
+                </h1>
+
+                <p className="figma-hero__subtitle">
+                  {isVi
+                    ? 'Học thông minh hơn cùng flashcard AI, ví dụ ngữ cảnh sinh động và phương pháp ghi nhớ dài hạn tối ưu.'
+                    : 'Learn smarter with AI-powered flashcards, contextual examples, and personalized vocabulary practice designed for long-term retention.'}
+                </p>
+
+                <div className="figma-hero__actions">
+                  <Link to="/student/explore" className="figma-hero__cta figma-hero__cta--white">
+                    <span>{isVi ? 'Khám phá từ vựng' : 'Explore Vocabulary'}</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                  </Link>
+                  <Link to="/student/my-words" className="figma-hero__cta figma-hero__cta--glass">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                      <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                    </svg>
+                    <span>{isVi ? 'Bắt đầu học ngay' : 'Start Learning'}</span>
+                  </Link>
                 </div>
               </div>
-            )
-          })}
+
+              <div className="figma-hero__showcase figma-hero__showcase--vocab">
+                {/* 3D Layered Flashcard */}
+                <div className="hero-flashcard-stack">
+                  <div className="hero-flashcard-layer hero-flashcard-layer--back" />
+                  <div className="hero-flashcard-layer hero-flashcard-layer--mid" />
+                  <div className="hero-flashcard">
+                    <div className="hero-flashcard__head">
+                      <div>
+                        <div className="hero-flashcard__word">resilience</div>
+                        <div className="hero-flashcard__phonetic">/rɪˈzɪliəns/</div>
+                      </div>
+                      <span className="hero-flashcard__pos">noun</span>
+                    </div>
+                    <div className="hero-flashcard__sep" />
+                    <p className="hero-flashcard__def">
+                      The ability to recover quickly from difficulties.
+                    </p>
+                    <div className="hero-flashcard__example">
+                      <span className="hero-flashcard__example-tag">Example</span>
+                      <p className="hero-flashcard__example-sentence">
+                        Her <mark className="hero-flashcard__highlight">resilience</mark> helped her overcome many challenges in life.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Floating Metric Chips */}
+                <div className="hero-vocab-floating">
+                  {/* Daily Goal Donut */}
+                  <div className="hero-float-card hero-float-card--goal">
+                    <div className="hero-float-card__title">Daily Goal</div>
+                    <div className="hero-float-donut">
+                      <svg viewBox="0 0 68 68" className="hero-donut-svg">
+                        <circle cx="34" cy="34" r="26" className="hero-donut-bg" />
+                        <circle
+                          cx="34"
+                          cy="34"
+                          r="26"
+                          className="hero-donut-val hero-donut-val--teal"
+                          strokeDasharray="163.3"
+                          strokeDashoffset="32.6"
+                        />
+                      </svg>
+                      <div className="hero-float-donut__label">
+                        <strong>18 / 20</strong>
+                        <span>words</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Mastery Progress Card */}
+                  <div className="hero-float-card hero-float-card--mastery">
+                    <div className="hero-float-card__title">Mastery Progress</div>
+                    <div className="hero-mastery-wrap">
+                      <div className="hero-float-donut hero-float-donut--sm">
+                        <svg viewBox="0 0 56 56" className="hero-donut-svg">
+                          <circle cx="28" cy="28" r="21" className="hero-donut-bg" />
+                          <circle
+                            cx="28"
+                            cy="28"
+                            r="21"
+                            className="hero-donut-val hero-donut-val--forest"
+                            strokeDasharray="131.9"
+                            strokeDashoffset="19.7"
+                          />
+                        </svg>
+                        <div className="hero-float-donut__label">
+                          <strong>85%</strong>
+                        </div>
+                      </div>
+                      <div className="hero-mastery-legend">
+                        <div className="hero-m-legend-item"><span className="hero-dot hero-dot--yellow" /> Learning</div>
+                        <div className="hero-m-legend-item"><span className="hero-dot hero-dot--mint" /> Reviewing</div>
+                        <div className="hero-m-legend-item"><span className="hero-dot hero-dot--forest" /> Mastered</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Next Review Badge */}
+                  <div className="hero-float-card hero-float-card--review">
+                    <div className="hero-review-icon">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                      </svg>
+                    </div>
+                    <div className="hero-review-info">
+                      <span className="hero-review-sub">Next review</span>
+                      <strong className="hero-review-val">in 2 days</strong>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Slide 1: Personalized Learning Journey ── */}
+          <div
+            className={`figma-hero__slide figma-hero__slide--journey ${activeSlide === 1 ? 'is-active' : ''}`}
+            aria-hidden={activeSlide !== 1}
+          >
+            <div className="figma-hero__ambient figma-hero__ambient--journey" />
+            <div className="figma-hero__inner">
+              <div className="figma-hero__content">
+                <div className="figma-hero__tag">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+                    <polyline points="17 6 23 6 23 12" />
+                  </svg>
+                  <span>{isVi ? 'Lộ trình học tập cá nhân hóa' : 'Your Personalized Learning Journey'}</span>
+                </div>
+
+                <h1 className="figma-hero__title">
+                  {isVi ? 'Mỗi bước tiến bộ.' : 'Every Step Forward.'}
+                  <br />
+                  <span className="figma-hero__highlight--mint">
+                    {isVi ? 'Hoàn thiện chính mình.' : 'A Smarter You.'}
+                  </span>
+                </h1>
+
+                <p className="figma-hero__subtitle">
+                  {isVi
+                    ? 'Theo dõi tiến độ, bám sát lộ trình cá nhân hóa và chinh phục mục tiêu trình độ tiếng Anh chuẩn CEFR.'
+                    : 'Track your progress, follow personalized learning paths, and reach your English proficiency goals with intelligent CEFR-based guidance.'}
+                </p>
+
+                <div className="figma-hero__actions">
+                  <Link to="/student/dashboard" className="figma-hero__cta figma-hero__cta--white">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <line x1="18" y1="20" x2="18" y2="10" />
+                      <line x1="12" y1="20" x2="12" y2="4" />
+                      <line x1="6" y1="20" x2="6" y2="14" />
+                    </svg>
+                    <span>{isVi ? 'Góc học tập của tôi' : 'My Learning Journey'}</span>
+                  </Link>
+                  <Link to="/student/explore" className="figma-hero__cta figma-hero__cta--glass">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                      <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                    </svg>
+                    <span>{isVi ? 'Khám phá lộ trình học' : 'Explore Learning Paths'}</span>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="figma-hero__showcase figma-hero__showcase--journey">
+                {/* Laptop Dashboard Screen */}
+                <div className="hero-laptop">
+                  <div className="hero-laptop__screen">
+                    <div className="hero-laptop__header">
+                      <span>Your English Level</span>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ opacity: 0.7 }}>
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                    </div>
+
+                    <div className="hero-laptop__level-row">
+                      <div className="hero-laptop__level">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <line x1="18" y1="20" x2="18" y2="10" />
+                          <line x1="12" y1="20" x2="12" y2="4" />
+                          <line x1="6" y1="20" x2="6" y2="14" />
+                        </svg>
+                        <div>
+                          <strong>B1</strong>
+                          <span>Current Level</span>
+                        </div>
+                      </div>
+                      <span className="hero-laptop__arrow">»</span>
+                      <div className="hero-laptop__level hero-laptop__level--target">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <line x1="18" y1="20" x2="18" y2="10" />
+                          <line x1="12" y1="20" x2="12" y2="4" />
+                          <line x1="6" y1="20" x2="6" y2="14" />
+                        </svg>
+                        <div>
+                          <strong>B2</strong>
+                          <span>Target Level</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="hero-laptop__bar-container">
+                      <div className="hero-laptop__progress">
+                        <div className="hero-laptop__fill" style={{ width: '72%' }} />
+                      </div>
+                      <div className="hero-laptop__bar-sub">
+                        <strong>72% Complete</strong>
+                        <span>Keep going! You&apos;re on the right track.</span>
+                      </div>
+                    </div>
+
+                    <div className="hero-laptop__activity">
+                      <div className="hero-laptop__act-head">
+                        <span>Weekly Learning Activity</span>
+                        <span className="hero-laptop__badge">This Week ▾</span>
+                      </div>
+                      <div className="hero-laptop__bars">
+                        {[
+                          { d: 'Mon', h: '42%' },
+                          { d: 'Tue', h: '60%' },
+                          { d: 'Wed', h: '92%' },
+                          { d: 'Thu', h: '50%' },
+                          { d: 'Fri', h: '72%' },
+                          { d: 'Sat', h: '35%' },
+                          { d: 'Sun', h: '80%' },
+                        ].map((item) => (
+                          <div key={item.d} className="hero-act-col">
+                            <div className="hero-act-bar" style={{ height: item.h }} />
+                            <span>{item.d}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="hero-laptop__base" />
+                </div>
+
+                {/* Floating Metric Stat Cards */}
+                <div className="hero-journey-stats">
+                  <div className="hero-j-card">
+                    <div className="hero-j-card__icon hero-j-card__icon--fire">🔥</div>
+                    <div className="hero-j-card__info">
+                      <strong>12 Days</strong>
+                      <span>Learning Streak</span>
+                    </div>
+                    <div className="hero-j-card__bars">
+                      <span style={{ height: '30%' }} />
+                      <span style={{ height: '55%' }} />
+                      <span style={{ height: '75%' }} />
+                      <span style={{ height: '95%' }} />
+                    </div>
+                  </div>
+
+                  <div className="hero-j-card">
+                    <div className="hero-j-card__icon hero-j-card__icon--book">📖</div>
+                    <div className="hero-j-card__info">
+                      <strong>450+ words</strong>
+                      <span>Vocabulary Mastered</span>
+                    </div>
+                    <div className="hero-j-card__bars">
+                      <span style={{ height: '35%' }} />
+                      <span style={{ height: '60%' }} />
+                      <span style={{ height: '80%' }} />
+                      <span style={{ height: '100%' }} />
+                    </div>
+                  </div>
+
+                  <div className="hero-j-card">
+                    <div className="hero-j-card__icon hero-j-card__icon--chart">📝</div>
+                    <div className="hero-j-card__info">
+                      <strong style={{ color: '#059669' }}>+18%</strong>
+                      <span>Writing Improvement</span>
+                    </div>
+                    <svg viewBox="0 0 44 20" className="hero-j-card__wave">
+                      <path d="M 2 16 Q 12 14, 22 8 T 42 3" fill="none" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Slide 2: AI Writing Assistant ── */}
+          <div
+            className={`figma-hero__slide figma-hero__slide--writing ${activeSlide === 2 ? 'is-active' : ''}`}
+            aria-hidden={activeSlide !== 2}
+          >
+            <div className="figma-hero__ambient figma-hero__ambient--writing" />
+            <div className="figma-hero__inner">
+              <div className="figma-hero__content">
+                <div className="figma-hero__tag figma-hero__tag--light">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                  </svg>
+                  <span>{isVi ? 'Trợ lý AI luyện viết thông minh' : 'Intelligent AI Writing Assistant'}</span>
+                </div>
+
+                <h1 className="figma-hero__title figma-hero__title--dark">
+                  {isVi ? 'Tự tin viết luận.' : 'Write with Confidence.'}
+                  <br />
+                  <span className="figma-hero__highlight--teal">
+                    {isVi ? 'Tiến bộ vượt bậc cùng AI.' : 'Improve with AI.'}
+                  </span>
+                </h1>
+
+                <p className="figma-hero__subtitle figma-hero__subtitle--dark">
+                  {isVi
+                    ? 'Nhận phản hồi tức thì, sửa lỗi ngữ pháp, gợi ý từ vựng học thuật và đánh giá chuẩn 4 tiêu chí bài viết.'
+                    : 'Get instant writing feedback, grammar corrections, vocabulary suggestions, and CEFR-aligned evaluations to strengthen your English writing skills.'}
+                </p>
+
+                <div className="figma-hero__actions">
+                  <Link to="/student/writing" className="figma-hero__cta figma-hero__cta--emerald">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M12 20h9" />
+                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                    </svg>
+                    <span>{isVi ? 'Luyện viết luận ngay' : 'Practice Writing'}</span>
+                  </Link>
+                  <Link to="/student/write-essay" className="figma-hero__cta figma-hero__cta--outline-dark">
+                    <span>{isVi ? 'Trải nghiệm sửa bài AI' : 'Discover AI Feedback'}</span>
+                  </Link>
+                </div>
+              </div>
+
+              <div className="figma-hero__showcase figma-hero__showcase--writing">
+                {/* Editor Laptop Mockup */}
+                <div className="hero-laptop">
+                  <div className="hero-laptop__screen hero-laptop__screen--editor">
+                    <div className="hero-editor-bar">
+                      <span className="hero-editor-mode">&lt;&gt; Essay</span>
+                      <span className="hero-editor-counter">162 words ⏱️</span>
+                    </div>
+                    <div className="hero-editor-tools">
+                      <span>Paragraph ▾</span>
+                      <strong>B</strong>
+                      <em>I</em>
+                      <u>U</u>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <line x1="8" y1="6" x2="21" y2="6" />
+                        <line x1="8" y1="12" x2="21" y2="12" />
+                        <line x1="8" y1="18" x2="21" y2="18" />
+                        <line x1="3" y1="6" x2="3.01" y2="6" />
+                        <line x1="3" y1="12" x2="3.01" y2="12" />
+                        <line x1="3" y1="18" x2="3.01" y2="18" />
+                      </svg>
+                    </div>
+                    <div className="hero-editor-content">
+                      <p>
+                        In recent years, technology <span className="hero-err hero-err--active">have</span> significantly changed the way people communicate. While it <span className="hero-err">brings</span> many benefits...
+                      </p>
+                      <p>
+                        <mark className="hero-hl">In my opinion</mark>, the key is to use technology in a <mark className="hero-hl">responsible manner</mark>...
+                      </p>
+                    </div>
+
+                    {/* Grammar Correction Popover */}
+                    <div className="hero-grammar-box">
+                      <div className="hero-grammar-box__head">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <circle cx="12" cy="12" r="10" />
+                          <line x1="12" y1="8" x2="12" y2="12" />
+                          <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                        <span>Grammar correction</span>
+                      </div>
+                      <div className="hero-grammar-box__diff">
+                        <span className="hero-grammar-del">have</span>
+                        <span>→</span>
+                        <span className="hero-grammar-add">has</span>
+                      </div>
+                      <p className="hero-grammar-box__desc">
+                        The subject &quot;technology&quot; is singular, so the correct form is &apos;has&apos;.
+                      </p>
+                      <button type="button" className="hero-grammar-box__btn">Apply</button>
+                    </div>
+                  </div>
+                  <div className="hero-laptop__base hero-laptop__base--light" />
+                </div>
+
+                {/* Score & Suggestions Cards */}
+                <div className="hero-writing-stats">
+                  <div className="hero-score-card">
+                    <div className="hero-score-card__head">
+                      <span>Overall Writing Score</span>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ opacity: 0.7 }}>
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                    </div>
+                    <div className="hero-score-badge-row">
+                      <div className="hero-score-donut">
+                        <svg viewBox="0 0 54 54" className="hero-donut-svg">
+                          <circle cx="27" cy="27" r="21" className="hero-donut-bg" />
+                          <circle
+                            cx="27"
+                            cy="27"
+                            r="21"
+                            className="hero-donut-val hero-donut-val--teal"
+                            strokeDasharray="131.9"
+                            strokeDashoffset="15.8"
+                          />
+                        </svg>
+                        <span>88</span>
+                      </div>
+                      <div>
+                        <strong className="hero-score-rating">Good</strong>
+                        <span className="hero-score-level">CEFR Level: B2</span>
+                      </div>
+                    </div>
+                    <div className="hero-score-bars">
+                      <div className="hero-s-bar-item">
+                        <span>Grammar Accuracy</span>
+                        <strong>92%</strong>
+                        <div className="hero-s-track"><div style={{ width: '92%' }} /></div>
+                      </div>
+                      <div className="hero-s-bar-item">
+                        <span>Vocabulary Range</span>
+                        <strong>85%</strong>
+                        <div className="hero-s-track"><div style={{ width: '85%' }} /></div>
+                      </div>
+                      <div className="hero-s-bar-item">
+                        <span>Coherence &amp; Cohesion</span>
+                        <strong>82%</strong>
+                        <div className="hero-s-track"><div style={{ width: '82%' }} /></div>
+                      </div>
+                      <div className="hero-s-bar-item">
+                        <span>Task Achievement</span>
+                        <strong>86%</strong>
+                        <div className="hero-s-track"><div style={{ width: '86%' }} /></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="hero-sug-card">
+                    <div className="hero-sug-card__head">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M9 18h6" />
+                        <path d="M10 22h4" />
+                        <path d="M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6h8c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z" />
+                      </svg>
+                      <span>Suggestions</span>
+                    </div>
+                    <ul>
+                      <li>Use more precise academic vocabulary.</li>
+                      <li>Improve sentence variety.</li>
+                      <li>Add specific examples to strengthen arguments.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Slider Arrow Controls */}
           <button
@@ -464,13 +890,13 @@ export default function StudentHome() {
 
         {/* Carousel Dots */}
         <div className="figma-hero__dots">
-          {HERO_BANNERS.map((banner, index) => (
+          {[0, 1, 2].map((idx) => (
             <button
-              key={banner.id}
+              key={idx}
               type="button"
-              className={`figma-hero__dot ${index === activeSlide ? 'is-active' : ''}`}
-              onClick={() => setActiveSlide(index)}
-              aria-label={`Slide ${index + 1}`}
+              className={`figma-hero__dot ${idx === activeSlide ? 'is-active' : ''}`}
+              onClick={() => setActiveSlide(idx)}
+              aria-label={`Slide ${idx + 1}`}
             />
           ))}
         </div>
