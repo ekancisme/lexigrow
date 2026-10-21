@@ -108,6 +108,59 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
           </span>
           <span className="topnav__brand-name">LexiGrow</span>
         </Link>
+        <NavigationDisclosure
+          className="topnav__browse-disclosure"
+          triggerLabel={language === 'vi' ? 'Khám phá' : 'Browse'}
+          label={
+            <span className="topnav__browse-btn-text">
+              <span>{language === 'vi' ? 'Khám phá' : 'Browse'}</span>
+              <span className="material-symbols-outlined topnav__chevron-icon">expand_more</span>
+            </span>
+          }
+          open={openId === 'browse'}
+          onOpen={() => setOpenId('browse')}
+          onClose={() => setOpenId(current => current === 'browse' ? null : current)}
+          onToggle={() => setOpenId(current => current === 'browse' ? null : 'browse')}
+        >
+          <ul className="header-navigation__links">
+            <li>
+              <Link to="/student/explore" className="header-navigation__link" onClick={closeNavigation}>
+                <span className="material-symbols-outlined">recommend</span>
+                <span>All Recommendation</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/student/explore?q=illustrator" className="header-navigation__link" onClick={closeNavigation}>
+                <span className="material-symbols-outlined">draw</span>
+                <span>Adobe Illustrator</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/student/explore?q=photoshop" className="header-navigation__link" onClick={closeNavigation}>
+                <span className="material-symbols-outlined">palette</span>
+                <span>Adobe Photoshop</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/student/explore?q=design" className="header-navigation__link" onClick={closeNavigation}>
+                <span className="material-symbols-outlined">design_services</span>
+                <span>UI Design</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/student/explore?q=web" className="header-navigation__link" onClick={closeNavigation}>
+                <span className="material-symbols-outlined">code</span>
+                <span>Web Programming & Vue JS</span>
+              </Link>
+            </li>
+            <li>
+              <Link to="/student/explore?q=writing" className="header-navigation__link" onClick={closeNavigation}>
+                <span className="material-symbols-outlined">history_edu</span>
+                <span>Academic Writing</span>
+              </Link>
+            </li>
+          </ul>
+        </NavigationDisclosure>
         <div className="topnav__center-search">
           {searchInput}
         </div>
@@ -134,9 +187,11 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
           </div>
         </div>
         <div className="topnav__actions">
-          <Link to="/pricing" className="topnav__instructor-link" title={language === 'vi' ? 'Nâng cấp gói' : 'Upgrade Plan'}>
-            <span className="material-symbols-outlined" style={{ fontSize: 20 }}>school</span>
-            <span className="topnav__instructor-text">{language === 'vi' ? 'Khóa học VIP' : 'Become Pro'}</span>
+          <Link to="/teacher/dashboard" className="topnav__instructor-link" title={language === 'vi' ? 'Trở thành Giảng viên' : 'Become Instructor'}>
+            <span className="topnav__instructor-text">{language === 'vi' ? 'Trở thành Giảng viên' : 'Become Instructor'}</span>
+          </Link>
+          <Link to="/student/dashboard" className="topnav__icon-btn topnav__cart-btn" title={language === 'vi' ? 'Giỏ hàng' : 'Cart'}>
+            <span className="material-symbols-outlined" aria-hidden="true">shopping_cart</span>
           </Link>
           <LanguageSwitcher />
           <button type="button" className="topnav__icon-btn topnav__theme-btn" onClick={toggleTheme}

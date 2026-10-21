@@ -1,20 +1,15 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
-import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import './SiteFooter.css'
-
-const CONTACT_ADDRESS = '55 Lê Thiện Trị, Ngũ Hành Sơn, Đà Nẵng'
-const CONTACT_PHONE = '0335247117'
 
 export default function SiteFooter() {
   const { user } = useAuth()
-  const { t } = useLanguage()
   const homePath = !user || user.role === 'student' ? '/student/home' : `/${user.role}/dashboard`
-  const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONTACT_ADDRESS)}`
 
   return (
-    <footer className="eduvia-footer" aria-label={t('siteFooter.label')}>
+    <footer className="eduvia-footer" aria-label="Footer Navigation">
       <div className="eduvia-footer__inner">
+        {/* Brand Col */}
         <div className="eduvia-footer__col eduvia-footer__col--brand">
           <Link to={homePath} className="eduvia-footer__logo" aria-label="LexiGrow">
             <span className="eduvia-footer__logo-mark">
@@ -22,39 +17,36 @@ export default function SiteFooter() {
             </span>
             <span className="eduvia-footer__logo-text">LexiGrow</span>
           </Link>
-          <p className="eduvia-footer__text">{t('siteFooter.tagline')}</p>
-          <Link to="/contact" className="eduvia-footer__phone">
-            <span className="material-symbols-outlined" aria-hidden="true">support_agent</span>
-            <span>{t('siteFooter.contactCta')}</span>
-          </Link>
+          <p className="eduvia-footer__text">
+            Empowering students and creators worldwide with AI-driven learning and creative arts mastery.
+          </p>
         </div>
 
+        {/* Col 1 */}
         <div className="eduvia-footer__col">
-          <h3 className="eduvia-footer__heading">{t('siteFooter.learnHeading')}</h3>
           <ul className="eduvia-footer__links">
-            <li><Link to="/student/explore">{t('siteFooter.explore')}</Link></li>
-            <li><Link to="/student/vocabulary">{t('siteFooter.vocabulary')}</Link></li>
-            <li><Link to="/student/writing">{t('siteFooter.writing')}</Link></li>
-            <li><Link to="/student/garden">{t('siteFooter.garden')}</Link></li>
+            <li><Link to="/student/explore?q=web">Web Programming</Link></li>
+            <li><Link to="/student/explore?q=mobile">Mobile Programming</Link></li>
+            <li><Link to="/student/explore?q=java">Java Beginner</Link></li>
+            <li><Link to="/student/explore?q=php">PHP Beginner</Link></li>
           </ul>
         </div>
 
+        {/* Col 2 */}
         <div className="eduvia-footer__col">
-          <h3 className="eduvia-footer__heading">{t('siteFooter.aboutHeading')}</h3>
           <ul className="eduvia-footer__links">
-            <li><Link to="/about">{t('siteFooter.about')}</Link></li>
-            <li><Link to="/pricing">{t('siteFooter.pricing')}</Link></li>
-            <li><Link to="/contact#contact-faqs">{t('siteFooter.faqs')}</Link></li>
-            <li><Link to="/contact">{t('siteFooter.contact')}</Link></li>
+            <li><Link to="/student/explore?q=illustrator">Adobe Illustrator</Link></li>
+            <li><Link to="/student/explore?q=photoshop">Adobe Photoshop</Link></li>
+            <li><Link to="/student/explore?q=design">Design Logo</Link></li>
           </ul>
         </div>
 
-        <div className="eduvia-footer__col eduvia-footer__col--contact">
-          <h3 className="eduvia-footer__heading">{t('siteFooter.contactHeading')}</h3>
+        {/* Col 3 */}
+        <div className="eduvia-footer__col">
           <ul className="eduvia-footer__links">
-            <li><a href={`tel:${CONTACT_PHONE}`}>{CONTACT_PHONE}</a></li>
-            <li><a href="mailto:support@lexigrow.com">support@lexigrow.com</a></li>
-            <li><a href={mapsUrl} target="_blank" rel="noreferrer">{t('siteFooter.address')}</a></li>
+            <li><Link to="/student/explore?q=writing">Writing Course</Link></li>
+            <li><Link to="/student/explore?q=photography">Photography</Link></li>
+            <li><Link to="/student/explore?q=video">Video Making</Link></li>
           </ul>
         </div>
       </div>
@@ -62,7 +54,7 @@ export default function SiteFooter() {
       <div className="eduvia-footer__bottom">
         <div className="eduvia-footer__bottom-inner">
           <p className="eduvia-footer__copy-text">
-            Copyright © {new Date().getFullYear()} LexiGrow. All Rights Reserved
+            Copyright © MyCourse.io 2026. All Rights Reserved
           </p>
           <div className="eduvia-footer__socials">
             <a href="https://twitter.com" target="_blank" rel="noreferrer" aria-label="Twitter">

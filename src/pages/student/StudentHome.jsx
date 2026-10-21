@@ -6,24 +6,24 @@ import api from '../../services/api.js'
 import './StudentHome.css'
 
 const CATEGORY_PILLS = [
-  { id: 'all', labelVi: 'Tất cả gợi ý', labelEn: 'All Recommendation' },
-  { id: 'writing', labelVi: 'Viết luận học thuật', labelEn: 'Academic Writing' },
-  { id: 'ielts', labelVi: 'Luyện thi IELTS & TOEFL', labelEn: 'IELTS & TOEFL Prep' },
-  { id: 'vocab', labelVi: 'Luyện từ vựng chuyên sâu', labelEn: 'Vocabulary Mastery' },
-  { id: 'grammar', labelVi: 'Ngữ pháp & Cấu trúc câu', labelEn: 'Grammar & Style' },
-  { id: 'daily', labelVi: 'Giao tiếp hàng ngày', labelEn: 'Daily Conversation' },
-  { id: 'tech', labelVi: 'Tiếng Anh Công nghệ & AI', labelEn: 'Tech & AI English' },
-  { id: 'business', labelVi: 'Tiếng Anh Thương mại', labelEn: 'Business English' },
+  { id: 'all', labelVi: 'All Recommendation', labelEn: 'All Recommendation' },
+  { id: 'illustrator', labelVi: 'Adobe Illustrator', labelEn: 'Adobe Illustrator' },
+  { id: 'photoshop', labelVi: 'Adobe Photoshop', labelEn: 'Adobe Photoshop' },
+  { id: 'design', labelVi: 'UI Design', labelEn: 'UI Design' },
+  { id: 'web', labelVi: 'Web Programming', labelEn: 'Web Programming' },
+  { id: 'mobile', labelVi: 'Mobile Programming', labelEn: 'Mobile Programming' },
+  { id: 'backend', labelVi: 'Backend Development', labelEn: 'Backend Development' },
+  { id: 'vue', labelVi: 'Vue JS', labelEn: 'Vue JS' },
 ]
 
 const STUDIO_COURSES = [
   {
     id: 'course-1',
     image: '/assets/editorial/courses/vue-course.png',
-    title: 'ACADEMIC ESSAY WRITING TASK 2',
-    category: 'writing',
-    instructor: 'LexiGrow Studio',
-    desc: 'Master essay structure, coherence, and lexical resource with instant AI feedback.',
+    title: 'VUE JS SCRATCH COURSE',
+    category: 'web',
+    instructor: 'MyCourse Studio',
+    desc: 'More than 8yr Experience as Illustrator. Learn how to becoming professional Illustrator Now...',
     rating: 5.0,
     reviews: '1.2K',
     price: '$24.92',
@@ -35,25 +35,25 @@ const STUDIO_COURSES = [
   {
     id: 'course-2',
     image: '/assets/editorial/courses/ui-design.png',
-    title: 'VOCABULARY FOR TECHNOLOGY & AI',
-    category: 'vocab',
-    instructor: 'LexiGrow Studio',
-    desc: 'Build specialized technology and engineering vocabulary for international careers.',
+    title: 'UI DESIGN FOR BEGINNERS',
+    category: 'design',
+    instructor: 'MyCourse Studio',
+    desc: 'Learn how to make web application with Vue.js Framework.',
     rating: 5.0,
     reviews: '1.2K',
     price: '$24.92',
     originalPrice: '$32.90',
     bestSeller: true,
     discount: '20% OFF',
-    href: '/student/vocabulary',
+    href: '/student/explore',
   },
   {
     id: 'course-3',
     image: '/assets/editorial/courses/mobile-dev.png',
-    title: 'IELTS INTENSIVE BAND 7.0+',
-    category: 'ielts',
-    instructor: 'LexiGrow Studio',
-    desc: 'High-scoring strategies and comprehensive diagnostic tests designed by senior examiners.',
+    title: 'MOBILE DEV REACT NATIVE',
+    category: 'mobile',
+    instructor: 'MyCourse Studio',
+    desc: 'More than 8yr Experience as Illustrator. Learn how to becoming professional Illustrator Now...',
     rating: 5.0,
     reviews: '1.2K',
     price: '$24.92',
@@ -65,10 +65,10 @@ const STUDIO_COURSES = [
   {
     id: 'course-4',
     image: '/assets/editorial/courses/website-zero.png',
-    title: 'BUSINESS COMMUNICATION ZERO TO HERO',
-    category: 'business',
-    instructor: 'LexiGrow Studio',
-    desc: 'Professional emails, meeting presentations, and persuasive negotiation techniques.',
+    title: 'WEBSITE DEV ZERO TO HERO',
+    category: 'web',
+    instructor: 'MyCourse Studio',
+    desc: 'More than 8yr Experience as Illustrator. Learn how to becoming professional Illustrator Now...',
     rating: 5.0,
     reviews: '1.2K',
     price: '$24.92',
@@ -82,85 +82,145 @@ const STUDIO_COURSES = [
 const TRENDING_COURSES = [
   {
     id: 'trend-1',
-    image: '/assets/editorial/home/environment.jpg',
-    title: 'ENVIRONMENT & SUSTAINABILITY ESSAYS',
-    category: 'writing',
-    instructor: 'Academic Team',
-    desc: 'Topic vocabulary and cohesive writing models for environmental science essays.',
-    rating: 4.9,
-    reviews: '980',
+    image: '/assets/editorial/courses/mobile-dev.png',
+    title: 'Adobe Illustrator Scretch Course',
+    category: 'design',
+    instructor: 'MyCourse Studio',
+    desc: 'More than 8yr Experience as Illustrator. Learn how to becoming professional Illustrator Now...',
+    rating: 5.0,
+    reviews: '1.2K',
     price: '$24.92',
     originalPrice: '$32.90',
     bestSeller: true,
     discount: '20% OFF',
-    href: '/student/writing',
+    href: '/student/explore',
   },
   {
     id: 'trend-2',
-    image: '/assets/editorial/home/technology.jpg',
-    title: 'AI & DIGITAL TRANSFORMATION VOCAB',
-    category: 'tech',
-    instructor: 'LexiGrow AI Labs',
-    desc: 'Learn key collocations, idiomatic expressions, and technical definitions.',
+    image: '/assets/editorial/courses/swift-dev.png',
+    title: 'Bootcamp Vue.js Web Framework',
+    category: 'web',
+    instructor: 'MyCourse Studio',
+    desc: 'Learn how to make web application with Vue.js Framework.',
     rating: 5.0,
-    reviews: '1.5K',
+    reviews: '1.2K',
     price: '$24.92',
     originalPrice: '$32.90',
     bestSeller: true,
     discount: '20% OFF',
-    href: '/student/vocabulary/review',
+    href: '/student/explore',
   },
   {
     id: 'trend-3',
-    image: '/assets/editorial/topics/daily-life.webp',
-    title: 'DAILY LIFE CONVERSATION MASTERY',
-    category: 'daily',
-    instructor: 'Global Tutors',
-    desc: 'Confident communication for travel, everyday dialogue, and social interactions.',
-    rating: 4.8,
-    reviews: '740',
+    image: '/assets/editorial/courses/website-zero.png',
+    title: 'Design Fundamentals',
+    category: 'design',
+    instructor: 'MyCourse Studio',
+    desc: 'More than 8yr Experience as Illustrator. Learn how to becoming professional Illustrator Now...',
+    rating: 5.0,
+    reviews: '1.2K',
     price: '$24.92',
     originalPrice: '$32.90',
     bestSeller: true,
     discount: '20% OFF',
-    href: '/student/game/matching',
+    href: '/student/explore',
   },
   {
     id: 'trend-4',
-    image: '/assets/editorial/topics/hobbies.webp',
-    title: 'GROWTH GARDEN VOCABULARY QUEST',
-    category: 'vocab',
-    instructor: 'Gamified Learning',
-    desc: 'Grow knowledge trees by completing daily active recall quizzes and streak goals.',
+    image: '/assets/editorial/courses/uber-clone.png',
+    title: 'Ionic - Build iOS, Android & Web...',
+    category: 'mobile',
+    instructor: 'MyCourse Studio',
+    desc: 'More than 8yr Experience as Illustrator. Learn how to becoming professional Illustrator Now...',
     rating: 5.0,
-    reviews: '2.1K',
+    reviews: '1.2K',
     price: '$24.92',
     originalPrice: '$32.90',
     bestSeller: true,
     discount: '20% OFF',
-    href: '/student/garden',
+    href: '/student/explore',
+  },
+  {
+    id: 'trend-5',
+    image: '/assets/editorial/courses/modern-art.png',
+    title: 'Adobe Illustrator Scretch Course',
+    category: 'design',
+    instructor: 'MyCourse Studio',
+    desc: 'More than 8yr Experience as Illustrator. Learn how to becoming professional Illustrator Now...',
+    rating: 5.0,
+    reviews: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    bestSeller: true,
+    discount: '20% OFF',
+    href: '/student/explore',
+  },
+  {
+    id: 'trend-6',
+    image: '/assets/editorial/courses/desk-notes.png',
+    title: 'Bootcamp Vue.js Web Framework',
+    category: 'web',
+    instructor: 'MyCourse Studio',
+    desc: 'Learn how to make web application with Vue.js Framework.',
+    rating: 5.0,
+    reviews: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    bestSeller: true,
+    discount: '20% OFF',
+    href: '/student/explore',
+  },
+  {
+    id: 'trend-7',
+    image: '/assets/editorial/courses/vue-course.png',
+    title: 'Design Fundamentals',
+    category: 'design',
+    instructor: 'MyCourse Studio',
+    desc: 'More than 8yr Experience as Illustrator. Learn how to becoming professional Illustrator Now...',
+    rating: 5.0,
+    reviews: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    bestSeller: true,
+    discount: '20% OFF',
+    href: '/student/explore',
+  },
+  {
+    id: 'trend-8',
+    image: '/assets/editorial/courses/ui-design.png',
+    title: 'Ionic - Build iOS, Android & Web...',
+    category: 'mobile',
+    instructor: 'MyCourse Studio',
+    desc: 'More than 8yr Experience as Illustrator. Learn how to becoming professional Illustrator Now...',
+    rating: 5.0,
+    reviews: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    bestSeller: true,
+    discount: '20% OFF',
+    href: '/student/explore',
   },
 ]
 
 const POPULAR_MENTORS = [
   {
     name: 'Alexander Bastian',
-    role: 'Lead IELTS Examiner & Coach',
+    role: 'Expert Mobile Engineer',
     image: '/assets/editorial/instructors/alexander.png',
   },
   {
     name: 'Labie Carthaline',
-    role: 'Linguistic Specialist & Author',
+    role: 'Marketing Specialist',
     image: '/assets/editorial/instructors/labie.png',
   },
   {
     name: 'Jonathan Doe',
-    role: 'Academic Research Director',
+    role: 'Financial Strategiest',
     image: '/assets/editorial/instructors/jonathan.png',
   },
   {
-    name: 'Jane Sarasvati',
-    role: 'Senior English Pedagogy Lead',
+    name: 'Sarasvati',
+    role: 'Film & Video Director',
     image: '/assets/editorial/instructors/sarasvati.png',
   },
 ]
@@ -326,17 +386,15 @@ export default function StudentHome() {
         </div>
       </section>
 
-      {/* ── 3. More from LexiGrow Studio (Figma Design) ── */}
+      {/* ── 3. More from MyCourse Studio (Figma Design) ── */}
       <section className="figma-section" aria-labelledby="heading-studio">
         <div className="figma-section__header">
           <div>
             <h2 id="heading-studio" className="figma-section__title">
-              {language === 'vi' ? 'Khóa học nổi bật từ LexiGrow Studio' : 'More from LexiGrow Studio'}
+              More from MyCourse Studio
             </h2>
             <p className="figma-section__subtitle">
-              {language === 'vi'
-                ? 'Được tuyển chọn kỹ lưỡng để nâng cao toàn diện kỹ năng của bạn.'
-                : 'We know the best things for You. Top picks for You.'}
+              We know the best things for You. Top picks for You.
             </p>
           </div>
           <Link to="/student/explore" className="figma-section__more-link">
@@ -390,17 +448,15 @@ export default function StudentHome() {
         </div>
       </section>
 
-      {/* ── 4. Trending Topics & Courses (Figma Design) ── */}
+      {/* ── 4. Trending Course (Figma Design) ── */}
       <section className="figma-section" aria-labelledby="heading-trending">
         <div className="figma-section__header">
           <div>
             <h2 id="heading-trending" className="figma-section__title">
-              {language === 'vi' ? 'Chủ đề & Lộ trình xu hướng' : 'Trending Courses'}
+              Trending Course
             </h2>
             <p className="figma-section__subtitle">
-              {language === 'vi'
-                ? 'Được cộng đồng người học thực hành và đánh giá cao nhất trong tuần.'
-                : 'We know the best things for You. Top picks for You.'}
+              We know the best things for You. Top picks for You.
             </p>
           </div>
           <Link to="/student/explore" className="figma-section__more-link">
@@ -454,17 +510,15 @@ export default function StudentHome() {
         </div>
       </section>
 
-      {/* ── 5. Popular Instructors / Mentors (Figma Design) ── */}
+      {/* ── 5. Popular Instructor (Figma Design) ── */}
       <section className="figma-section" aria-labelledby="heading-mentors">
         <div className="figma-section__header">
           <div>
             <h2 id="heading-mentors" className="figma-section__title">
-              {language === 'vi' ? 'Giảng viên & Chuyên gia AI được yêu thích' : 'Popular Instructor'}
+              Popular Instructor
             </h2>
             <p className="figma-section__subtitle">
-              {language === 'vi'
-                ? 'Đội ngũ đồng hành mang lại kết quả học tập vượt trội cho bạn.'
-                : 'We know the best things for You. Top picks for You.'}
+              We know the best things for You. Top picks for You.
             </p>
           </div>
         </div>

@@ -1,850 +1,604 @@
 /* ==========================================================================
-   Explore / Topics Page — Eduvia Refined Design with Bo Viền & Elegant Grid
+   LexiGrow Figma Redesign: Search & Explore Page (Based on Figma Lexi Desktop Frame 519:5693)
    ========================================================================== */
 
-.eduvia-courses-page {
-  font-family: var(--font-family);
-  color: var(--color-on-surface, #051A2E);
-  padding-bottom: 80px;
-}
-
-/* ── HERO BANNER (Bo Viền) ── */
-.eduvia-courses-page .eduvia-page-hero {
-  width: min(100% - 48px, 1320px);
-  margin: 32px auto 56px;
-  border-radius: 28px;
-  background: radial-gradient(120% 120% at 50% 0%, #EDF4FF 0%, #DDE9FF 70%, #D4E5FF 100%);
-  border: 1px solid rgba(5, 26, 46, 0.08);
-  padding: clamp(48px, 6vw, 76px) clamp(24px, 5vw, 64px);
-  text-align: center;
+.figma-search-page {
+  width: min(100%, 1360px);
+  margin-inline: auto;
+  padding: 32px 24px 80px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  box-shadow: 0 4px 24px rgba(5, 26, 46, 0.035);
+  gap: 40px;
+  font-family: var(--font-family, 'Plus Jakarta Sans', -apple-system, sans-serif);
+  color: var(--color-on-surface, #1B1B1B);
 }
 
-[data-theme="dark"] .eduvia-courses-page .eduvia-page-hero {
-  background: #0f1d2e;
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+.figma-search-layout {
+  display: grid;
+  grid-template-columns: 270px 1fr;
+  gap: 36px;
+  align-items: start;
 }
 
-.eduvia-courses-page .eduvia-page-hero__title {
-  font-size: clamp(32px, 4.2vw, 52px);
-  font-weight: 800;
-  color: var(--color-on-surface, #051A2E);
-  margin: 0;
-  letter-spacing: -0.025em;
-  line-height: 1.15;
-}
-
-.eduvia-courses-page .eduvia-page-hero__desc {
-  font-size: 16px;
-  color: var(--color-on-surface-variant, #576C80);
-  max-width: 680px;
-  margin: 0;
-  line-height: 1.65;
-}
-
-.eduvia-courses-page .eduvia-breadcrumbs {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-on-surface-variant, #576C80);
-  margin-top: 4px;
-}
-
-.eduvia-courses-page .eduvia-breadcrumbs a {
-  color: var(--color-on-surface, #051A2E);
-  text-decoration: none;
-  transition: color 0.15s ease;
-}
-.eduvia-courses-page .eduvia-breadcrumbs a:hover {
-  color: var(--color-primary, #10B981);
-}
-
-.eduvia-breadcrumbs__sep {
-  opacity: 0.5;
-}
-
-/* ── CONTAINER ── */
-.eduvia-courses-container {
-  width: min(100%, 1320px);
-  margin-inline: auto;
-  padding: 0 24px;
-}
-
-/* ── SECTION HEADER & SEARCH ── */
-.eduvia-courses-page .eduvia-section-header {
+/* ── 1. Left Sidebar Filter ── */
+.figma-sidebar {
+  background: var(--color-surface, #FFFFFF);
+  border: 1px solid var(--figma-border, rgba(27, 27, 27, 0.08));
+  border-radius: 20px;
+  padding: 24px 20px;
   display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 24px;
-  margin-bottom: 32px;
-  flex-wrap: wrap;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+  position: sticky;
+  top: 96px;
 }
 
-.eduvia-kicker {
-  display: inline-block;
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 8px;
-}
-.eduvia-kicker--green {
-  color: var(--color-primary, #10B981);
+[data-theme="dark"] .figma-sidebar {
+  background: #14181E;
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
-.eduvia-section-title {
-  font-size: clamp(24px, 3vw, 36px);
-  font-weight: 800;
-  color: var(--color-on-surface, #051A2E);
-  margin: 0;
-  letter-spacing: -0.02em;
-}
-
-.eduvia-courses-search {
+.figma-sidebar__header {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: var(--color-surface-container-lowest, #FFFFFF);
-  border: 1px solid var(--color-outline-variant, #E2E8F0);
-  border-radius: 99px;
-  padding: 12px 22px;
-  min-width: 320px;
-  box-shadow: 0 4px 16px rgba(5, 26, 46, 0.04);
-  transition: all 0.2s ease;
-}
-.eduvia-courses-search:focus-within {
-  border-color: var(--color-primary, #10B981);
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
-}
-.eduvia-courses-search input {
-  border: none;
-  background: transparent;
-  outline: none;
-  font-family: inherit;
-  font-size: 14px;
-  color: var(--color-on-surface, #051A2E);
-  width: 100%;
-}
-.eduvia-courses-search .material-symbols-outlined {
-  color: var(--color-on-surface-variant, #576C80);
-  font-size: 20px;
+  justify-content: space-between;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--figma-border, rgba(27, 27, 27, 0.08));
 }
 
-/* ── FILTER PILLS ── */
-.eduvia-courses-filter-pills {
+[data-theme="dark"] .figma-sidebar__header {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.figma-sidebar__header h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-on-surface, #1B1B1B);
+  margin: 0;
+}
+
+[data-theme="dark"] .figma-sidebar__header h3 {
+  color: #FFFFFF;
+}
+
+.figma-sidebar__clear {
+  background: transparent;
+  border: none;
+  color: var(--figma-primary, #3DCBB1);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+
+.figma-sidebar__clear:hover {
+  text-decoration: underline;
+  opacity: 0.85;
+}
+
+.figma-sidebar__group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--figma-border, rgba(27, 27, 27, 0.08));
+}
+
+[data-theme="dark"] .figma-sidebar__group {
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+.figma-sidebar__group:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.figma-sidebar__group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.figma-sidebar__group-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--color-on-surface, #1B1B1B);
+  margin: 0;
+}
+
+[data-theme="dark"] .figma-sidebar__group-title {
+  color: #F3F4F6;
+}
+
+.figma-sidebar__chevron {
+  font-size: 20px;
+  color: var(--color-on-surface-variant, #64748B);
+  transition: transform 0.2s ease;
+}
+
+.figma-sidebar__options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Custom Checkbox and Radio items */
+.figma-filter-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 40px;
-}
-
-.eduvia-courses-filter-pills--status {
-  margin-top: -20px;
-  margin-bottom: 24px;
-}
-
-.eduvia-filter-pill {
-  padding: 9px 20px;
-  border-radius: 99px;
-  font-size: 14px;
-  font-weight: 650;
-  font-family: inherit;
-  border: 1px solid var(--color-outline-variant, #E2E8F0);
-  background: var(--color-surface-container-lowest, #FFFFFF);
-  color: var(--color-on-surface, #051A2E);
-  cursor: pointer;
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.eduvia-filter-pill:hover {
-  border-color: var(--color-primary, #10B981);
-  color: var(--color-primary, #10B981);
-}
-.eduvia-filter-pill.active {
-  background: var(--color-on-surface, #051A2E);
-  color: #FFFFFF;
-  border-color: var(--color-on-surface, #051A2E);
-  box-shadow: 0 4px 14px rgba(5, 26, 46, 0.15);
-}
-
-[data-theme="dark"] .eduvia-filter-pill.active {
-  background: var(--color-primary, #10B981);
-  border-color: var(--color-primary, #10B981);
-  color: #FFFFFF;
-}
-
-/* ── 6 TOPICS GRID ── */
-.eduvia-courses-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 28px;
-  align-items: stretch;
-}
-
-.eduvia-course-card {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background: var(--color-surface-container-lowest, #FFFFFF);
-  border: 1px solid var(--color-outline-variant, #E2E8F0);
-  border-radius: 22px;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(5, 26, 46, 0.035);
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.eduvia-course-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--color-primary, #10B981);
-  box-shadow: 0 16px 36px rgba(16, 185, 129, 0.12);
-}
-
-.eduvia-course-card__image-wrap {
-  position: relative;
-  aspect-ratio: 16 / 9;
-  overflow: hidden;
-  background: var(--color-surface-container-low, #F1F5F9);
-}
-
-.eduvia-course-card__completed {
-  position: absolute;
-  left: 14px;
-  bottom: 14px;
-  border-radius: 999px;
-  padding: 6px 11px;
-  background: rgba(5, 26, 46, 0.88);
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.eduvia-course-card__img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.eduvia-course-card:hover .eduvia-course-card__img {
-  transform: scale(1.05);
-}
-
-.eduvia-course-card__tag {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  padding: 5px 12px;
-  border-radius: 99px;
-  font-size: 11.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #FFFFFF;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-.eduvia-course-card__tag--green {
-  background: #10B981;
-}
-.eduvia-course-card__tag--teal {
-  background: #0284C7;
-}
-
-.eduvia-course-card__level-badge {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 800;
-  background: rgba(255, 255, 255, 0.92);
-  color: #051A2E;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(4px);
-}
-[data-theme="dark"] .eduvia-course-card__level-badge {
-  background: rgba(15, 29, 46, 0.9);
-  color: #FFFFFF;
-}
-
-.eduvia-course-card__body {
-  padding: 22px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-}
-
-.eduvia-course-card__meta-top {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-  font-size: 12.5px;
-  color: var(--color-on-surface-variant, #576C80);
-}
-
-.eduvia-course-card__badge-time,
-.eduvia-course-card__badge-words {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.eduvia-course-card__badge-time .material-symbols-outlined,
-.eduvia-course-card__badge-words .material-symbols-outlined {
-  font-size: 16px;
-  color: var(--color-primary, #10B981);
-}
-
-.eduvia-course-card__title {
-  margin: 0 0 10px;
-  font-size: 18px;
-  font-weight: 750;
-  line-height: 1.35;
-}
-.eduvia-course-card__title a {
-  color: var(--color-on-surface, #051A2E);
-  text-decoration: none;
-  transition: color 0.15s ease;
-}
-.eduvia-course-card__title a:hover {
-  color: var(--color-primary, #10B981);
-}
-
-.eduvia-course-card__desc {
-  margin: 0 0 16px;
   font-size: 13.5px;
-  line-height: 1.6;
-  color: var(--color-on-surface-variant, #576C80);
-  min-height: 4.8em;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  overflow: hidden;
-}
-
-.eduvia-course-card__round-badge {
-  align-self: flex-start;
-  margin: 0 0 12px;
-  border-radius: 999px;
-  padding: 6px 11px;
-  background: rgba(16, 185, 129, 0.12);
-  color: #047857;
-  font-size: 11px;
-  font-weight: 750;
-}
-
-/* ── WORDS CHIPS PREVIEW ── */
-.eduvia-course-card__words {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: auto;
-  margin-bottom: 18px;
-  min-width: 0;
-}
-
-.eduvia-word-tag {
-  display: block;
-  min-width: 0;
-  background: var(--color-surface-container-low, #F1F5F9);
-  border-radius: 9px;
-  padding: 8px 12px;
-  font-size: 12px;
-  line-height: 1.45;
-  color: var(--color-on-surface-variant, #4A5F73);
-  border: 1px solid rgba(5, 26, 46, 0.04);
-  overflow-wrap: break-word;
-  word-break: break-word;
-}
-.eduvia-word-tag strong {
-  color: var(--color-on-surface, #051A2E);
-  font-weight: 700;
-  margin-right: 4px;
-}
-
-.eduvia-courses-empty {
-  display: flex;
-  min-height: 240px;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 32px;
-  border: 1px solid var(--color-outline-variant, #E2E8F0);
-  border-radius: 20px;
-  background: var(--color-surface-container-lowest, #FFFFFF);
-  text-align: center;
-}
-
-.eduvia-courses-empty > .material-symbols-outlined {
-  color: var(--color-primary, #10B981);
-  font-size: 32px;
-}
-
-.eduvia-courses-empty h3 {
-  margin: 12px 0 6px;
-}
-
-.eduvia-courses-empty p {
-  margin: 0 0 18px;
-  color: var(--color-on-surface-variant, #576C80);
-}
-
-/* ── BUTTONS ── */
-.eduvia-courses-page .eduvia-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border-radius: 99px;
-  font-family: inherit;
-  font-size: 14.5px;
-  font-weight: 700;
-  line-height: 1;
-  padding: 14px 24px;
+  color: var(--color-on-surface-variant, #475569);
   cursor: pointer;
-  border: none;
-  text-decoration: none !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.eduvia-courses-page .eduvia-btn .material-symbols-outlined {
-  font-size: 18px;
-}
-.eduvia-courses-page .eduvia-btn:hover {
-  transform: translateY(-2px);
-}
-.eduvia-courses-page .eduvia-btn--full {
-  width: 100%;
-}
-.eduvia-courses-page .eduvia-btn--navy {
-  background: #051A2E;
-  color: #FFFFFF !important;
-  box-shadow: 0 4px 14px rgba(5, 26, 46, 0.15);
-}
-.eduvia-courses-page .eduvia-btn--navy:hover {
-  background: #0F2D4A;
-  box-shadow: 0 8px 20px rgba(5, 26, 46, 0.25);
-}
-.eduvia-courses-page .eduvia-btn--lime {
-  background: #E9FA49;
-  color: #051A2E !important;
-  box-shadow: 0 6px 18px rgba(233, 250, 73, 0.35);
-}
-.eduvia-courses-page .eduvia-btn--lime:hover {
-  background: #d8e938;
-}
-.eduvia-courses-page .eduvia-btn--mint {
-  background: #1CB886;
-  color: #FFFFFF !important;
-  box-shadow: 0 6px 18px rgba(28, 184, 134, 0.3);
-}
-.eduvia-courses-page .eduvia-btn--mint:hover {
-  background: #159a6f;
-}
-
-/* ── VIDEO PLAYER BANNER ── */
-.eduvia-courses-video-section {
-  margin-top: 80px;
-}
-
-.eduvia-video-container {
+  user-select: none;
   position: relative;
-  width: 100%;
-  aspect-ratio: 21 / 9;
-  max-height: 480px;
-  border-radius: 28px;
-  overflow: hidden;
-  box-shadow: 0 12px 36px rgba(5, 26, 46, 0.08);
 }
-.eduvia-video-container__poster {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+
+[data-theme="dark"] .figma-filter-item {
+  color: #94A3B8;
 }
-.eduvia-video-container__play-btn {
+
+.figma-filter-item input[type="radio"],
+.figma-filter-item input[type="checkbox"] {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
-  background: #9E89FB;
-  color: #FFFFFF;
+  opacity: 0;
+  cursor: pointer;
+  width: 0;
+  height: 0;
+}
+
+.figma-custom-control {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 4px;
   display: grid;
   place-items: center;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 8px 30px rgba(158, 137, 251, 0.5);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.eduvia-video-container__play-btn:hover {
-  transform: translate(-50%, -50%) scale(1.1);
-  background: #8b73f8;
-}
-.eduvia-video-container__play-btn .material-symbols-outlined {
-  font-size: 38px;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+  background: #FFFFFF;
 }
 
-/* ── DARK CTA BANNER ── */
-.eduvia-courses-page .eduvia-dark-cta {
-  margin-top: 80px;
-  background: #051A2E;
-  border-radius: 28px;
-  padding: clamp(48px, 6vw, 76px) clamp(24px, 5vw, 60px);
-  text-align: center;
-  color: #FFFFFF;
-  box-shadow: 0 16px 40px rgba(5, 26, 46, 0.2);
-}
-.eduvia-dark-cta__inner {
-  max-width: 720px;
-  margin-inline: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-}
-.eduvia-dark-cta__kicker {
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #E9FA49;
-}
-.eduvia-dark-cta__inner h2 {
-  font-size: clamp(28px, 3.8vw, 44px);
-  font-weight: 800;
-  color: #FFFFFF;
-  margin: 0;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-.eduvia-dark-cta__inner p {
-  font-size: 16px;
-  line-height: 1.65;
-  color: #9FB2C8;
-  margin: 0 0 10px;
-}
-.eduvia-dark-cta__actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-/* ── RESPONSIVE ── */
-@media (max-width: 1080px) {
-  .eduvia-courses-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 768px) {
-  .eduvia-courses-page .eduvia-section-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .eduvia-courses-search {
-    width: 100%;
-    min-width: 100%;
-  }
-  .eduvia-courses-grid {
-    grid-template-columns: 1fr;
-  }
-  .eduvia-video-container {
-    aspect-ratio: 16 / 9;
-  }
-}
-
-@media (max-width: 480px) {
-  .eduvia-courses-container {
-    padding: 0 16px;
-  }
-  .eduvia-course-card__body {
-    padding: 18px;
-  }
-  .eduvia-course-card__words {
-    grid-template-columns: 1fr;
-  }
-  .eduvia-dark-cta__actions {
-    flex-direction: column;
-    width: 100%;
-  }
-  .eduvia-dark-cta__actions .eduvia-btn {
-    width: 100%;
-  }
-}
-
-/* ── DARK THEME SUPPORT ── */
-[data-theme="dark"] .eduvia-courses-page {
-  color: var(--color-on-surface, #F1F5F9);
-}
-
-[data-theme="dark"] .eduvia-courses-search {
-  background: #152333;
-  border-color: rgba(255, 255, 255, 0.1);
-}
-[data-theme="dark"] .eduvia-courses-search input {
-  color: #F1F5F9;
-}
-[data-theme="dark"] .eduvia-courses-search .material-symbols-outlined {
-  color: #94A3B8;
-}
-
-[data-theme="dark"] .eduvia-filter-pill {
-  background: #152333;
-  color: #E2E8F0;
-  border-color: rgba(255, 255, 255, 0.1);
-}
-[data-theme="dark"] .eduvia-filter-pill:hover {
-  border-color: #10B981;
-  color: #10B981;
-}
-
-[data-theme="dark"] .eduvia-course-card {
-  background: #152333;
-  border-color: rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
-}
-[data-theme="dark"] .eduvia-course-card:hover {
-  border-color: #10B981;
-  box-shadow: 0 16px 36px rgba(16, 185, 129, 0.2);
-}
-[data-theme="dark"] .eduvia-course-card__image-wrap {
-  background: #0E1726;
-}
-[data-theme="dark"] .eduvia-course-card__title a {
-  color: #F1F5F9;
-}
-[data-theme="dark"] .eduvia-course-card__desc {
-  color: #94A3B8;
-}
-[data-theme="dark"] .eduvia-word-tag {
-  background: #0E1726;
-  color: #94A3B8;
-  border-color: rgba(255, 255, 255, 0.06);
-}
-[data-theme="dark"] .eduvia-word-tag strong {
-  color: #F1F5F9;
-}
-[data-theme="dark"] .eduvia-courses-page .eduvia-btn--navy {
+[data-theme="dark"] .figma-custom-control {
   background: #1E293B;
-  color: #FFFFFF !important;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-[data-theme="dark"] .eduvia-courses-page .eduvia-btn--navy:hover {
-  background: #2D3A50;
-}
-[data-theme="dark"] .eduvia-courses-page .eduvia-dark-cta {
-  background: #0F1D2E;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-color: #475569;
 }
 
-
-/* ── PERSONALIZED ROADMAP HERO (Curated AOT) ── */
-.eduvia-roadmap-banner {
-  width: min(100% - 48px, 1320px);
-  margin: -24px auto 48px;
-  border-radius: 24px;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  color: #f8fafc;
-  padding: 32px 36px;
-  box-shadow: 0 12px 36px rgba(15, 23, 42, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.figma-filter-item input[type="checkbox"]:checked ~ .figma-custom-control {
+  background: var(--figma-primary, #3DCBB1);
+  border-color: var(--figma-primary, #3DCBB1);
 }
 
-.eduvia-roadmap-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  color: #34d399;
-  font-size: 13px;
-  font-weight: 700;
-  padding: 6px 14px;
-  border-radius: 999px;
-  width: fit-content;
+.figma-filter-item input[type="checkbox"]:checked ~ .figma-custom-control::after {
+  content: '';
+  width: 5px;
+  height: 9px;
+  border: solid #FFFFFF;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) translate(-1px, -1px);
 }
 
-.eduvia-roadmap-level {
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  padding: 2px 8px;
-  border-radius: 6px;
-  font-size: 11px;
+.figma-custom-radio {
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: all 0.18s ease;
+  background: #FFFFFF;
 }
 
-.eduvia-roadmap-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 32px;
-  flex-wrap: wrap;
+[data-theme="dark"] .figma-custom-radio {
+  background: #1E293B;
+  border-color: #475569;
 }
 
-.eduvia-roadmap-main {
-  flex: 1;
-  min-width: 280px;
+.figma-filter-item input[type="radio"]:checked ~ .figma-custom-radio {
+  border-color: var(--figma-primary, #3DCBB1);
 }
 
-.eduvia-roadmap-label {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #94a3b8;
-  font-weight: 600;
-}
-
-.eduvia-roadmap-title {
-  font-size: clamp(22px, 3vw, 30px);
-  font-weight: 800;
-  color: #ffffff;
-  margin: 4px 0 10px;
-  letter-spacing: -0.015em;
-}
-
-.eduvia-roadmap-prompt {
-  font-size: 14px;
-  color: #cbd5e1;
-  line-height: 1.55;
-  max-width: 680px;
-  margin: 0 0 16px;
-}
-
-.eduvia-roadmap-words {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.eduvia-roadmap-chip {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 13px;
-  color: #e2e8f0;
-}
-
-.eduvia-roadmap-chip--learning {
-  border-color: rgba(59, 130, 246, 0.4);
-  background: rgba(59, 130, 246, 0.15);
-  color: #93c5fd;
-}
-
-.eduvia-roadmap-chip--mastered {
-  border-color: rgba(16, 185, 129, 0.4);
-  background: rgba(16, 185, 129, 0.15);
-  color: #6ee7b7;
-}
-
-.eduvia-roadmap-action {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 16px;
-  min-width: 200px;
-}
-
-.eduvia-roadmap-progress-wrap {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  align-items: flex-end;
-}
-
-.eduvia-roadmap-progress-bar {
-  width: 180px;
+.figma-filter-item input[type="radio"]:checked ~ .figma-custom-radio::after {
+  content: '';
+  width: 8px;
   height: 8px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 999px;
+  border-radius: 50%;
+  background: var(--figma-primary, #3DCBB1);
+}
+
+.figma-sidebar-stars {
+  color: var(--figma-secondary, #FFD130);
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.figma-sidebar-label {
+  font-weight: 500;
+  color: var(--color-on-surface, #1B1B1B);
+}
+
+[data-theme="dark"] .figma-sidebar-label {
+  color: #E2E8F0;
+}
+
+.figma-sidebar-count {
+  margin-left: auto;
+  font-size: 12.5px;
+  color: var(--color-on-surface-variant, #94A3B8);
+}
+
+/* ── 2. Content Area (Right) ── */
+.figma-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.figma-results-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.figma-results-count {
+  font-size: 16px;
+  color: var(--color-on-surface, #1B1B1B);
+}
+
+[data-theme="dark"] .figma-results-count {
+  color: #FFFFFF;
+}
+
+.figma-results-count strong {
+  font-weight: 800;
+}
+
+.figma-sort-dropdown {
+  padding: 9px 18px;
+  background: var(--color-surface, #FFFFFF);
+  border: 1.5px solid var(--figma-border, rgba(27, 27, 27, 0.12));
+  border-radius: var(--radius-full, 9999px);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--color-on-surface, #1B1B1B);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.18s ease;
+}
+
+[data-theme="dark"] .figma-sort-dropdown {
+  background: #14181E;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+}
+
+.figma-sort-dropdown:focus {
+  border-color: var(--figma-primary, #3DCBB1);
+}
+
+/* ── 3-Column Search Grid ── */
+.figma-search-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* Course Card (Refined to match Figma Lexi Desktop) */
+.figma-search-grid .figma-course-card {
+  background: var(--color-surface, #FFFFFF);
+  border: 1px solid var(--figma-border, rgba(27, 27, 27, 0.08));
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+[data-theme="dark"] .figma-search-grid .figma-course-card {
+  background: #14181E;
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+.figma-search-grid .figma-course-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  border-color: rgba(61, 203, 177, 0.4);
+}
+
+.figma-search-grid .figma-course-card__thumb-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: #F4F7FA;
   overflow: hidden;
 }
 
-.eduvia-roadmap-progress-fill {
+.figma-search-grid .figma-course-card__thumb {
+  width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, #10b981, #059669);
-  border-radius: 999px;
-  transition: width 0.4s ease;
+  object-fit: cover;
+  display: block;
 }
 
-.eduvia-roadmap-progress-text {
-  font-size: 12px;
-  color: #94a3b8;
-  font-weight: 600;
+.figma-search-grid .figma-course-card__badges {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 6px;
+  z-index: 2;
 }
 
-.eduvia-roadmap-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: #10b981;
-  color: #ffffff;
-  padding: 12px 24px;
-  border-radius: 12px;
+.figma-search-grid .figma-badge {
+  padding: 3px 9px;
+  border-radius: var(--radius-full, 9999px);
+  font-size: 11px;
   font-weight: 700;
-  font-size: 14px;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
 }
 
-.eduvia-roadmap-btn:hover {
-  background: #059669;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.45);
+.figma-search-grid .figma-badge--bestseller {
+  background: var(--figma-primary, #3DCBB1);
+  color: #FFFFFF;
 }
 
-.eduvia-roadmap-upcoming {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 14px;
+.figma-search-grid .figma-badge--discount {
+  background: #9F49E3;
+  color: #FFFFFF;
+}
+
+.figma-search-grid .figma-course-card__body {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.figma-search-grid .figma-course-card__title {
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.35;
+  color: var(--color-on-surface, #1B1B1B);
+  margin: 0 0 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .figma-search-grid .figma-course-card__title {
+  color: #FFFFFF;
+}
+
+.figma-search-grid .figma-course-card__instructor {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.eduvia-upcoming-label {
-  font-size: 12px;
-  color: #94a3b8;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--figma-primary, #3DCBB1);
   font-weight: 600;
+  margin-bottom: 8px;
 }
 
-.eduvia-upcoming-pills {
+.figma-search-grid .figma-course-card__desc {
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-on-surface-variant, #64748B);
+  margin: 0 0 14px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+[data-theme="dark"] .figma-search-grid .figma-course-card__desc {
+  color: #94A3B8;
+}
+
+.figma-search-grid .figma-course-card__rating {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 12px;
 }
 
-.eduvia-upcoming-pill {
+.figma-search-grid .figma-stars {
+  color: var(--figma-secondary, #FFD130);
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+
+.figma-search-grid .figma-reviews {
+  font-size: 12.5px;
+  color: var(--color-on-surface-variant, #94A3B8);
+  font-weight: 500;
+}
+
+.figma-search-grid .figma-course-card__price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--figma-border, rgba(27, 27, 27, 0.06));
+}
+
+[data-theme="dark"] .figma-search-grid .figma-course-card__price-row {
+  border-top-color: rgba(255, 255, 255, 0.06);
+}
+
+.figma-search-grid .figma-price-current {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-on-surface, #1B1B1B);
+}
+
+[data-theme="dark"] .figma-search-grid .figma-price-current {
+  color: #FFFFFF;
+}
+
+.figma-search-grid .figma-price-original {
+  font-size: 14px;
+  color: var(--color-on-surface-variant, #94A3B8);
+  text-decoration: line-through;
+}
+
+/* ── Pagination ── */
+.figma-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 48px 0 24px;
+}
+
+.figma-page-btn {
+  min-width: 40px;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--figma-border, rgba(27, 27, 27, 0.12));
+  background: var(--color-surface, #FFFFFF);
+  color: var(--color-on-surface, #1B1B1B);
+  font-size: 14px;
+  font-weight: 600;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+[data-theme="dark"] .figma-page-btn {
+  background: #14181E;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+}
+
+.figma-page-btn:hover:not(:disabled) {
+  border-color: var(--figma-primary, #3DCBB1);
+  color: var(--figma-primary, #3DCBB1);
+}
+
+.figma-page-btn.is-active {
+  background: var(--figma-primary, #3DCBB1);
+  border-color: var(--figma-primary, #3DCBB1);
+  color: #FFFFFF !important;
+}
+
+.figma-page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.figma-page-dots {
+  color: #94A3B8;
+  font-size: 15px;
+  padding: 0 4px;
+}
+
+/* ── Bottom CTA Banner (Matching search-1.png) ── */
+.figma-cta-banner {
+  margin-top: 32px;
+  background: #111A2C;
+  border-radius: 24px;
+  padding: 48px 56px;
+  color: #FFFFFF;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(17, 26, 44, 0.15);
+}
+
+.figma-cta-banner::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 44%;
+  background-image: radial-gradient(circle at 75% 35%, rgba(255, 209, 48, 0.45) 0%, transparent 40%),
+                    radial-gradient(circle at 85% 75%, rgba(61, 203, 177, 0.55) 0%, transparent 45%),
+                    radial-gradient(circle at 95% 20%, rgba(159, 73, 227, 0.5) 0%, transparent 35%);
+  pointer-events: none;
+}
+
+.figma-cta-banner__copy {
+  position: relative;
+  z-index: 2;
+  max-width: 580px;
+}
+
+.figma-cta-banner__copy h2 {
+  font-size: clamp(26px, 2.5vw, 36px);
+  font-weight: 800;
+  color: #FFFFFF;
+  margin: 0 0 14px;
+  letter-spacing: -0.02em;
+}
+
+.figma-cta-banner__copy p {
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0 0 28px;
+}
+
+.figma-cta-banner__btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 4px 10px;
-  border-radius: 6px;
-  color: #cbd5e1;
+  justify-content: center;
+  padding: 13px 32px;
+  background: var(--figma-primary, #3DCBB1);
+  color: #FFFFFF;
+  border-radius: var(--radius-full, 9999px);
+  font-size: 14.5px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
 }
 
-.eduvia-upcoming-pill--done {
-  color: #34d399;
-  border-color: rgba(16, 185, 129, 0.3);
+.figma-cta-banner__btn:hover {
+  background: var(--figma-primary-hover, #32b59d);
+  transform: translateY(-2px);
+  text-decoration: none;
 }
 
-.eduvia-upcoming-pill span.material-symbols-outlined {
-  font-size: 14px;
+/* ── Responsive Queries ── */
+@media (max-width: 1024px) {
+  .figma-search-layout {
+    grid-template-columns: 1fr;
+  }
+  .figma-sidebar {
+    position: static;
+  }
+  .figma-search-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .figma-search-page {
+    padding: 16px 16px 60px;
+  }
+  .figma-search-grid {
+    grid-template-columns: 1fr;
+  }
+  .figma-cta-banner {
+    padding: 32px 24px;
+  }
 }

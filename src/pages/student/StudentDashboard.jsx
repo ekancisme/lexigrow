@@ -40,15 +40,75 @@ function ResourceNotice({ resource, label }) {
 const INITIAL_COURSES = [
   {
     id: 'c1',
-    title: 'IELTS Academic Writing & Lexical Mastery',
-    category: 'Academic Writing',
-    instructor: 'Alexander Hamilton',
-    level: 'B2 - C1',
+    title: 'Java Programming Beginner',
+    category: 'Programming',
+    instructor: 'MyCourse Studio',
+    level: 'Beginner',
     lessonsTotal: 10,
     lessonsCompleted: 4,
     status: 'in-progress',
-    rating: 4.9,
-    reviewsCount: '1.2k',
+    rating: 5.0,
+    reviewsCount: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    isBestSeller: true,
+    discountBadge: '20% OFF',
+    thumbnail: '/assets/editorial/courses/swift-dev.png',
+    link: '/student/writing?slug=daily-life',
+    wishlisted: true,
+    desc: 'More than 8yr Experience as Illustrator. Learn how to becoming professional Illustrator Now...',
+  },
+  {
+    id: 'c2',
+    title: 'iOS 13 & Swift 5 - Complete iOS...',
+    category: 'Mobile Dev',
+    instructor: 'MyCourse Studio',
+    level: 'Beginner',
+    lessonsTotal: 10,
+    lessonsCompleted: 0,
+    status: 'not-started',
+    rating: 5.0,
+    reviewsCount: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    isBestSeller: true,
+    discountBadge: '20% OFF',
+    thumbnail: '/assets/editorial/courses/mobile-dev.png',
+    link: '/student/writing?slug=technology',
+    wishlisted: true,
+    desc: 'Learn how to make mobile and web applications with Swift & modern architectures.',
+  },
+  {
+    id: 'c3',
+    title: 'Wordpress Course Intermediate',
+    category: 'Web Dev',
+    instructor: 'MyCourse Studio',
+    level: 'Intermediate',
+    lessonsTotal: 8,
+    lessonsCompleted: 3,
+    status: 'in-progress',
+    rating: 5.0,
+    reviewsCount: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    isBestSeller: true,
+    discountBadge: '20% OFF',
+    thumbnail: '/assets/editorial/courses/uber-clone.png',
+    link: '/student/writing?slug=environment',
+    wishlisted: true,
+    desc: 'Master professional WordPress theme and plugin customization from scratch.',
+  },
+  {
+    id: 'c4',
+    title: 'Wordpress Course Intermediate',
+    category: 'Web Dev',
+    instructor: 'MyCourse Studio',
+    level: 'Intermediate',
+    lessonsTotal: 10,
+    lessonsCompleted: 0,
+    status: 'not-started',
+    rating: 5.0,
+    reviewsCount: '1.2K',
     price: '$24.92',
     originalPrice: '$32.90',
     isBestSeller: true,
@@ -56,94 +116,39 @@ const INITIAL_COURSES = [
     thumbnail: '/assets/editorial/courses/vue-course.png',
     link: '/student/writing?slug=academic',
     wishlisted: true,
-  },
-  {
-    id: 'c2',
-    title: 'Technology & AI Debate Writing',
-    category: 'Technology & Innovation',
-    instructor: 'Kitani Studio',
-    level: 'B1 - B2',
-    lessonsTotal: 8,
-    lessonsCompleted: 0,
-    status: 'not-started',
-    rating: 4.8,
-    reviewsCount: '980',
-    price: '$24.92',
-    originalPrice: '$32.90',
-    isBestSeller: true,
-    discountBadge: '20% OFF',
-    thumbnail: '/assets/editorial/courses/mobile-dev.png',
-    link: '/student/writing?slug=technology',
-    wishlisted: false,
-  },
-  {
-    id: 'c3',
-    title: 'Advanced Environmental & Science Essays',
-    category: 'Environment',
-    instructor: 'Sarasvati Devi',
-    level: 'B2 - C1',
-    lessonsTotal: 12,
-    lessonsCompleted: 12,
-    status: 'completed',
-    rating: 5.0,
-    reviewsCount: '1.4k',
-    price: '$29.99',
-    originalPrice: '$39.90',
-    isBestSeller: false,
-    discountBadge: '25% OFF',
-    thumbnail: '/assets/editorial/courses/uber-clone.png',
-    link: '/student/writing?slug=environment',
-    wishlisted: true,
-  },
-  {
-    id: 'c4',
-    title: 'Daily Life & Natural Conversational English',
-    category: 'Daily Life',
-    instructor: 'Jonathan Doe',
-    level: 'A2 - B1',
-    lessonsTotal: 8,
-    lessonsCompleted: 8,
-    status: 'completed',
-    rating: 4.9,
-    reviewsCount: '2.1k',
-    price: '$19.99',
-    originalPrice: '$28.00',
-    isBestSeller: true,
-    discountBadge: '30% OFF',
-    thumbnail: '/assets/editorial/courses/website-zero.png',
-    link: '/student/writing?slug=daily-life',
-    wishlisted: false,
+    desc: 'Comprehensive step-by-step intermediate course for web creators.',
   },
   {
     id: 'c5',
-    title: 'Creative Storytelling & Descriptive Prose',
-    category: 'Creative Arts',
-    instructor: 'Labie Vance',
-    level: 'B1 - B2',
+    title: 'Java Programming Beginner',
+    category: 'Programming',
+    instructor: 'MyCourse Studio',
+    level: 'Beginner',
     lessonsTotal: 10,
     lessonsCompleted: 0,
     status: 'not-started',
-    rating: 4.7,
-    reviewsCount: '640',
+    rating: 5.0,
+    reviewsCount: '1.2K',
     price: '$24.92',
     originalPrice: '$32.90',
-    isBestSeller: false,
+    isBestSeller: true,
     discountBadge: '20% OFF',
-    thumbnail: '/assets/editorial/courses/swift-dev.png',
+    thumbnail: '/assets/editorial/courses/modern-art.png',
     link: '/student/explore',
-    wishlisted: false,
+    wishlisted: true,
+    desc: 'Understand Object-Oriented Programming and design patterns in Java.',
   },
   {
     id: 'c6',
-    title: 'UI Design & Visual Communication Vocabulary',
-    category: 'Design & Media',
-    instructor: 'Kitani Studio',
-    level: 'A2 - B2',
+    title: 'iOS 13 & Swift 5 - Complete iOS...',
+    category: 'Mobile Dev',
+    instructor: 'MyCourse Studio',
+    level: 'Beginner',
     lessonsTotal: 10,
-    lessonsCompleted: 3,
-    status: 'in-progress',
-    rating: 4.8,
-    reviewsCount: '890',
+    lessonsCompleted: 0,
+    status: 'not-started',
+    rating: 5.0,
+    reviewsCount: '1.2K',
     price: '$24.92',
     originalPrice: '$32.90',
     isBestSeller: true,
@@ -151,44 +156,127 @@ const INITIAL_COURSES = [
     thumbnail: '/assets/editorial/courses/ui-design.png',
     link: '/student/explore',
     wishlisted: true,
+    desc: 'Design beautiful iOS interfaces with SwiftUI and AutoLayout.',
   },
   {
     id: 'c7',
-    title: 'Modern Business & Financial Writing',
-    category: 'Business English',
-    instructor: 'Alexander Hamilton',
-    level: 'B2 - C2',
-    lessonsTotal: 14,
+    title: 'Wordpress Course Intermediate',
+    category: 'Web Dev',
+    instructor: 'MyCourse Studio',
+    level: 'Intermediate',
+    lessonsTotal: 8,
     lessonsCompleted: 0,
     status: 'not-started',
-    rating: 4.9,
-    reviewsCount: '1.5k',
-    price: '$34.00',
-    originalPrice: '$45.00',
+    rating: 5.0,
+    reviewsCount: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    isBestSeller: true,
+    discountBadge: '20% OFF',
+    thumbnail: '/assets/editorial/courses/desk-notes.png',
+    link: '/student/explore',
+    wishlisted: true,
+    desc: 'Build secure, scalable eCommerce sites and content hubs.',
+  },
+  {
+    id: 'c8',
+    title: 'Wordpress Course Intermediate',
+    category: 'Web Dev',
+    instructor: 'MyCourse Studio',
+    level: 'Intermediate',
+    lessonsTotal: 10,
+    lessonsCompleted: 0,
+    status: 'not-started',
+    rating: 5.0,
+    reviewsCount: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    isBestSeller: true,
+    discountBadge: '20% OFF',
+    thumbnail: '/assets/editorial/courses/website-zero.png',
+    link: '/student/explore',
+    wishlisted: true,
+    desc: 'Intermediate styling, custom blocks, and SEO optimization for WordPress.',
+  },
+  {
+    id: 'c9',
+    title: 'Java Programming Beginner',
+    category: 'Programming',
+    instructor: 'MyCourse Studio',
+    level: 'Beginner',
+    lessonsTotal: 12,
+    lessonsCompleted: 0,
+    status: 'not-started',
+    rating: 5.0,
+    reviewsCount: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
     isBestSeller: true,
     discountBadge: '20% OFF',
     thumbnail: '/assets/editorial/courses/desk-notes.png',
     link: '/student/explore',
     wishlisted: false,
+    desc: 'Algorithmic thinking and data structures for beginners in Java.',
   },
   {
-    id: 'c8',
-    title: 'Academic Research & Literature Analysis',
-    category: 'Academic Writing',
-    instructor: 'Sarasvati Devi',
-    level: 'C1 - C2',
-    lessonsTotal: 12,
-    lessonsCompleted: 12,
+    id: 'c10',
+    title: 'iOS 13 & Swift 5 - Complete iOS...',
+    category: 'Mobile Dev',
+    instructor: 'MyCourse Studio',
+    level: 'Beginner',
+    lessonsTotal: 10,
+    lessonsCompleted: 10,
     status: 'completed',
     rating: 5.0,
-    reviewsCount: '780',
-    price: '$29.99',
-    originalPrice: '$39.90',
-    isBestSeller: false,
-    discountBadge: '25% OFF',
+    reviewsCount: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    isBestSeller: true,
+    discountBadge: '20% OFF',
+    thumbnail: '/assets/editorial/courses/mobile-dev.png',
+    link: '/student/explore',
+    wishlisted: false,
+    desc: 'Everything you need to publish your first apps to the App Store.',
+  },
+  {
+    id: 'c11',
+    title: 'Wordpress Course Intermediate',
+    category: 'Web Dev',
+    instructor: 'MyCourse Studio',
+    level: 'Intermediate',
+    lessonsTotal: 8,
+    lessonsCompleted: 8,
+    status: 'completed',
+    rating: 5.0,
+    reviewsCount: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    isBestSeller: true,
+    discountBadge: '20% OFF',
     thumbnail: '/assets/editorial/courses/modern-art.png',
     link: '/student/explore',
     wishlisted: false,
+    desc: 'Completed intermediate level curriculum with certificate.',
+  },
+  {
+    id: 'c12',
+    title: 'Wordpress Course Intermediate',
+    category: 'Web Dev',
+    instructor: 'MyCourse Studio',
+    level: 'Intermediate',
+    lessonsTotal: 8,
+    lessonsCompleted: 8,
+    status: 'completed',
+    rating: 5.0,
+    reviewsCount: '1.2K',
+    price: '$24.92',
+    originalPrice: '$32.90',
+    isBestSeller: true,
+    discountBadge: '20% OFF',
+    thumbnail: '/assets/editorial/courses/website-zero.png',
+    link: '/student/explore',
+    wishlisted: false,
+    desc: 'Completed intermediate level curriculum with certificate.',
   },
 ]
 
@@ -624,20 +712,31 @@ export default function StudentDashboard() {
                         )}
                       </div>
 
-                      {/* Top right wishlist heart button */}
-                      <button
-                        type="button"
-                        className={`figma-heart-btn ${course.wishlisted ? 'figma-heart-btn--active' : ''}`}
-                        aria-label="Wishlist toggle"
-                        onClick={(e) => handleToggleWishlist(course.id, e)}
-                      >
-                        <span className="material-symbols-outlined">
-                          {course.wishlisted ? 'favorite' : 'favorite_border'}
-                        </span>
-                      </button>
+                      {/* Top right button: Red heart for Wishlist, 3-dots kebab for My Course */}
+                      {activeTab === 'wishlist' ? (
+                        <button
+                          type="button"
+                          className={`figma-heart-btn ${course.wishlisted ? 'figma-heart-btn--active' : ''}`}
+                          aria-label="Wishlist toggle"
+                          onClick={(e) => handleToggleWishlist(course.id, e)}
+                        >
+                          <span className="material-symbols-outlined">
+                            {course.wishlisted ? 'favorite' : 'favorite_border'}
+                          </span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          className="figma-kebab-btn"
+                          aria-label="Course options"
+                          onClick={(e) => { e.stopPropagation(); }}
+                        >
+                          <span className="material-symbols-outlined">more_vert</span>
+                        </button>
+                      )}
 
                       {/* Progress bar line under thumbnail */}
-                      {isInProgress && (
+                      {activeTab !== 'wishlist' && isInProgress && (
                         <div className="figma-card-progress-bar">
                           <div
                             className="figma-card-progress-fill"
@@ -645,7 +744,7 @@ export default function StudentDashboard() {
                           />
                         </div>
                       )}
-                      {isCompleted && (
+                      {activeTab !== 'wishlist' && isCompleted && (
                         <div className="figma-card-progress-bar figma-card-progress-bar--completed">
                           <div className="figma-card-progress-fill" style={{ width: '100%' }} />
                         </div>
@@ -663,55 +762,40 @@ export default function StudentDashboard() {
                         <span>{course.instructor}</span>
                       </div>
 
-                      {/* Progress status or Rating */}
-                      <div className="figma-course-card__status">
-                        {isCompleted && (
-                          <span className="figma-status-completed">
-                            <span className="material-symbols-outlined">check_circle</span>
-                            {isVi ? 'Đã hoàn thành!' : 'Completed!'}
-                          </span>
-                        )}
-                        {isInProgress && (
-                          <span className="figma-status-progress">
-                            {course.lessonsCompleted}/{course.lessonsTotal}{' '}
-                            {isVi ? 'bài học hoàn thành' : 'Lessons Completed'}
-                          </span>
-                        )}
-                        {!isCompleted && !isInProgress && (
-                          <span className="figma-status-notstarted">
-                            {isVi ? 'Chưa bắt đầu' : 'Not Yet Started'}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Rating stars & price row */}
-                      <div className="figma-course-card__footer">
-                        <div className="figma-course-card__rating">
-                          <span className="figma-stars">★★★★★</span>
-                          <span className="figma-review-count">({course.reviewsCount})</span>
-                        </div>
-
-                        <div className="figma-course-card__price">
-                          <strong className="figma-price-current">{course.price}</strong>
-                          {course.originalPrice && (
-                            <span className="figma-price-strike">{course.originalPrice}</span>
+                      {activeTab === 'wishlist' ? (
+                        <>
+                          <p className="figma-course-card__desc">{course.desc}</p>
+                          <div className="figma-course-card__rating">
+                            <span className="figma-stars">★★★★★</span>
+                            <span className="figma-review-count">({course.reviewsCount})</span>
+                          </div>
+                          <div className="figma-course-card__price">
+                            <strong className="figma-price-current">{course.price}</strong>
+                            {course.originalPrice && (
+                              <span className="figma-price-strike">{course.originalPrice}</span>
+                            )}
+                          </div>
+                        </>
+                      ) : (
+                        /* My Course Progress Status */
+                        <div className="figma-course-card__status">
+                          {isCompleted && (
+                            <span className="figma-status-completed">
+                              Completed!
+                            </span>
+                          )}
+                          {isInProgress && (
+                            <span className="figma-status-progress">
+                              {course.lessonsCompleted}/{course.lessonsTotal} Videos Completed
+                            </span>
+                          )}
+                          {!isCompleted && !isInProgress && (
+                            <span className="figma-status-notstarted">
+                              Not Yet Started
+                            </span>
                           )}
                         </div>
-                      </div>
-
-                      {/* Card Action Button */}
-                      <Button
-                        variant={isCompleted ? 'outline' : 'primary'}
-                        size="sm"
-                        className="figma-card-action-btn"
-                        onClick={() => navigate(course.link)}
-                      >
-                        {isCompleted
-                          ? (isVi ? 'Xem lại bài' : 'Review Lessons')
-                          : isInProgress
-                            ? (isVi ? 'Tiếp tục học' : 'Continue Course')
-                            : (isVi ? 'Bắt đầu học' : 'Start Lesson')}
-                      </Button>
+                      )}
                     </div>
                   </div>
                 )
@@ -719,8 +803,19 @@ export default function StudentDashboard() {
             </div>
           )}
 
-          {/* ── 5. PAGINATION (Figma Frame 543:687) ── */}
-          {filteredCourses.length > 0 && (
+          {/* Bottom explore button for Wishlist tab, pagination for other tabs */}
+          {activeTab === 'wishlist' ? (
+            <div className="figma-wishlist-explore-center">
+              <Button
+                variant="primary"
+                size="lg"
+                className="figma-pill-cta"
+                onClick={() => navigate('/student/explore')}
+              >
+                {isVi ? 'Khám phá khoá học' : 'Explore Courses'}
+              </Button>
+            </div>
+          ) : filteredCourses.length > 0 ? (
             <div className="figma-pagination-row">
               <button
                 type="button"
@@ -783,7 +878,7 @@ export default function StudentDashboard() {
                 &gt;
               </button>
             </div>
-          )}
+          ) : null}
         </div>
       )}
 
