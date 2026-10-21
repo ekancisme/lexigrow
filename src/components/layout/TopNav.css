@@ -22,9 +22,9 @@
   display: flex;
   align-items: center;
   height: 72px;
-  max-width: 1360px;
+  max-width: min(1600px, 95vw);
   margin-inline: auto;
-  padding: 0 24px;
+  padding: 0 20px;
   gap: 16px;
   position: relative;
 }
@@ -425,6 +425,26 @@
   background: rgba(255, 255, 255, 0.08);
 }
 .header-navigation__link .material-symbols-outlined {
+  font-size: 18px;
+  color: #64748B;
+}
+
+.topnav__dropdown-lang-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 13.5px;
+  color: var(--color-on-surface, #1B1B1B);
+  border-top: 1px solid var(--color-outline-variant, #E5E7EB);
+  margin-top: 4px;
+}
+[data-theme="dark"] .topnav__dropdown-lang-row {
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #F1F5F9;
+}
+.topnav__dropdown-lang-row .material-symbols-outlined {
   font-size: 18px;
   color: #64748B;
 }

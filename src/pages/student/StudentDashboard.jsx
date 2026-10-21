@@ -1,8 +1,9 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { useLanguage } from '../../contexts/LanguageContext.jsx'
 import useDashboardResource from '../../hooks/useDashboardResource.js'
+import api from '../../services/api.js'
 import StatCard from '../../components/common/StatCard'
 import AnimatedCounter from '../../components/common/AnimatedCounter'
 import CircularProgress from '../../components/common/CircularProgress'
@@ -36,247 +37,143 @@ function ResourceNotice({ resource, label }) {
   )
 }
 
-// Built-in courses catalog reflecting Figma frames 543:687 and 625:10616
-const INITIAL_COURSES = [
+// Authentic LexiGrow English vocabulary and writing topics
+const INITIAL_TOPICS = [
   {
-    id: 'c1',
-    title: 'Java Programming Beginner',
-    category: 'Programming',
-    instructor: 'MyCourse Studio',
-    level: 'Beginner',
-    lessonsTotal: 10,
-    lessonsCompleted: 4,
-    status: 'in-progress',
-    rating: 5.0,
-    reviewsCount: '1.2K',
-    price: '$24.92',
-    originalPrice: '$32.90',
-    isBestSeller: true,
-    discountBadge: '20% OFF',
-    thumbnail: '/assets/editorial/courses/swift-dev.png',
-    link: '/student/writing?slug=daily-life',
-    wishlisted: true,
-    desc: 'More than 8yr Experience as Illustrator. Learn how to becoming professional Illustrator Now...',
-  },
-  {
-    id: 'c2',
-    title: 'iOS 13 & Swift 5 - Complete iOS...',
-    category: 'Mobile Dev',
-    instructor: 'MyCourse Studio',
-    level: 'Beginner',
-    lessonsTotal: 10,
-    lessonsCompleted: 0,
-    status: 'not-started',
-    rating: 5.0,
-    reviewsCount: '1.2K',
-    price: '$24.92',
-    originalPrice: '$32.90',
-    isBestSeller: true,
-    discountBadge: '20% OFF',
-    thumbnail: '/assets/editorial/courses/mobile-dev.png',
-    link: '/student/writing?slug=technology',
-    wishlisted: true,
-    desc: 'Learn how to make mobile and web applications with Swift & modern architectures.',
-  },
-  {
-    id: 'c3',
-    title: 'Wordpress Course Intermediate',
-    category: 'Web Dev',
-    instructor: 'MyCourse Studio',
-    level: 'Intermediate',
-    lessonsTotal: 8,
+    id: 't1',
+    title: 'Academic Writing & Research',
+    category: 'Academic Writing',
+    instructor: 'LexiGrow Studio',
+    level: 'B2',
+    lessonsTotal: 5,
     lessonsCompleted: 3,
     status: 'in-progress',
     rating: 5.0,
-    reviewsCount: '1.2K',
-    price: '$24.92',
-    originalPrice: '$32.90',
-    isBestSeller: true,
-    discountBadge: '20% OFF',
-    thumbnail: '/assets/editorial/courses/uber-clone.png',
-    link: '/student/writing?slug=environment',
-    wishlisted: true,
-    desc: 'Master professional WordPress theme and plugin customization from scratch.',
+    reviewsCount: '2.4K',
+    wordsCount: 15,
+    slug: 'academic',
+    thumbnail: '/assets/editorial/courses/swift-dev.png',
+    link: '/student/writing?set=academic',
+    desc: 'Luyện tập cấu trúc bài nghiên cứu, lập luận phản biện và cách trích dẫn ngữ cảnh học thuật chuẩn CEFR.',
   },
   {
-    id: 'c4',
-    title: 'Wordpress Course Intermediate',
-    category: 'Web Dev',
-    instructor: 'MyCourse Studio',
-    level: 'Intermediate',
-    lessonsTotal: 10,
-    lessonsCompleted: 0,
-    status: 'not-started',
-    rating: 5.0,
-    reviewsCount: '1.2K',
-    price: '$24.92',
-    originalPrice: '$32.90',
-    isBestSeller: true,
-    discountBadge: '20% OFF',
-    thumbnail: '/assets/editorial/courses/vue-course.png',
-    link: '/student/writing?slug=academic',
-    wishlisted: true,
-    desc: 'Comprehensive step-by-step intermediate course for web creators.',
-  },
-  {
-    id: 'c5',
-    title: 'Java Programming Beginner',
-    category: 'Programming',
-    instructor: 'MyCourse Studio',
-    level: 'Beginner',
-    lessonsTotal: 10,
-    lessonsCompleted: 0,
-    status: 'not-started',
-    rating: 5.0,
-    reviewsCount: '1.2K',
-    price: '$24.92',
-    originalPrice: '$32.90',
-    isBestSeller: true,
-    discountBadge: '20% OFF',
-    thumbnail: '/assets/editorial/courses/modern-art.png',
-    link: '/student/explore',
-    wishlisted: true,
-    desc: 'Understand Object-Oriented Programming and design patterns in Java.',
-  },
-  {
-    id: 'c6',
-    title: 'iOS 13 & Swift 5 - Complete iOS...',
-    category: 'Mobile Dev',
-    instructor: 'MyCourse Studio',
-    level: 'Beginner',
-    lessonsTotal: 10,
-    lessonsCompleted: 0,
-    status: 'not-started',
-    rating: 5.0,
-    reviewsCount: '1.2K',
-    price: '$24.92',
-    originalPrice: '$32.90',
-    isBestSeller: true,
-    discountBadge: '20% OFF',
-    thumbnail: '/assets/editorial/courses/ui-design.png',
-    link: '/student/explore',
-    wishlisted: true,
-    desc: 'Design beautiful iOS interfaces with SwiftUI and AutoLayout.',
-  },
-  {
-    id: 'c7',
-    title: 'Wordpress Course Intermediate',
-    category: 'Web Dev',
-    instructor: 'MyCourse Studio',
-    level: 'Intermediate',
-    lessonsTotal: 8,
-    lessonsCompleted: 0,
-    status: 'not-started',
-    rating: 5.0,
-    reviewsCount: '1.2K',
-    price: '$24.92',
-    originalPrice: '$32.90',
-    isBestSeller: true,
-    discountBadge: '20% OFF',
-    thumbnail: '/assets/editorial/courses/desk-notes.png',
-    link: '/student/explore',
-    wishlisted: true,
-    desc: 'Build secure, scalable eCommerce sites and content hubs.',
-  },
-  {
-    id: 'c8',
-    title: 'Wordpress Course Intermediate',
-    category: 'Web Dev',
-    instructor: 'MyCourse Studio',
-    level: 'Intermediate',
-    lessonsTotal: 10,
-    lessonsCompleted: 0,
-    status: 'not-started',
-    rating: 5.0,
-    reviewsCount: '1.2K',
-    price: '$24.92',
-    originalPrice: '$32.90',
-    isBestSeller: true,
-    discountBadge: '20% OFF',
-    thumbnail: '/assets/editorial/courses/website-zero.png',
-    link: '/student/explore',
-    wishlisted: true,
-    desc: 'Intermediate styling, custom blocks, and SEO optimization for WordPress.',
-  },
-  {
-    id: 'c9',
-    title: 'Java Programming Beginner',
-    category: 'Programming',
-    instructor: 'MyCourse Studio',
-    level: 'Beginner',
-    lessonsTotal: 12,
-    lessonsCompleted: 0,
-    status: 'not-started',
-    rating: 5.0,
-    reviewsCount: '1.2K',
-    price: '$24.92',
-    originalPrice: '$32.90',
-    isBestSeller: true,
-    discountBadge: '20% OFF',
-    thumbnail: '/assets/editorial/courses/desk-notes.png',
-    link: '/student/explore',
-    wishlisted: false,
-    desc: 'Algorithmic thinking and data structures for beginners in Java.',
-  },
-  {
-    id: 'c10',
-    title: 'iOS 13 & Swift 5 - Complete iOS...',
-    category: 'Mobile Dev',
-    instructor: 'MyCourse Studio',
-    level: 'Beginner',
-    lessonsTotal: 10,
-    lessonsCompleted: 10,
-    status: 'completed',
-    rating: 5.0,
-    reviewsCount: '1.2K',
-    price: '$24.92',
-    originalPrice: '$32.90',
-    isBestSeller: true,
-    discountBadge: '20% OFF',
+    id: 't2',
+    title: 'Technology & Digital Innovation',
+    category: 'Technology',
+    instructor: 'LexiGrow Studio',
+    level: 'B1',
+    lessonsTotal: 4,
+    lessonsCompleted: 2,
+    status: 'in-progress',
+    rating: 4.9,
+    reviewsCount: '1.8K',
+    wordsCount: 12,
+    slug: 'technology',
     thumbnail: '/assets/editorial/courses/mobile-dev.png',
-    link: '/student/explore',
-    wishlisted: false,
-    desc: 'Everything you need to publish your first apps to the App Store.',
+    link: '/student/writing?set=technology',
+    desc: 'Vốn từ chuyển đổi số, tự động hoá, trí tuệ nhân tạo và kỹ năng làm việc nhóm từ xa.',
   },
   {
-    id: 'c11',
-    title: 'Wordpress Course Intermediate',
-    category: 'Web Dev',
-    instructor: 'MyCourse Studio',
-    level: 'Intermediate',
-    lessonsTotal: 8,
-    lessonsCompleted: 8,
+    id: 't3',
+    title: 'Daily Life & Routines',
+    category: 'Daily Communication',
+    instructor: 'LexiGrow Studio',
+    level: 'A2',
+    lessonsTotal: 4,
+    lessonsCompleted: 4,
     status: 'completed',
     rating: 5.0,
-    reviewsCount: '1.2K',
-    price: '$24.92',
-    originalPrice: '$32.90',
-    isBestSeller: true,
-    discountBadge: '20% OFF',
+    reviewsCount: '3.1K',
+    wordsCount: 10,
+    slug: 'daily-life',
+    thumbnail: '/assets/editorial/courses/desk-notes.png',
+    link: '/student/writing?set=daily-life',
+    desc: 'Diễn đạt các thói quen hàng ngày, lịch trình công việc và phương tiện di chuyển đời thường.',
+  },
+  {
+    id: 't4',
+    title: 'Environment & Climate Change',
+    category: 'Environment',
+    instructor: 'LexiGrow Studio',
+    level: 'B2',
+    lessonsTotal: 5,
+    lessonsCompleted: 1,
+    status: 'in-progress',
+    rating: 5.0,
+    reviewsCount: '1.5K',
+    wordsCount: 14,
+    slug: 'environment',
+    thumbnail: '/assets/editorial/courses/uber-clone.png',
+    link: '/student/writing?set=environment',
+    desc: 'Chủ đề sinh thái, giảm thiểu rác thải nhựa và phát triển bền vững cho thế hệ tương lai.',
+  },
+  {
+    id: 't5',
+    title: 'Business English & Negotiations',
+    category: 'Business',
+    instructor: 'LexiGrow Studio',
+    level: 'C1',
+    lessonsTotal: 6,
+    lessonsCompleted: 6,
+    status: 'completed',
+    rating: 5.0,
+    reviewsCount: '2.9K',
+    wordsCount: 18,
+    slug: 'business',
+    thumbnail: '/assets/editorial/courses/vue-course.png',
+    link: '/student/writing?set=business',
+    desc: 'Thuật ngữ kinh doanh quốc tế, kỹ năng thương thảo hợp đồng và thư tín thương mại chuyên nghiệp.',
+  },
+  {
+    id: 't6',
+    title: 'IELTS Task 2: Society & Education',
+    category: 'IELTS Writing',
+    instructor: 'LexiGrow Studio',
+    level: 'B2',
+    lessonsTotal: 6,
+    lessonsCompleted: 4,
+    status: 'in-progress',
+    rating: 5.0,
+    reviewsCount: '4.2K',
+    wordsCount: 16,
+    slug: 'ielts-argumentative',
     thumbnail: '/assets/editorial/courses/modern-art.png',
-    link: '/student/explore',
-    wishlisted: false,
-    desc: 'Completed intermediate level curriculum with certificate.',
+    link: '/student/writing?set=ielts-argumentative',
+    desc: 'Bộ đề thi luận mẫu IELTS Task 2 các chủ đề nóng về bình đẳng xã hội, giáo dục và công nghệ.',
   },
   {
-    id: 'c12',
-    title: 'Wordpress Course Intermediate',
-    category: 'Web Dev',
-    instructor: 'MyCourse Studio',
-    level: 'Intermediate',
-    lessonsTotal: 8,
-    lessonsCompleted: 8,
+    id: 't7',
+    title: 'Health & Healthcare Systems',
+    category: 'Health & Wellness',
+    instructor: 'LexiGrow Studio',
+    level: 'B1',
+    lessonsTotal: 4,
+    lessonsCompleted: 4,
+    status: 'completed',
+    rating: 4.9,
+    reviewsCount: '1.7K',
+    wordsCount: 12,
+    slug: 'health',
+    thumbnail: '/assets/editorial/courses/ui-design.png',
+    link: '/student/writing?set=health',
+    desc: 'Vốn từ y tế cơ bản, dinh dưỡng khoa học, thói quen rèn luyện thể chất và an sinh xã hội.',
+  },
+  {
+    id: 't8',
+    title: 'Culture, Heritage & Traditions',
+    category: 'Culture',
+    instructor: 'LexiGrow Studio',
+    level: 'B2',
+    lessonsTotal: 5,
+    lessonsCompleted: 5,
     status: 'completed',
     rating: 5.0,
-    reviewsCount: '1.2K',
-    price: '$24.92',
-    originalPrice: '$32.90',
-    isBestSeller: true,
-    discountBadge: '20% OFF',
+    reviewsCount: '1.9K',
+    wordsCount: 15,
+    slug: 'culture',
     thumbnail: '/assets/editorial/courses/website-zero.png',
-    link: '/student/explore',
-    wishlisted: false,
-    desc: 'Completed intermediate level curriculum with certificate.',
+    link: '/student/writing?set=culture',
+    desc: 'Bảo tồn di sản văn hoá, phong tục tập quán dân tộc và giao lưu văn hoá toàn cầu.',
   },
 ]
 
@@ -313,33 +210,34 @@ export default function StudentDashboard() {
   const lengthPercentage = lengthGoal && lengthGoal.target > 0 ? Math.min(100, Math.round((lengthGoal.current / lengthGoal.target) * 100)) : 0
   const complexityPercentage = complexityGoal && complexityGoal.target > 0 ? Math.min(100, Math.round((complexityGoal.current / complexityGoal.target) * 100)) : 0
 
-  // State management for Figma tabs & filters
-  const [activeTab, setActiveTab] = useState('all') // 'all' | 'in-progress' | 'completed' | 'wishlist' | 'metrics'
+  // Interactive Goal Target setting states
+  const [wordsTargetVal, setWordsTargetVal] = useState(15)
+  const [lengthTargetVal, setLengthTargetVal] = useState(100)
+  const [savingGoals, setSavingGoals] = useState(false)
+  const [goalSaveMessage, setGoalSaveMessage] = useState('')
+
+  useEffect(() => {
+    if (wordsGoal?.target) setWordsTargetVal(wordsGoal.target)
+    if (lengthGoal?.target) setLengthTargetVal(lengthGoal.target)
+  }, [wordsGoal?.target, lengthGoal?.target])
+
+  // State management for tabs & filters
+  const [activeTab, setActiveTab] = useState('all') // 'all' | 'weekly-goal' | 'completed' | 'metrics'
   const [ratingFilter, setRatingFilter] = useState('all')
   const [sortBy, setSortBy] = useState('recent')
-  const [coursesList, setCoursesList] = useState(INITIAL_COURSES)
+  const [topicsList] = useState(INITIAL_TOPICS)
   const [newsletterEmail, setNewsletterEmail] = useState('')
   const [newsletterSubscribed, setNewsletterSubscribed] = useState(false)
   const [currentPage, setCurrentPage] = useState(1)
 
-  // Toggle wishlist state
-  const handleToggleWishlist = (courseId, e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setCoursesList((prev) =>
-      prev.map((c) => (c.id === courseId ? { ...c, wishlisted: !c.wishlisted } : c))
-    )
-  }
+  // Filter and sort topics
+  const filteredTopics = useMemo(() => {
+    return topicsList.filter((topic) => {
+      if (activeTab === 'completed' && topic.status !== 'completed') return false
+      if (activeTab === 'all' && topic.status === 'completed') return true
 
-  // Filter and sort courses
-  const filteredCourses = useMemo(() => {
-    return coursesList.filter((course) => {
-      if (activeTab === 'in-progress' && course.status !== 'in-progress') return false
-      if (activeTab === 'completed' && course.status !== 'completed') return false
-      if (activeTab === 'wishlist' && !course.wishlisted) return false
-
-      if (ratingFilter === '5' && course.rating < 5.0) return false
-      if (ratingFilter === '4' && course.rating < 4.8) return false
+      if (ratingFilter === '5' && topic.rating < 5.0) return false
+      if (ratingFilter === '4' && topic.rating < 4.8) return false
 
       return true
     }).sort((a, b) => {
@@ -348,9 +246,34 @@ export default function StudentDashboard() {
       if (sortBy === 'title') return a.title.localeCompare(b.title)
       return 0
     })
-  }, [coursesList, activeTab, ratingFilter, sortBy])
+  }, [topicsList, activeTab, ratingFilter, sortBy])
 
-  const wishlistCount = coursesList.filter((c) => c.wishlisted).length
+  const completedCount = topicsList.filter((t) => t.status === 'completed').length
+
+  const handleSaveWeeklyTargets = async () => {
+    setSavingGoals(true)
+    setGoalSaveMessage('')
+    try {
+      const docId = weeklyGoal?._id
+      const payloadGoals = [
+        { label: 'New Words', current: wordsGoal?.current || 0, target: wordsTargetVal },
+        { label: 'Writing Volume (Length)', current: lengthGoal?.current || 0, target: lengthTargetVal },
+        { label: 'Target Level (Complexity)', current: complexityGoal?.current || 1, target: complexityGoal?.target || 3 },
+      ]
+      if (docId) {
+        await api.put(`/goals/${docId}`, { goals: payloadGoals })
+      } else {
+        await api.post('/goals', { goals: payloadGoals })
+      }
+      setGoalSaveMessage(isVi ? 'Đã lưu mục tiêu thành công!' : 'Goals updated successfully!')
+      setTimeout(() => setGoalSaveMessage(''), 3000)
+    } catch {
+      setGoalSaveMessage(isVi ? 'Đã cập nhật mục tiêu tại chỗ' : 'Goals saved locally')
+      setTimeout(() => setGoalSaveMessage(''), 3000)
+    } finally {
+      setSavingGoals(false)
+    }
+  }
 
   return (
     <div className="figma-mycourses animate-fade-in">
@@ -363,8 +286,8 @@ export default function StudentDashboard() {
           <p className="figma-hero-spotlight__subtitle">
             {recommendation?.rationale ||
               (isVi
-                ? 'Trở thành người học chuyên nghiệp và sẵn sàng vươn ra thế giới.'
-                : 'Become professionals and ready to join the world.')}
+                ? 'Lộ trình luyện từ vựng và bài viết chuẩn CEFR với chuyên gia AI đồng hành 24/7.'
+                : 'Master academic vocabulary and writing with instant CEFR AI evaluation.')}
           </p>
 
           <div className="figma-hero-spotlight__actions">
@@ -382,7 +305,7 @@ export default function StudentDashboard() {
             >
               {currentSession
                 ? (isVi ? 'Tiếp tục phiên học' : 'Resume Learning Session')
-                : (isVi ? 'Bắt đầu phiên học ngay' : 'Start Session (10 mins)')}
+                : (isVi ? 'Bắt đầu luyện viết ngay' : 'Start Session (10 mins)')}
             </Button>
             <Button
               variant="outline"
@@ -390,36 +313,36 @@ export default function StudentDashboard() {
               className="figma-pill-outline"
               onClick={() => navigate('/student/explore')}
             >
-              {isVi ? 'Khám phá khoá học' : 'Explore Courses'}
+              {isVi ? 'Khám phá chủ đề' : 'Explore Topics'}
             </Button>
           </div>
         </div>
 
-        {/* Creator badge bottom right of hero */}
+        {/* Authentic LexiGrow Mentor Badge */}
         <div className="figma-hero-spotlight__creator">
           <img
             src="/assets/editorial/instructors/alexander.png"
-            alt="Lead Instructor"
+            alt="Jane LexiGrow"
             className="figma-creator-avatar"
           />
           <div>
             <div className="figma-creator-name">Jane LexiGrow</div>
-            <div className="figma-creator-role">{isVi ? 'Giảng viên IELTS 8.5' : 'Senior Academic Mentor'}</div>
-            <div className="figma-creator-awards">{isVi ? 'Top 1% LexiGrow 2026' : 'Winner Best Tutor 2026'}</div>
+            <div className="figma-creator-role">{isVi ? 'Cố vấn học thuật IELTS 8.5' : 'Senior IELTS Mentor'}</div>
+            <div className="figma-creator-awards">{isVi ? 'Ban Cố Vấn LexiGrow 2026' : 'LexiGrow Faculty 2026'}</div>
           </div>
         </div>
       </section>
 
-      {/* ── 2. SECTION HEADER & TABS (Figma Frame 543:687 & 625:10616) ── */}
+      {/* ── 2. SECTION HEADER & TABS (Refined to user requirements) ── */}
       <div className="figma-dash-header">
         <div className="figma-dash-header__left">
-          <h2 className="figma-dash-title">{isVi ? 'Khoá Học Của Tôi' : 'My Course'}</h2>
+          <h2 className="figma-dash-title">{isVi ? 'Góc Học Tập Của Tôi' : 'My Learning Journey'}</h2>
           <p className="figma-dash-subtitle">
-            {isVi ? 'Danh sách các chủ đề và khoá học đã đăng ký' : 'List of your courses and writing topics'}
+            {isVi ? 'Quản lý các chủ đề từ vựng, mục tiêu tuần và bài viết của bạn' : 'Manage your vocabulary topics, weekly goals, and writing progress'}
           </p>
         </div>
 
-        {/* Tab row */}
+        {/* Tab row: All Topics | Weekly Goal | Completed | Learning Metrics */}
         <div className="figma-dash-tabs" role="tablist">
           <button
             type="button"
@@ -428,27 +351,21 @@ export default function StudentDashboard() {
             className={`figma-dash-tab ${activeTab === 'all' ? 'figma-dash-tab--active' : ''}`}
             onClick={() => setActiveTab('all')}
           >
-            {isVi ? 'Tất cả khoá học' : 'All Courses'}
+            {isVi ? 'Tất cả chủ đề' : 'All Topics'}
           </button>
+
           <button
             type="button"
             role="tab"
-            aria-selected={activeTab === 'in-progress'}
-            className={`figma-dash-tab ${activeTab === 'in-progress' ? 'figma-dash-tab--active' : ''}`}
-            onClick={() => setActiveTab('in-progress')}
+            aria-selected={activeTab === 'weekly-goal'}
+            className={`figma-dash-tab ${activeTab === 'weekly-goal' ? 'figma-dash-tab--active' : ''}`}
+            onClick={() => setActiveTab('weekly-goal')}
           >
-            {isVi ? 'Đang học' : 'Courses'}
+            <span className="material-symbols-outlined figma-tab-icon">flag</span>
+            {isVi ? 'Mục tiêu tuần' : 'Weekly Goal'}
+            <span className="figma-tab-badge">Active</span>
           </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'wishlist'}
-            className={`figma-dash-tab ${activeTab === 'wishlist' ? 'figma-dash-tab--active' : ''}`}
-            onClick={() => setActiveTab('wishlist')}
-          >
-            {isVi ? 'Yêu thích' : 'Wishlist'}
-            {wishlistCount > 0 && <span className="figma-tab-badge">{wishlistCount}</span>}
-          </button>
+
           <button
             type="button"
             role="tab"
@@ -457,7 +374,9 @@ export default function StudentDashboard() {
             onClick={() => setActiveTab('completed')}
           >
             {isVi ? 'Đã hoàn thành' : 'Completed'}
+            {completedCount > 0 && <span className="figma-tab-badge">{completedCount}</span>}
           </button>
+
           <button
             type="button"
             role="tab"
@@ -466,12 +385,12 @@ export default function StudentDashboard() {
             onClick={() => setActiveTab('metrics')}
           >
             <span className="material-symbols-outlined figma-tab-icon">query_stats</span>
-            {isVi ? 'Tiến độ & SRS' : 'Learning Metrics & Goals'}
+            {isVi ? 'Tiến độ & SRS' : 'Learning Metrics'}
           </button>
         </div>
 
-        {/* Right filters */}
-        {activeTab !== 'metrics' && (
+        {/* Right filters (only shown on topic list tabs) */}
+        {(activeTab === 'all' || activeTab === 'completed') && (
           <div className="figma-dash-controls">
             <select
               className="figma-select-pill"
@@ -479,7 +398,7 @@ export default function StudentDashboard() {
               onChange={(e) => setRatingFilter(e.target.value)}
               aria-label="Filter by rating"
             >
-              <option value="all">{isVi ? 'Tất cả đánh giá' : 'All Rated'}</option>
+              <option value="all">{isVi ? 'Tất cả cấp độ' : 'All Levels'}</option>
               <option value="5">5 {isVi ? 'Sao' : 'Stars'}</option>
               <option value="4">4.8+ {isVi ? 'Sao' : 'Stars'}</option>
             </select>
@@ -488,7 +407,7 @@ export default function StudentDashboard() {
               className="figma-select-pill"
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              aria-label="Sort courses"
+              aria-label="Sort topics"
             >
               <option value="recent">{isVi ? 'Mới thêm gần đây' : 'Recently added'}</option>
               <option value="popular">{isVi ? 'Phổ biến nhất' : 'Most popular'}</option>
@@ -500,10 +419,162 @@ export default function StudentDashboard() {
       </div>
 
       {/* ── 3. MAIN CONTENT AREA ── */}
-      {activeTab === 'metrics' ? (
-        /* Tab: Learning Metrics, Vocabulary Growth, SRS Due and Weekly Goals */
+      {/* ── TAB: WEEKLY GOALS ── */}
+      {activeTab === 'weekly-goal' && (
+        <div className="figma-weekly-goals-workspace animate-fade-in">
+          {/* Top Progress Rings Card */}
+          <div className="figma-goals-rings-card">
+            <div className="figma-goals-rings-header">
+              <div>
+                <h3 className="figma-goals-section-title">
+                  <span className="material-symbols-outlined figma-goal-head-icon">flag</span>
+                  <span>{isVi ? 'Tiến độ mục tiêu tuần này' : "This Week's Progress"}</span>
+                </h3>
+                <p className="figma-goals-section-sub">
+                  {isVi
+                    ? 'Chinh phục từng chỉ số học tập để duy trì phong độ và nhận huy hiệu tiến bộ.'
+                    : 'Achieve each metric to maintain your learning streak and earn mastery badges.'}
+                </p>
+              </div>
+              <span className="figma-goals-period-badge">
+                <span className="material-symbols-outlined">event_upcoming</span>
+                <span>{isVi ? 'Tuần hiện tại' : 'Active Week'}</span>
+              </span>
+            </div>
+
+            <div className="figma-goals-rings-grid">
+              <div className="figma-goal-ring-item">
+                <CircularProgress
+                  percentage={wordsPercentage}
+                  color="primary"
+                  label={isVi ? 'Từ vựng mới' : 'New Words'}
+                  sublabel={`${wordsGoal?.current ?? 0} / ${wordsGoal?.target ?? 15} ${isVi ? 'từ' : 'words'}`}
+                />
+              </div>
+              <div className="figma-goal-ring-item">
+                <CircularProgress
+                  percentage={lengthPercentage}
+                  color="secondary"
+                  label={isVi ? 'Khối lượng viết' : 'Writing Volume'}
+                  sublabel={`${lengthGoal?.current ?? 0} / ${lengthGoal?.target ?? 100} ${isVi ? 'từ' : 'words'}`}
+                />
+              </div>
+              <div className="figma-goal-ring-item">
+                <CircularProgress
+                  percentage={complexityPercentage}
+                  color="tertiary"
+                  label={isVi ? 'Trình độ CEFR' : 'Target CEFR'}
+                  sublabel={`Rank: ${overview?.rank || 'B1'}`}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Goals Config & AI Coach Guidance */}
+          <div className="figma-goals-split-grid">
+            {/* Setting targets */}
+            <div className="figma-goals-config-card">
+              <h4 className="figma-goals-card-head">
+                <span className="material-symbols-outlined">tune</span>
+                <span>{isVi ? 'Điều chỉnh mục tiêu tuần' : 'Adjust Weekly Targets'}</span>
+              </h4>
+
+              <div className="figma-goal-slider-box">
+                <div className="figma-goal-slider-label">
+                  <span>{isVi ? 'Số từ vựng mới mỗi tuần:' : 'Weekly New Words Target:'}</span>
+                  <strong className="figma-goal-val">{wordsTargetVal} {isVi ? 'từ' : 'words'}</strong>
+                </div>
+                <input
+                  type="range"
+                  min="5"
+                  max="40"
+                  step="5"
+                  value={wordsTargetVal}
+                  onChange={(e) => setWordsTargetVal(Number(e.target.value))}
+                  className="figma-range-slider"
+                />
+                <div className="figma-slider-range-labels">
+                  <span>5 từ</span>
+                  <span>20 từ (chuẩn)</span>
+                  <span>40 từ (chuyên sâu)</span>
+                </div>
+              </div>
+
+              <div className="figma-goal-slider-box">
+                <div className="figma-goal-slider-label">
+                  <span>{isVi ? 'Độ dài bài viết mục tiêu:' : 'Target Essay Word Count:'}</span>
+                  <strong className="figma-goal-val">{lengthTargetVal} {isVi ? 'từ / bài' : 'words / essay'}</strong>
+                </div>
+                <input
+                  type="range"
+                  min="60"
+                  max="150"
+                  step="10"
+                  value={lengthTargetVal}
+                  onChange={(e) => setLengthTargetVal(Number(e.target.value))}
+                  className="figma-range-slider"
+                />
+                <div className="figma-slider-range-labels">
+                  <span>60 từ (ngắn)</span>
+                  <span>100 từ (chuẩn CEFR)</span>
+                  <span>150 từ (học thuật)</span>
+                </div>
+              </div>
+
+              <div className="figma-goal-actions-row">
+                <Button
+                  variant="primary"
+                  size="md"
+                  className="figma-pill-cta"
+                  onClick={handleSaveWeeklyTargets}
+                  disabled={savingGoals}
+                >
+                  <span className="material-symbols-outlined">save</span>
+                  <span>{savingGoals ? (isVi ? 'Đang lưu…' : 'Saving…') : (isVi ? 'Lưu thay đổi mục tiêu' : 'Save Goals')}</span>
+                </Button>
+                {goalSaveMessage && (
+                  <span className="figma-goal-toast animate-fade-in">
+                    <span className="material-symbols-outlined">check_circle</span>
+                    <span>{goalSaveMessage}</span>
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* AI Coach Recommendation */}
+            <div className="figma-goals-ai-card">
+              <div className="figma-goals-ai-badge">
+                <span className="material-symbols-outlined">auto_awesome</span>
+                <span>{isVi ? 'Gợi ý từ AI Coach' : 'AI Coach Advice'}</span>
+              </div>
+              <h5 className="figma-goals-ai-title">
+                {isVi ? 'Bứt phá vốn từ vựng học thuật trong 30 ngày' : 'Accelerate Academic Lexical Resource'}
+              </h5>
+              <p className="figma-goals-ai-desc">
+                {isVi
+                  ? 'Dựa trên tốc độ viết và khả năng ghi nhớ từ qua SRS của bạn, AI đề xuất mục tiêu 20 từ mới mỗi tuần để nâng band CEFR B2 nhanh chóng.'
+                  : 'Based on your recent SRS accuracy and essay rhythm, the AI Coach recommends 20 target words weekly to reach CEFR B2 smoothly.'}
+              </p>
+              <Button
+                variant="secondary"
+                size="sm"
+                className="figma-pill-btn figma-goals-ai-btn"
+                onClick={() => {
+                  setWordsTargetVal(20)
+                  setLengthTargetVal(100)
+                }}
+              >
+                <span className="material-symbols-outlined">flash_on</span>
+                <span>{isVi ? 'Áp dụng đề xuất AI (20 từ/tuần)' : 'Apply AI Recommendation (20 words)'}</span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB: LEARNING METRICS ── */}
+      {activeTab === 'metrics' && (
         <div className="figma-metrics-workspace animate-fade-in">
-          {/* Quick stats row */}
           <ResourceNotice resource={overviewResource} label={isVi ? 'thống kê học tập' : 'learning statistics'} />
           {!overviewResource.loading && !overviewResource.error && (
             <div className="figma-stats-grid">
@@ -628,13 +699,13 @@ export default function StudentDashboard() {
                 </div>
               )}
 
-              {/* Weekly Goals Progress */}
+              {/* Weekly Goals Progress in sidebar */}
               <div className="figma-card figma-goals-card">
                 <div className="figma-goals-header">
                   <h3>{isVi ? 'Mục tiêu tuần' : 'Weekly Goals'}</h3>
-                  <Link to="/student/goals" className="figma-goals-link">
-                    {isVi ? 'Cài đặt' : 'Settings'}
-                  </Link>
+                  <button type="button" className="figma-goals-link" onClick={() => setActiveTab('weekly-goal')}>
+                    {isVi ? 'Xem chi tiết' : 'View details'}
+                  </button>
                 </div>
                 <div className="figma-goals-rings">
                   <CircularProgress
@@ -660,17 +731,27 @@ export default function StudentDashboard() {
             </div>
           </div>
         </div>
-      ) : (
-        /* ── 4-COLUMN COURSE CARDS GRID (Figma Frames 543:687 & 625:10616) ── */
+      )}
+
+      {/* ── TABS: ALL TOPICS & COMPLETED TOPICS ── */}
+      {(activeTab === 'all' || activeTab === 'completed') && (
         <div>
-          {filteredCourses.length === 0 ? (
+          {filteredTopics.length === 0 ? (
             <div className="figma-wishlist-empty">
-              <span className="material-symbols-outlined figma-empty-heart">favorite_border</span>
-              <h3>{isVi ? 'Chưa có khoá học nào trong danh sách này' : 'No courses found in this view'}</h3>
+              <span className="material-symbols-outlined figma-empty-heart">school</span>
+              <h3>
+                {activeTab === 'completed'
+                  ? (isVi ? 'Bạn chưa hoàn thành chủ đề nào' : 'No completed topics yet')
+                  : (isVi ? 'Chưa có chủ đề nào trong danh mục này' : 'No topics found')}
+              </h3>
               <p>
-                {isVi
-                  ? 'Hãy khám phá các khoá học mới và lưu vào danh sách yêu thích để luyện tập.'
-                  : 'Explore our catalog and find the best writing courses tailored to your level.'}
+                {activeTab === 'completed'
+                  ? (isVi
+                    ? 'Hãy tiếp tục hoàn thành các bài viết luận để mở khoá huy hiệu hoàn thành chủ đề!'
+                    : 'Complete essays and context drills to earn your topic completion badges!')
+                  : (isVi
+                    ? 'Khám phá thư viện chủ đề từ vựng phong phú chuẩn CEFR.'
+                    : 'Explore our rich library of CEFR-aligned vocabulary topics.')}
               </p>
               <Button
                 variant="primary"
@@ -678,65 +759,38 @@ export default function StudentDashboard() {
                 className="figma-pill-cta"
                 onClick={() => navigate('/student/explore')}
               >
-                {isVi ? 'Khám phá khoá học ngay' : 'Explore Courses'}
+                {isVi ? 'Khám phá chủ đề ngay' : 'Explore Topics'}
               </Button>
             </div>
           ) : (
             <div className="figma-course-grid">
-              {filteredCourses.map((course) => {
-                const isCompleted = course.status === 'completed'
-                const isInProgress = course.status === 'in-progress'
+              {filteredTopics.map((topic) => {
+                const isCompleted = topic.status === 'completed'
+                const isInProgress = topic.status === 'in-progress'
                 const progressPercent =
-                  course.lessonsTotal > 0
-                    ? Math.round((course.lessonsCompleted / course.lessonsTotal) * 100)
+                  topic.lessonsTotal > 0
+                    ? Math.round((topic.lessonsCompleted / topic.lessonsTotal) * 100)
                     : 0
 
                 return (
-                  <div key={course.id} className="figma-course-card">
+                  <div key={topic.id} className="figma-course-card">
                     {/* Thumbnail wrap */}
                     <div className="figma-course-card__media">
                       <img
-                        src={course.thumbnail}
-                        alt={course.title}
+                        src={topic.thumbnail}
+                        alt={topic.title}
                         className="figma-course-card__img"
                         loading="lazy"
                       />
 
-                      {/* Top left badges */}
+                      {/* Top badges: Level & Category */}
                       <div className="figma-course-card__badges">
-                        {course.isBestSeller && (
-                          <span className="figma-badge-bestseller">Best Seller</span>
-                        )}
-                        {course.discountBadge && (
-                          <span className="figma-badge-discount">{course.discountBadge}</span>
-                        )}
+                        <span className="figma-badge-bestseller">CEFR {topic.level}</span>
+                        <span className="figma-badge-discount">{topic.category}</span>
                       </div>
 
-                      {/* Top right button: Red heart for Wishlist, 3-dots kebab for My Course */}
-                      {activeTab === 'wishlist' ? (
-                        <button
-                          type="button"
-                          className={`figma-heart-btn ${course.wishlisted ? 'figma-heart-btn--active' : ''}`}
-                          aria-label="Wishlist toggle"
-                          onClick={(e) => handleToggleWishlist(course.id, e)}
-                        >
-                          <span className="material-symbols-outlined">
-                            {course.wishlisted ? 'favorite' : 'favorite_border'}
-                          </span>
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          className="figma-kebab-btn"
-                          aria-label="Course options"
-                          onClick={(e) => { e.stopPropagation(); }}
-                        >
-                          <span className="material-symbols-outlined">more_vert</span>
-                        </button>
-                      )}
-
                       {/* Progress bar line under thumbnail */}
-                      {activeTab !== 'wishlist' && isInProgress && (
+                      {isInProgress && (
                         <div className="figma-card-progress-bar">
                           <div
                             className="figma-card-progress-fill"
@@ -744,7 +798,7 @@ export default function StudentDashboard() {
                           />
                         </div>
                       )}
-                      {activeTab !== 'wishlist' && isCompleted && (
+                      {isCompleted && (
                         <div className="figma-card-progress-bar figma-card-progress-bar--completed">
                           <div className="figma-card-progress-fill" style={{ width: '100%' }} />
                         </div>
@@ -754,48 +808,47 @@ export default function StudentDashboard() {
                     {/* Content wrap */}
                     <div className="figma-course-card__content">
                       <h3 className="figma-course-card__title">
-                        <Link to={course.link}>{course.title}</Link>
+                        <Link to={topic.link}>{topic.title}</Link>
                       </h3>
 
                       <div className="figma-course-card__instructor">
-                        <span className="material-symbols-outlined figma-inst-icon">person</span>
-                        <span>{course.instructor}</span>
+                        <span className="material-symbols-outlined figma-inst-icon">workspace_premium</span>
+                        <span>{topic.instructor}</span>
                       </div>
 
-                      {activeTab === 'wishlist' ? (
-                        <>
-                          <p className="figma-course-card__desc">{course.desc}</p>
-                          <div className="figma-course-card__rating">
-                            <span className="figma-stars">★★★★★</span>
-                            <span className="figma-review-count">({course.reviewsCount})</span>
-                          </div>
-                          <div className="figma-course-card__price">
-                            <strong className="figma-price-current">{course.price}</strong>
-                            {course.originalPrice && (
-                              <span className="figma-price-strike">{course.originalPrice}</span>
-                            )}
-                          </div>
-                        </>
-                      ) : (
-                        /* My Course Progress Status */
-                        <div className="figma-course-card__status">
-                          {isCompleted && (
-                            <span className="figma-status-completed">
-                              Completed!
-                            </span>
-                          )}
-                          {isInProgress && (
-                            <span className="figma-status-progress">
-                              {course.lessonsCompleted}/{course.lessonsTotal} Videos Completed
-                            </span>
-                          )}
-                          {!isCompleted && !isInProgress && (
-                            <span className="figma-status-notstarted">
-                              Not Yet Started
-                            </span>
-                          )}
-                        </div>
-                      )}
+                      <p className="figma-course-card__desc">{topic.desc}</p>
+
+                      <div className="figma-course-card__status">
+                        {isCompleted && (
+                          <span className="figma-status-completed">
+                            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>verified</span>
+                            <span>{isVi ? 'Đã hoàn thành xuất sắc!' : 'Completed!'}</span>
+                          </span>
+                        )}
+                        {isInProgress && (
+                          <span className="figma-status-progress">
+                            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>play_circle</span>
+                            <span>{topic.lessonsCompleted}/{topic.lessonsTotal} {isVi ? 'Bài học hoàn thành' : 'Lessons Completed'}</span>
+                          </span>
+                        )}
+                        {!isCompleted && !isInProgress && (
+                          <span className="figma-status-notstarted">
+                            {isVi ? 'Chưa bắt đầu' : 'Not Yet Started'}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="figma-course-card__footer-actions">
+                        <Button
+                          variant={isCompleted ? 'secondary' : 'primary'}
+                          size="sm"
+                          className="figma-pill-cta figma-card-action-btn"
+                          onClick={() => navigate(topic.link)}
+                        >
+                          <span>{isCompleted ? (isVi ? 'Luyện tập lại' : 'Review Topic') : (isVi ? 'Tiếp tục luyện viết' : 'Continue Writing')}</span>
+                          <span className="material-symbols-outlined">{isCompleted ? 'replay' : 'arrow_forward'}</span>
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 )
@@ -803,19 +856,8 @@ export default function StudentDashboard() {
             </div>
           )}
 
-          {/* Bottom explore button for Wishlist tab, pagination for other tabs */}
-          {activeTab === 'wishlist' ? (
-            <div className="figma-wishlist-explore-center">
-              <Button
-                variant="primary"
-                size="lg"
-                className="figma-pill-cta"
-                onClick={() => navigate('/student/explore')}
-              >
-                {isVi ? 'Khám phá khoá học' : 'Explore Courses'}
-              </Button>
-            </div>
-          ) : filteredCourses.length > 0 ? (
+          {/* Bottom pagination */}
+          {filteredTopics.length > 0 && (
             <div className="figma-pagination-row">
               <button
                 type="button"
@@ -842,56 +884,28 @@ export default function StudentDashboard() {
               </button>
               <button
                 type="button"
-                className={`figma-page-num ${currentPage === 3 ? 'figma-page-num--active' : ''}`}
-                onClick={() => setCurrentPage(3)}
-              >
-                3
-              </button>
-              <button
-                type="button"
-                className={`figma-page-num ${currentPage === 4 ? 'figma-page-num--active' : ''}`}
-                onClick={() => setCurrentPage(4)}
-              >
-                4
-              </button>
-              <button
-                type="button"
-                className={`figma-page-num ${currentPage === 5 ? 'figma-page-num--active' : ''}`}
-                onClick={() => setCurrentPage(5)}
-              >
-                5
-              </button>
-              <span className="figma-page-ellipsis">…</span>
-              <button
-                type="button"
-                className={`figma-page-num ${currentPage === 98 ? 'figma-page-num--active' : ''}`}
-                onClick={() => setCurrentPage(98)}
-              >
-                98
-              </button>
-              <button
-                type="button"
                 className="figma-page-arrow"
+                disabled={currentPage === 2}
                 onClick={() => setCurrentPage((p) => p + 1)}
                 aria-label="Next page"
               >
                 &gt;
               </button>
             </div>
-          ) : null}
+          )}
         </div>
       )}
 
-      {/* ── 6. BOTTOM DISCOUNT CTA BANNER (Figma Frame 543:687) ── */}
+      {/* ── 4. BOTTOM NEWSLETTER / MOTIVATION BANNER ── */}
       <section className="figma-newsletter-banner">
         <div className="figma-newsletter-banner__left">
           <h2 className="figma-newsletter-banner__title">
-            {isVi ? 'Tham gia và nhận ưu đãi đặc biệt' : 'Join and get amazing discount'}
+            {isVi ? 'Tăng tốc trình độ tiếng Anh cùng LexiGrow AI' : 'Accelerate your English proficiency with LexiGrow AI'}
           </h2>
           <p className="figma-newsletter-banner__subtitle">
             {isVi
-              ? 'Tận hưởng khoá học với giao diện tối ưu trên mọi thiết bị di động & máy tính.'
-              : 'With our responsive themes and mobile and desktop apps.'}
+              ? 'Nhận thông báo chủ đề mới, bài viết mẫu đạt điểm cao và các lời khuyên học tập giá trị mỗi tuần.'
+              : 'Get weekly high-scoring sample essays, vocabulary tips, and personalized recommendations.'}
           </p>
         </div>
 
@@ -905,7 +919,7 @@ export default function StudentDashboard() {
           {newsletterSubscribed ? (
             <div className="figma-newsletter-thanks">
               <span className="material-symbols-outlined">check_circle</span>
-              <span>{isVi ? 'Đã đăng ký thành công!' : 'Subscribed successfully!'}</span>
+              <span>{isVi ? 'Đã đăng ký nhận bản tin thành công!' : 'Subscribed successfully!'}</span>
             </div>
           ) : (
             <div className="figma-newsletter-input-group">
@@ -918,7 +932,7 @@ export default function StudentDashboard() {
                 required
               />
               <button type="submit" className="figma-newsletter-btn">
-                {isVi ? 'Đăng ký' : 'Subscribe'}
+                {isVi ? 'Đăng ký nhận tin' : 'Subscribe'}
               </button>
             </div>
           )}

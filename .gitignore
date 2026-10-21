@@ -36,7 +36,10 @@ APIKEY.txt
 # Local AI agent files
 .claude/
 .gemini/
+.taste-skill/
 opencode.json
+coverage/
+server/coverage/
 
 # Documents, office and deployment files
 *.docx

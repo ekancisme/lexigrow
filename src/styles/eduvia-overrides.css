@@ -1,7 +1,7 @@
 /* Shared visual layer for the Eduvia-inspired LexiGrow refresh. */
 :root {
-  --eduvia-content-width: 1240px;
-  --eduvia-section-space: clamp(32px, 5vw, 72px);
+  --eduvia-content-width: min(1600px, 95vw);
+  --eduvia-section-space: clamp(24px, 4vw, 56px);
 }
 
 body {

@@ -183,9 +183,9 @@
   /* ── Layout ── */
   --sidebar-width: 280px;
   --topnav-height: 64px;
-  --container-max-width: 1440px;
-  --margin-mobile: 16px;
-  --margin-desktop: 32px;
+  --container-max-width: min(1600px, 95vw);
+  --margin-mobile: 14px;
+  --margin-desktop: clamp(16px, 2.5vw, 28px);
 
   /* ── Border Radius ── */
   --radius-sm: 4px;

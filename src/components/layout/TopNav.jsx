@@ -160,20 +160,6 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
 
         {/* 4. Right Actions Bar */}
         <div className="topnav__actions">
-          <LanguageSwitcher />
-
-          <button
-            type="button"
-            className="topnav__icon-btn topnav__theme-btn"
-            onClick={toggleTheme}
-            aria-label={theme === 'light' ? t('header.themeDark') : t('header.themeLight')}
-            title={theme === 'light' ? t('header.themeDark') : t('header.themeLight')}
-          >
-            <span className="material-symbols-outlined" aria-hidden="true">
-              {theme === 'light' ? 'dark_mode' : 'light_mode'}
-            </span>
-          </button>
-
           {user ? (
             <>
               <NotificationBell />
@@ -220,7 +206,7 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
                         )}
                       </span>
                     ) : (
-                      <span>{role === 'teacher' ? t('nav.teacherPlans') : t('nav.upgradePlan')}</span>
+                      <span>{language === 'vi' ? 'Bảng giá & Nâng cấp' : (role === 'teacher' ? t('nav.teacherPlans') : t('nav.upgradePlan'))}</span>
                     )}
                   </Link>
                 )}
@@ -234,6 +220,10 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
                   </span>
                   <span>{theme === 'light' ? t('header.themeDark') : t('header.themeLight')}</span>
                 </button>
+                <div className="topnav__dropdown-lang-row">
+                  <span className="material-symbols-outlined" aria-hidden="true">translate</span>
+                  <LanguageSwitcher />
+                </div>
                 <button
                   type="button"
                   className="header-navigation__link topnav__logout"
@@ -246,6 +236,7 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
             </>
           ) : (
             <div className="topnav__auth-group">
+              <LanguageSwitcher />
               <Link to="/login" className="topnav__btn-outline" onClick={closeNavigation}>
                 <span>{language === 'vi' ? 'Đăng nhập' : 'Login'}</span>
               </Link>

@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: column;
   gap: 36px;
-  max-width: 1360px;
+  max-width: min(1600px, 95vw);
   margin: 0 auto;
   padding: 8px 16px 48px;
   width: 100%;
@@ -32,15 +32,15 @@
   position: absolute;
   top: 0;
   right: 0;
-  width: 48%;
+  width: 52%;
   height: 100%;
-  background-image: url('/assets/editorial/home/mycourse-hero-banner.png');
+  background-image: url('/assets/editorial/home/study-hero.jpg');
   background-size: cover;
-  background-position: center right;
-  opacity: 0.9;
+  background-position: center center;
+  opacity: 0.88;
   pointer-events: none;
-  mask-image: linear-gradient(to right, transparent, black 30%);
-  -webkit-mask-image: linear-gradient(to right, transparent, black 30%);
+  mask-image: linear-gradient(to right, transparent, black 35%);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 35%);
 }
 
 .figma-hero-spotlight__content {
@@ -914,4 +914,243 @@
   border-radius: var(--radius-md, 8px);
   padding: 12px 16px;
   font-size: 13px;
+}
+
+/* ── 8. INTEGRATED WEEKLY GOALS WORKSPACE ── */
+.figma-weekly-goals-workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.figma-goals-rings-card {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-outline-variant, #E5E7EB);
+  border-radius: var(--radius-2xl, 22px);
+  padding: 32px 36px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.figma-goals-rings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-outline-variant, #F3F4F6);
+}
+
+.figma-goals-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-on-surface, #1B1B1B);
+  margin: 0 0 4px;
+}
+
+.figma-goal-head-icon {
+  color: var(--color-primary, #3DCBB1);
+  font-size: 22px;
+}
+
+.figma-goals-section-sub {
+  font-size: 14px;
+  color: #6B7280;
+  margin: 0;
+}
+
+.figma-goals-period-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #065F46;
+  background: #EBF9F6;
+  border: 1px solid rgba(61, 203, 177, 0.4);
+  padding: 6px 14px;
+  border-radius: 9999px;
+}
+
+.figma-goals-period-badge .material-symbols-outlined {
+  font-size: 16px;
+  color: #3DCBB1;
+}
+
+.figma-goals-rings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 24px;
+  justify-items: center;
+  padding: 16px 0;
+}
+
+.figma-goal-ring-item {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.figma-goals-split-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 900px) {
+  .figma-goals-split-grid {
+    grid-template-columns: 1.4fr 1fr;
+  }
+}
+
+.figma-goals-config-card {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-outline-variant, #E5E7EB);
+  border-radius: var(--radius-2xl, 22px);
+  padding: 28px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+}
+
+.figma-goals-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-on-surface, #1B1B1B);
+  margin: 0;
+}
+
+.figma-goals-card-head .material-symbols-outlined {
+  color: var(--color-primary, #3DCBB1);
+}
+
+.figma-goal-slider-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.figma-goal-slider-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.figma-goal-val {
+  color: var(--color-primary, #3DCBB1);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.figma-range-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 9999px;
+  background: #E5E7EB;
+  outline: none;
+  cursor: pointer;
+  accent-color: #3DCBB1;
+}
+
+.figma-slider-range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #9CA3AF;
+}
+
+.figma-goal-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.figma-goal-toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #059669;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.figma-goal-toast .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.figma-goals-ai-card {
+  background: linear-gradient(135deg, #FFFDF5 0%, #FEF9C3 100%);
+  border: 1px solid #FDE68A;
+  border-radius: var(--radius-2xl, 22px);
+  padding: 28px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.08);
+}
+
+.figma-goals-ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #B45309;
+}
+
+.figma-goals-ai-badge .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.figma-goals-ai-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #92400E;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.figma-goals-ai-desc {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #78350F;
+  margin: 0;
+}
+
+.figma-goals-ai-btn {
+  margin-top: 8px;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Card footer button */
+.figma-course-card__footer-actions {
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-outline-variant, #F3F4F6);
+}
+
+.figma-card-action-btn {
+  width: 100% !important;
+  justify-content: center !important;
+  border-radius: var(--radius-full, 9999px) !important;
+  font-weight: 700 !important;
 }
