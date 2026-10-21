@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" width="100%" height="100%">
+  <defs>
+    <linearGradient id="gardenBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064E3B" />
+      <stop offset="50%" stop-color="#022C22" />
+      <stop offset="100%" stop-color="#041E17" />
+    </linearGradient>
+    <linearGradient id="stemGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#047857" />
+      <stop offset="100%" stop-color="#10B981" />
+    </linearGradient>
+    <linearGradient id="leafGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+    <linearGradient id="flowerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F472B6" />
+      <stop offset="100%" stop-color="#EC4899" />
+    </linearGradient>
+    <filter id="gardenGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#10B981" flood-opacity="0.3" />
+    </filter>
+  </defs>
+
+  <style>
+    @keyframes branchSway {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(3deg); }
+    }
+    @keyframes bloomPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.12); }
+    }
+    @keyframes floatParticle {
+      0% { transform: translateY(0) scale(0.8); opacity: 0; }
+      50% { opacity: 0.8; }
+      100% { transform: translateY(-35px) scale(1.1); opacity: 0; }
+    }
+    .swaying-branch {
+      transform-origin: 200px 180px;
+      animation: branchSway 4s ease-in-out infinite;
+    }
+    .blooming-flower {
+      transform-origin: 200px 85px;
+      animation: bloomPulse 3s ease-in-out infinite;
+    }
+    .floating-spore-1 {
+      animation: floatParticle 3.2s ease-out infinite;
+    }
+    .floating-spore-2 {
+      animation: floatParticle 3.8s ease-out infinite 1.2s;
+    }
+    .floating-spore-3 {
+      animation: floatParticle 4.1s ease-out infinite 2s;
+    }
+  </style>
+
+  <!-- Background -->
+  <rect width="400" height="260" rx="16" fill="url(#gardenBg)" />
+
+  <!-- Sun Glow in Top Right -->
+  <circle cx="330" cy="50" r="80" fill="#FDE047" fill-opacity="0.12" />
+  <circle cx="330" cy="50" r="45" fill="#FBBF24" fill-opacity="0.18" />
+
+  <!-- Ground Mound -->
+  <path d="M 40 220 Q 200 175 360 220 L 400 260 L 0 260 Z" fill="#065F46" opacity="0.6" />
+  <ellipse cx="200" cy="205" rx="80" ry="12" fill="#022C22" opacity="0.5" />
+
+  <!-- Animated Floating Spores -->
+  <circle cx="160" cy="140" r="3" fill="#6EE7B7" class="floating-spore-1" />
+  <circle cx="240" cy="120" r="4" fill="#FDE047" class="floating-spore-2" />
+  <circle cx="190" cy="95" r="2.5" fill="#A7F3D0" class="floating-spore-3" />
+
+  <!-- Tree / Plant Assembly -->
+  <g class="swaying-branch" filter="url(#gardenGlow)">
+    <!-- Main Trunk -->
+    <path d="M 196 200 Q 194 150 200 100 Q 206 150 204 200 Z" fill="url(#stemGrad)" />
+
+    <!-- Left Branch & Leaf -->
+    <path d="M 197 150 Q 165 140 145 125" stroke="#10B981" stroke-width="4.5" stroke-linecap="round" fill="none" />
+    <path d="M 145 125 Q 135 110 150 112 Q 162 124 145 125 Z" fill="url(#leafGrad)" />
+
+    <!-- Right Branch & Leaf -->
+    <path d="M 203 135 Q 235 125 255 110" stroke="#10B981" stroke-width="4.5" stroke-linecap="round" fill="none" />
+    <path d="M 255 110 Q 268 96 254 98 Q 242 110 255 110 Z" fill="url(#leafGrad)" />
+
+    <!-- Lower Leaves -->
+    <ellipse cx="178" cy="170" rx="16" ry="7" fill="url(#leafGrad)" transform="rotate(-30 178 170)" />
+    <ellipse cx="222" cy="165" rx="16" ry="7" fill="url(#leafGrad)" transform="rotate(30 222 165)" />
+
+    <!-- Blooming Flower Top -->
+    <g class="blooming-flower">
+      <!-- Petals -->
+      <circle cx="200" cy="72" r="10" fill="url(#flowerGrad)" opacity="0.9" />
+      <circle cx="200" cy="98" r="10" fill="url(#flowerGrad)" opacity="0.9" />
+      <circle cx="187" cy="85" r="10" fill="url(#flowerGrad)" opacity="0.9" />
+      <circle cx="213" cy="85" r="10" fill="url(#flowerGrad)" opacity="0.9" />
+      <!-- Flower Center -->
+      <circle cx="200" cy="85" r="8" fill="#FDE047" />
+    </g>
+  </g>
+
+  <!-- Status HUD Card Bottom -->
+  <g transform="translate(48, 195)">
+    <rect width="304" height="42" rx="10" fill="#0F172A" fill-opacity="0.85" stroke="#10B981" stroke-width="1.2" />
+    <!-- Sprout Icon -->
+    <circle cx="28" cy="21" r="13" fill="#065F46" />
+    <text x="28" y="26" font-family="'Segoe UI Emoji', sans-serif" font-size="14" text-anchor="middle">🌱</text>
+
+    <!-- Progress Text -->
+    <text x="52" y="19" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11.5" font-weight="700" fill="#FFFFFF">
+      Vốn từ Mastered: 142 từ
+    </text>
+    <text x="52" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9.5" fill="#6EE7B7">
+      Cây đại thụ tri thức · Đang nở hoa rực rỡ
+    </text>
+
+    <!-- Level Badge -->
+    <rect x="232" y="10" width="58" height="22" rx="6" fill="#10B981" />
+    <text x="261" y="25" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="800" fill="#022C22" text-anchor="middle">
+      STAGE 4
+    </text>
+  </g>
+</svg>

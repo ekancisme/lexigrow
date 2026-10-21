@@ -24,7 +24,8 @@ export default function Login() {
   const [error, setError] = useState('')
   const [infoMessage, setInfoMessage] = useState('')
   const { login, loading, isAuthenticated, user, loginWithGoogle } = useAuth()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
+  const isVi = language === 'vi'
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -50,7 +51,7 @@ export default function Login() {
       const loggedUser = await login(email, password)
       navigate(getRoleHome(loggedUser.role, loggedUser))
     } catch (err) {
-      setError(err.message)
+      setError(err.message || (isVi ? 'Đăng nhập không thành công' : 'Login failed'))
     }
   }
 
@@ -59,7 +60,7 @@ export default function Login() {
     setError('')
 
     if (!window.google?.accounts?.oauth2) {
-      setError('Google Sign-In is not available. Please refresh and try again.')
+      setError(isVi ? 'Dịch vụ Google Sign-In chưa sẵn sàng. Vui lòng tải lại trang và thử lại.' : 'Google Sign-In is not available. Please refresh and try again.')
       return
     }
 
@@ -68,7 +69,7 @@ export default function Login() {
       const config = await response.json()
 
       if (!config.googleClientId) {
-        setError('Google Sign-In is not configured on the server.')
+        setError(isVi ? 'Hệ thống chưa cấu hình Google OAuth.' : 'Google Sign-In is not configured on the server.')
         return
       }
 
@@ -76,25 +77,25 @@ export default function Login() {
         client_id: config.googleClientId,
         scope: 'openid email profile',
         ux_mode: 'popup',
-        callback: async (response) => {
-          if (response.error) {
-            setError('Google Sign-In was cancelled or failed.')
+        callback: async (res) => {
+          if (res.error) {
+            setError(isVi ? 'Đăng nhập Google bị hủy hoặc thất bại.' : 'Google Sign-In was cancelled or failed.')
             return
           }
           try {
-            const loggedUser = await loginWithGoogle({ code: response.code })
+            const loggedUser = await loginWithGoogle({ code: res.code })
             if (loggedUser) {
               navigate(getRoleHome(loggedUser.role, loggedUser))
             }
           } catch (err) {
-            setError(err.message || 'Google authentication failed')
+            setError(err.message || (isVi ? 'Xác thực Google thất bại' : 'Google authentication failed'))
           }
         },
       })
 
       client.requestCode()
-    } catch (err) {
-      setError('Failed to initialize Google Sign-In.')
+    } catch {
+      setError(isVi ? 'Khởi tạo Google Sign-In thất bại.' : 'Failed to initialize Google Sign-In.')
     }
   }
 
@@ -106,7 +107,7 @@ export default function Login() {
 
       <div className="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-login-title">
         {/* Close Button linking back to home */}
-        <Link to="/student/home" className="auth-card__close-btn" aria-label="Close" title="Quay lại Trang chủ">
+        <Link to="/student/home" className="auth-card__close-btn" aria-label="Close" title={isVi ? 'Quay lại Trang chủ' : 'Back to Home'}>
           ✕
         </Link>
 
@@ -118,16 +119,16 @@ export default function Login() {
             className="auth-card__visual-img"
           />
           <div className="auth-card__visual-overlay">
-            <div className="auth-card__mentor-badge">
-              <img
-                src="/assets/editorial/instructors/alexander.png"
-                alt="Alexander Vance"
-                className="auth-card__mentor-avatar"
-              />
-              <div className="auth-card__mentor-info">
-                <span className="auth-card__mentor-name">Alexander Vance</span>
-                <span className="auth-card__mentor-role">
-                  {t('auth.tagline', 'LexiGrow IELTS Academic Faculty')}
+            <div className="auth-card__feature-badge">
+              <div className="auth-card__feature-icon">
+                <span className="material-symbols-outlined" style={{ fontSize: 22 }}>auto_awesome</span>
+              </div>
+              <div className="auth-card__feature-info">
+                <span className="auth-card__feature-title">LexiGrow AI Learning Lab</span>
+                <span className="auth-card__feature-subtitle">
+                  {isVi
+                    ? 'Chấm chữa bài viết AI thời gian thực & Spaced Repetition'
+                    : 'Real-time AI Essay Feedback & Spaced Repetition'}
                 </span>
               </div>
             </div>
@@ -243,11 +244,12 @@ export default function Login() {
               <span>{t('auth.orYouCan', 'hoặc đăng nhập bằng')}</span>
             </div>
 
-            {/* Google OAuth Button */}
+            {/* Google OAuth Button (Only Google as requested) */}
             <button
               type="button"
               className="auth-card__google-btn"
               onClick={handleGoogleSignIn}
+              disabled={loading}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />

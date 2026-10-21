@@ -5,25 +5,83 @@
   z-index: 9999;
 }
 
+/* While dragging, freeze any transitions so movement is 1:1 with the pointer */
+.chat-widget--dragging .chat-toggle-btn {
+  transition: none;
+  animation: none;
+  transform: scale(1.1) rotate(-4deg);
+  cursor: grabbing;
+}
+
+.chat-widget--dragging .chat-toggle-btn__mascot {
+  animation: none;
+}
+
 .chat-toggle-btn {
-  width: 56px;
-  height: 56px;
-  border-radius: var(--radius-full);
-  background: var(--color-primary);
-  color: var(--color-on-primary);
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-full, 9999px);
+  background: transparent;
   border: none;
-  cursor: pointer;
-  box-shadow: var(--shadow-lg);
+  cursor: grab;
+  box-shadow: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all var(--transition-fast);
-  font-size: 24px;
+  transition: transform 0.2s ease;
+  padding: 0;
+  touch-action: none; /* let pointer events own the gesture on touch devices */
+  user-select: none;
+  -webkit-user-select: none;
+  overflow: visible;
+  will-change: transform;
 }
 
 .chat-toggle-btn:hover {
-  transform: scale(1.05);
-  box-shadow: var(--shadow-xl);
+  transform: scale(1.07) rotate(3deg);
+}
+
+.chat-toggle-btn:active {
+  cursor: grabbing;
+}
+
+/* Luffy mascot face inside the button */
+.chat-toggle-btn__mascot {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
+  pointer-events: none; /* the button handles all pointer events */
+  user-select: none;
+  filter:
+    drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
+  animation: luffyChatIdle 3.2s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+@keyframes luffyChatIdle {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-4px) rotate(2deg); }
+}
+
+/* Small "online" dot badge at bottom-right of the mascot */
+.chat-toggle-btn__dot {
+  position: absolute;
+  right: 0px;
+  bottom: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #22C55E;
+  border: 2.5px solid #FFFFFF;
+  box-shadow: 0 2px 6px rgba(34, 197, 94, 0.5);
+  animation: luffyDotPulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes luffyDotPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.25); }
 }
 
 .chat-window {
@@ -47,9 +105,30 @@
 .chat-window.minimized {
   height: 56px;
   width: 240px;
-  bottom: 72px;
+  bottom: 76px;
   right: 0;
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+}
+
+/* Smart placement: the window follows wherever Luffy was dropped on screen */
+.chat-window--below {
+  top: 76px;
+  bottom: auto;
+}
+
+.chat-window--right {
+  right: auto;
+  left: 76px;
+}
+
+.chat-window--below.minimized {
+  top: 76px;
+  bottom: auto;
+}
+
+.chat-window--right.minimized {
+  left: 76px;
+  right: auto;
 }
 
 .chat-header {
@@ -200,6 +279,95 @@
   opacity: 0.85;
 }
 
+/* ── AI assistant specifics ── */
+
+/* Row: mascot avatar + bubble side by side for AI messages */
+.chat-message-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.chat-message.other .chat-message-row .chat-message-content {
+  border-bottom-left-radius: 6px;
+}
+
+.chat-avatar-mascot {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.18));
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Preset quick question chips */
+.chat-quick-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  padding: 10px 14px;
+  background: var(--color-surface-container-low);
+  border-top: 1px solid var(--color-outline-variant);
+  flex-shrink: 0;
+}
+
+.chat-quick-chip {
+  padding: 6px 12px;
+  border-radius: var(--radius-full, 9999px);
+  border: 1.5px solid rgba(16, 185, 129, 0.45);
+  background: rgba(16, 185, 129, 0.08);
+  color: #047857;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.chat-quick-chip:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.18);
+  border-color: #10B981;
+  transform: translateY(-1px);
+}
+
+.chat-quick-chip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* AI "composing..." bubble with bouncing dots */
+.chat-typing-bubble {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 14px 18px !important;
+}
+
+.chat-typing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10B981;
+  opacity: 0.55;
+  animation: chatTypingBounce 1.2s ease-in-out infinite;
+}
+
+.chat-typing-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.chat-typing-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes chatTypingBounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
+
 .chat-input-area {
   display: flex;
   padding: 12px 16px;
@@ -266,25 +434,38 @@
 
 /* Responsive */
 @media (max-width: 480px) {
+  /* Full-screen chat regardless of where Luffy sits */
   .chat-window {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
     width: 100vw;
     max-width: 100vw;
     height: 100vh;
     max-height: 100vh;
-    bottom: 0;
-    right: 0;
     border-radius: 0;
   }
   .chat-window.minimized {
+    position: fixed !important;
+    top: auto !important;
+    left: auto !important;
+    bottom: 20px !important;
     width: 80vw;
     height: 56px;
-    bottom: 20px;
-    right: 16px;
     border-radius: 12px 12px 0 0;
   }
   .chat-toggle-btn {
-    width: 48px;
-    height: 48px;
-    font-size: 20px;
+    width: 56px;
+    height: 56px;
+  }
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .chat-toggle-btn__mascot,
+  .chat-toggle-btn__dot {
+    animation: none;
   }
 }

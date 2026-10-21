@@ -84,6 +84,14 @@
   height: 100%;
   z-index: 1;
   pointer-events: none;
+  background-size: 130% 130%;
+  animation: heroAmbientBreathe 12s ease-in-out infinite alternate;
+}
+
+@keyframes heroAmbientBreathe {
+  0% { transform: scale(1); filter: brightness(1); }
+  50% { transform: scale(1.04) translate(-0.5%, -0.5%); filter: brightness(1.08); }
+  100% { transform: scale(1); filter: brightness(1); }
 }
 
 .figma-hero__ambient--vocab {
@@ -94,30 +102,231 @@
 
 .figma-hero__ambient--journey {
   background:
-    radial-gradient(circle at 75% 45%, #0A6652 0%, #05483B 50%, #021F17 100%),
+    radial-gradient(circle at 75% 45%, #0F4C81 0%, #0A2F54 45%, #04162B 100%),
     linear-gradient(180deg, transparent 65%, rgba(0, 0, 0, 0.4) 100%);
 }
 
 .figma-hero__ambient--writing {
-  background: linear-gradient(125deg, #F8FAFC 0%, #F0FDF4 35%, #E6F7F0 70%, #D4EEE3 100%);
+  background:
+    radial-gradient(circle at 75% 40%, rgba(61, 203, 177, 0.42) 0%, transparent 60%),
+    linear-gradient(130deg, #D4ECE2 0%, #BFE4D5 35%, #A7DDC8 70%, #8FD3BA 100%);
+}
+
+/* ── Hero Depth & Floating Background Particles Layer ── */
+.figma-hero__particles-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* 3D Wireframe Geometric Shards & Crystal Fragments Motion Stream */
+.hero-shards-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  mix-blend-mode: screen;
+  opacity: 0.45;
+  pointer-events: none;
+  filter: contrast(1.2) brightness(1.2);
+  transition: opacity 0.4s ease;
+}
+
+.figma-hero__slide--writing .hero-shards-video {
+  mix-blend-mode: multiply;
+  opacity: 0.32;
+  filter: invert(0.92) contrast(1.25);
+}
+
+/* Floating Ambient Depth Orbs */
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(32px);
+  opacity: 0.25;
+}
+
+.hero-orb--1 {
+  width: 190px;
+  height: 190px;
+  background: radial-gradient(circle, #3DCBB1 0%, transparent 70%);
+  top: -30px;
+  left: 22%;
+  animation: heroFloatOrb1 16s ease-in-out infinite alternate;
+}
+
+.hero-orb--2 {
+  width: 230px;
+  height: 230px;
+  background: radial-gradient(circle, #10B981 0%, transparent 70%);
+  bottom: -40px;
+  right: 18%;
+  animation: heroFloatOrb2 18s ease-in-out infinite alternate;
+}
+
+.hero-orb--3 {
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, #FBBF24 0%, transparent 70%);
+  top: 35%;
+  left: 52%;
+  animation: heroFloatOrb3 15s ease-in-out infinite alternate;
+}
+
+/* Orb Color Adaptation per Slide */
+.figma-hero__slide--journey .hero-orb--1 {
+  background: radial-gradient(circle, #38BDF8 0%, transparent 70%);
+}
+.figma-hero__slide--journey .hero-orb--2 {
+  background: radial-gradient(circle, #818CF8 0%, transparent 70%);
+}
+.figma-hero__slide--journey .hero-orb--3 {
+  background: radial-gradient(circle, #34D399 0%, transparent 70%);
+}
+
+.figma-hero__slide--writing .hero-orb--1 {
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.4) 0%, transparent 70%);
+}
+.figma-hero__slide--writing .hero-orb--2 {
+  background: radial-gradient(circle, rgba(13, 148, 136, 0.4) 0%, transparent 70%);
+}
+.figma-hero__slide--writing .hero-orb--3 {
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.28) 0%, transparent 70%);
+}
+
+/* Twinkling Firefly / Stardust Particles */
+.hero-star {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background: #FFFFFF;
+  box-shadow: 0 0 8px 2px currentColor;
+}
+
+.hero-star--1 {
+  width: 4px;
+  height: 4px;
+  top: 24%;
+  left: 14%;
+  color: #5FE3C0;
+  animation: heroParticleFloat 7s ease-in-out infinite;
+}
+
+.hero-star--2 {
+  width: 5px;
+  height: 5px;
+  top: 68%;
+  left: 26%;
+  color: #34D399;
+  animation: heroParticleFloat 8.5s ease-in-out infinite 1.2s;
+}
+
+.hero-star--3 {
+  width: 3px;
+  height: 3px;
+  top: 28%;
+  left: 46%;
+  color: #FDE047;
+  animation: heroParticleFloat 6.2s ease-in-out infinite 0.5s;
+}
+
+.hero-star--4 {
+  width: 4px;
+  height: 4px;
+  top: 76%;
+  left: 58%;
+  color: #6EE7B7;
+  animation: heroParticleFloat 9s ease-in-out infinite 2s;
+}
+
+.hero-star--5 {
+  width: 3px;
+  height: 3px;
+  top: 18%;
+  left: 76%;
+  color: #38BDF8;
+  animation: heroParticleFloat 7.8s ease-in-out infinite 1.5s;
+}
+
+.hero-star--6 {
+  width: 5px;
+  height: 5px;
+  top: 80%;
+  left: 86%;
+  color: #5FE3C0;
+  animation: heroParticleFloat 8.2s ease-in-out infinite 0.8s;
+}
+
+.hero-star--7 {
+  width: 3.5px;
+  height: 3.5px;
+  top: 42%;
+  left: 34%;
+  color: #FFFFFF;
+  animation: heroParticleFloat 6.8s ease-in-out infinite 2.5s;
+}
+
+.hero-star--8 {
+  width: 4px;
+  height: 4px;
+  top: 16%;
+  left: 62%;
+  color: #FBBF24;
+  animation: heroParticleFloat 7.4s ease-in-out infinite 1.8s;
+}
+
+.hero-star--9 {
+  width: 3px;
+  height: 3px;
+  top: 56%;
+  left: 92%;
+  color: #A7F3D0;
+  animation: heroParticleFloat 8s ease-in-out infinite 3s;
+}
+
+@keyframes heroParticleFloat {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.85);
+    opacity: 0.2;
+  }
+  30% {
+    opacity: 0.95;
+    transform: translateY(-14px) translateX(6px) scale(1.2);
+  }
+  60% {
+    opacity: 0.55;
+    transform: translateY(-26px) translateX(-4px) scale(1);
+  }
+  100% {
+    transform: translateY(-42px) translateX(8px) scale(0.8);
+    opacity: 0.15;
+  }
 }
 
 .figma-hero__inner {
   position: relative;
   width: 100%;
+  max-width: 1360px;
+  margin: 0 auto;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 clamp(24px, 4vw, 56px);
+  padding: 0 clamp(64px, 5.2vw, 84px);
   z-index: 2;
   box-sizing: border-box;
 }
 
 /* Left Content Column */
 .figma-hero__content {
-  flex: 0 0 44%;
-  max-width: 530px;
+  flex: 0 0 46%;
+  max-width: 520px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -248,7 +457,7 @@
 
 /* Right Showcase Column */
 .figma-hero__showcase {
-  flex: 0 0 53%;
+  flex: 0 0 auto;
   height: 100%;
   position: relative;
   display: flex;
@@ -279,11 +488,13 @@
   transform: rotate(-6deg) scale(0.94);
   opacity: 0.35;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  animation: heroFlashcardBack 4.2s ease-in-out infinite 0.3s;
 }
 .hero-flashcard-layer--mid {
   transform: rotate(-3deg) scale(0.97);
   opacity: 0.65;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.15);
+  animation: heroFlashcardMid 4.2s ease-in-out infinite 0.15s;
 }
 
 .hero-flashcard {
@@ -294,6 +505,23 @@
   padding: 18px 20px;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.22);
   border: 1px solid rgba(255, 255, 255, 0.8);
+  animation: heroFlashcardFloat 4.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes heroFlashcardFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-7px) rotate(-1.2deg); }
+}
+
+@keyframes heroFlashcardBack {
+  0%, 100% { transform: rotate(-6deg) scale(0.94) translateY(0); }
+  50% { transform: rotate(-7deg) scale(0.94) translateY(-4px); }
+}
+
+@keyframes heroFlashcardMid {
+  0%, 100% { transform: rotate(-3deg) scale(0.97) translateY(0); }
+  50% { transform: rotate(-4deg) scale(0.97) translateY(-5px); }
 }
 
 .hero-flashcard__head {
@@ -368,167 +596,228 @@
   border-radius: 4px;
   font-weight: 700;
   color: #854D0E;
+  animation: heroHighlightPulse 2.5s ease-in-out infinite;
 }
 
-.hero-vocab-floating {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 180px;
-  flex-shrink: 0;
+@keyframes heroHighlightPulse {
+  0%, 100% { background: #FEF08A; }
+  50% { background: #FDE047; box-shadow: 0 0 8px rgba(234, 179, 8, 0.45); }
 }
 
-.hero-float-card {
-  background: #FFFFFF;
-  border-radius: 14px;
-  padding: 10px 14px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-}
-
-.hero-float-card__title {
-  font-size: 12px;
-  font-weight: 700;
-  color: #475569;
-  margin-bottom: 6px;
-}
-
-.hero-float-donut {
+/* ── Hero Mascot Companion & Speech Bubble (Unique to each slide) ── */
+.hero-mascot-companion {
   position: relative;
-  width: 64px;
-  height: 64px;
-  margin: 0 auto;
-}
-
-.hero-float-donut--sm {
-  width: 48px;
-  height: 48px;
-  margin: 0;
-}
-
-.hero-donut-svg {
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.hero-donut-bg {
-  fill: none;
-  stroke: #E2E8F0;
-  stroke-width: 6;
-}
-
-.hero-donut-val {
-  fill: none;
-  stroke-width: 6;
-  stroke-linecap: round;
-}
-
-.hero-donut-val--teal {
-  stroke: #0D9488;
-}
-
-.hero-donut-val--forest {
-  stroke: #059669;
-}
-
-.hero-float-donut__label {
-  position: absolute;
-  inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
+  flex-shrink: 0;
+  width: 220px;
+  z-index: 5;
 }
 
-.hero-float-donut__label strong {
-  font-size: 13px;
-  font-weight: 800;
-  color: #0F172A;
-  line-height: 1.1;
-}
-
-.hero-float-donut__label span {
-  font-size: 10px;
-  color: #64748B;
-}
-
-.hero-mastery-wrap {
+.hero-mascot-media {
+  position: relative;
+  width: 175px;
+  height: 175px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: center;
 }
 
-.hero-mastery-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  font-size: 11px;
-  color: #475569;
-  font-weight: 600;
+.hero-mascot-video,
+.hero-mascot-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.35));
+  animation: luffyHeroHover 4s ease-in-out infinite;
+  transform-origin: center bottom;
+  user-select: none;
+  display: block;
+  pointer-events: none;
 }
 
-.hero-m-legend-item {
+.hero-mascot-media--journey .hero-mascot-video,
+.hero-mascot-media--journey .hero-mascot-img {
+  animation: luffyCelebrate 3.5s ease-in-out infinite;
+}
+
+.hero-mascot-media--writing .hero-mascot-video,
+.hero-mascot-media--writing .hero-mascot-img {
+  animation: luffyWritingTutor 4.2s ease-in-out infinite;
+}
+
+@keyframes luffyHeroHover {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(-1.5deg);
+  }
+}
+
+@keyframes luffyCelebrate {
+  0%, 100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+  30% {
+    transform: translateY(-9px) scale(1.04) rotate(2deg);
+  }
+  70% {
+    transform: translateY(-4px) scale(1.02) rotate(-2deg);
+  }
+}
+
+@keyframes luffyWritingTutor {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-7px) rotate(1.8deg);
+  }
+}
+
+/* Mascot Speech Bubble */
+.hero-mascot-bubble {
+  position: relative;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 10px 14px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+  border: 1.5px solid rgba(255, 255, 255, 0.95);
+  margin-bottom: 6px;
+  width: 100%;
+  max-width: 220px;
+  box-sizing: border-box;
+  animation: heroBubbleHover 3.8s ease-in-out infinite 0.2s;
+  will-change: transform;
+}
+
+.hero-mascot-bubble--ai {
+  border-color: rgba(61, 203, 177, 0.5);
+  box-shadow: 0 10px 28px rgba(13, 148, 136, 0.18);
+}
+
+.hero-mascot-bubble::after {
+  content: '';
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid rgba(255, 255, 255, 0.96);
+}
+
+@keyframes heroBubbleHover {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+.hero-mascot-bubble__name {
   display: flex;
   align-items: center;
   gap: 5px;
-}
-
-.hero-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-.hero-dot--yellow { background: #EAB308; }
-.hero-dot--mint { background: #10B981; }
-.hero-dot--forest { background: #065F46; }
-
-.hero-float-card--review {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-}
-
-.hero-review-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: #ECFDF5;
-  color: #059669;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.hero-review-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.hero-review-sub {
   font-size: 11px;
-  color: #64748B;
-  line-height: 1.2;
-}
-
-.hero-review-val {
-  font-size: 13.5px;
   font-weight: 800;
   color: #0F172A;
+  margin-bottom: 3px;
+  letter-spacing: -0.01em;
 }
 
-/* ── Showcase Slide 1: Laptop Dashboard & Stats ── */
+.hero-mascot-verified {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #3B82F6;
+  color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.hero-mascot-bubble__text {
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: #334155;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Mascot Badges */
+.hero-mascot-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+  font-size: 11px;
+  font-weight: 700;
+  color: #0F172A;
+  margin-top: 6px;
+  white-space: nowrap;
+}
+
+.hero-mascot-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.hero-mascot-badge--fire {
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+  animation: heroBadgeGlow 2.5s ease-in-out infinite;
+}
+
+.hero-mascot-badge--trophy {
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.hero-mascot-badge--srs {
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+.hero-mascot-badge--score {
+  border: 1px solid rgba(16, 185, 129, 0.35);
+}
+
+@keyframes heroBadgeGlow {
+  0%, 100% { box-shadow: 0 4px 14px rgba(245, 158, 11, 0.2); }
+  50% { box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4); }
+}
+
+/* ── Showcase Slide 1: Laptop Dashboard & Stats (Animated Motion) ── */
 .figma-hero__showcase--journey {
   gap: 16px;
 }
 
 .hero-laptop {
-  width: 330px;
+  width: 325px;
   flex-shrink: 0;
+}
+
+.figma-hero__showcase--journey .hero-laptop {
+  animation: heroLaptopHover 4.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes heroLaptopHover {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
 }
 
 .hero-laptop__screen {
@@ -597,6 +886,13 @@
   font-size: 16px;
   font-weight: 800;
   color: #0D9488;
+  display: inline-block;
+  animation: heroArrowPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes heroArrowPulse {
+  0%, 100% { transform: translateX(0); opacity: 0.65; }
+  50% { transform: translateX(5px); opacity: 1; filter: drop-shadow(0 0 6px #10B981); }
 }
 
 .hero-laptop__bar-container {
@@ -613,8 +909,30 @@
 
 .hero-laptop__fill {
   height: 100%;
-  background: #10B981;
+  background: linear-gradient(90deg, #10B981 0%, #34D399 50%, #10B981 100%);
+  background-size: 200% 100%;
   border-radius: 9999px;
+  position: relative;
+  overflow: hidden;
+  animation: heroBarGlow 3s linear infinite;
+}
+
+.hero-laptop__fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.75) 50%, transparent 100%);
+  animation: heroBarShimmer 2.4s infinite ease-in-out;
+}
+
+@keyframes heroBarGlow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+@keyframes heroBarShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
 }
 
 .hero-laptop__bar-sub {
@@ -679,8 +997,24 @@
   background: #10B981;
   border-radius: 3px 3px 0 0;
   min-height: 4px;
-  transition: height 0.3s ease;
+  transform-origin: bottom center;
 }
+
+.hero-act-col:nth-child(1) .hero-act-bar { animation: barBreathe1 2.8s ease-in-out infinite; }
+.hero-act-col:nth-child(2) .hero-act-bar { animation: barBreathe2 3.2s ease-in-out infinite 0.2s; }
+.hero-act-col:nth-child(3) .hero-act-bar { animation: barBreathe3 2.5s ease-in-out infinite 0.4s; }
+.hero-act-col:nth-child(4) .hero-act-bar { animation: barBreathe4 3.4s ease-in-out infinite 0.1s; }
+.hero-act-col:nth-child(5) .hero-act-bar { animation: barBreathe5 2.7s ease-in-out infinite 0.3s; }
+.hero-act-col:nth-child(6) .hero-act-bar { animation: barBreathe6 3.0s ease-in-out infinite 0.5s; }
+.hero-act-col:nth-child(7) .hero-act-bar { animation: barBreathe7 2.4s ease-in-out infinite 0.2s; }
+
+@keyframes barBreathe1 { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.22); } }
+@keyframes barBreathe2 { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.28); } }
+@keyframes barBreathe3 { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.08); filter: drop-shadow(0 0 3px #10B981); } }
+@keyframes barBreathe4 { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.35); } }
+@keyframes barBreathe5 { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.18); } }
+@keyframes barBreathe6 { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.32); } }
+@keyframes barBreathe7 { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.12); filter: drop-shadow(0 0 3px #10B981); } }
 
 .hero-act-col span {
   font-size: 9px;
@@ -688,65 +1022,14 @@
   font-weight: 600;
 }
 
-.hero-journey-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 175px;
-  flex-shrink: 0;
-}
-
-.hero-j-card {
-  background: #FFFFFF;
-  border-radius: 14px;
-  padding: 10px 12px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.16);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.hero-j-card__icon {
-  font-size: 18px;
-  flex-shrink: 0;
-}
-
-.hero-j-card__info {
-  flex: 1;
-}
-.hero-j-card__info strong {
-  display: block;
-  font-size: 13px;
-  font-weight: 800;
-  color: #0F172A;
-  line-height: 1.15;
-}
-.hero-j-card__info span {
-  font-size: 10px;
-  color: #64748B;
-}
-
-.hero-j-card__bars {
-  display: flex;
-  align-items: flex-end;
-  gap: 2px;
-  height: 22px;
-  width: 22px;
-}
-.hero-j-card__bars span {
-  flex: 1;
-  background: #10B981;
-  border-radius: 1px;
-}
-
-.hero-j-card__wave {
-  width: 38px;
-  height: 18px;
-}
-
 /* ── Showcase Slide 2: AI Writing Editor & Feedback ── */
 .figma-hero__showcase--writing {
   gap: 16px;
+}
+
+.figma-hero__showcase--writing .hero-laptop {
+  animation: heroLaptopHover 4.5s ease-in-out infinite;
+  will-change: transform;
 }
 
 .hero-editor-bar {
@@ -789,6 +1072,19 @@
   background: #FEE2E2;
   padding: 0 2px;
   border-radius: 2px;
+  animation: heroErrPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes heroErrPulse {
+  0%, 100% {
+    background: #FEE2E2;
+    text-decoration-color: #DC2626;
+  }
+  50% {
+    background: #FECACA;
+    text-decoration-color: #B91C1C;
+    box-shadow: 0 0 8px rgba(220, 38, 38, 0.45);
+  }
 }
 
 .hero-hl {
@@ -805,6 +1101,13 @@
   padding: 8px 10px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
   margin-top: 6px;
+  animation: heroGrammarBoxFloat 3.2s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes heroGrammarBoxFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
 }
 
 .hero-grammar-box__head {
@@ -849,124 +1152,12 @@
   font-size: 11px;
   font-weight: 700;
   cursor: pointer;
+  animation: heroGrammarBtnGlow 2.2s ease-in-out infinite;
 }
 
-.hero-writing-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 185px;
-  flex-shrink: 0;
-}
-
-.hero-score-card {
-  background: #FFFFFF;
-  border-radius: 14px;
-  padding: 10px 12px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
-}
-
-.hero-score-card__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 11px;
-  font-weight: 700;
-  color: #334155;
-  margin-bottom: 6px;
-}
-
-.hero-score-badge-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
-}
-
-.hero-score-donut {
-  position: relative;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.hero-score-donut span {
-  position: absolute;
-  font-size: 13px;
-  font-weight: 800;
-  color: #0F172A;
-}
-
-.hero-score-rating {
-  display: block;
-  font-size: 13px;
-  font-weight: 800;
-  color: #059669;
-  line-height: 1.1;
-}
-
-.hero-score-level {
-  font-size: 10px;
-  color: #64748B;
-}
-
-.hero-score-bars {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.hero-s-bar-item {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 2px;
-  font-size: 9.5px;
-  color: #475569;
-}
-.hero-s-bar-item strong {
-  font-weight: 700;
-  color: #0F172A;
-}
-.hero-s-track {
-  grid-column: 1 / -1;
-  height: 4px;
-  background: #F1F5F9;
-  border-radius: 9999px;
-  overflow: hidden;
-}
-.hero-s-track div {
-  height: 100%;
-  background: #10B981;
-  border-radius: 9999px;
-}
-
-.hero-sug-card {
-  background: #FFFFFF;
-  border-radius: 14px;
-  padding: 10px 12px;
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.1);
-}
-
-.hero-sug-card__head {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #334155;
-  margin-bottom: 6px;
-}
-
-.hero-sug-card ul {
-  margin: 0;
-  padding-left: 14px;
-  font-size: 10px;
-  color: #475569;
-  line-height: 1.4;
-}
-.hero-sug-card li {
-  margin-bottom: 3px;
+@keyframes heroGrammarBtnGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.5); }
+  50% { box-shadow: 0 0 10px 2px rgba(5, 150, 105, 0.65); }
 }
 
 /* Slider Arrow Controls */
@@ -974,10 +1165,10 @@
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(0, 0, 0, 0.08);
@@ -987,7 +1178,7 @@
   justify-content: center;
   cursor: pointer;
   z-index: 10;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
   transition: all 0.2s ease;
 }
 
@@ -1322,87 +1513,185 @@
   transform: translateX(2px);
 }
 
-/* ── 5. Popular Instructors / Mentors ── */
-.figma-instructors-grid {
+/* ── 5. LexiGrow Feature Showcase Promo Banners ── */
+.figma-section__eyebrow-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.1);
+  color: #2563EB;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.figma-promo-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 22px;
 }
 
-.figma-instructor-card {
+.figma-promo-card {
   position: relative;
-  aspect-ratio: 3 / 4;
   border-radius: 20px;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  background: #FFFFFF;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
   cursor: pointer;
-  transition: transform 0.22s ease;
-  background: #0F172A;
-}
-.figma-instructor-card:hover {
-  transform: translateY(-5px);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+  outline: none;
 }
 
-.figma-instructor-card__img {
+.figma-promo-card:hover,
+.figma-promo-card:focus-visible {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.12);
+  border-color: var(--promo-accent, #3B82F6);
+}
+
+.figma-promo-card:focus-visible {
+  outline: 2px solid var(--promo-accent, #3B82F6);
+  outline-offset: 2px;
+}
+
+/* Media visual area (supports GIF & Animated SVG) */
+.figma-promo-card__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  background: #0B1329;
+  overflow: hidden;
+}
+
+.figma-promo-card__gif {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
   transition: transform 0.4s ease;
 }
-.figma-instructor-card:hover .figma-instructor-card__img {
-  transform: scale(1.04);
+
+.figma-promo-card:hover .figma-promo-card__gif {
+  transform: scale(1.05);
 }
 
-.figma-instructor-card__overlay {
+/* Tag Badge */
+.figma-promo-card__badge {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 24px 18px;
-  background: linear-gradient(to top, rgba(15, 23, 42, 0.92) 0%, rgba(15, 23, 42, 0.4) 65%, transparent 100%);
+  top: 12px;
+  left: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  z-index: 2;
+}
+
+/* Live / Promo Indicator */
+.figma-promo-card__live-indicator {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #FFFFFF;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  z-index: 2;
+}
+
+.figma-promo-card__pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #22C55E;
+  box-shadow: 0 0 6px #22C55E;
+  animation: promoPulseDot 1.6s infinite ease-in-out;
+}
+
+@keyframes promoPulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* Body */
+.figma-promo-card__body {
+  padding: 18px 16px 16px;
   display: flex;
   flex-direction: column;
+  flex-grow: 1;
 }
 
-.figma-instructor-card__name {
-  font-size: 17px;
-  font-weight: 800;
-  color: #FFFFFF;
-  margin: 0 0 4px;
-}
-
-.figma-instructor-card__role {
-  font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.88);
-  margin: 0 0 10px;
+.figma-promo-card__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0F172A;
+  margin: 0 0 8px;
   line-height: 1.35;
 }
 
-.figma-instructor-card__extra {
+.figma-promo-card__desc {
+  font-size: 12.5px;
+  color: #64748B;
+  margin: 0 0 16px;
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+/* Footer */
+.figma-promo-card__footer {
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding-top: 8px;
-  border-top: 1px solid rgba(255, 255, 255, 0.15);
-  font-size: 11.5px;
 }
 
-.figma-instructor-card__specialty {
-  color: #3DCBB1;
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.figma-instructor-card__students {
+.figma-promo-card__metric {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: rgba(255, 255, 255, 0.75);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #475569;
   white-space: nowrap;
+}
+
+.figma-promo-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--promo-accent, #3B82F6);
+  white-space: nowrap;
+  transition: transform 0.2s ease;
+}
+
+.figma-promo-card:hover .figma-promo-card__cta {
+  transform: translateX(3px);
 }
 
 /* ── 6. Newsletter Banner ── */
@@ -1532,13 +1821,27 @@
 }
 
 /* ── Dark Mode Adaptations ── */
-[data-theme='dark'] .figma-course-card {
+[data-theme='dark'] .figma-course-card,
+[data-theme='dark'] .figma-promo-card {
   background: var(--color-surface-container, #1E293B);
   border-color: rgba(255, 255, 255, 0.08);
 }
 
-[data-theme='dark'] .figma-course-card__title {
+[data-theme='dark'] .figma-course-card__title,
+[data-theme='dark'] .figma-promo-card__title {
   color: #F1F5F9;
+}
+
+[data-theme='dark'] .figma-promo-card__desc {
+  color: #94A3B8;
+}
+
+[data-theme='dark'] .figma-promo-card__metric {
+  color: #CBD5E1;
+}
+
+[data-theme='dark'] .figma-promo-card__footer {
+  border-top-color: rgba(255, 255, 255, 0.08);
 }
 
 [data-theme='dark'] .figma-vocab-chip {
@@ -1559,17 +1862,17 @@
 @media (max-width: 1300px) {
   .figma-hero__showcase {
     transform: scale(0.9);
-    transform-origin: right center;
+    transform-origin: center center;
   }
 }
 
 @media (max-width: 1100px) {
   .figma-hero__showcase {
-    transform: scale(0.78);
-    transform-origin: right center;
+    transform: scale(0.8);
+    transform-origin: center center;
   }
   .figma-hero__content {
-    flex: 0 0 50%;
+    flex: 0 1 420px;
   }
 }
 
@@ -1598,7 +1901,8 @@
 
 @media (max-width: 1200px) {
   .figma-card-grid,
-  .figma-instructors-grid {
+  .figma-instructors-grid,
+  .figma-promo-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
   }
@@ -1635,7 +1939,8 @@
     width: 16px;
   }
   .figma-card-grid,
-  .figma-instructors-grid {
+  .figma-instructors-grid,
+  .figma-promo-grid {
     grid-template-columns: 1fr;
   }
   .figma-newsletter-banner {
@@ -1647,5 +1952,41 @@
   }
   .figma-newsletter-banner__submit {
     width: 100%;
+  }
+}
+
+/* ── Accessibility: Reduced Motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .hero-laptop,
+  .hero-j-card,
+  .hero-flashcard,
+  .hero-flashcard-layer,
+  .hero-float-card,
+  .hero-grammar-box,
+  .hero-score-card,
+  .hero-act-bar,
+  .hero-laptop__fill,
+  .hero-laptop__fill::after,
+  .hero-j-card__icon--fire,
+  .hero-j-card__icon--book,
+  .hero-j-card__icon--chart,
+  .hero-j-card__bars span,
+  .hero-j-card__spark svg path,
+  .hero-donut-val,
+  .hero-err--active,
+  .hero-grammar-box__btn,
+  .figma-hero__ambient,
+  .figma-promo-card,
+  .figma-promo-card__pulse-dot,
+  .hero-orb,
+  .hero-star,
+  .hero-mascot-img,
+  .hero-mascot-bubble,
+  .hero-mascot-badge--fire {
+    animation: none !important;
+    transition: none !important;
+  }
+  .hero-shards-video {
+    display: none !important;
   }
 }

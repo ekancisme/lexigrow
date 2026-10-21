@@ -63,6 +63,11 @@
   background: rgba(61, 96, 142, 0.08);
 }
 
+.weekly-comparison__icon-wrapper--tertiary {
+  color: var(--color-tertiary, #7C3AED);
+  background: rgba(124, 58, 237, 0.08);
+}
+
 .weekly-comparison__card-body {
   display: flex;
   align-items: center;

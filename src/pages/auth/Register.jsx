@@ -19,7 +19,8 @@ export default function Register() {
   const [isVerifying, setIsVerifying] = useState(false)
 
   const { register, verifyEmail, loading, loginWithGoogle } = useAuth()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
+  const isVi = language === 'vi'
   const navigate = useNavigate()
 
   async function handleSubmit(e) {
@@ -39,9 +40,9 @@ export default function Register() {
     try {
       const res = await register(formData)
       setVerificationEmail(formData.email)
-      setSuccessMessage(res.message || 'Mã xác thực 6 chữ số đã được gửi tới email của bạn.')
+      setSuccessMessage(res.message || (isVi ? 'Mã xác thực 6 chữ số đã được gửi tới email của bạn.' : 'A 6-digit verification code has been sent to your email.'))
     } catch (err) {
-      setError(err.message || 'Đăng ký không thành công. Vui lòng thử lại.')
+      setError(err.message || (isVi ? 'Đăng ký không thành công. Vui lòng thử lại.' : 'Registration failed. Please try again.'))
     }
   }
 
@@ -54,25 +55,25 @@ export default function Register() {
     try {
       const res = await verifyEmail(verificationEmail, verificationCode)
       if (res && res.pendingApproval) {
-        setSuccessMessage(res.message || 'Xác thực thành công! Tài khoản đang chờ Quản trị viên duyệt.')
+        setSuccessMessage(res.message || (isVi ? 'Xác thực thành công! Tài khoản đang chờ Quản trị viên duyệt.' : 'Verified! Account is pending administrator approval.'))
         setTimeout(() => {
           navigate('/login')
         }, 4000)
         return
       }
 
-      const user = res
-      if (user && user.role === 'student') {
+      const loggedUser = res
+      if (loggedUser && loggedUser.role === 'student') {
         navigate('/student/onboarding')
-      } else if (user && user.role === 'teacher') {
+      } else if (loggedUser && loggedUser.role === 'teacher') {
         navigate('/teacher/dashboard')
-      } else if (user && user.role === 'parent') {
+      } else if (loggedUser && loggedUser.role === 'parent') {
         navigate('/parent/dashboard')
       } else {
         navigate('/student/dashboard')
       }
     } catch (err) {
-      setError(err.message || 'Mã xác thực không chính xác hoặc đã hết hạn.')
+      setError(err.message || (isVi ? 'Mã xác thực không chính xác hoặc đã hết hạn.' : 'Invalid or expired verification code.'))
     } finally {
       setIsVerifying(false)
     }
@@ -83,9 +84,9 @@ export default function Register() {
     setSuccessMessage('')
     try {
       const res = await api.post('/auth/resend-verify', { email: verificationEmail })
-      setSuccessMessage(res.message || 'Đã gửi lại mã xác thực tới email của bạn!')
-    } catch (err) {
-      setError(err.message || 'Không thể gửi lại mã xác thực.')
+      setSuccessMessage(res.message || (isVi ? 'Đã gửi lại mã xác thực tới email của bạn!' : 'Verification code resent to your email!'))
+    } catch {
+      setError(isVi ? 'Không thể gửi lại mã xác thực.' : 'Failed to resend verification code.')
     }
   }
 
@@ -94,7 +95,7 @@ export default function Register() {
     setError('')
 
     if (!window.google?.accounts?.oauth2) {
-      setError('Google Sign-In is not available. Please refresh and try again.')
+      setError(isVi ? 'Dịch vụ Google Sign-In chưa sẵn sàng. Vui lòng tải lại trang và thử lại.' : 'Google Sign-In is not available. Please refresh and try again.')
       return
     }
 
@@ -103,7 +104,7 @@ export default function Register() {
       const config = await response.json()
 
       if (!config.googleClientId) {
-        setError('Google Sign-In is not configured on the server.')
+        setError(isVi ? 'Hệ thống chưa cấu hình Google OAuth.' : 'Google Sign-In is not configured on the server.')
         return
       }
 
@@ -111,14 +112,14 @@ export default function Register() {
         client_id: config.googleClientId,
         scope: 'openid email profile',
         ux_mode: 'popup',
-        callback: async (response) => {
-          if (response.error) {
-            setError('Google Sign-In was cancelled or failed.')
+        callback: async (res) => {
+          if (res.error) {
+            setError(isVi ? 'Đăng nhập Google bị hủy hoặc thất bại.' : 'Google Sign-In was cancelled or failed.')
             return
           }
           try {
             const loggedInUser = await loginWithGoogle({
-              code: response.code,
+              code: res.code,
               role,
             })
             if (loggedInUser.role === 'teacher') {
@@ -135,14 +136,14 @@ export default function Register() {
               navigate('/student/dashboard')
             }
           } catch (err) {
-            setError(err.message || 'Google authentication failed')
+            setError(err.message || (isVi ? 'Xác thực Google thất bại' : 'Google authentication failed'))
           }
         },
       })
 
       client.requestCode()
-    } catch (err) {
-      setError('Failed to initialize Google Sign-In.')
+    } catch {
+      setError(isVi ? 'Khởi tạo Google Sign-In thất bại.' : 'Failed to initialize Google Sign-In.')
     }
   }
 
@@ -154,7 +155,7 @@ export default function Register() {
 
       <div className="auth-card" role="dialog" aria-modal="true" aria-labelledby="auth-register-title">
         {/* Close Button linking back to home */}
-        <Link to="/student/home" className="auth-card__close-btn" aria-label="Close" title="Quay lại Trang chủ">
+        <Link to="/student/home" className="auth-card__close-btn" aria-label="Close" title={isVi ? 'Quay lại Trang chủ' : 'Back to Home'}>
           ✕
         </Link>
 
@@ -166,16 +167,16 @@ export default function Register() {
             className="auth-card__visual-img"
           />
           <div className="auth-card__visual-overlay">
-            <div className="auth-card__mentor-badge">
-              <img
-                src="/assets/editorial/instructors/sarasvati.png"
-                alt="Sarah Jenkins"
-                className="auth-card__mentor-avatar"
-              />
-              <div className="auth-card__mentor-info">
-                <span className="auth-card__mentor-name">Sarah Jenkins</span>
-                <span className="auth-card__mentor-role">
-                  {t('auth.taglineRegister', 'Senior IELTS Academic Coach')}
+            <div className="auth-card__feature-badge">
+              <div className="auth-card__feature-icon">
+                <span className="material-symbols-outlined" style={{ fontSize: 22 }}>edit_note</span>
+              </div>
+              <div className="auth-card__feature-info">
+                <span className="auth-card__feature-title">Active Vocabulary Mastery</span>
+                <span className="auth-card__feature-subtitle">
+                  {isVi
+                    ? 'Từ vựng qua ngữ cảnh · Chuỗi học tập vi mô 10 phút'
+                    : 'Contextual Vocab · 10-Minute Micro-Learning Loop'}
                 </span>
               </div>
             </div>
@@ -194,11 +195,11 @@ export default function Register() {
               <span className="auth-card__brand-name">LexiGrow</span>
             </Link>
             <h1 id="auth-register-title" className="auth-card__page-title">
-              {verificationEmail ? t('auth.verifyTitle', 'Xác thực Email') : t('auth.registerTitle', 'Tạo tài khoản mới')}
+              {verificationEmail ? (isVi ? 'Xác thực Email' : 'Verify Email') : t('auth.registerTitle', 'Tạo tài khoản mới')}
             </h1>
             <p className="auth-card__subtitle">
               {verificationEmail
-                ? t('auth.verifySubtitle', 'Nhập mã gồm 6 chữ số đã được gửi tới email của bạn để kích hoạt tài khoản.')
+                ? (isVi ? 'Nhập mã gồm 6 chữ số đã được gửi tới email của bạn để kích hoạt tài khoản.' : 'Enter the 6-digit code sent to your email to activate your account.')
                 : t('auth.registerSubtitle', 'Gia nhập cộng đồng người học LexiGrow và bắt đầu lộ trình làm chủ tiếng Anh.')}
             </p>
           </div>
@@ -222,7 +223,7 @@ export default function Register() {
             <form onSubmit={handleVerifySubmit} className="auth-card__form">
               <div className="auth-card__field">
                 <label className="auth-card__label" htmlFor="verify-pin">
-                  {t('auth.verificationCode', 'Mã xác thực 6 chữ số')}
+                  {isVi ? 'Mã xác thực 6 chữ số' : '6-Digit Verification Code'}
                 </label>
                 <div className="auth-card__input-wrap">
                   <span className="material-symbols-outlined auth-card__input-icon">pin</span>
@@ -246,10 +247,10 @@ export default function Register() {
                     <span className="material-symbols-outlined animate-spin" aria-hidden="true" style={{ fontSize: 18 }}>
                       progress_activity
                     </span>
-                    <span>{t('auth.loadingVerify', 'Đang xác thực…')}</span>
+                    <span>{isVi ? 'Đang xác thực…' : 'Verifying…'}</span>
                   </>
                 ) : (
-                  <span>{t('auth.verifyBtn', 'Xác nhận & Kích hoạt')}</span>
+                  <span>{isVi ? 'Xác nhận & Kích hoạt' : 'Verify & Activate'}</span>
                 )}
               </button>
 
@@ -267,7 +268,7 @@ export default function Register() {
                     padding: 0,
                   }}
                 >
-                  {t('auth.resendCode', 'Gửi lại mã')}
+                  {isVi ? 'Gửi lại mã' : 'Resend code'}
                 </button>
                 <button
                   type="button"
@@ -281,7 +282,7 @@ export default function Register() {
                     padding: 0,
                   }}
                 >
-                  {t('auth.backToRegister', 'Quay lại Đăng ký')}
+                  {isVi ? 'Quay lại Đăng ký' : 'Back to Register'}
                 </button>
               </div>
             </form>
@@ -317,113 +318,119 @@ export default function Register() {
               </div>
 
               <form onSubmit={handleSubmit} className="auth-card__form">
-                {/* Full Name */}
-                <div className="auth-card__field">
-                  <label htmlFor="reg-name" className="auth-card__label">
-                    {t('auth.fullName', 'Họ và tên')}
-                  </label>
-                  <div className="auth-card__input-wrap">
-                    <span className="material-symbols-outlined auth-card__input-icon">person</span>
-                    <input
-                      id="reg-name"
-                      type="text"
-                      className="auth-card__input"
-                      placeholder="Nguyễn Văn A"
-                      autoComplete="name"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Email Address */}
-                <div className="auth-card__field">
-                  <label htmlFor="reg-email" className="auth-card__label">
-                    {t('auth.emailLabel', 'Email Address')}
-                  </label>
-                  <div className="auth-card__input-wrap">
-                    <span className="material-symbols-outlined auth-card__input-icon">mail</span>
-                    <input
-                      id="reg-email"
-                      type="email"
-                      className="auth-card__input"
-                      placeholder="name@example.com"
-                      autoComplete="email"
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Password */}
-                <div className="auth-card__field">
-                  <label htmlFor="reg-password" className="auth-card__label">
-                    {t('auth.passwordLabel', 'Mật khẩu')}
-                  </label>
-                  <div className="auth-card__input-wrap">
-                    <span className="material-symbols-outlined auth-card__input-icon">lock</span>
-                    <input
-                      id="reg-password"
-                      type={showPassword ? 'text' : 'password'}
-                      className="auth-card__input auth-card__input--password"
-                      placeholder="Ít nhất 6 ký tự"
-                      autoComplete="new-password"
-                      required
-                      minLength={6}
-                    />
-                    <button
-                      type="button"
-                      className="auth-card__toggle-pw"
-                      onClick={() => setShowPassword(!showPassword)}
-                      aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: 20 }}>
-                        {showPassword ? 'visibility_off' : 'visibility'}
-                      </span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Student: CEFR Level */}
-                {role === 'student' && (
+                <div className="auth-card__grid-2">
+                  {/* Full Name */}
                   <div className="auth-card__field">
-                    <label htmlFor="reg-level" className="auth-card__label">
-                      {t('auth.englishLevel', 'Trình độ tiếng Anh hiện tại')}
+                    <label htmlFor="reg-name" className="auth-card__label">
+                      {t('auth.fullName', 'Họ và tên')}
                     </label>
                     <div className="auth-card__input-wrap">
-                      <span className="material-symbols-outlined auth-card__input-icon">bar_chart</span>
-                      <select id="reg-level" className="auth-card__input auth-card__select" defaultValue="A2">
-                        <option value="A1">A1 - Căn bản (Beginner)</option>
-                        <option value="A2">A2 - Sơ cấp (Elementary)</option>
-                        <option value="B1">B1 - Trung cấp (Intermediate)</option>
-                        <option value="B2">B2 - Trung cao cấp (Upper Intermediate)</option>
-                        <option value="C1">C1 - Cao cấp (Advanced)</option>
-                      </select>
-                    </div>
-                  </div>
-                )}
-
-                {/* Teacher: Institution */}
-                {role === 'teacher' && (
-                  <div className="auth-card__field">
-                    <label htmlFor="reg-institution" className="auth-card__label">
-                      {t('auth.institution', 'Trường / Trung tâm đào tạo')}
-                    </label>
-                    <div className="auth-card__input-wrap">
-                      <span className="material-symbols-outlined auth-card__input-icon">apartment</span>
+                      <span className="material-symbols-outlined auth-card__input-icon">person</span>
                       <input
-                        id="reg-institution"
+                        id="reg-name"
                         type="text"
                         className="auth-card__input"
-                        placeholder="Tên trường học hoặc tổ chức giáo dục"
+                        placeholder="Nguyễn Văn A"
+                        autoComplete="name"
+                        required
                       />
                     </div>
                   </div>
-                )}
+
+                  {/* Email Address */}
+                  <div className="auth-card__field">
+                    <label htmlFor="reg-email" className="auth-card__label">
+                      {t('auth.emailLabel', 'Email Address')}
+                    </label>
+                    <div className="auth-card__input-wrap">
+                      <span className="material-symbols-outlined auth-card__input-icon">mail</span>
+                      <input
+                        id="reg-email"
+                        type="email"
+                        className="auth-card__input"
+                        placeholder="name@example.com"
+                        autoComplete="email"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Password */}
+                  <div className={`auth-card__field ${role === 'parent' ? 'auth-card__field--full' : ''}`}>
+                    <label htmlFor="reg-password" className="auth-card__label">
+                      {t('auth.passwordLabel', 'Mật khẩu')}
+                    </label>
+                    <div className="auth-card__input-wrap">
+                      <span className="material-symbols-outlined auth-card__input-icon">lock</span>
+                      <input
+                        id="reg-password"
+                        type={showPassword ? 'text' : 'password'}
+                        className="auth-card__input auth-card__input--password"
+                        placeholder="Ít nhất 6 ký tự"
+                        autoComplete="new-password"
+                        required
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        className="auth-card__toggle-pw"
+                        onClick={() => setShowPassword(!showPassword)}
+                        aria-label={showPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: 18 }}>
+                          {showPassword ? 'visibility_off' : 'visibility'}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Student: CEFR Level */}
+                  {role === 'student' && (
+                    <div className="auth-card__field">
+                      <label htmlFor="reg-level" className="auth-card__label">
+                        {isVi ? 'Trình độ tiếng Anh' : 'English Level'}
+                      </label>
+                      <div className="auth-card__input-wrap">
+                        <span className="material-symbols-outlined auth-card__input-icon">bar_chart</span>
+                        <select id="reg-level" className="auth-card__input auth-card__select" defaultValue="A2">
+                          <option value="A1">A1 - Căn bản</option>
+                          <option value="A2">A2 - Sơ cấp</option>
+                          <option value="B1">B1 - Trung cấp</option>
+                          <option value="B2">B2 - Trung cao</option>
+                          <option value="C1">C1 - Cao cấp</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Teacher: Institution */}
+                  {role === 'teacher' && (
+                    <div className="auth-card__field">
+                      <label htmlFor="reg-institution" className="auth-card__label">
+                        {isVi ? 'Trường / Tổ chức' : 'School / Institution'}
+                      </label>
+                      <div className="auth-card__input-wrap">
+                        <span className="material-symbols-outlined auth-card__input-icon">apartment</span>
+                        <input
+                          id="reg-institution"
+                          type="text"
+                          className="auth-card__input"
+                          placeholder={isVi ? 'Trường hoặc trung tâm' : 'School name'}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
 
                 {/* Terms agreement */}
                 <label className="auth-card__terms">
                   <input type="checkbox" className="auth-card__checkbox" required />
                   <span>
-                    Tôi đồng ý với <a href="#terms">Điều khoản sử dụng</a> và <a href="#privacy">Chính sách bảo mật</a> của LexiGrow.
+                    {isVi ? (
+                      <>Tôi đồng ý với <a href="#terms">Điều khoản sử dụng</a> và <a href="#privacy">Chính sách bảo mật</a> của LexiGrow.</>
+                    ) : (
+                      <>I agree to LexiGrow&apos;s <a href="#terms">Terms</a> and <a href="#privacy">Privacy Policy</a>.</>
+                    )}
                   </span>
                 </label>
 
@@ -434,7 +441,7 @@ export default function Register() {
                       <span className="material-symbols-outlined animate-spin" aria-hidden="true" style={{ fontSize: 18 }}>
                         progress_activity
                       </span>
-                      <span>{t('auth.loadingRegister', 'Đang tạo tài khoản…')}</span>
+                      <span>{isVi ? 'Đang tạo tài khoản…' : 'Creating account…'}</span>
                     </>
                   ) : (
                     <span>{t('auth.registerBtn', 'Tạo tài khoản')}</span>
@@ -443,14 +450,15 @@ export default function Register() {
 
                 {/* Divider */}
                 <div className="auth-card__divider">
-                  <span>{t('auth.orYouCan', 'hoặc đăng ký bằng')}</span>
+                  <span>{isVi ? 'hoặc đăng ký bằng' : 'or register with'}</span>
                 </div>
 
-                {/* Google OAuth Button */}
+                {/* Google OAuth Button (Only Google as requested) */}
                 <button
                   type="button"
                   className="auth-card__google-btn"
                   onClick={handleGoogleSignIn}
+                  disabled={loading}
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
@@ -463,9 +471,9 @@ export default function Register() {
 
                 {/* Sign In CTA */}
                 <div className="auth-card__footer-prompt">
-                  <span>{t('auth.alreadyHaveAccount', 'Đã có tài khoản?')}{' '}</span>
+                  <span>{isVi ? 'Đã có tài khoản?' : 'Already have an account?'}{' '}</span>
                   <Link to="/login" className="auth-card__switch-link">
-                    {t('auth.loginBtn', 'Đăng nhập ngay')}
+                    {isVi ? 'Đăng nhập ngay' : 'Sign in'}
                   </Link>
                 </div>
               </form>
@@ -478,13 +486,13 @@ export default function Register() {
         <AuthLoadingOverlay
           title={
             isVerifying
-              ? t('auth.loadingVerify', 'Đang xác thực tài khoản…')
-              : t('auth.loadingRegister', 'Đang tạo tài khoản…')
+              ? (isVi ? 'Đang xác thực tài khoản…' : 'Verifying account…')
+              : (isVi ? 'Đang tạo tài khoản…' : 'Creating account…')
           }
           description={
             isVerifying
-              ? t('auth.loadingVerifyDetail', 'Hệ thống đang kiểm tra mã xác thực của bạn.')
-              : t('auth.loadingRegisterDetail', 'Đang khởi tạo hồ sơ học tập và chuẩn bị môi trường cho bạn.')
+              ? (isVi ? 'Hệ thống đang kiểm tra mã xác thực của bạn.' : 'Checking your verification code.')
+              : (isVi ? 'Đang khởi tạo hồ sơ học tập và chuẩn bị môi trường cho bạn.' : 'Setting up your profile and environment.')
           }
         />
       )}

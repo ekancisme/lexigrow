@@ -182,10 +182,6 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
                   </span>
                   <span>{theme === 'light' ? t('header.themeDark') : t('header.themeLight')}</span>
                 </button>
-                <div className="topnav__dropdown-lang-row">
-                  <span className="material-symbols-outlined" aria-hidden="true">translate</span>
-                  <LanguageSwitcher />
-                </div>
                 <button
                   type="button"
                   className="header-navigation__link topnav__logout"

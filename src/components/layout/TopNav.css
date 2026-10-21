@@ -379,6 +379,15 @@
   color: #64748B;
 }
 
+.topnav__logout {
+  border-top: 1px solid var(--color-outline-variant, #E5E7EB);
+  margin-top: 4px;
+  padding-top: 10px;
+}
+[data-theme="dark"] .topnav__logout {
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
 .topnav__dropdown-lang-row {
   display: flex;
   align-items: center;

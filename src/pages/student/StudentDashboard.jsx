@@ -7,6 +7,7 @@ import api from '../../services/api.js'
 import StatCard from '../../components/common/StatCard'
 import AnimatedCounter from '../../components/common/AnimatedCounter'
 import CircularProgress from '../../components/common/CircularProgress'
+import WeeklyComparisonWidget from '../../components/common/WeeklyComparisonWidget.jsx'
 import VocabGrowthChart from '../../components/charts/VocabGrowthChart'
 import Card, { CardHeader, CardTitle } from '../../components/common/Card'
 import Button from '../../components/common/Button'
@@ -43,7 +44,7 @@ const INITIAL_TOPICS = [
     id: 't1',
     title: 'Academic Writing & Research',
     category: 'Academic Writing',
-    instructor: 'LexiGrow Studio',
+    instructor: 'LexiGrow AI Studio',
     level: 'B2',
     lessonsTotal: 5,
     lessonsCompleted: 3,
@@ -52,7 +53,7 @@ const INITIAL_TOPICS = [
     reviewsCount: '2.4K',
     wordsCount: 15,
     slug: 'academic',
-    thumbnail: '/assets/editorial/courses/swift-dev.png',
+    thumbnail: '/assets/lexigrow/writing-practice.webp',
     link: '/student/writing?set=academic',
     desc: 'Luyện tập cấu trúc bài nghiên cứu, lập luận phản biện và cách trích dẫn ngữ cảnh học thuật chuẩn CEFR.',
   },
@@ -60,7 +61,7 @@ const INITIAL_TOPICS = [
     id: 't2',
     title: 'Technology & Digital Innovation',
     category: 'Technology',
-    instructor: 'LexiGrow Studio',
+    instructor: 'LexiGrow AI Studio',
     level: 'B1',
     lessonsTotal: 4,
     lessonsCompleted: 2,
@@ -69,7 +70,7 @@ const INITIAL_TOPICS = [
     reviewsCount: '1.8K',
     wordsCount: 12,
     slug: 'technology',
-    thumbnail: '/assets/editorial/courses/mobile-dev.png',
+    thumbnail: '/assets/editorial/topics/technology.webp',
     link: '/student/writing?set=technology',
     desc: 'Vốn từ chuyển đổi số, tự động hoá, trí tuệ nhân tạo và kỹ năng làm việc nhóm từ xa.',
   },
@@ -77,7 +78,7 @@ const INITIAL_TOPICS = [
     id: 't3',
     title: 'Daily Life & Routines',
     category: 'Daily Communication',
-    instructor: 'LexiGrow Studio',
+    instructor: 'LexiGrow AI Studio',
     level: 'A2',
     lessonsTotal: 4,
     lessonsCompleted: 4,
@@ -86,7 +87,7 @@ const INITIAL_TOPICS = [
     reviewsCount: '3.1K',
     wordsCount: 10,
     slug: 'daily-life',
-    thumbnail: '/assets/editorial/courses/desk-notes.png',
+    thumbnail: '/assets/editorial/topics/daily-life.webp',
     link: '/student/writing?set=daily-life',
     desc: 'Diễn đạt các thói quen hàng ngày, lịch trình công việc và phương tiện di chuyển đời thường.',
   },
@@ -94,7 +95,7 @@ const INITIAL_TOPICS = [
     id: 't4',
     title: 'Environment & Climate Change',
     category: 'Environment',
-    instructor: 'LexiGrow Studio',
+    instructor: 'LexiGrow AI Studio',
     level: 'B2',
     lessonsTotal: 5,
     lessonsCompleted: 1,
@@ -103,7 +104,7 @@ const INITIAL_TOPICS = [
     reviewsCount: '1.5K',
     wordsCount: 14,
     slug: 'environment',
-    thumbnail: '/assets/editorial/courses/uber-clone.png',
+    thumbnail: '/assets/editorial/topics/environment.webp',
     link: '/student/writing?set=environment',
     desc: 'Chủ đề sinh thái, giảm thiểu rác thải nhựa và phát triển bền vững cho thế hệ tương lai.',
   },
@@ -111,7 +112,7 @@ const INITIAL_TOPICS = [
     id: 't5',
     title: 'Business English & Negotiations',
     category: 'Business',
-    instructor: 'LexiGrow Studio',
+    instructor: 'LexiGrow AI Studio',
     level: 'C1',
     lessonsTotal: 6,
     lessonsCompleted: 6,
@@ -120,7 +121,7 @@ const INITIAL_TOPICS = [
     reviewsCount: '2.9K',
     wordsCount: 18,
     slug: 'business',
-    thumbnail: '/assets/editorial/courses/vue-course.png',
+    thumbnail: '/assets/lexigrow/study-group.webp',
     link: '/student/writing?set=business',
     desc: 'Thuật ngữ kinh doanh quốc tế, kỹ năng thương thảo hợp đồng và thư tín thương mại chuyên nghiệp.',
   },
@@ -128,7 +129,7 @@ const INITIAL_TOPICS = [
     id: 't6',
     title: 'IELTS Task 2: Society & Education',
     category: 'IELTS Writing',
-    instructor: 'LexiGrow Studio',
+    instructor: 'LexiGrow AI Studio',
     level: 'B2',
     lessonsTotal: 6,
     lessonsCompleted: 4,
@@ -137,7 +138,7 @@ const INITIAL_TOPICS = [
     reviewsCount: '4.2K',
     wordsCount: 16,
     slug: 'ielts-argumentative',
-    thumbnail: '/assets/editorial/courses/modern-art.png',
+    thumbnail: '/assets/lexigrow/study-hero.webp',
     link: '/student/writing?set=ielts-argumentative',
     desc: 'Bộ đề thi luận mẫu IELTS Task 2 các chủ đề nóng về bình đẳng xã hội, giáo dục và công nghệ.',
   },
@@ -145,7 +146,7 @@ const INITIAL_TOPICS = [
     id: 't7',
     title: 'Health & Healthcare Systems',
     category: 'Health & Wellness',
-    instructor: 'LexiGrow Studio',
+    instructor: 'LexiGrow AI Studio',
     level: 'B1',
     lessonsTotal: 4,
     lessonsCompleted: 4,
@@ -154,7 +155,7 @@ const INITIAL_TOPICS = [
     reviewsCount: '1.7K',
     wordsCount: 12,
     slug: 'health',
-    thumbnail: '/assets/editorial/courses/ui-design.png',
+    thumbnail: '/assets/editorial/topics/hobbies.webp',
     link: '/student/writing?set=health',
     desc: 'Vốn từ y tế cơ bản, dinh dưỡng khoa học, thói quen rèn luyện thể chất và an sinh xã hội.',
   },
@@ -162,7 +163,7 @@ const INITIAL_TOPICS = [
     id: 't8',
     title: 'Culture, Heritage & Traditions',
     category: 'Culture',
-    instructor: 'LexiGrow Studio',
+    instructor: 'LexiGrow AI Studio',
     level: 'B2',
     lessonsTotal: 5,
     lessonsCompleted: 5,
@@ -171,7 +172,7 @@ const INITIAL_TOPICS = [
     reviewsCount: '1.9K',
     wordsCount: 15,
     slug: 'culture',
-    thumbnail: '/assets/editorial/courses/website-zero.png',
+    thumbnail: '/assets/editorial/topics/auth-study.webp',
     link: '/student/writing?set=culture',
     desc: 'Bảo tồn di sản văn hoá, phong tục tập quán dân tộc và giao lưu văn hoá toàn cầu.',
   },
@@ -193,6 +194,10 @@ export default function StudentDashboard() {
     key: getLearningPathRecommendationCacheKey(user?._id),
     ttlMs: 30 * 60 * 1000,
   })
+  const goalRecsResource = useDashboardResource('/goals/recommendations', 8000, {
+    key: `${getLearningPathRecommendationCacheKey(user?._id)}:goal-recs`,
+    ttlMs: 5 * 60 * 1000,
+  })
 
   const overview = overviewResource.response?.data
   const weeklyGoal = goalsResource.response?.data
@@ -210,16 +215,41 @@ export default function StudentDashboard() {
   const lengthPercentage = lengthGoal && lengthGoal.target > 0 ? Math.min(100, Math.round((lengthGoal.current / lengthGoal.target) * 100)) : 0
   const complexityPercentage = complexityGoal && complexityGoal.target > 0 ? Math.min(100, Math.round((complexityGoal.current / complexityGoal.target) * 100)) : 0
 
-  // Interactive Goal Target setting states
-  const [wordsTargetVal, setWordsTargetVal] = useState(15)
-  const [lengthTargetVal, setLengthTargetVal] = useState(100)
+  // Weekly target draft — full goals list, synced from the goals document
+  const [goalsDraft, setGoalsDraft] = useState([])
   const [savingGoals, setSavingGoals] = useState(false)
   const [goalSaveMessage, setGoalSaveMessage] = useState('')
 
   useEffect(() => {
-    if (wordsGoal?.target) setWordsTargetVal(wordsGoal.target)
-    if (lengthGoal?.target) setLengthTargetVal(lengthGoal.target)
-  }, [wordsGoal?.target, lengthGoal?.target])
+    if (Array.isArray(weeklyGoal?.goals) && weeklyGoal.goals.length) {
+      setGoalsDraft(weeklyGoal.goals.map((g) => ({ ...g, target: Number(g.target) })))
+    }
+  }, [weeklyGoal?._id, weeklyGoal?.goals])
+
+  /** Per-goal slider bounds — same rules as the legacy SetWeeklyGoals page */
+  const goalRangeFor = (label = '') => {
+    if (label.includes('Complexity')) return { min: 1, max: 10, step: 1 }
+    if (label.includes('Length')) return { min: 50, max: 3000, step: 25 }
+    if (label.toLowerCase().includes('essays')) return { min: 1, max: 5, step: 1 }
+    return { min: 5, max: 50, step: 1 } // New Words
+  }
+
+  const localizeGoalLabel = (label = '') => {
+    if (isVi) {
+      if (label === 'New Words') return 'Từ vựng mới'
+      if (label.toLowerCase().includes('essays')) return 'Số bài viết'
+      if (label.includes('Writing Length')) return 'Khối lượng bài viết (từ)'
+      if (label.includes('Complexity')) return 'Điểm độ phức tạp'
+      return label
+    }
+    return label
+  }
+
+  const updateDraftTarget = (label, value) => {
+    setGoalsDraft((prev) =>
+      prev.map((g) => (g.label === label ? { ...g, target: Number(value) } : g)),
+    )
+  }
 
   // State management for tabs & filters
   const [activeTab, setActiveTab] = useState('all') // 'all' | 'weekly-goal' | 'completed' | 'metrics'
@@ -255,11 +285,15 @@ export default function StudentDashboard() {
     setGoalSaveMessage('')
     try {
       const docId = weeklyGoal?._id
-      const payloadGoals = [
-        { label: 'New Words', current: wordsGoal?.current || 0, target: wordsTargetVal },
-        { label: 'Writing Volume (Length)', current: lengthGoal?.current || 0, target: lengthTargetVal },
-        { label: 'Target Level (Complexity)', current: complexityGoal?.current || 1, target: complexityGoal?.target || 3 },
-      ]
+      // Send the full goals list with EXACT server labels so progress tracking stays intact
+      const payloadGoals = (goalsDraft.length
+        ? goalsDraft
+        : weeklyGoal?.goals || []
+      ).map((g) => ({
+        label: g.label,
+        current: g.current ?? 0,
+        target: Number(g.target),
+      }))
       if (docId) {
         await api.put(`/goals/${docId}`, { goals: payloadGoals })
       } else {
@@ -275,18 +309,79 @@ export default function StudentDashboard() {
     }
   }
 
+  // ── AI Coach goal plan: fetch real recommendations & one-click apply ──
+  const [applyingPlan, setApplyingPlan] = useState(false)
+  const goalPlan = goalRecsResource.response?.data?.[0] || null
+
+  const handleApplyAIPlan = async () => {
+    const plan = goalPlan?.recommendation?.goals
+    if (!plan?.length) return
+    setApplyingPlan(true)
+    setGoalSaveMessage('')
+    try {
+      const recommendation = { ...(goalPlan.recommendation || {}), isAccepted: true }
+      const docId = weeklyGoal?._id
+      if (docId) {
+        await api.put(`/goals/${docId}`, { goals: plan, recommendation })
+      } else {
+        await api.post('/goals', { goals: plan, recommendation })
+      }
+      // Re-pull the goals doc so sliders & progress rings update instantly
+      goalsResource.retry()
+      setGoalSaveMessage(
+        isVi
+          ? 'Đã áp dụng kế hoạch AI cho mục tiêu tuần! ✨'
+          : 'AI plan applied to your weekly goals! ✨',
+      )
+      setTimeout(() => setGoalSaveMessage(''), 3500)
+    } catch {
+      setGoalSaveMessage(isVi ? 'Không áp dụng được kế hoạch AI' : 'Failed to apply AI plan')
+      setTimeout(() => setGoalSaveMessage(''), 3500)
+    } finally {
+      setApplyingPlan(false)
+    }
+  }
+
   return (
     <div className="figma-mycourses animate-fade-in">
-      {/* ── 1. TOP HERO BANNER (Figma Frame 543:687) ── */}
+      {/* ── 1. TOP HERO BANNER (Figma Frame 543:687 - Mascot & 3D Shards Motion) ── */}
       <section className="figma-hero-spotlight">
+        {/* Subtle study workspace photo in background with artistic gradient mask */}
+        <div className="figma-hero-spotlight__backdrop-img" aria-hidden="true" />
+
+        {/* 3D Wireframe Geometric Shards & Crystal Motion Animation */}
+        <video
+          className="figma-hero-spotlight__shards-video"
+          autoPlay
+          loop
+          muted
+          playsInline
+          poster="/assets/banners/geometry-shards-poster.png"
+          aria-hidden="true"
+        >
+          <source src="/assets/banners/geometry-shards-h.webm" type="video/webm" />
+          <source src="/assets/banners/geometry-shards-h.mp4" type="video/mp4" />
+        </video>
+
+        {/* Ambient Gradient Glow Orbs */}
+        <div className="figma-hero-spotlight__ambient" aria-hidden="true">
+          <span className="figma-dash-orb figma-dash-orb--1" />
+          <span className="figma-dash-orb figma-dash-orb--2" />
+        </div>
+
         <div className="figma-hero-spotlight__content">
+          <div className="figma-hero-spotlight__tag">
+            <span className="material-symbols-outlined" style={{ fontSize: 16 }}>waving_hand</span>
+            <span>{isVi ? `Chào mừng trở lại, ${user?.name || 'Học viên'}!` : `Welcome back, ${user?.name || 'Learner'}!`}</span>
+          </div>
+
           <h1 className="figma-hero-spotlight__title">
             {isVi ? 'Học điều mới mỗi ngày.' : 'Learn something new everyday.'}
           </h1>
           <p className="figma-hero-spotlight__subtitle">
             {recommendation?.rationale ||
               (isVi
-                ? 'Lộ trình luyện từ vựng và bài viết chuẩn CEFR với chuyên gia AI đồng hành 24/7.'
+                ? 'Lộ trình luyện từ vựng và bài viết chuẩn CEFR với trợ lý AI đồng hành 24/7.'
                 : 'Master academic vocabulary and writing with instant CEFR AI evaluation.')}
           </p>
 
@@ -303,9 +398,12 @@ export default function StudentDashboard() {
                 )
               }
             >
-              {currentSession
-                ? (isVi ? 'Tiếp tục phiên học' : 'Resume Learning Session')
-                : (isVi ? 'Bắt đầu luyện viết ngay' : 'Start Session (10 mins)')}
+              <span className="material-symbols-outlined" style={{ fontSize: 18, marginRight: 6 }}>play_circle</span>
+              <span>
+                {currentSession
+                  ? (isVi ? 'Tiếp tục phiên học' : 'Resume Learning Session')
+                  : (isVi ? 'Bắt đầu luyện viết ngay' : 'Start Session (10 mins)')}
+              </span>
             </Button>
             <Button
               variant="outline"
@@ -313,22 +411,52 @@ export default function StudentDashboard() {
               className="figma-pill-outline"
               onClick={() => navigate('/student/explore')}
             >
-              {isVi ? 'Khám phá chủ đề' : 'Explore Topics'}
+              <span className="material-symbols-outlined" style={{ fontSize: 18, marginRight: 6 }}>explore</span>
+              <span>{isVi ? 'Khám phá chủ đề' : 'Explore Topics'}</span>
             </Button>
           </div>
         </div>
 
-        {/* Authentic LexiGrow Mentor Badge */}
-        <div className="figma-hero-spotlight__creator">
-          <img
-            src="/assets/editorial/instructors/alexander.png"
-            alt="Jane LexiGrow"
-            className="figma-creator-avatar"
-          />
-          <div>
-            <div className="figma-creator-name">Jane LexiGrow</div>
-            <div className="figma-creator-role">{isVi ? 'Cố vấn học thuật IELTS 8.5' : 'Senior IELTS Mentor'}</div>
-            <div className="figma-creator-awards">{isVi ? 'Ban Cố Vấn LexiGrow 2026' : 'LexiGrow Faculty 2026'}</div>
+        {/* Mascot Luffy Dashboard Companion */}
+        <div className="figma-hero-spotlight__mascot-side">
+          <div className="figma-hero-spotlight__bubble">
+            <div className="figma-hero-spotlight__bubble-head">
+              <span className="figma-hero-spotlight__bubble-name">Monky D YunTeee</span>
+              <span className="figma-hero-spotlight__bubble-tag">AI Buddy</span>
+            </div>
+            <p className="figma-hero-spotlight__bubble-text">
+              {isVi
+                ? 'Sẵn sàng nâng trình tiếng Anh hôm nay chưa? Hoàn thành 1 bài viết để tích lũy XP cùng tớ nhé! 🚀'
+                : 'Ready to level up your English today? Complete a writing session to boost your XP! 🚀'}
+            </p>
+          </div>
+
+          <div className="figma-hero-spotlight__mascot-media">
+            <video
+              className="figma-hero-spotlight__mascot-video"
+              autoPlay
+              loop
+              muted
+              playsInline
+              poster="/assets/mascot/luffy-transparent.png"
+            >
+              <source src="/assets/mascot/luffy-animated.webm" type="video/webm" />
+              <source src="/assets/mascot/luffy-animated.mov" type="video/quicktime" />
+              <img
+                src="/assets/mascot/luffy-animated.gif"
+                alt="Monky D YunTeee Mascot"
+                className="figma-hero-spotlight__mascot-img"
+              />
+            </video>
+          </div>
+
+          <div className="figma-hero-spotlight__mascot-badges">
+            <div className="figma-dash-pill-badge figma-dash-pill-badge--streak">
+              <span>🔥 12 Ngày Streak</span>
+            </div>
+            <div className="figma-dash-pill-badge figma-dash-pill-badge--goal">
+              <span>🎯 Mục tiêu tuần: 15 từ</span>
+            </div>
           </div>
         </div>
       </section>
@@ -470,56 +598,65 @@ export default function StudentDashboard() {
             </div>
           </div>
 
+          {/* Weekly Comparison — words / essays / time vs last week */}
+          <WeeklyComparisonWidget />
+
           {/* Interactive Goals Config & AI Coach Guidance */}
           <div className="figma-goals-split-grid">
-            {/* Setting targets */}
+            {/* Setting targets — full goals list, like the legacy SetWeeklyGoals page */}
             <div className="figma-goals-config-card">
               <h4 className="figma-goals-card-head">
                 <span className="material-symbols-outlined">tune</span>
                 <span>{isVi ? 'Điều chỉnh mục tiêu tuần' : 'Adjust Weekly Targets'}</span>
               </h4>
 
-              <div className="figma-goal-slider-box">
-                <div className="figma-goal-slider-label">
-                  <span>{isVi ? 'Số từ vựng mới mỗi tuần:' : 'Weekly New Words Target:'}</span>
-                  <strong className="figma-goal-val">{wordsTargetVal} {isVi ? 'từ' : 'words'}</strong>
-                </div>
-                <input
-                  type="range"
-                  min="5"
-                  max="40"
-                  step="5"
-                  value={wordsTargetVal}
-                  onChange={(e) => setWordsTargetVal(Number(e.target.value))}
-                  className="figma-range-slider"
-                />
-                <div className="figma-slider-range-labels">
-                  <span>5 từ</span>
-                  <span>20 từ (chuẩn)</span>
-                  <span>40 từ (chuyên sâu)</span>
-                </div>
-              </div>
-
-              <div className="figma-goal-slider-box">
-                <div className="figma-goal-slider-label">
-                  <span>{isVi ? 'Độ dài bài viết mục tiêu:' : 'Target Essay Word Count:'}</span>
-                  <strong className="figma-goal-val">{lengthTargetVal} {isVi ? 'từ / bài' : 'words / essay'}</strong>
-                </div>
-                <input
-                  type="range"
-                  min="60"
-                  max="150"
-                  step="10"
-                  value={lengthTargetVal}
-                  onChange={(e) => setLengthTargetVal(Number(e.target.value))}
-                  className="figma-range-slider"
-                />
-                <div className="figma-slider-range-labels">
-                  <span>60 từ (ngắn)</span>
-                  <span>100 từ (chuẩn CEFR)</span>
-                  <span>150 từ (học thuật)</span>
-                </div>
-              </div>
+              {(goalsDraft.length ? goalsDraft : weeklyGoal?.goals || []).map((goal) => {
+                const { min, max, step } = goalRangeFor(goal.label)
+                const progressPct = goal.target > 0
+                  ? Math.min(100, Math.round(((goal.current || 0) / goal.target) * 100))
+                  : 0
+                return (
+                  <div key={goal.label} className="figma-goal-slider-box">
+                    <div className="figma-goal-slider-label">
+                      <span
+                        className="material-symbols-outlined"
+                        style={{ color: `var(--color-${goal.color || 'primary'})`, fontSize: 20 }}
+                      >
+                        {goal.icon || 'flag'}
+                      </span>
+                      <span>{localizeGoalLabel(goal.label)}</span>
+                      <strong className="figma-goal-val">
+                        {goal.current || 0} / {goal.target}
+                      </strong>
+                    </div>
+                    <div className="figma-goal-config-row">
+                      <input
+                        type="range"
+                        className="figma-range-slider"
+                        min={min}
+                        max={max}
+                        step={step}
+                        value={goal.target}
+                        onChange={(e) => updateDraftTarget(goal.label, e.target.value)}
+                      />
+                      <input
+                        type="number"
+                        className="figma-goal-number-input"
+                        min={min}
+                        max={max}
+                        value={goal.target}
+                        onChange={(e) => updateDraftTarget(goal.label, e.target.value)}
+                      />
+                    </div>
+                    <div className="figma-goal-progress-track">
+                      <div
+                        className={`figma-goal-progress-fill figma-goal-progress-fill--${goal.color || 'primary'}`}
+                        style={{ width: `${progressPct}%` }}
+                      />
+                    </div>
+                  </div>
+                )
+              })}
 
               <div className="figma-goal-actions-row">
                 <Button
@@ -541,32 +678,101 @@ export default function StudentDashboard() {
               </div>
             </div>
 
-            {/* AI Coach Recommendation */}
+            {/* AI Coach Recommendation — real data from GET /goals/recommendations */}
             <div className="figma-goals-ai-card">
               <div className="figma-goals-ai-badge">
                 <span className="material-symbols-outlined">auto_awesome</span>
-                <span>{isVi ? 'Gợi ý từ AI Coach' : 'AI Coach Advice'}</span>
+                <span>{isVi ? 'Kế hoạch của AI Coach' : 'AI Coach Plan'}</span>
+                <span className={`figma-goals-ai-source ${goalRecsResource.response?._meta?.isFallback ? 'figma-goals-ai-source--offline' : 'figma-goals-ai-source--live'}`}>
+                  {goalRecsResource.response?._meta?.isFallback ? 'offline' : (isVi ? 'AI phân tích' : 'AI analysis')}
+                </span>
               </div>
-              <h5 className="figma-goals-ai-title">
-                {isVi ? 'Bứt phá vốn từ vựng học thuật trong 30 ngày' : 'Accelerate Academic Lexical Resource'}
-              </h5>
-              <p className="figma-goals-ai-desc">
-                {isVi
-                  ? 'Dựa trên tốc độ viết và khả năng ghi nhớ từ qua SRS của bạn, AI đề xuất mục tiêu 20 từ mới mỗi tuần để nâng band CEFR B2 nhanh chóng.'
-                  : 'Based on your recent SRS accuracy and essay rhythm, the AI Coach recommends 20 target words weekly to reach CEFR B2 smoothly.'}
-              </p>
-              <Button
-                variant="secondary"
-                size="sm"
-                className="figma-pill-btn figma-goals-ai-btn"
-                onClick={() => {
-                  setWordsTargetVal(20)
-                  setLengthTargetVal(100)
-                }}
-              >
-                <span className="material-symbols-outlined">flash_on</span>
-                <span>{isVi ? 'Áp dụng đề xuất AI (20 từ/tuần)' : 'Apply AI Recommendation (20 words)'}</span>
-              </Button>
+
+              {goalRecsResource.loading ? (
+                <div className="figma-goals-ai-loading">
+                  <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                  <span>{isVi ? 'AI đang phân tích tiến độ của bạn…' : 'AI is analysing your progress…'}</span>
+                </div>
+              ) : goalRecsResource.error || !goalPlan ? (
+                <div className="figma-goals-ai-empty">
+                  <span className="material-symbols-outlined">psychology_alt</span>
+                  <p>{isVi
+                    ? 'Chưa có gợi ý lúc này. Học thêm vài phiên để AI xây kế hoạch riêng cho bạn!'
+                    : 'No advice available yet. Complete a few sessions and the AI Coach will build your plan!'}</p>
+                </div>
+              ) : (
+                <>
+                  {/* Mini insight strip from this week's real metrics */}
+                  {(() => {
+                    const m = goalPlan.recommendation?.metrics || {}
+                    const miniStats = [
+                      { icon: 'history_toggle_off', value: m.overdueWords ?? 0, label: isVi ? 'từ quá hạn' : 'words overdue', tone: 'danger' },
+                      { icon: 'play_circle', value: m.completedSessions ?? 0, label: isVi ? 'phiên học' : 'sessions', tone: 'primary' },
+                      { icon: 'edit_note', value: m.essaysThisWeek ?? 0, label: isVi ? 'bài viết tuần này' : 'essays this week', tone: 'secondary' },
+                      { icon: 'keyboard', value: m.wordsThisWeek ?? 0, label: isVi ? 'từ đã viết' : 'words written', tone: 'tertiary' },
+                    ]
+                    return (
+                      <div className="figma-goals-ai-stats">
+                        {miniStats.map((s) => (
+                          <div key={s.label} className={`figma-goals-ai-stat figma-goals-ai-stat--${s.tone}`}>
+                            <span className="material-symbols-outlined">{s.icon}</span>
+                            <strong>{s.value}</strong>
+                            <span className="figma-goals-ai-stat-label">{s.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  })()}
+
+                  <p className="figma-goals-ai-desc">
+                    {(() => {
+                      const m = goalPlan.recommendation?.metrics || {}
+                      return isVi
+                        ? `Tuần này bạn đã hoàn thành ${m.completedSessions ?? 0} phiên học và ${m.essaysThisWeek ?? 0} bài viết, nhưng đang có ${m.overdueWords ?? 0} từ vựng quá hạn cần ôn lại. AI đề xuất mục tiêu cân bằng bên dưới để bắt kịp tiến độ.`
+                        : `This week you completed ${m.completedSessions ?? 0} sessions and ${m.essaysThisWeek ?? 0} essays, but ${m.overdueWords ?? 0} words remain overdue for review. The AI suggests the balanced targets below to catch up.`
+                    })()}
+                  </p>
+
+                  <div className="figma-goals-ai-chips">
+                    {(goalPlan.goals || goalPlan.recommendation?.goals || []).map((g) => (
+                      <span
+                        key={g.label}
+                        className={`figma-goals-ai-chip figma-goals-ai-chip--${g.color || 'primary'}`}
+                      >
+                        <span className="material-symbols-outlined">{g.icon || 'flag'}</span>
+                        <span>{localizeGoalLabel(g.label)}</span>
+                        <strong>
+                          {g.target}
+                          {g.label.toLowerCase().includes('essays')
+                            ? (isVi ? ' bài' : ' essays')
+                            : g.label.includes('Complexity')
+                              ? (isVi ? ' điểm' : ' pts')
+                              : (isVi ? ' từ' : ' words')}
+                        </strong>
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="figma-goals-ai-footer">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="figma-pill-btn figma-goals-ai-btn"
+                      onClick={handleApplyAIPlan}
+                      disabled={applyingPlan}
+                    >
+                      <span className="material-symbols-outlined">flash_on</span>
+                      <span>{applyingPlan ? (isVi ? 'Đang áp dụng…' : 'Applying…') : (isVi ? 'Áp dụng kế hoạch' : 'Apply plan')}</span>
+                    </Button>
+                    {goalPlan.recommendation?.generatedAt && (
+                      <span className="figma-goals-ai-generated">
+                        <span className="material-symbols-outlined">update</span>
+                        {formatDate(goalPlan.recommendation.generatedAt, language)}
+                      </span>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

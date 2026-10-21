@@ -1,0 +1,121 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 260" width="100%" height="100%">
+  <defs>
+    <linearGradient id="aiBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0B1329" />
+      <stop offset="50%" stop-color="#111E44" />
+      <stop offset="100%" stop-color="#0A2540" />
+    </linearGradient>
+    <linearGradient id="aiGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#818CF8" stop-opacity="0.8" />
+    </linearGradient>
+    <linearGradient id="geminiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="50%" stop-color="#818CF8" />
+      <stop offset="100%" stop-color="#C084FC" />
+    </linearGradient>
+    <filter id="aiShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#0284C7" flood-opacity="0.25" />
+    </filter>
+  </defs>
+
+  <style>
+    @keyframes pulseScan {
+      0%, 100% { opacity: 0.3; transform: translateY(0); }
+      50% { opacity: 0.8; transform: translateY(85px); }
+    }
+    @keyframes cursorBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    @keyframes chipFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    .scanner-line {
+      animation: pulseScan 3s ease-in-out infinite;
+    }
+    .typing-cursor {
+      animation: cursorBlink 0.9s infinite;
+    }
+    .floating-chip {
+      animation: chipFloat 2.5s ease-in-out infinite;
+    }
+    .floating-chip-delay {
+      animation: chipFloat 2.5s ease-in-out infinite 1.25s;
+    }
+  </style>
+
+  <!-- Background Canvas -->
+  <rect width="400" height="260" rx="16" fill="url(#aiBg)" />
+
+  <!-- Ambient Decorative Rings -->
+  <circle cx="340" cy="50" r="90" fill="#38BDF8" fill-opacity="0.08" />
+  <circle cx="60" cy="210" r="80" fill="#818CF8" fill-opacity="0.06" />
+
+  <!-- Editor Window Container -->
+  <g transform="translate(24, 24)" filter="url(#aiShadow)">
+    <rect width="352" height="212" rx="12" fill="#0F172A" stroke="#1E293B" stroke-width="1.5" />
+
+    <!-- Top Window Bar -->
+    <rect width="352" height="34" rx="12" fill="#1E293B" fill-opacity="0.6" />
+    <circle cx="20" cy="17" r="4.5" fill="#EF4444" />
+    <circle cx="34" cy="17" r="4.5" fill="#F59E0B" />
+    <circle cx="48" cy="17" r="4.5" fill="#10B981" />
+
+    <text x="176" y="21" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="600" fill="#94A3B8" text-anchor="middle">
+      LexiGrow AI Essay Heatmap Studio
+    </text>
+
+    <!-- Simulated Essay Lines -->
+    <!-- Line 1 -->
+    <text x="24" y="66" font-family="'Courier New', monospace" font-size="12" fill="#E2E8F0">
+      Investing in renewable energy can
+    </text>
+    <!-- Highlighted Target Word 1: foster -->
+    <g class="floating-chip">
+      <rect x="238" y="52" width="60" height="20" rx="4" fill="#065F46" stroke="#10B981" stroke-width="1" />
+      <text x="268" y="66" font-family="'Courier New', monospace" font-size="12" font-weight="bold" fill="#34D399" text-anchor="middle">foster</text>
+    </g>
+
+    <!-- Line 2 -->
+    <text x="24" y="94" font-family="'Courier New', monospace" font-size="12" fill="#E2E8F0">
+      sustainable economic growth and
+    </text>
+    <!-- Highlighted Target Word 2: mitigate -->
+    <g class="floating-chip-delay">
+      <rect x="238" y="80" width="70" height="20" rx="4" fill="#1E3A8A" stroke="#38BDF8" stroke-width="1" />
+      <text x="273" y="94" font-family="'Courier New', monospace" font-size="12" font-weight="bold" fill="#7DD3FC" text-anchor="middle">mitigate</text>
+    </g>
+
+    <!-- Line 3 with typing cursor -->
+    <text x="24" y="122" font-family="'Courier New', monospace" font-size="12" fill="#E2E8F0">
+      environmental hazards worldwide
+    </text>
+    <rect x="248" y="109" width="7" height="15" fill="#38BDF8" class="typing-cursor" />
+
+    <!-- AI Laser Scanning Beam -->
+    <line x1="20" y1="48" x2="332" y2="48" stroke="url(#aiGlow)" stroke-width="2" class="scanner-line" />
+
+    <!-- AI Feedback Floating Pill -->
+    <g transform="translate(20, 148)">
+      <rect width="312" height="46" rx="8" fill="#1E293B" stroke="#334155" stroke-width="1" />
+
+      <!-- Gemini Icon Star -->
+      <path d="M22 23L24 16L26 23L33 25L26 27L24 34L22 27L15 25Z" fill="url(#geminiGrad)" />
+
+      <text x="40" y="22" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="700" fill="#F8FAFC">
+        Gemini AI: Lexical Resource 8.0+
+      </text>
+      <text x="40" y="37" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" fill="#94A3B8">
+        Collocation chuẩn xác · Dùng từ đúng ngữ cảnh bài thi
+      </text>
+
+      <!-- Badge Score -->
+      <rect x="256" y="13" width="44" height="20" rx="4" fill="#047857" />
+      <text x="278" y="27" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10.5" font-weight="700" fill="#A7F3D0" text-anchor="middle">
+        +100 XP
+      </text>
+    </g>
+  </g>
+</svg>

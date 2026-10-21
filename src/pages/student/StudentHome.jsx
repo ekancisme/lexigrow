@@ -28,7 +28,7 @@ const STUDIO_TOPICS = [
     level: 'B2',
     duration: '15 mins',
     wordsCount: 16,
-    coach: 'LexiGrow AI Mentor',
+    coach: 'LexiGrow AI Studio',
     desc: 'Master thesis statements, counterarguments, and cohesion criteria for high-scoring IELTS Task 2 essays.',
     descVi: 'Làm chủ câu chủ đề, luận điểm phản biện và tính liên kết chặt chẽ theo 4 tiêu chí chuẩn IELTS.',
     rating: 5.0,
@@ -227,7 +227,7 @@ const TRENDING_TOPICS = [
     level: 'B2',
     duration: '12 mins',
     wordsCount: 16,
-    coach: 'LexiGrow Media Mentor',
+    coach: 'LexiGrow AI Studio',
     desc: 'Evaluating misinformation, sensationalism, journalistic ethics, and critical argument formulation.',
     descVi: 'Đánh giá thông tin đa chiều, phân tích góc nhìn báo chí và xây dựng lập luận phản biện vững chắc.',
     rating: 4.9,
@@ -256,48 +256,147 @@ const TRENDING_TOPICS = [
   },
 ]
 
-const POPULAR_MENTORS = [
+const FEATURE_PROMO_BANNERS = [
   {
-    name: 'Alexander Vance',
-    role: 'Trưởng ban Học thuật · IELTS 8.5',
-    roleEn: 'Head of Academic Assessment · IELTS 8.5',
-    image: '/assets/editorial/instructors/alexander.png',
-    studentsVi: '12,400+ học viên',
-    studentsEn: '12,400+ learners',
-    rating: 4.9,
-    specialty: 'IELTS Writing Task 2 & Cohesion',
+    id: 'ai-writing',
+    titleVi: 'Phòng Luyện Viết Thông Minh & Gemini AI',
+    titleEn: 'Smart Writing Lab & Gemini AI',
+    tagVi: 'CÔNG NGHỆ AI',
+    tagEn: 'AI ENGINE',
+    tagIcon: 'auto_awesome',
+    badgeBg: 'rgba(59, 130, 246, 0.92)',
+    badgeColor: '#ffffff',
+    descVi: 'Viết luận ngắn, AI quét Heatmap ngữ cảnh và chấm điểm 4 trạng thái chuẩn xác tức thì.',
+    descEn: 'Instant short-essay feedback with multi-state lexical heatmaps and CEFR-aligned scoring.',
+    ctaVi: 'Thử viết ngay',
+    ctaEn: 'Write Now',
+    href: '/student/write-essay',
+    gif: '/assets/banners/features/ai-writing.gif',
+    fallbackImg: '/assets/banners/features/ai-writing.svg',
+    metricIcon: 'verified',
+    metricVi: 'AI chấm theo 4 mức',
+    metricEn: '4-level AI Rubric',
+    accentColor: '#3B82F6',
   },
   {
-    name: 'Sarah Jenkins',
-    role: 'Chuyên gia Ngôn ngữ học · Cambridge Fellow',
-    roleEn: 'Linguistic Coach · Cambridge Fellow',
-    image: '/assets/editorial/instructors/sarasvati.png',
-    studentsVi: '9,800+ học viên',
-    studentsEn: '9,800+ learners',
-    rating: 5.0,
-    specialty: 'Lexical Resource & Academic Collocations',
+    id: 'growth-garden',
+    titleVi: 'Khu Vườn Tri Thức Sinh Thái',
+    titleEn: 'Ecological Growth Garden',
+    tagVi: 'GAMIFICATION',
+    tagEn: 'GAMIFICATION',
+    tagIcon: 'potted_plant',
+    badgeBg: 'rgba(16, 185, 129, 0.92)',
+    badgeColor: '#ffffff',
+    descVi: 'Trực quan hóa vốn từ chủ động (Mastered) qua mô hình cây xanh nảy mầm và nở hoa theo thời gian thực.',
+    descEn: 'Watch your active vocabulary sprout and blossom in a living digital knowledge garden.',
+    ctaVi: 'Vào khu vườn',
+    ctaEn: 'Explore Garden',
+    href: '/student/garden',
+    gif: '/assets/banners/features/growth-garden.gif',
+    fallbackImg: '/assets/banners/features/growth-garden.svg',
+    metricIcon: 'eco',
+    metricVi: 'Vốn từ chủ động',
+    metricEn: 'Active Vocab Growth',
+    accentColor: '#10B981',
   },
   {
-    name: 'Jonathan Davies',
-    role: 'Giảng viên Viết học thuật · Oxford Alum',
-    roleEn: 'Academic Writing Lecturer · Oxford Alum',
-    image: '/assets/editorial/instructors/jonathan.png',
-    studentsVi: '8,200+ học viên',
-    studentsEn: '8,200+ learners',
-    rating: 4.9,
-    specialty: 'Essay Architecture & Logic Structures',
+    id: 'spaced-repetition',
+    titleVi: 'Ôn Tập Thẻ Từ Spaced Repetition',
+    titleEn: 'Spaced Repetition Flashcards',
+    tagVi: 'KHOA HỌC NÃO BỘ',
+    tagEn: 'NEUROSCIENCE',
+    tagIcon: 'psychology',
+    badgeBg: 'rgba(139, 92, 246, 0.92)',
+    badgeColor: '#ffffff',
+    descVi: 'Thuật toán lặp lại ngắt quãng SM-2 nhắc nhở đúng thời điểm vàng, ghi nhớ dài hạn không quên.',
+    descEn: 'SM-2 spaced repetition schedules optimal reviews to convert short-term words into permanent recall.',
+    ctaVi: 'Luyện thẻ ngay',
+    ctaEn: 'Practice SRS',
+    href: '/student/vocabulary/review',
+    gif: '/assets/banners/features/spaced-repetition.gif',
+    fallbackImg: '/assets/banners/features/spaced-repetition.svg',
+    metricIcon: 'schedule',
+    metricVi: 'Chu kỳ lặp SM-2',
+    metricEn: 'SM-2 Smart Cycle',
+    accentColor: '#8B5CF6',
   },
   {
-    name: 'Dr. Catherine Labie',
-    role: 'Cố vấn Phương pháp Từ vựng (SRS)',
-    roleEn: 'Lexical Acquisition & SRS Specialist',
-    image: '/assets/editorial/instructors/labie.png',
-    studentsVi: '11,100+ học viên',
-    studentsEn: '11,100+ learners',
-    rating: 5.0,
-    specialty: 'Spaced Repetition & Contextual Retention',
+    id: 'game-hub',
+    titleVi: 'Đấu Trường 4 Mini-Games Luyện Từ',
+    titleEn: '4 Gamified Word Arena Modes',
+    tagVi: 'ĐẤU TRƯỜNG TỪ VỰNG',
+    tagEn: 'WORD ARENA',
+    tagIcon: 'sports_esports',
+    badgeBg: 'rgba(245, 158, 11, 0.92)',
+    badgeColor: '#ffffff',
+    descVi: 'Ghép từ, điền câu ngữ cảnh, xếp chữ và săn từ vựng kịch tính giúp phản xạ từ tự nhiên.',
+    descEn: 'Matching, Context Filler, Scramble, and Vocab Hunter for high-speed retention and fun.',
+    ctaVi: 'Chơi ngay',
+    ctaEn: 'Play Games',
+    href: '/student/game',
+    gif: '/assets/banners/features/game-hub.gif',
+    fallbackImg: '/assets/banners/features/game-hub.svg',
+    metricIcon: 'military_tech',
+    metricVi: '4 chế độ tương tác',
+    metricEn: '4 Interactive Modes',
+    accentColor: '#F59E0B',
   },
 ]
+
+function HeroParticles() {
+  return (
+    <div className="figma-hero__particles-layer" aria-hidden="true">
+      {/* 3D Wireframe Geometric Shards & Crystal Fragments Motion Stream */}
+      <video
+        className="hero-shards-video"
+        autoPlay
+        loop
+        muted
+        playsInline
+        poster="/assets/banners/geometry-shards-poster.png"
+      >
+        <source src="/assets/banners/geometry-shards-h.webm" type="video/webm" />
+        <source src="/assets/banners/geometry-shards-h.mp4" type="video/mp4" />
+      </video>
+
+      <span className="hero-orb hero-orb--1" />
+      <span className="hero-orb hero-orb--2" />
+      <span className="hero-orb hero-orb--3" />
+      <span className="hero-star hero-star--1" />
+      <span className="hero-star hero-star--2" />
+      <span className="hero-star hero-star--3" />
+      <span className="hero-star hero-star--4" />
+      <span className="hero-star hero-star--5" />
+      <span className="hero-star hero-star--6" />
+      <span className="hero-star hero-star--7" />
+      <span className="hero-star hero-star--8" />
+      <span className="hero-star hero-star--9" />
+    </div>
+  )
+}
+
+function HeroMascot({ modifier = '', alt = 'Monky D YunTeee Mascot' }) {
+  return (
+    <div className={`hero-mascot-media hero-mascot-media--${modifier}`}>
+      <video
+        className="hero-mascot-video"
+        autoPlay
+        loop
+        muted
+        playsInline
+        poster="/assets/mascot/luffy-transparent.png"
+      >
+        <source src="/assets/mascot/luffy-animated.webm" type="video/webm" />
+        <source src="/assets/mascot/luffy-animated.mov" type="video/quicktime" />
+        <img
+          src="/assets/mascot/luffy-animated.gif"
+          alt={alt}
+          className="hero-mascot-img"
+        />
+      </video>
+    </div>
+  )
+}
 
 export default function StudentHome() {
   const { language } = useLanguage()
@@ -310,6 +409,14 @@ export default function StudentHome() {
   const [announcements, setAnnouncements] = useState([])
   const [subscribeEmail, setSubscribeEmail] = useState('')
   const [subscribeStatus, setSubscribeStatus] = useState('')
+  const [bannerImgSrc, setBannerImgSrc] = useState({})
+
+  const handleBannerImgError = (id, fallback) => {
+    setBannerImgSrc((prev) => {
+      if (prev[id] === fallback) return prev
+      return { ...prev, [id]: fallback }
+    })
+  }
 
   const isVi = language === 'vi'
 
@@ -383,6 +490,7 @@ export default function StudentHome() {
             aria-hidden={activeSlide !== 0}
           >
             <div className="figma-hero__ambient figma-hero__ambient--vocab" />
+            <HeroParticles />
             <div className="figma-hero__inner">
               <div className="figma-hero__content">
                 <div className="figma-hero__tag">
@@ -450,72 +558,23 @@ export default function StudentHome() {
                   </div>
                 </div>
 
-                {/* Floating Metric Chips */}
-                <div className="hero-vocab-floating">
-                  {/* Daily Goal Donut */}
-                  <div className="hero-float-card hero-float-card--goal">
-                    <div className="hero-float-card__title">Daily Goal</div>
-                    <div className="hero-float-donut">
-                      <svg viewBox="0 0 68 68" className="hero-donut-svg">
-                        <circle cx="34" cy="34" r="26" className="hero-donut-bg" />
-                        <circle
-                          cx="34"
-                          cy="34"
-                          r="26"
-                          className="hero-donut-val hero-donut-val--teal"
-                          strokeDasharray="163.3"
-                          strokeDashoffset="32.6"
-                        />
-                      </svg>
-                      <div className="hero-float-donut__label">
-                        <strong>18 / 20</strong>
-                        <span>words</span>
-                      </div>
+                {/* Mascot Luffy Vocab Companion */}
+                <div className="hero-mascot-companion hero-mascot-companion--vocab">
+                  <div className="hero-mascot-bubble">
+                    <div className="hero-mascot-bubble__name">
+                      <span>Monky D YunTeee</span>
+                      <span className="hero-mascot-verified">✓</span>
                     </div>
+                    <p className="hero-mascot-bubble__text">
+                      {isVi
+                        ? 'Hôm nay cùng tớ nạp 3 từ mới nhé! Nhớ cực lâu với Spaced Repetition đấy! 📖'
+                        : 'Ready to master 3 new words? Spaced Repetition locks them in! 📖'}
+                    </p>
                   </div>
-
-                  {/* Mastery Progress Card */}
-                  <div className="hero-float-card hero-float-card--mastery">
-                    <div className="hero-float-card__title">Mastery Progress</div>
-                    <div className="hero-mastery-wrap">
-                      <div className="hero-float-donut hero-float-donut--sm">
-                        <svg viewBox="0 0 56 56" className="hero-donut-svg">
-                          <circle cx="28" cy="28" r="21" className="hero-donut-bg" />
-                          <circle
-                            cx="28"
-                            cy="28"
-                            r="21"
-                            className="hero-donut-val hero-donut-val--forest"
-                            strokeDasharray="131.9"
-                            strokeDashoffset="19.7"
-                          />
-                        </svg>
-                        <div className="hero-float-donut__label">
-                          <strong>85%</strong>
-                        </div>
-                      </div>
-                      <div className="hero-mastery-legend">
-                        <div className="hero-m-legend-item"><span className="hero-dot hero-dot--yellow" /> Learning</div>
-                        <div className="hero-m-legend-item"><span className="hero-dot hero-dot--mint" /> Reviewing</div>
-                        <div className="hero-m-legend-item"><span className="hero-dot hero-dot--forest" /> Mastered</div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Next Review Badge */}
-                  <div className="hero-float-card hero-float-card--review">
-                    <div className="hero-review-icon">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                        <line x1="16" y1="2" x2="16" y2="6" />
-                        <line x1="8" y1="2" x2="8" y2="6" />
-                        <line x1="3" y1="10" x2="21" y2="10" />
-                      </svg>
-                    </div>
-                    <div className="hero-review-info">
-                      <span className="hero-review-sub">Next review</span>
-                      <strong className="hero-review-val">in 2 days</strong>
-                    </div>
+                  <HeroMascot modifier="vocab" alt="Monky D YunTeee Vocab Mascot" />
+                  <div className="hero-mascot-badge hero-mascot-badge--srs">
+                    <span className="material-symbols-outlined" style={{ fontSize: 15, color: '#10B981' }}>psychology</span>
+                    <span>{isVi ? 'SRS Level 3: Ghi nhớ vĩnh viễn' : 'SRS Spaced Repetition'}</span>
                   </div>
                 </div>
               </div>
@@ -528,6 +587,7 @@ export default function StudentHome() {
             aria-hidden={activeSlide !== 1}
           >
             <div className="figma-hero__ambient figma-hero__ambient--journey" />
+            <HeroParticles />
             <div className="figma-hero__inner">
               <div className="figma-hero__content">
                 <div className="figma-hero__tag">
@@ -646,45 +706,27 @@ export default function StudentHome() {
                   <div className="hero-laptop__base" />
                 </div>
 
-                {/* Floating Metric Stat Cards */}
-                <div className="hero-journey-stats">
-                  <div className="hero-j-card">
-                    <div className="hero-j-card__icon hero-j-card__icon--fire">🔥</div>
-                    <div className="hero-j-card__info">
-                      <strong>12 Days</strong>
-                      <span>Learning Streak</span>
+                {/* Mascot Luffy Streak Companion */}
+                <div className="hero-mascot-companion hero-mascot-companion--journey">
+                  <div className="hero-mascot-bubble">
+                    <div className="hero-mascot-bubble__name">
+                      <span>Monky D YunTeee</span>
+                      <span className="hero-mascot-verified">✓</span>
                     </div>
-                    <div className="hero-j-card__bars">
-                      <span style={{ height: '30%' }} />
-                      <span style={{ height: '55%' }} />
-                      <span style={{ height: '75%' }} />
-                      <span style={{ height: '95%' }} />
-                    </div>
+                    <p className="hero-mascot-bubble__text">
+                      {isVi
+                        ? 'Chào mừng bạn đến với LexiGrow! Giữ chuỗi 12 ngày Streak cùng tớ nhé! 🔥'
+                        : 'Welcome to LexiGrow! Keep that 12-day streak burning with me! 🔥'}
+                    </p>
                   </div>
-
-                  <div className="hero-j-card">
-                    <div className="hero-j-card__icon hero-j-card__icon--book">📖</div>
-                    <div className="hero-j-card__info">
-                      <strong>450+ words</strong>
-                      <span>Vocabulary Mastered</span>
+                  <HeroMascot modifier="journey" alt="Monky D YunTeee Journey Mascot" />
+                  <div className="hero-mascot-badges-row">
+                    <div className="hero-mascot-badge hero-mascot-badge--fire">
+                      <span>🔥 12 Days Streak</span>
                     </div>
-                    <div className="hero-j-card__bars">
-                      <span style={{ height: '35%' }} />
-                      <span style={{ height: '60%' }} />
-                      <span style={{ height: '80%' }} />
-                      <span style={{ height: '100%' }} />
+                    <div className="hero-mascot-badge hero-mascot-badge--trophy">
+                      <span>🏆 Top 5% Week</span>
                     </div>
-                  </div>
-
-                  <div className="hero-j-card">
-                    <div className="hero-j-card__icon hero-j-card__icon--chart">📝</div>
-                    <div className="hero-j-card__info">
-                      <strong style={{ color: '#059669' }}>+18%</strong>
-                      <span>Writing Improvement</span>
-                    </div>
-                    <svg viewBox="0 0 44 20" className="hero-j-card__wave">
-                      <path d="M 2 16 Q 12 14, 22 8 T 42 3" fill="none" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" />
-                    </svg>
                   </div>
                 </div>
               </div>
@@ -697,6 +739,7 @@ export default function StudentHome() {
             aria-hidden={activeSlide !== 2}
           >
             <div className="figma-hero__ambient figma-hero__ambient--writing" />
+            <HeroParticles />
             <div className="figma-hero__inner">
               <div className="figma-hero__content">
                 <div className="figma-hero__tag figma-hero__tag--light">
@@ -790,75 +833,23 @@ export default function StudentHome() {
                   <div className="hero-laptop__base hero-laptop__base--light" />
                 </div>
 
-                {/* Score & Suggestions Cards */}
-                <div className="hero-writing-stats">
-                  <div className="hero-score-card">
-                    <div className="hero-score-card__head">
-                      <span>Overall Writing Score</span>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ opacity: 0.7 }}>
-                        <circle cx="12" cy="12" r="10" />
-                        <line x1="12" y1="16" x2="12" y2="12" />
-                        <line x1="12" y1="8" x2="12.01" y2="8" />
-                      </svg>
+                {/* Mascot Luffy AI Writing Tutor */}
+                <div className="hero-mascot-companion hero-mascot-companion--writing">
+                  <div className="hero-mascot-bubble hero-mascot-bubble--ai">
+                    <div className="hero-mascot-bubble__name">
+                      <span>Monky D YunTeee · AI Coach</span>
+                      <span className="hero-mascot-verified">✓</span>
                     </div>
-                    <div className="hero-score-badge-row">
-                      <div className="hero-score-donut">
-                        <svg viewBox="0 0 54 54" className="hero-donut-svg">
-                          <circle cx="27" cy="27" r="21" className="hero-donut-bg" />
-                          <circle
-                            cx="27"
-                            cy="27"
-                            r="21"
-                            className="hero-donut-val hero-donut-val--teal"
-                            strokeDasharray="131.9"
-                            strokeDashoffset="15.8"
-                          />
-                        </svg>
-                        <span>88</span>
-                      </div>
-                      <div>
-                        <strong className="hero-score-rating">Good</strong>
-                        <span className="hero-score-level">CEFR Level: B2</span>
-                      </div>
-                    </div>
-                    <div className="hero-score-bars">
-                      <div className="hero-s-bar-item">
-                        <span>Grammar Accuracy</span>
-                        <strong>92%</strong>
-                        <div className="hero-s-track"><div style={{ width: '92%' }} /></div>
-                      </div>
-                      <div className="hero-s-bar-item">
-                        <span>Vocabulary Range</span>
-                        <strong>85%</strong>
-                        <div className="hero-s-track"><div style={{ width: '85%' }} /></div>
-                      </div>
-                      <div className="hero-s-bar-item">
-                        <span>Coherence &amp; Cohesion</span>
-                        <strong>82%</strong>
-                        <div className="hero-s-track"><div style={{ width: '82%' }} /></div>
-                      </div>
-                      <div className="hero-s-bar-item">
-                        <span>Task Achievement</span>
-                        <strong>86%</strong>
-                        <div className="hero-s-track"><div style={{ width: '86%' }} /></div>
-                      </div>
-                    </div>
+                    <p className="hero-mascot-bubble__text">
+                      {isVi
+                        ? 'Tớ phát hiện 1 lỗi ngữ pháp nhỏ! Sửa thành "has" là chuẩn Band 7.5 IELTS ngay! ✍️'
+                        : 'Quick fix detected! Changing to "has" levels your essay to Band 7.5! ✍️'}
+                    </p>
                   </div>
-
-                  <div className="hero-sug-card">
-                    <div className="hero-sug-card__head">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d="M9 18h6" />
-                        <path d="M10 22h4" />
-                        <path d="M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6h8c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z" />
-                      </svg>
-                      <span>Suggestions</span>
-                    </div>
-                    <ul>
-                      <li>Use more precise academic vocabulary.</li>
-                      <li>Improve sentence variety.</li>
-                      <li>Add specific examples to strengthen arguments.</li>
-                    </ul>
+                  <HeroMascot modifier="writing" alt="Monky D YunTeee AI Writing Mascot" />
+                  <div className="hero-mascot-badge hero-mascot-badge--score">
+                    <span className="material-symbols-outlined" style={{ fontSize: 16, color: '#059669' }}>auto_awesome</span>
+                    <span>{isVi ? 'Chấm điểm 4 tiêu chí CEFR' : 'CEFR 4-Criteria Rubric'}</span>
                   </div>
                 </div>
               </div>
@@ -1100,33 +1091,82 @@ export default function StudentHome() {
         </div>
       </section>
 
-      {/* ── 5. Popular Academic Mentors ── */}
-      <section className="figma-section" aria-labelledby="heading-mentors">
+      {/* ── 5. LexiGrow Ecosystem Feature Showcase (Animated Promo Banners) ── */}
+      <section className="figma-section" aria-labelledby="heading-promo-banners">
         <div className="figma-section__header">
           <div>
-            <h2 id="heading-mentors" className="figma-section__title">
-              {isVi ? 'Đội ngũ Cố vấn Học thuật LexiGrow' : 'LexiGrow Academic Faculty & Mentors'}
+            <div className="figma-section__eyebrow-badge">
+              <span className="material-symbols-outlined" style={{ fontSize: 16 }}>campaign</span>
+              <span>{isVi ? 'TÍNH NĂNG NỔI BẬT' : 'FEATURE SHOWCASE'}</span>
+            </div>
+            <h2 id="heading-promo-banners" className="figma-section__title">
+              {isVi ? 'Khám Phá Hệ Sinh Thái Học Tập LexiGrow' : 'Explore the LexiGrow Learning Ecosystem'}
             </h2>
             <p className="figma-section__subtitle">
               {isVi
-                ? 'Các chuyên gia khảo thí, giảng viên IELTS và chuyên gia ngôn ngữ học đồng hành cùng bạn.'
-                : 'Certified Cambridge examiners, IELTS specialists, and linguistic scholars supporting your journey.'}
+                ? 'Từ phòng viết ứng dụng AI, khu vườn sinh thái tri thức đến đấu trường game hóa giúp bạn làm chủ từ vựng mỗi ngày.'
+                : 'From AI-powered writing labs and the Growth Garden to gamified drills engineered for active vocabulary mastery.'}
             </p>
           </div>
         </div>
 
-        <div className="figma-instructors-grid">
-          {POPULAR_MENTORS.map((mentor) => (
-            <div key={mentor.name} className="figma-instructor-card">
-              <img src={mentor.image} alt={mentor.name} className="figma-instructor-card__img" />
-              <div className="figma-instructor-card__overlay">
-                <h3 className="figma-instructor-card__name">{mentor.name}</h3>
-                <p className="figma-instructor-card__role">{isVi ? mentor.role : mentor.roleEn}</p>
-                <div className="figma-instructor-card__extra">
-                  <span className="figma-instructor-card__specialty">{mentor.specialty}</span>
-                  <span className="figma-instructor-card__students">
-                    <span className="material-symbols-outlined" style={{ fontSize: 14 }}>group</span>
-                    <span>{isVi ? mentor.studentsVi : mentor.studentsEn}</span>
+        <div className="figma-promo-grid">
+          {FEATURE_PROMO_BANNERS.map((banner) => (
+            <div
+              key={banner.id}
+              className={`figma-promo-card figma-promo-card--${banner.id}`}
+              onClick={() => navigate(banner.href)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  navigate(banner.href)
+                }
+              }}
+              aria-label={isVi ? banner.titleVi : banner.titleEn}
+              style={{ '--promo-accent': banner.accentColor }}
+            >
+              {/* Media Visual Area (supports GIF / Animated SVG fallback) */}
+              <div className="figma-promo-card__media">
+                <img
+                  src={bannerImgSrc[banner.id] || banner.gif}
+                  alt={isVi ? banner.titleVi : banner.titleEn}
+                  className="figma-promo-card__gif"
+                  loading="lazy"
+                  onError={() => handleBannerImgError(banner.id, banner.fallbackImg)}
+                />
+                <div
+                  className="figma-promo-card__badge"
+                  style={{ backgroundColor: banner.badgeBg, color: banner.badgeColor }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: 13 }}>{banner.tagIcon}</span>
+                  <span>{isVi ? banner.tagVi : banner.tagEn}</span>
+                </div>
+                <div className="figma-promo-card__live-indicator">
+                  <span className="figma-promo-card__pulse-dot" />
+                  <span>PROMO</span>
+                </div>
+              </div>
+
+              {/* Content Area */}
+              <div className="figma-promo-card__body">
+                <h3 className="figma-promo-card__title">
+                  {isVi ? banner.titleVi : banner.titleEn}
+                </h3>
+                <p className="figma-promo-card__desc">
+                  {isVi ? banner.descVi : banner.descEn}
+                </p>
+
+                <div className="figma-promo-card__footer">
+                  <div className="figma-promo-card__metric">
+                    <span className="material-symbols-outlined" style={{ fontSize: 15 }}>{banner.metricIcon}</span>
+                    <span>{isVi ? banner.metricVi : banner.metricEn}</span>
+                  </div>
+
+                  <span className="figma-promo-card__cta">
+                    <span>{isVi ? banner.ctaVi : banner.ctaEn}</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: 16 }}>arrow_forward</span>
                   </span>
                 </div>
               </div>
