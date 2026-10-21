@@ -163,40 +163,16 @@ const defaultLearningSets = {
   }
 }
 
-// Student reviews from Figma Frame 518:5910
-const FIGMA_STUDENT_REVIEWS = [
-  {
-    id: 'r1',
-    name: 'Leonardo Da Vinci',
-    avatar: '/assets/editorial/instructors/alexander.png',
-    date: 'Today',
-    rating: 5,
-    comment: "Loved the course. I've learned some very subtle techniques, especially on academic collocations and coherence."
-  },
-  {
-    id: 'r2',
-    name: 'Titania S',
-    avatar: '/assets/editorial/instructors/sarasvati.png',
-    date: 'Today',
-    rating: 5,
-    comment: 'I loved the course, it had been a long time since I practiced academic essays and now I write with much more confidence thanks to LexiGrow Studio.'
-  },
-  {
-    id: 'r3',
-    name: 'Zhirkov',
-    avatar: '/assets/editorial/instructors/jonathan.png',
-    date: 'Yesterday',
-    rating: 5,
-    comment: 'Yes. I just emphasize that the use of academic vocabulary, for non-native writers, becomes natural to follow. Safe and very didactic teacher.'
-  },
-  {
-    id: 'r4',
-    name: 'Miphoska',
-    avatar: '/assets/editorial/instructors/labie.png',
-    date: '3 days ago',
-    rating: 4,
-    comment: 'The instant AI evaluation combined with the chapter breakdown is brilliant. The explanations are clear and quick for ambitious learners.'
-  }
+// Recommended transition words for students
+const TRANSITION_CONNECTORS = [
+  { text: 'Furthermore,', label: 'Furthermore (Hơn nữa)' },
+  { text: 'Moreover,', label: 'Moreover (Ngoài ra)' },
+  { text: 'However,', label: 'However (Tuy nhiên)' },
+  { text: 'In addition,', label: 'In addition (Thêm vào đó)' },
+  { text: 'Therefore,', label: 'Therefore (Vì vậy)' },
+  { text: 'Consequently,', label: 'Consequently (Hệ quả là)' },
+  { text: 'For example,', label: 'For example (Ví dụ)' },
+  { text: 'In contrast,', label: 'In contrast (Trái lại)' }
 ]
 
 function AIGradingProgress({ stage = 1, progress = 15 }) {
@@ -338,25 +314,9 @@ export default function LearningSession() {
   const setSlug = searchParams.get('set') || ''
 
   const [session, setSession] = useState(null)
-  const [currentStep, setCurrentStep] = useState('lesson') // 'lesson' | 'practice' | 'writing' | 'feedback' | 'revision' | 'completed'
+  const paramStep = searchParams.get('step')
+  const [currentStep, setCurrentStep] = useState(paramStep || 'lesson') // 'lesson' | 'practice' | 'writing' | 'feedback' | 'revision' | 'completed'
   const [learningSet, setLearningSet] = useState(defaultLearningSets[setSlug] || defaultLearningSets['daily-life'])
-
-  // Video Player state
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [videoProgress, setVideoProgress] = useState(20) // percentage
-  const videoTime = '12:00 / 59:00'
-  const [videoVolume, setVideoVolume] = useState(80)
-  const [playerCollapsed, setPlayerCollapsed] = useState(false)
-
-  // Layout tabs matching Figma Frame 518:5910
-  const [contentTab, setContentTab] = useState('practice') // 'practice' | 'about' | 'reviews'
-
-  // Chapters accordion expansion
-  const [expandedChapter, setExpandedChapter] = useState('ch2') // 'ch1' | 'ch2' | 'ch3'
-
-  // Newsletter state
-  const [newsletterEmail, setNewsletterEmail] = useState('')
-  const [newsletterDone, setNewsletterDone] = useState(false)
 
   // Writing state
   const [essayContent, setEssayContent] = useState('')
@@ -373,6 +333,7 @@ export default function LearningSession() {
   const draftSaveQueue = useRef(Promise.resolve())
   const activeRequestIdRef = useRef(null)
   const lastSubmittedContentRef = useRef(null)
+  const textareaRef = useRef(null)
 
   // AI Practice Questions
   const [practiceQuestions, setPracticeQuestions] = useState([])
@@ -458,7 +419,7 @@ export default function LearningSession() {
             const localDraft = readStoredDraft(draftStorageKey)
             if (typeof localDraft?.content === 'string') setEssayContent(localDraft.content)
           }
-          if (payload.currentStep) setCurrentStep(payload.currentStep)
+          if (payload.currentStep && !paramStep) setCurrentStep(payload.currentStep)
 
           const slug = payload.learningSetSlug || payload.learningSet?.slug || setSlug
           const preset = defaultLearningSets[slug]
@@ -528,6 +489,9 @@ export default function LearningSession() {
     return acc
   }, {})
 
+  const usedWordsCount = words.filter((w) => wordStatusMap[w.word]).length
+  const usedRatio = words.length > 0 ? Math.round((usedWordsCount / words.length) * 100) : 0
+
   const wordCount = essayContent.trim() ? essayContent.trim().split(/\s+/).filter(Boolean).length : 0
 
   const persistDraft = useCallback((content) => {
@@ -579,6 +543,7 @@ export default function LearningSession() {
 
   const handleStepChange = async (nextStep) => {
     setStepSaveError('')
+    setCurrentStep(nextStep)
     try {
       if (hasServerSession) {
         await api.put(`/sessions/${session._id}/step`, { currentStep: nextStep })
@@ -586,21 +551,20 @@ export default function LearningSession() {
       if (nextStep === 'completed') {
         invalidateLearningPathRecommendationCache(api.getUser()?._id)
       }
-      setCurrentStep(nextStep)
       return true
     } catch (e) {
-      setStepSaveError(e.message || 'Could not save your learning-session progress.')
+      console.warn('Could not save learning-session step on server:', e)
       return false
     }
   }
 
   const handleSubmitWriting = async () => {
     if (!isValidLearningEssayWordCount(wordCount)) {
-      alert(t('learning.wordCountValidation'))
+      alert(t('learning.wordCountValidation', 'Bài viết cần có từ 60 đến 100 từ.'))
       return
     }
     if (!hasServerSession) {
-      setSubmitError(t('learning.sessionOffline'))
+      setSubmitError(t('learning.sessionOffline', 'Phiên học chưa được đồng bộ với máy chủ. Vui lòng tải lại trang.'))
       return
     }
 
@@ -694,676 +658,527 @@ export default function LearningSession() {
     return res?.data
   }
 
+  // Insert helper for target words & connectors
+  const insertTextIntoEssay = (textToInsert) => {
+    if (!textareaRef.current) {
+      setEssayContent((prev) => (prev ? `${prev} ${textToInsert}` : textToInsert))
+      return
+    }
+    const el = textareaRef.current
+    const start = el.selectionStart || 0
+    const end = el.selectionEnd || 0
+    const prev = essayContent || ''
+    const spaceBefore = start > 0 && prev[start - 1] !== ' ' && prev[start - 1] !== '\n' ? ' ' : ''
+    const spaceAfter = end < prev.length && prev[end] !== ' ' && prev[end] !== '\n' ? ' ' : ' '
+    const next = prev.slice(0, start) + spaceBefore + textToInsert + spaceAfter + prev.slice(end)
+    setEssayContent(next)
+    setDraftSaveState('unsaved')
+    setTimeout(() => {
+      el.focus()
+      const newPos = start + spaceBefore.length + textToInsert.length + spaceAfter.length
+      el.setSelectionRange(newPos, newPos)
+    }, 10)
+  }
+
   return (
-    <div className="figma-video-page animate-fade-in">
-      {/* ── BREADCRUMB ── */}
-      <nav className="figma-video-breadcrumb" aria-label="Breadcrumb">
-        <Link to="/student/dashboard">{isVi ? 'Trang chủ' : 'Home'}</Link>
-        <span>/</span>
-        <Link to="/student/explore">{isVi ? 'Khoá học' : 'Courses'}</Link>
-        <span>/</span>
-        <span className="current">{learningSet.title}</span>
+    <div className="writing-workspace-page animate-fade-in">
+      {/* ── 1. TOP HEADER & BREADCRUMB ── */}
+      <header className="writing-workspace-header">
+        <nav className="writing-workspace-breadcrumb" aria-label="Breadcrumb">
+          <Link to="/student/dashboard" className="writing-breadcrumb-link">
+            <span className="material-symbols-outlined writing-breadcrumb-home">home</span>
+            <span>{isVi ? 'Trang chủ' : 'Home'}</span>
+          </Link>
+          <span className="writing-breadcrumb-sep">/</span>
+          <Link to="/student/explore" className="writing-breadcrumb-link">
+            {isVi ? 'Thư viện chủ đề' : 'Explore'}
+          </Link>
+          <span className="writing-breadcrumb-sep">/</span>
+          <span className="writing-breadcrumb-current">{learningSet.title}</span>
+        </nav>
+
+        <div className="writing-header-actions">
+          <span className="writing-badge-level">
+            <span className="material-symbols-outlined">workspace_premium</span>
+            <span>CEFR {learningSet.level || 'B1'}</span>
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="writing-exit-btn"
+            onClick={() => navigate('/student/dashboard')}
+          >
+            <span className="material-symbols-outlined">close</span>
+            <span>{isVi ? 'Thoát' : 'Exit'}</span>
+          </Button>
+        </div>
+      </header>
+
+      {/* ── 2. TOPIC HERO BANNER ── */}
+      <section className="writing-hero-banner">
+        <div className="writing-hero-left">
+          <div className="writing-hero-tag">
+            <span className="material-symbols-outlined">edit_note</span>
+            <span>{isVi ? 'Không Gian Luyện Viết Thông Minh' : 'Smart AI Writing Workspace'}</span>
+          </div>
+          <h1 className="writing-hero-title">{learningSet.title}</h1>
+          <p className="writing-hero-desc">
+            {learningSet.promptTopic || (isVi
+              ? 'Luyện tập diễn đạt học thuật, ứng dụng từ vựng chuẩn ngữ cảnh và nhận phản hồi tức thì từ chuyên gia AI.'
+              : 'Practice academic writing, apply target vocabulary in context, and receive instant rubric feedback from AI.')}
+          </p>
+
+          <div className="writing-hero-pills">
+            <div className="writing-hero-pill">
+              <span className="material-symbols-outlined">flag</span>
+              <span><strong>{words.length}</strong> {isVi ? 'từ mục tiêu' : 'target words'}</span>
+            </div>
+            <div className="writing-hero-pill">
+              <span className="material-symbols-outlined">description</span>
+              <span><strong>60–100</strong> {isVi ? 'từ yêu cầu' : 'words target'}</span>
+            </div>
+            <div className="writing-hero-pill">
+              <span className="material-symbols-outlined">psychology</span>
+              <span><strong>CEFR & IELTS</strong> {isVi ? 'Rubric chuẩn' : 'Rubrics'}</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 3. STEPPER PROGRESS WIZARD ── */}
+      <nav className="writing-stepper-container" aria-label="Learning Steps">
+        {[
+          { key: 'lesson', label: isVi ? '1. Từ vựng mục tiêu' : '1. Target Words', icon: 'school' },
+          { key: 'practice', label: isVi ? '2. Luyện tập ngữ cảnh' : '2. Context Drills', icon: 'bolt' },
+          { key: 'writing', label: isVi ? '3. Viết luận & Chấm AI' : '3. Paragraph Writing', icon: 'edit_document' },
+          { key: 'feedback', label: isVi ? '4. Chấm điểm & Đánh giá' : '4. AI Evaluation', icon: 'auto_awesome' },
+        ].map((st) => {
+          const stepOrder = ['lesson', 'practice', 'writing', 'feedback', 'revision', 'completed']
+          const currentIndex = stepOrder.indexOf(currentStep)
+          const stIndex = stepOrder.indexOf(st.key)
+          const isDone = currentIndex > stIndex
+          const isActive = currentStep === st.key || (st.key === 'feedback' && currentStep === 'revision')
+
+          return (
+            <button
+              key={st.key}
+              type="button"
+              className={`writing-step-pill ${isActive ? 'writing-step-pill--active' : ''} ${isDone ? 'writing-step-pill--done' : ''}`}
+              onClick={() => handleStepChange(st.key)}
+            >
+              <span className="material-symbols-outlined writing-step-pill__icon">
+                {isDone ? 'check_circle' : st.icon}
+              </span>
+              <span className="writing-step-pill__label">{st.label}</span>
+            </button>
+          )
+        })}
       </nav>
 
-      {/* ── 2-COLUMN MAIN LAYOUT (Figma Frame 518:5910) ── */}
-      <div className="figma-video-layout">
-        {/* ── LEFT COLUMN (68% - Media Player & Interactive Work) ── */}
-        <div className="figma-video-left">
-          {/* Custom Video Player Container */}
-          <div className={`figma-player-container ${playerCollapsed ? 'figma-player-container--collapsed' : ''}`}>
-            <div className="figma-player-canvas">
-              <img
-                src="/assets/editorial/video-player-art.png"
-                alt="Course Video Artwork"
-                className="figma-player-art"
-              />
+      {/* ── 4. MAIN STEP CONTENT ── */}
+      <main className="writing-workspace-body">
+        {/* STEP 1: WORD LESSON */}
+        {currentStep === 'lesson' && (
+          <div className="writing-step-card animate-fade-in">
+            <WordLesson
+              words={words}
+              topicSlug={learningSet?.slug || setSlug}
+              topicTitle={learningSet?.title}
+              onComplete={() => handleStepChange('practice')}
+              onBack={() => navigate('/student/dashboard')}
+            />
+          </div>
+        )}
 
-              {/* Big Center Play Button Overlay */}
-              <button
-                type="button"
-                className={`figma-center-play-btn ${isPlaying ? 'figma-center-play-btn--playing' : ''}`}
-                onClick={() => setIsPlaying(!isPlaying)}
-                aria-label={isPlaying ? 'Pause lesson' : 'Play lesson video'}
-              >
-                <span className="material-symbols-outlined">
-                  {isPlaying ? 'pause' : 'play_arrow'}
-                </span>
-              </button>
+        {/* STEP 2: PRACTICE STEP */}
+        {currentStep === 'practice' && (
+          <div className="writing-step-card animate-fade-in">
+            <PracticeStep
+              words={words}
+              questions={practiceQuestions}
+              loading={loadingPractice}
+              refreshing={refreshingPractice}
+              error={practiceError}
+              onRefresh={() => fetchPracticeQuestions(true)}
+              onComplete={() => handleStepChange('writing')}
+              onBack={() => setCurrentStep('lesson')}
+            />
+          </div>
+        )}
 
-              {/* Collapse/Expand Toggle Top Right */}
-              <button
-                type="button"
-                className="figma-player-collapse-toggle"
-                onClick={() => setPlayerCollapsed(!playerCollapsed)}
-                title={playerCollapsed ? 'Expand video player' : 'Collapse video player'}
-              >
-                <span className="material-symbols-outlined">
-                  {playerCollapsed ? 'unfold_more' : 'unfold_less'}
-                </span>
-              </button>
-
-              {/* Video Bottom Chrome Controls Bar */}
-              <div className="figma-player-controls">
-                {/* Scrub bar */}
-                <div
-                  className="figma-scrub-bar"
-                  onClick={(e) => {
-                    const rect = e.currentTarget.getBoundingClientRect()
-                    const clickX = e.clientX - rect.left
-                    const pct = Math.max(0, Math.min(100, Math.round((clickX / rect.width) * 100)))
-                    setVideoProgress(pct)
-                  }}
-                >
-                  <div className="figma-scrub-fill" style={{ width: `${videoProgress}%` }} />
-                  <div className="figma-scrub-thumb" style={{ left: `${videoProgress}%` }} />
-                </div>
-
-                <div className="figma-controls-row">
-                  <div className="figma-controls-left">
-                    <button
-                      type="button"
-                      className="figma-ctrl-btn"
-                      onClick={() => setIsPlaying(!isPlaying)}
-                      aria-label="Play/Pause"
-                    >
-                      <span className="material-symbols-outlined">
-                        {isPlaying ? 'pause' : 'play_arrow'}
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      className="figma-ctrl-btn"
-                      onClick={() => setVideoProgress((p) => Math.max(0, p - 5))}
-                      aria-label="Replay 10 seconds"
-                    >
-                      <span className="material-symbols-outlined">replay_10</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="figma-ctrl-btn"
-                      onClick={() => setVideoProgress((p) => Math.min(100, p + 5))}
-                      aria-label="Forward 10 seconds"
-                    >
-                      <span className="material-symbols-outlined">forward_10</span>
-                    </button>
-                    <button
-                      type="button"
-                      className="figma-ctrl-btn"
-                      onClick={() => setVideoVolume((v) => (v > 0 ? 0 : 80))}
-                      aria-label="Volume"
-                    >
-                      <span className="material-symbols-outlined">
-                        {videoVolume > 0 ? 'volume_up' : 'volume_off'}
-                      </span>
-                    </button>
-                    <span className="figma-video-time">{videoTime}</span>
+        {/* STEP 3: SMART WRITING 2-COLUMN WORKSPACE */}
+        {currentStep === 'writing' && (
+          analyzing ? (
+            <AIGradingProgress stage={analyzingStage} progress={analyzingProgress} />
+          ) : (
+            <div className="writing-layout-grid animate-fade-in">
+              {/* ── LEFT COLUMN (68% - Topic Prompt & Editor) ── */}
+              <div className="writing-main-column">
+                {/* Topic Prompt Card */}
+                <section className="writing-prompt-card">
+                  <div className="writing-prompt-card__header">
+                    <div className="writing-prompt-badge">
+                      <span className="material-symbols-outlined">lightbulb</span>
+                      <span>{isVi ? 'Đề Bài Luyện Viết' : 'Essay Prompt'}</span>
+                    </div>
+                    <span className="writing-prompt-badge--level">
+                      {learningSet.level || 'B1'}
+                    </span>
                   </div>
 
-                  <div className="figma-controls-right">
-                    <span className="figma-badge-hd">HD</span>
-                    <button type="button" className="figma-ctrl-btn" aria-label="Closed captions">
-                      <span className="material-symbols-outlined">closed_caption</span>
-                    </button>
-                    <button type="button" className="figma-ctrl-btn" aria-label="Settings">
-                      <span className="material-symbols-outlined">settings</span>
-                    </button>
-                    <button type="button" className="figma-ctrl-btn" aria-label="Fullscreen">
-                      <span className="material-symbols-outlined">fullscreen</span>
-                    </button>
+                  <p className="writing-prompt-text">{learningSet.promptTopic}</p>
+
+                  <div className="writing-prompt-hint">
+                    <span className="material-symbols-outlined">info</span>
+                    <span>
+                      {isVi
+                        ? 'Hãy vận dụng các từ vựng mục tiêu vào đoạn văn (60–100 từ) một cách mạch lạc. Chuyên gia AI sẽ phân tích ngữ pháp, collocations và cho điểm ngay sau khi nộp.'
+                        : 'Incorporate the target words naturally into your 60–100 word response. The AI Agent will evaluate grammar, collocations, and flow.'}
+                    </span>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
+                </section>
 
-          {/* Course Title Heading */}
-          <h1 className="figma-course-headline">
-            {learningSet.title.toUpperCase()} SCRATCH COURSE
-          </h1>
+                {/* Editor Card */}
+                <section className="writing-editor-card">
+                  <div className="writing-editor-card__header">
+                    <div className="writing-editor-title">
+                      <span className="material-symbols-outlined">ink_pen</span>
+                      <span>{isVi ? 'Khu vực soạn thảo' : 'Writing Editor'}</span>
+                    </div>
 
-          {/* Instructor & Meta Row (Figma Frame 518:5910) */}
-          <div className="figma-instructor-meta-row">
-            <div className="figma-instructor-left">
-              <img
-                src="/assets/editorial/instructors/alexander.png"
-                alt="LexiGrow Studio"
-                className="figma-author-avatar"
-              />
-              <div>
-                <div className="figma-author-name">LexiGrow Studio</div>
-                <div className="figma-author-sub">{isVi ? 'Ban Cố Vấn IELTS & Học Thuật' : 'Academic Writing Faculty'}</div>
-              </div>
-            </div>
+                    <div className="writing-editor-autosave">
+                      {draftSaveState === 'saving' && (
+                        <span className="writing-autosave-status writing-autosave-status--saving">
+                          <span className="material-symbols-outlined animate-spin">sync</span>
+                          <span>{isVi ? 'Đang lưu bản nháp…' : 'Autosaving…'}</span>
+                        </span>
+                      )}
+                      {draftSaveState === 'saved' && (
+                        <span className="writing-autosave-status writing-autosave-status--saved">
+                          <span className="material-symbols-outlined">cloud_done</span>
+                          <span>{isVi ? 'Đã lưu tự động' : 'Draft saved'}</span>
+                        </span>
+                      )}
+                      {draftSaveState === 'unsaved' && (
+                        <span className="writing-autosave-status writing-autosave-status--unsaved">
+                          <span className="material-symbols-outlined">cloud_sync</span>
+                          <span>{isVi ? 'Có thay đổi chưa lưu' : 'Unsaved edits'}</span>
+                        </span>
+                      )}
+                      {draftSaveState === 'error' && (
+                        <span className="writing-autosave-status writing-autosave-status--error">
+                          <span className="material-symbols-outlined">error</span>
+                          <span>{isVi ? 'Lỗi lưu bản nháp' : 'Save error'}</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
 
-            <div className="figma-author-stats">
-              <span className="figma-stat-pill">
-                <span className="material-symbols-outlined">group</span>
-                <span>2.3k</span>
-              </span>
-              <span className="figma-stat-pill">
-                <span className="material-symbols-outlined">chat</span>
-                <span>1.4k</span>
-              </span>
-            </div>
-          </div>
+                  {submitError && (
+                    <div className="writing-alert-error" role="alert">
+                      <span className="material-symbols-outlined">warning</span>
+                      <span>{submitError}</span>
+                    </div>
+                  )}
 
-          {/* Content Navigation Tabs */}
-          <div className="figma-course-tabs" role="tablist">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={contentTab === 'practice'}
-              className={`figma-course-tab ${contentTab === 'practice' ? 'figma-course-tab--active' : ''}`}
-              onClick={() => setContentTab('practice')}
-            >
-              <span className="material-symbols-outlined">auto_stories</span>
-              <span>{isVi ? 'Bài Luyện Tập & Viết Luận' : 'Practice & Interactive Session'}</span>
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={contentTab === 'about'}
-              className={`figma-course-tab ${contentTab === 'about' ? 'figma-course-tab--active' : ''}`}
-              onClick={() => setContentTab('about')}
-            >
-              <span className="material-symbols-outlined">info</span>
-              <span>{isVi ? 'Về Khoá Học' : 'About Course'}</span>
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={contentTab === 'reviews'}
-              className={`figma-course-tab ${contentTab === 'reviews' ? 'figma-course-tab--active' : ''}`}
-              onClick={() => setContentTab('reviews')}
-            >
-              <span className="material-symbols-outlined">rate_review</span>
-              <span>{isVi ? 'Đánh Giá Học Viên' : 'Reviews'} (4)</span>
-            </button>
-          </div>
+                  {stepSaveError && (
+                    <div className="writing-alert-error" role="alert">
+                      <span className="material-symbols-outlined">warning</span>
+                      <span>{stepSaveError}</span>
+                    </div>
+                  )}
 
-          {/* ── TAB 1: INTERACTIVE PRACTICE & WRITING ── */}
-          {contentTab === 'practice' && (
-            <div className="figma-interactive-body animate-fade-in">
-              {/* Stepper Wizard Bar */}
-              <div className="figma-lesson-stepper">
-                {[
-                  { key: 'lesson', label: isVi ? '1. Từ vựng mục tiêu' : '1. Target Words', icon: 'school' },
-                  { key: 'practice', label: isVi ? '2. Câu hỏi tương tác' : '2. Context Practice', icon: 'bolt' },
-                  { key: 'writing', label: isVi ? '3. Viết bài chấm điểm' : '3. Paragraph Writing', icon: 'edit_note' },
-                  { key: 'feedback', label: isVi ? '4. Chấm điểm AI' : '4. AI Feedback', icon: 'auto_awesome' },
-                ].map((st) => {
-                  const stepOrder = ['lesson', 'practice', 'writing', 'feedback', 'revision', 'completed']
-                  const currentIndex = stepOrder.indexOf(currentStep)
-                  const stIndex = stepOrder.indexOf(st.key)
-                  const isDone = currentIndex > stIndex
-                  const isActive = currentStep === st.key || (st.key === 'feedback' && currentStep === 'revision')
+                  <textarea
+                    ref={textareaRef}
+                    className="writing-essay-textarea"
+                    placeholder={t(
+                      'learning.writePlaceholder',
+                      isVi
+                        ? 'Viết đoạn văn của bạn tại đây (yêu cầu từ 60 đến 100 từ). Sử dụng các từ vựng mục tiêu ở cột bên phải để đạt điểm tối đa...'
+                        : 'Type your paragraph here (60-100 words). Incorporate the target vocabulary on the right to achieve optimal score...'
+                    )}
+                    value={essayContent}
+                    onChange={(e) => {
+                      setEssayContent(e.target.value)
+                      setSubmitError('')
+                      setDraftSaveState('unsaved')
+                    }}
+                    rows={10}
+                  />
 
-                  return (
-                    <button
-                      key={st.key}
-                      type="button"
-                      className={`figma-step-pill ${isActive ? 'figma-step-pill--active' : ''} ${isDone ? 'figma-step-pill--done' : ''}`}
-                      onClick={() => handleStepChange(st.key)}
-                    >
-                      <span className="material-symbols-outlined figma-step-icon">
-                        {isDone ? 'check' : st.icon}
+                  {/* Editor Footer / Word Count & Actions */}
+                  <div className="writing-editor-footer">
+                    <div className="writing-word-counter">
+                      <span className="material-symbols-outlined writing-counter-icon">
+                        {wordCount >= 60 && wordCount <= 100 ? 'check_circle' : 'straighten'}
                       </span>
-                      <span>{st.label}</span>
-                    </button>
-                  )
-                })}
+                      <span className="writing-counter-label">
+                        {isVi ? 'Độ dài:' : 'Word count:'}
+                      </span>
+                      <strong
+                        className={`writing-counter-number ${
+                          wordCount >= 60 && wordCount <= 100
+                            ? 'writing-counter-number--ideal'
+                            : wordCount > 100
+                              ? 'writing-counter-number--over'
+                              : 'writing-counter-number--under'
+                        }`}
+                      >
+                        {wordCount}
+                      </strong>
+                      <span className="writing-counter-range">/ 60–100 {isVi ? 'từ' : 'words'}</span>
+
+                      {/* Status indicator hint */}
+                      {wordCount < 60 && (
+                        <span className="writing-counter-tip writing-counter-tip--under">
+                          ({isVi ? `Cần thêm ít nhất ${60 - wordCount} từ` : `${60 - wordCount} more needed`})
+                        </span>
+                      )}
+                      {wordCount >= 60 && wordCount <= 100 && (
+                        <span className="writing-counter-tip writing-counter-tip--ideal">
+                          ({isVi ? 'Đạt chuẩn độ dài' : 'Optimal length'})
+                        </span>
+                      )}
+                      {wordCount > 100 && (
+                        <span className="writing-counter-tip writing-counter-tip--over">
+                          ({isVi ? `Vượt quá ${wordCount - 100} từ` : `${wordCount - 100} words over`})
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="writing-editor-actions">
+                      <Button
+                        variant="secondary"
+                        size="md"
+                        className="writing-btn-back"
+                        onClick={() => setCurrentStep('practice')}
+                      >
+                        <span className="material-symbols-outlined">arrow_back</span>
+                        <span>{isVi ? 'Quay lại' : 'Back'}</span>
+                      </Button>
+
+                      <Button
+                        variant="primary"
+                        size="md"
+                        className="writing-btn-submit"
+                        onClick={handleSubmitWriting}
+                        disabled={analyzing || !isValidLearningEssayWordCount(wordCount)}
+                      >
+                        <span>{isVi ? 'Nộp bài & Chấm AI' : 'Submit & Grade AI'}</span>
+                        <span className="material-symbols-outlined">auto_awesome</span>
+                      </Button>
+                    </div>
+                  </div>
+                </section>
               </div>
 
-              {/* STEP 1: WORD LESSON */}
-              {currentStep === 'lesson' && (
-                <WordLesson
-                  words={words}
-                  topicSlug={learningSet?.slug || setSlug}
-                  topicTitle={learningSet?.title}
-                  onComplete={() => handleStepChange('practice')}
-                  onBack={() => navigate('/student/dashboard')}
-                />
-              )}
+              {/* ── RIGHT COLUMN (32% - Companion Sidebar) ── */}
+              <aside className="writing-sidebar-column">
+                {/* 1. Target Vocabulary Checklist Tracker */}
+                <div className="writing-companion-card">
+                  <div className="writing-companion-card__header">
+                    <div className="writing-companion-title">
+                      <span className="material-symbols-outlined">checklist</span>
+                      <span>{isVi ? 'Từ vựng mục tiêu' : 'Target Vocabulary'}</span>
+                    </div>
+                    <span className="writing-used-badge">
+                      {usedWordsCount}/{words.length} {isVi ? 'từ' : 'used'}
+                    </span>
+                  </div>
 
-              {/* STEP 2: PRACTICE STEP */}
-              {currentStep === 'practice' && (
-                <PracticeStep
-                  words={words}
-                  questions={practiceQuestions}
-                  loading={loadingPractice}
-                  refreshing={refreshingPractice}
-                  error={practiceError}
-                  onRefresh={() => fetchPracticeQuestions(true)}
-                  onComplete={() => handleStepChange('writing')}
-                  onBack={() => setCurrentStep('lesson')}
-                />
-              )}
+                  {/* Progress tracker bar */}
+                  <div className="writing-words-progress">
+                    <div
+                      className="writing-words-progress__bar"
+                      style={{ width: `${usedRatio}%` }}
+                    />
+                  </div>
 
-              {/* STEP 3: SMART WRITING WORKSPACE */}
-              {currentStep === 'writing' && (
-                analyzing ? (
-                  <AIGradingProgress stage={analyzingStage} progress={analyzingProgress} />
-                ) : (
-                  <div className="figma-writing-area animate-fade-in">
-                    {/* Target words chips row */}
-                    <div className="figma-target-words-box">
-                      <div className="figma-target-words-title">
-                        <span className="material-symbols-outlined">flag</span>
-                        <span>{t('learning.targetWordsPrompt', 'Target Words to Apply in Essay')}:</span>
-                      </div>
-                      <div className="figma-target-words-chips">
-                        {words.map((w) => {
-                          const used = wordStatusMap[w.word]
-                          return (
-                            <span
-                              key={w.word}
-                              className={`figma-word-chip ${used ? 'figma-word-chip--used' : ''}`}
+                  <div className="writing-words-list">
+                    {words.map((w) => {
+                      const used = wordStatusMap[w.word]
+                      return (
+                        <div
+                          key={w.word}
+                          className={`writing-word-item ${used ? 'writing-word-item--used' : ''}`}
+                        >
+                          <div className="writing-word-item__top">
+                            <span className="material-symbols-outlined writing-word-status-icon">
+                              {used ? 'check_circle' : 'radio_button_unchecked'}
+                            </span>
+                            <div className="writing-word-item__main">
+                              <span className="writing-word-item__text">{w.word}</span>
+                              {w.ipa && <span className="writing-word-item__ipa">{w.ipa}</span>}
+                              {w.partOfSpeech && (
+                                <span className="writing-word-item__pos">{w.partOfSpeech}</span>
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              className="writing-word-insert-btn"
+                              title={isVi ? 'Chèn từ vào bài viết' : 'Insert into essay'}
+                              onClick={() => insertTextIntoEssay(w.word)}
                             >
-                              <span className="material-symbols-outlined">
-                                {used ? 'check_circle' : 'radio_button_unchecked'}
-                              </span>
-                              <strong>{w.word}</strong>
-                              <span className="figma-word-meaning">({w.meaningVi || w.meaning})</span>
-                            </span>
-                          )
-                        })}
-                      </div>
-                    </div>
+                              <span className="material-symbols-outlined">add</span>
+                            </button>
+                          </div>
 
-                    {/* Writing Prompt Card */}
-                    <div className="figma-prompt-box">
-                      <div className="figma-prompt-badge">
-                        <span className="material-symbols-outlined">lightbulb</span>
-                        <span>{isVi ? 'Đề bài thực hành' : 'Essay Prompt'}</span>
-                      </div>
-                      <p className="figma-prompt-text">{learningSet.promptTopic}</p>
-                    </div>
+                          <div className="writing-word-item__meaning">
+                            {w.meaningVi || w.meaning}
+                          </div>
 
-                    {/* Textarea Editor Card */}
-                    <div className="figma-editor-box">
-                      {submitError && (
-                        <div className="figma-alert-error" role="alert">
-                          {submitError}
-                        </div>
-                      )}
-                      {stepSaveError && (
-                        <div className="figma-alert-error" role="alert">
-                          {stepSaveError}
-                        </div>
-                      )}
-                      {draftSaveState && (
-                        <div style={{ fontSize: 12, color: 'var(--color-on-surface-variant)', marginBottom: 4 }}>
-                          {draftSaveState === 'saving'
-                            ? (isVi ? 'Đang lưu bản nháp…' : 'Autosaving draft…')
-                            : draftSaveState === 'saved'
-                              ? (isVi ? 'Bản nháp đã lưu tự động' : 'Draft saved')
-                              : (isVi ? 'Có thay đổi chưa lưu' : 'Unsaved changes')}
-                        </div>
-                      )}
-
-                      <textarea
-                        className="figma-essay-textarea"
-                        placeholder={t('learning.writePlaceholder', 'Type your paragraph here (60-100 words)...')}
-                        value={essayContent}
-                        onChange={(e) => {
-                          setEssayContent(e.target.value)
-                          setSubmitError('')
-                          setDraftSaveState('unsaved')
-                        }}
-                        rows={8}
-                      />
-
-                      <div className="figma-editor-footer">
-                        <div className="figma-word-counter">
-                          <strong className={wordCount >= 60 && wordCount <= 100 ? 'figma-count-ideal' : ''}>
-                            {wordCount}
-                          </strong>
-                          <span> / 60-100 {isVi ? 'từ' : 'words'}</span>
-                          {!isValidLearningEssayWordCount(wordCount) && (
-                            <span className="figma-count-hint">
-                              ({isVi ? 'Cần 60–100 từ' : '60–100 required'})
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="figma-editor-actions">
-                          <Button
-                            variant="secondary"
-                            size="md"
-                            className="figma-pill-btn"
-                            onClick={() => setCurrentStep('practice')}
-                          >
-                            {isVi ? 'Quay lại' : 'Back'}
-                          </Button>
-                          <Button
-                            variant="primary"
-                            size="md"
-                            className="figma-pill-cta"
-                            onClick={handleSubmitWriting}
-                            disabled={analyzing || !isValidLearningEssayWordCount(wordCount)}
-                          >
-                            <span>{isVi ? 'Nộp bài chấm điểm AI' : 'Submit for AI Evaluation'}</span>
-                            <span className="material-symbols-outlined">auto_awesome</span>
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )
-              )}
-
-              {/* STEP 4: AI FEEDBACK */}
-              {currentStep === 'feedback' && (
-                <div className="figma-feedback-area animate-fade-in">
-                  {analysisResult?.targetWordResults && (
-                    <div className="figma-heatmap-box">
-                      <h3 className="figma-heatmap-title">
-                        <span className="material-symbols-outlined">analytics</span>
-                        <span>{isVi ? 'Đánh Giá Từ Vựng Mục Tiêu' : 'Target Vocabulary Rubric'}</span>
-                      </h3>
-                      <div className="figma-heatmap-grid">
-                        {analysisResult.targetWordResults.map((res) => (
-                          <div
-                            key={res.word}
-                            className={`figma-heatmap-item ${activeFeedbackWord === res.word ? 'figma-heatmap-item--active' : ''}`}
-                            onClick={() => setActiveFeedbackWord(res.word)}
-                          >
-                            <div className="figma-heatmap-item-top">
-                              <strong>{res.word}</strong>
-                              <span className={`figma-rubric-badge figma-rubric-badge--${res.status}`}>
-                                {res.status}
+                          {w.collocations?.length > 0 && (
+                            <div className="writing-word-item__collocation">
+                              <span className="material-symbols-outlined">link</span>
+                              <span>
+                                {typeof w.collocations[0] === 'string'
+                                  ? w.collocations[0]
+                                  : w.collocations[0]?.phrase}
                               </span>
                             </div>
-                            <p>{res.explanationVi || res.explanation}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {reviewEssayId && (
-                    <AIFeedbackReview
-                      essayId={reviewEssayId}
-                      embedded={true}
-                      onRevise={handleStartRevision}
-                      onComplete={() => handleStepChange('completed')}
-                    />
-                  )}
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
-              )}
 
-              {/* STEP 4.5: REVISION */}
-              {currentStep === 'revision' && (
-                <RevisionComparison
-                  originalDraft={originalDraft}
-                  revisedDraft={essayContent}
-                  resolvedItems={words.filter((w) => wordStatusMap[w.word])}
-                  onSaveRevision={handleSaveRevision}
-                  onProceed={() => handleStepChange('completed')}
-                />
-              )}
-
-              {/* STEP 5: COMPLETION */}
-              {currentStep === 'completed' && (
-                <SessionCompletionModal
-                  sessionData={{ words, targetWords: words }}
-                  onStartNext={handleStartNextSession}
-                  onClose={() => navigate('/student/dashboard')}
-                />
-              )}
-            </div>
-          )}
-
-          {/* ── TAB 2: ABOUT COURSE (Figma Frame 518:5910) ── */}
-          {contentTab === 'about' && (
-            <div className="figma-about-body animate-fade-in">
-              <h3 className="figma-section-title">{isVi ? 'Tổng Quan Khoá Học' : 'About Course'}</h3>
-              <p className="figma-body-text">
-                {isVi
-                  ? 'Khoá học được thiết kế chuyên sâu giúp học viên làm chủ cấu trúc luận điểm, mở rộng tài nguyên từ vựng chuẩn học thuật và xây dựng tính liên kết mạch lạc (Coherence & Cohesion). Giáo trình tích hợp hệ thống trí tuệ nhân tạo phát hiện lỗi sai tức thì, chấm điểm theo tiêu chí CEFR/IELTS.'
-                  : 'Vue (pronounced /vjuː/, like view) is a progressive framework for building user interfaces. Unlike other monolithic frameworks, Vue is designed from the ground up to be incrementally adoptable. The core library is focused on the view layer only, and is easy to pick up and integrate with other libraries or existing projects.'}
-              </p>
-              <p className="figma-body-text">
-                {isVi
-                  ? 'Mỗi chương học bao gồm video giảng dạy từ giảng viên bản ngữ, bộ câu hỏi tương tác phản xạ và bài viết luận 60-100 từ có chuyên gia AI đồng hành phản hồi chi tiết.'
-                  : 'On the other hand, Vue is also perfectly capable of powering sophisticated Single-Page Applications when used in combination with modern tooling and supporting libraries.'}
-              </p>
-            </div>
-          )}
-
-          {/* ── TAB 3: STUDENT REVIEWS (Figma Frame 518:5910) ── */}
-          {contentTab === 'reviews' && (
-            <div className="figma-reviews-body animate-fade-in">
-              <h3 className="figma-section-title">{isVi ? 'Nhận Xét Của Học Viên' : 'Review'}</h3>
-
-              <div className="figma-reviews-list">
-                {FIGMA_STUDENT_REVIEWS.map((rev) => (
-                  <div key={rev.id} className="figma-review-row">
-                    <img src={rev.avatar} alt={rev.name} className="figma-reviewer-avatar" />
-                    <div className="figma-reviewer-body">
-                      <div className="figma-reviewer-head">
-                        <strong className="figma-reviewer-name">{rev.name}</strong>
-                        <span className="figma-review-date">{rev.date}</span>
-                      </div>
-                      <div className="figma-review-stars">{'★'.repeat(rev.rating)}</div>
-                      <p className="figma-review-text">{rev.comment}</p>
+                {/* 2. Quick Transition Words Helper */}
+                <div className="writing-companion-card">
+                  <div className="writing-companion-card__header">
+                    <div className="writing-companion-title">
+                      <span className="material-symbols-outlined">conversion_path</span>
+                      <span>{isVi ? 'Từ nối mạch lạc (Transitions)' : 'Transition Connectors'}</span>
                     </div>
                   </div>
-                ))}
-              </div>
-
-              <div className="figma-load-more-center">
-                <Button variant="outline" size="md" className="figma-pill-btn">
-                  {isVi ? 'Xem thêm nhận xét' : 'Load more review'}
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ── RIGHT COLUMN (32% - Curriculum Accordion & Webinar) ── */}
-        <aside className="figma-video-right">
-          {/* Chapter 1: Course Overview */}
-          <div className="figma-curriculum-accordion">
-            <button
-              type="button"
-              className="figma-accordion-header"
-              onClick={() => setExpandedChapter(expandedChapter === 'ch1' ? '' : 'ch1')}
-            >
-              <div>
-                <strong>Chapter 1: Course Overview</strong>
-                <span className="figma-accordion-meta">1/12 Videos • 28m</span>
-              </div>
-              <span className="material-symbols-outlined figma-accordion-arrow">
-                {expandedChapter === 'ch1' ? 'expand_less' : 'expand_more'}
-              </span>
-            </button>
-            {expandedChapter === 'ch1' && (
-              <div className="figma-accordion-content animate-fade-in">
-                <div className="figma-lesson-item figma-lesson-item--done">
-                  <span className="material-symbols-outlined">play_circle</span>
-                  <span>Welcome & Syllabus</span>
-                  <span className="figma-lesson-dur">5m</span>
-                  <span className="figma-badge-completed">Completed</span>
+                  <p className="writing-companion-hint">
+                    {isVi
+                      ? 'Bấm vào từ nối để tự động chèn vào vị trí con trỏ:'
+                      : 'Click any connector to insert into your essay:'}
+                  </p>
+                  <div className="writing-connectors-grid">
+                    {TRANSITION_CONNECTORS.map((c) => (
+                      <button
+                        key={c.text}
+                        type="button"
+                        className="writing-connector-chip"
+                        onClick={() => insertTextIntoEssay(c.text)}
+                        title={c.label}
+                      >
+                        <span className="material-symbols-outlined">add_circle</span>
+                        <span>{c.text}</span>
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div className="figma-lesson-item">
-                  <span className="material-symbols-outlined">play_circle</span>
-                  <span>Setting Up Your LexiGrow Workspace</span>
-                  <span className="figma-lesson-dur">12m</span>
+
+                {/* 3. AI Rubric Guidance Card */}
+                <div className="writing-companion-card writing-rubric-card">
+                  <div className="writing-companion-card__header">
+                    <div className="writing-companion-title">
+                      <span className="material-symbols-outlined">rule</span>
+                      <span>{isVi ? 'Tiêu chí chấm điểm CEFR' : 'AI Scoring Rubric'}</span>
+                    </div>
+                  </div>
+
+                  <ul className="writing-rubric-list">
+                    <li className="writing-rubric-item">
+                      <span className="writing-rubric-dot writing-rubric-dot--mint" />
+                      <div>
+                        <strong>Lexical Resource:</strong>
+                        <span>{isVi ? 'Sử dụng chuẩn xác từ mục tiêu và cụm collocations tự nhiên.' : 'Accurate use of target words & natural collocations.'}</span>
+                      </div>
+                    </li>
+                    <li className="writing-rubric-item">
+                      <span className="writing-rubric-dot writing-rubric-dot--yellow" />
+                      <div>
+                        <strong>Grammar Range:</strong>
+                        <span>{isVi ? 'Đa dạng cấu trúc câu, thì động từ và hạn chế lỗi cú pháp.' : 'Sentence variety, correct tenses, and grammatical accuracy.'}</span>
+                      </div>
+                    </li>
+                    <li className="writing-rubric-item">
+                      <span className="writing-rubric-dot writing-rubric-dot--purple" />
+                      <div>
+                        <strong>Coherence & Cohesion:</strong>
+                        <span>{isVi ? 'Liên kết câu tự nhiên bằng các từ nối logic.' : 'Clear paragraph flow using cohesive devices.'}</span>
+                      </div>
+                    </li>
+                    <li className="writing-rubric-item">
+                      <span className="writing-rubric-dot writing-rubric-dot--pink" />
+                      <div>
+                        <strong>Task Achievement:</strong>
+                        <span>{isVi ? 'Trả lời trọn vẹn chủ đề trong phạm vi 60–100 từ.' : 'Fulfills prompt requirements within 60–100 words.'}</span>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+              </aside>
+            </div>
+          )
+        )}
+
+        {/* STEP 4: AI FEEDBACK */}
+        {currentStep === 'feedback' && (
+          <div className="writing-feedback-area animate-fade-in">
+            {analysisResult?.targetWordResults && (
+              <div className="writing-heatmap-box">
+                <h3 className="writing-heatmap-title">
+                  <span className="material-symbols-outlined">analytics</span>
+                  <span>{isVi ? 'Đánh Giá Từ Vựng Mục Tiêu' : 'Target Vocabulary Rubric'}</span>
+                </h3>
+                <div className="writing-heatmap-grid">
+                  {analysisResult.targetWordResults.map((res) => (
+                    <div
+                      key={res.word}
+                      className={`writing-heatmap-item ${activeFeedbackWord === res.word ? 'writing-heatmap-item--active' : ''}`}
+                      onClick={() => setActiveFeedbackWord(res.word)}
+                    >
+                      <div className="writing-heatmap-item-top">
+                        <strong>{res.word}</strong>
+                        <span className={`writing-rubric-badge writing-rubric-badge--${res.status}`}>
+                          {res.status}
+                        </span>
+                      </div>
+                      <p>{res.explanationVi || res.explanation}</p>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
-          </div>
 
-          {/* Chapter 2: Curriculum (Active Chapter matching Figma) */}
-          <div className="figma-curriculum-accordion figma-curriculum-accordion--active">
-            <button
-              type="button"
-              className="figma-accordion-header"
-              onClick={() => setExpandedChapter(expandedChapter === 'ch2' ? '' : 'ch2')}
-            >
-              <div>
-                <strong>Chapter 2: Curriculum</strong>
-                <span className="figma-accordion-meta">1/12 Videos • 1h 28m</span>
-              </div>
-              <span className="material-symbols-outlined figma-accordion-arrow">
-                {expandedChapter === 'ch2' ? 'expand_less' : 'expand_more'}
-              </span>
-            </button>
-            {expandedChapter === 'ch2' && (
-              <div className="figma-accordion-content animate-fade-in">
-                <div
-                  className="figma-lesson-item figma-lesson-item--done"
-                  onClick={() => setCurrentStep('lesson')}
-                >
-                  <span className="material-symbols-outlined">play_circle</span>
-                  <span>Installing Vue JS</span>
-                  <span className="figma-lesson-dur">10m</span>
-                  <span className="figma-badge-completed">Completed</span>
-                </div>
-
-                <div
-                  className="figma-lesson-item figma-lesson-item--playing"
-                  onClick={() => setCurrentStep('writing')}
-                >
-                  <span className="material-symbols-outlined">play_circle</span>
-                  <span>Understand Vue Components</span>
-                  <span className="figma-lesson-dur">59m</span>
-                  <span className="figma-badge-playing">Playing</span>
-                </div>
-
-                <div className="figma-lesson-item" onClick={() => setCurrentStep('practice')}>
-                  <span className="material-symbols-outlined">play_circle</span>
-                  <span>Vue Templating</span>
-                  <span className="figma-lesson-dur">12m</span>
-                </div>
-
-                <div className="figma-lesson-item">
-                  <span className="material-symbols-outlined">play_circle</span>
-                  <span>Vue Forms</span>
-                  <span className="figma-lesson-dur">23m</span>
-                </div>
-
-                <div className="figma-lesson-item">
-                  <span className="material-symbols-outlined">play_circle</span>
-                  <span>Vue Styling</span>
-                  <span className="figma-lesson-dur">15m</span>
-                </div>
-
-                <div className="figma-lesson-item">
-                  <span className="material-symbols-outlined">play_circle</span>
-                  <span>Vue Routing</span>
-                  <span className="figma-lesson-dur">1h 30m</span>
-                </div>
-
-                <div className="figma-lesson-item">
-                  <span className="material-symbols-outlined">play_circle</span>
-                  <span>Vue Animation</span>
-                  <span className="figma-lesson-dur">1h 10m</span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Chapter 3: Components */}
-          <div className="figma-curriculum-accordion">
-            <button
-              type="button"
-              className="figma-accordion-header"
-              onClick={() => setExpandedChapter(expandedChapter === 'ch3' ? '' : 'ch3')}
-            >
-              <div>
-                <strong>Chapter 3: Components</strong>
-                <span className="figma-accordion-meta">1/12 Videos • 1h 28m</span>
-              </div>
-              <span className="material-symbols-outlined figma-accordion-arrow">
-                {expandedChapter === 'ch3' ? 'expand_less' : 'expand_more'}
-              </span>
-            </button>
-            {expandedChapter === 'ch3' && (
-              <div className="figma-accordion-content animate-fade-in">
-                <div className="figma-lesson-item">
-                  <span className="material-symbols-outlined">play_circle</span>
-                  <span>Component Communication & Props</span>
-                  <span className="figma-lesson-dur">24m</span>
-                </div>
-                <div className="figma-lesson-item">
-                  <span className="material-symbols-outlined">play_circle</span>
-                  <span>State Management with Pinia</span>
-                  <span className="figma-lesson-dur">38m</span>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Featured Webinar Card (Figma Frame 518:5910) */}
-          <div className="figma-webinar-card">
-            <img
-              src="/assets/editorial/webinar-masterclass.png"
-              alt="Featured Masterclass"
-              className="figma-webinar-img"
-            />
-            <div className="figma-webinar-overlay">
-              <span className="figma-webinar-badge">WEBINAR</span>
-              <div className="figma-webinar-speaker">Ana Kursova</div>
-              <h3 className="figma-webinar-title">
-                Masterclass in Design Thinking, Innovation & Creativity
-              </h3>
-              <Button
-                variant="primary"
-                size="sm"
-                className="figma-pill-cta figma-webinar-btn"
-                onClick={() => navigate('/student/explore')}
-              >
-                {isVi ? 'Đăng ký tham gia' : 'Register Free'}
-              </Button>
-            </div>
-          </div>
-        </aside>
-      </div>
-
-      {/* ── 3. BOTTOM NEWSLETTER DISCOUNT CTA ── */}
-      <section className="figma-newsletter-banner">
-        <div className="figma-newsletter-banner__left">
-          <h2 className="figma-newsletter-banner__title">
-            {isVi ? 'Tham gia và nhận ưu đãi đặc biệt' : 'Join and get amazing discount'}
-          </h2>
-          <p className="figma-newsletter-banner__subtitle">
-            {isVi
-              ? 'Tận hưởng khoá học với giao diện tối ưu trên mọi thiết bị di động & máy tính.'
-              : 'With our responsive themes and mobile and desktop apps.'}
-          </p>
-        </div>
-
-        <form
-          className="figma-newsletter-form"
-          onSubmit={(e) => {
-            e.preventDefault()
-            if (newsletterEmail.trim()) setNewsletterDone(true)
-          }}
-        >
-          {newsletterDone ? (
-            <div className="figma-newsletter-thanks">
-              <span className="material-symbols-outlined">check_circle</span>
-              <span>{isVi ? 'Đã đăng ký thành công!' : 'Subscribed successfully!'}</span>
-            </div>
-          ) : (
-            <div className="figma-newsletter-input-group">
-              <input
-                type="email"
-                placeholder={isVi ? 'Nhập email của bạn' : 'Email Address'}
-                className="figma-newsletter-input"
-                value={newsletterEmail}
-                onChange={(e) => setNewsletterEmail(e.target.value)}
-                required
+            {reviewEssayId && (
+              <AIFeedbackReview
+                essayId={reviewEssayId}
+                embedded={true}
+                onRevise={handleStartRevision}
+                onComplete={() => handleStepChange('completed')}
               />
-              <button type="submit" className="figma-newsletter-btn">
-                {isVi ? 'Đăng ký' : 'Subscribe'}
-              </button>
-            </div>
-          )}
-        </form>
-      </section>
+            )}
+          </div>
+        )}
+
+        {/* STEP 4.5: REVISION */}
+        {currentStep === 'revision' && (
+          <div className="writing-step-card animate-fade-in">
+            <RevisionComparison
+              originalDraft={originalDraft}
+              revisedDraft={essayContent}
+              resolvedItems={words.filter((w) => wordStatusMap[w.word])}
+              onSaveRevision={handleSaveRevision}
+              onProceed={() => handleStepChange('completed')}
+            />
+          </div>
+        )}
+
+        {/* STEP 5: COMPLETION */}
+        {currentStep === 'completed' && (
+          <SessionCompletionModal
+            sessionData={{ words, targetWords: words }}
+            onStartNext={handleStartNextSession}
+            onClose={() => navigate('/student/dashboard')}
+          />
+        )}
+      </main>
     </div>
   )
 }

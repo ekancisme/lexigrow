@@ -1,19 +1,28 @@
 /* ============================================================
-   Figma Redesign: Video Player & Learning Session
-   Matches Figma Frame: Paid Offline Video - 1 (518:5910)
+   LexiGrow Smart AI Writing Workspace
+   Clean, focused, distraction-free writing & vocabulary studio
    ============================================================ */
 
-.figma-video-page {
+.writing-workspace-page {
   max-width: 1360px;
   margin: 0 auto;
-  padding: 8px 16px 48px;
+  padding: 12px 20px 48px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
-/* ── BREADCRUMB ── */
-.figma-video-breadcrumb {
+/* ── 1. HEADER & BREADCRUMB ── */
+.writing-workspace-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 4px;
+}
+
+.writing-workspace-breadcrumb {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -21,342 +30,183 @@
   color: var(--color-on-surface-variant, #6B7280);
 }
 
-.figma-video-breadcrumb a {
+.writing-breadcrumb-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   color: var(--color-on-surface-variant, #6B7280);
   text-decoration: none;
+  font-weight: 500;
   transition: color 0.15s ease;
 }
 
-.figma-video-breadcrumb a:hover {
+.writing-breadcrumb-link:hover {
   color: var(--color-primary, #3DCBB1);
 }
 
-.figma-video-breadcrumb .current {
+.writing-breadcrumb-home {
+  font-size: 17px;
+}
+
+.writing-breadcrumb-sep {
+  color: var(--color-outline, #D1D5DB);
+}
+
+.writing-breadcrumb-current {
   color: var(--color-on-surface, #1B1B1B);
-  font-weight: 600;
-}
-
-/* ── 2-COLUMN MAIN LAYOUT ── */
-.figma-video-layout {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 32px;
-}
-
-@media (min-width: 1024px) {
-  .figma-video-layout {
-    grid-template-columns: minmax(0, 1fr) 380px;
-  }
-}
-
-/* ── LEFT COLUMN: MEDIA PLAYER & CONTENT ── */
-.figma-video-left {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  min-width: 0;
-}
-
-/* Custom Video Player */
-.figma-player-container {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: var(--radius-2xl, 20px);
-  background: #111827;
+  font-weight: 700;
+  max-width: 320px;
+  white-space: nowrap;
   overflow: hidden;
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
-  transition: aspect-ratio 0.25s ease;
+  text-overflow: ellipsis;
 }
 
-.figma-player-container--collapsed {
-  aspect-ratio: 21 / 6;
-}
-
-.figma-player-canvas {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-
-.figma-player-art {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* Center Play Button */
-.figma-center-play-btn {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 68px;
-  height: 68px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  color: #111827;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-  transition: transform 0.2s ease, background 0.2s ease;
-  z-index: 3;
-}
-
-.figma-center-play-btn:hover {
-  transform: translate(-50%, -50%) scale(1.1);
-  background: #3DCBB1;
-  color: #ffffff;
-}
-
-.figma-center-play-btn .material-symbols-outlined {
-  font-size: 38px;
-}
-
-.figma-player-collapse-toggle {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 4;
-  background: rgba(0, 0, 0, 0.6);
-  border: none;
-  color: #ffffff;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  backdrop-filter: blur(4px);
-}
-
-/* Controls Bar */
-.figma-player-controls {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0) 100%);
-  padding: 24px 20px 14px;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.figma-scrub-bar {
-  position: relative;
-  width: 100%;
-  height: 5px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 9999px;
-  cursor: pointer;
-}
-
-.figma-scrub-fill {
-  height: 100%;
-  background: #3DCBB1;
-  border-radius: 9999px;
-}
-
-.figma-scrub-thumb {
-  position: absolute;
-  top: 50%;
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
-  background: #ffffff;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
-}
-
-.figma-controls-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: #ffffff;
-}
-
-.figma-controls-left,
-.figma-controls-right {
+.writing-header-actions {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.figma-ctrl-btn {
-  background: none;
-  border: none;
-  color: #ffffff;
-  cursor: pointer;
-  padding: 0;
-  display: flex;
+.writing-badge-level {
+  display: inline-flex;
   align-items: center;
-  opacity: 0.9;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #065F46;
+  background: var(--color-primary-container, #EBF9F6);
+  border: 1px solid var(--color-primary, #3DCBB1);
+  padding: 4px 12px;
+  border-radius: var(--radius-full, 9999px);
 }
 
-.figma-ctrl-btn:hover {
-  opacity: 1;
-  transform: scale(1.1);
+.writing-badge-level .material-symbols-outlined {
+  font-size: 16px;
+  color: var(--color-primary, #3DCBB1);
 }
 
-.figma-ctrl-btn .material-symbols-outlined {
-  font-size: 20px;
-}
-
-.figma-video-time {
+.writing-exit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-on-surface-variant, #6B7280);
   font-size: 13px;
   font-weight: 600;
-  margin-left: 6px;
-  opacity: 0.95;
+  border-radius: var(--radius-full, 9999px);
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid var(--color-outline-variant, #E5E7EB);
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.figma-badge-hd {
-  font-size: 11px;
-  font-weight: 800;
-  border: 1.5px solid rgba(255, 255, 255, 0.7);
-  padding: 1px 5px;
-  border-radius: 4px;
-  letter-spacing: 0.05em;
+.writing-exit-btn:hover {
+  background: var(--color-surface-container, #F3F4F6);
+  color: var(--color-on-surface, #1B1B1B);
 }
 
-/* Headline */
-.figma-course-headline {
+.writing-exit-btn .material-symbols-outlined {
+  font-size: 16px;
+}
+
+/* ── 2. HERO BANNER ── */
+.writing-hero-banner {
+  background: linear-gradient(135deg, #EBF9F6 0%, #F5FBF9 50%, #FFFFFF 100%);
+  border: 1px solid rgba(61, 203, 177, 0.25);
+  border-radius: var(--radius-2xl, 20px);
+  padding: 26px 30px;
+  box-shadow: 0 4px 20px rgba(61, 203, 177, 0.08);
+}
+
+.writing-hero-left {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.writing-hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #0D9488;
+  background: rgba(61, 203, 177, 0.15);
+  padding: 4px 10px;
+  border-radius: var(--radius-full, 9999px);
+  width: fit-content;
+}
+
+.writing-hero-tag .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.writing-hero-title {
   font-size: clamp(22px, 2.5vw, 28px);
   font-weight: 800;
   color: var(--color-on-surface, #1B1B1B);
   letter-spacing: -0.01em;
-  margin: 8px 0 0;
+  margin: 0;
+  line-height: 1.25;
 }
 
-/* Instructor Meta */
-.figma-instructor-meta-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--color-outline-variant, #E5E7EB);
-  padding-bottom: 18px;
-}
-
-.figma-instructor-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.figma-author-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #3DCBB1;
-}
-
-.figma-author-name {
+.writing-hero-desc {
   font-size: 15px;
-  font-weight: 700;
-  color: var(--color-on-surface, #1B1B1B);
+  line-height: 1.5;
+  color: #4B5563;
+  margin: 0;
+  max-width: 860px;
 }
 
-.figma-author-sub {
-  font-size: 12px;
-  color: var(--color-on-surface-variant, #6B7280);
-}
-
-.figma-author-stats {
+.writing-hero-pills {
   display: flex;
-  gap: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 6px;
 }
 
-.figma-stat-pill {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #374151;
-  background: var(--color-surface-container, #F3F4F6);
-  padding: 5px 12px;
-  border-radius: var(--radius-full, 9999px);
-}
-
-.figma-stat-pill .material-symbols-outlined {
-  font-size: 16px;
-  color: #3DCBB1;
-}
-
-/* Content Tabs */
-.figma-course-tabs {
-  display: flex;
-  gap: 12px;
-  border-bottom: 1px solid var(--color-outline-variant, #E5E7EB);
-  padding-bottom: 2px;
-}
-
-.figma-course-tab {
-  background: none;
-  border: none;
-  padding: 10px 16px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-on-surface-variant, #6B7280);
-  cursor: pointer;
-  display: flex;
+.writing-hero-pill {
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  position: relative;
-  transition: color 0.15s ease;
+  font-size: 13px;
+  color: #374151;
+  background: #ffffff;
+  padding: 6px 14px;
+  border-radius: var(--radius-full, 9999px);
+  border: 1px solid rgba(61, 203, 177, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
-.figma-course-tab:hover {
+.writing-hero-pill .material-symbols-outlined {
+  font-size: 16px;
+  color: var(--color-primary, #3DCBB1);
+}
+
+.writing-hero-pill strong {
   color: var(--color-on-surface, #1B1B1B);
 }
 
-.figma-course-tab--active {
-  color: var(--color-primary, #3DCBB1) !important;
-  font-weight: 700;
-}
-
-.figma-course-tab--active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--color-primary, #3DCBB1);
-  border-radius: 9999px;
-}
-
-.figma-course-tab .material-symbols-outlined {
-  font-size: 18px;
-}
-
-/* ── INTERACTIVE BODY ── */
-.figma-interactive-body {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.figma-lesson-stepper {
+/* ── 3. STEPPER PROGRESS WIZARD ── */
+.writing-stepper-container {
   display: flex;
   gap: 10px;
   overflow-x: auto;
-  padding: 6px 0;
+  padding: 4px 2px;
+  scrollbar-width: none;
 }
 
-.figma-step-pill {
-  display: flex;
+.writing-stepper-container::-webkit-scrollbar {
+  display: none;
+}
+
+.writing-step-pill {
+  display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 10px 18px;
   border-radius: var(--radius-full, 9999px);
   border: 1px solid var(--color-outline, #E5E7EB);
   background: var(--color-surface, #ffffff);
@@ -365,420 +215,1021 @@
   color: var(--color-on-surface-variant, #6B7280);
   cursor: pointer;
   white-space: nowrap;
-  transition: all 0.15s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 }
 
-.figma-step-pill:hover {
-  border-color: #3DCBB1;
-  color: #3DCBB1;
+.writing-step-pill:hover {
+  border-color: var(--color-primary, #3DCBB1);
+  color: var(--color-primary, #3DCBB1);
+  transform: translateY(-1px);
 }
 
-.figma-step-pill--active {
-  background: #3DCBB1 !important;
+.writing-step-pill--active {
+  background: var(--color-primary, #3DCBB1) !important;
   color: #ffffff !important;
-  border-color: #3DCBB1 !important;
+  border-color: var(--color-primary, #3DCBB1) !important;
+  box-shadow: 0 4px 14px rgba(61, 203, 177, 0.35);
 }
 
-.figma-step-pill--done {
-  border-color: #3DCBB1;
+.writing-step-pill--active .writing-step-pill__icon {
+  color: #ffffff !important;
+}
+
+.writing-step-pill--done {
+  border-color: rgba(61, 203, 177, 0.4);
   color: #059669;
   background: #EBF9F6;
 }
 
-.figma-step-icon {
-  font-size: 16px;
+.writing-step-pill--done .writing-step-pill__icon {
+  color: #059669;
 }
 
-/* Target Words & Writing Area */
-.figma-target-words-box {
-  background: var(--color-surface, #ffffff);
-  border: 1px solid var(--color-outline-variant, #E5E7EB);
-  border-radius: var(--radius-xl, 16px);
-  padding: 20px;
-}
-
-.figma-target-words-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #111827;
-  margin-bottom: 12px;
-}
-
-.figma-target-words-title .material-symbols-outlined {
-  color: #3DCBB1;
+.writing-step-pill__icon {
   font-size: 18px;
+  color: #9CA3AF;
+  transition: color 0.15s ease;
 }
 
-.figma-target-words-chips {
+/* ── 4. STEP CONTAINER ── */
+.writing-workspace-body {
+  width: 100%;
+}
+
+.writing-step-card {
+  width: 100%;
+}
+
+/* ── 5. STEP 3: 2-COLUMN WRITING LAYOUT ── */
+.writing-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+}
+
+@media (min-width: 1024px) {
+  .writing-layout-grid {
+    grid-template-columns: minmax(0, 1fr) 380px;
+    align-items: start;
+  }
+}
+
+/* ── LEFT COLUMN (PRIMARY) ── */
+.writing-main-column {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
 }
 
-.figma-word-chip {
+/* Topic Prompt Card */
+.writing-prompt-card {
+  background: #FFFDF5;
+  border: 1px solid #FDE68A;
+  border-radius: var(--radius-xl, 18px);
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.05);
+}
+
+.writing-prompt-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.writing-prompt-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
-  border-radius: var(--radius-full, 9999px);
-  background: var(--color-surface-container, #F3F4F6);
   font-size: 13px;
-  color: #374151;
-  border: 1px solid transparent;
-}
-
-.figma-word-chip--used {
-  background: #EBF9F6;
-  border-color: #3DCBB1;
-  color: #065F46;
-}
-
-.figma-word-chip .material-symbols-outlined {
-  font-size: 16px;
-}
-
-.figma-word-meaning {
-  font-size: 12px;
-  color: #6B7280;
-}
-
-.figma-prompt-box {
-  background: #FFFBEB;
-  border: 1px solid #FDE68A;
-  border-radius: var(--radius-xl, 16px);
-  padding: 20px;
-}
-
-.figma-prompt-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
   font-weight: 700;
   color: #B45309;
-  margin-bottom: 6px;
 }
 
-.figma-prompt-badge .material-symbols-outlined {
+.writing-prompt-badge .material-symbols-outlined {
+  font-size: 18px;
+  color: #D97706;
+}
+
+.writing-prompt-badge--level {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #92400E;
+  background: #FEF3C7;
+  border: 1px solid #FDE68A;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.writing-prompt-text {
   font-size: 16px;
-}
-
-.figma-prompt-text {
-  font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.6;
+  font-weight: 600;
   color: #1F2937;
   margin: 0;
-  font-weight: 500;
 }
 
-.figma-editor-box {
+.writing-prompt-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #78350F;
+  background: rgba(254, 243, 199, 0.6);
+  padding: 10px 14px;
+  border-radius: var(--radius-lg, 12px);
+}
+
+.writing-prompt-hint .material-symbols-outlined {
+  font-size: 18px;
+  color: #D97706;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Editor Card */
+.writing-editor-card {
   background: var(--color-surface, #ffffff);
   border: 1px solid var(--color-outline-variant, #E5E7EB);
-  border-radius: var(--radius-xl, 16px);
+  border-radius: var(--radius-xl, 18px);
   padding: 24px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
 }
 
-.figma-essay-textarea {
-  width: 100%;
-  border: 1.5px solid var(--color-outline, #E5E7EB);
-  border-radius: var(--radius-lg, 12px);
-  padding: 16px;
+.writing-editor-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-outline-variant, #F3F4F6);
+}
+
+.writing-editor-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 15px;
-  line-height: 1.6;
+  font-weight: 700;
   color: var(--color-on-surface, #1B1B1B);
+}
+
+.writing-editor-title .material-symbols-outlined {
+  font-size: 20px;
+  color: var(--color-primary, #3DCBB1);
+}
+
+.writing-autosave-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 9999px;
+}
+
+.writing-autosave-status--saved {
+  color: #059669;
+  background: #ECFDF5;
+}
+
+.writing-autosave-status--saved .material-symbols-outlined {
+  font-size: 15px;
+}
+
+.writing-autosave-status--saving {
+  color: #0284C7;
+  background: #F0F9FF;
+}
+
+.writing-autosave-status--saving .material-symbols-outlined {
+  font-size: 15px;
+}
+
+.writing-autosave-status--unsaved {
+  color: #D97706;
+  background: #FFFBEB;
+}
+
+.writing-autosave-status--unsaved .material-symbols-outlined {
+  font-size: 15px;
+}
+
+.writing-autosave-status--error {
+  color: #DC2626;
+  background: #FEF2F2;
+}
+
+.writing-autosave-status--error .material-symbols-outlined {
+  font-size: 15px;
+}
+
+.writing-alert-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  color: #B91C1C;
+  padding: 12px 16px;
+  border-radius: var(--radius-lg, 12px);
+  font-size: 14px;
+}
+
+.writing-alert-error .material-symbols-outlined {
+  font-size: 18px;
+  color: #DC2626;
+  flex-shrink: 0;
+}
+
+.writing-essay-textarea {
+  width: 100%;
+  min-height: 240px;
+  border: 1.5px solid var(--color-outline, #E5E7EB);
+  border-radius: var(--radius-lg, 14px);
+  padding: 18px 20px;
+  font-size: 15px;
+  line-height: 1.65;
+  font-family: inherit;
+  color: var(--color-on-surface, #1B1B1B);
+  background: var(--color-surface, #ffffff);
   resize: vertical;
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.figma-essay-textarea:focus {
-  border-color: #3DCBB1;
-  box-shadow: 0 0 0 3px rgba(61, 203, 177, 0.15);
+.writing-essay-textarea:focus {
+  border-color: var(--color-primary, #3DCBB1);
+  box-shadow: 0 0 0 3px rgba(61, 203, 177, 0.16);
 }
 
-.figma-editor-footer {
+.writing-essay-textarea::placeholder {
+  color: #9CA3AF;
+  line-height: 1.6;
+}
+
+/* Editor Footer */
+.writing-editor-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 16px;
+  padding-top: 8px;
 }
 
-.figma-word-counter {
+.writing-word-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-size: 14px;
   color: #6B7280;
 }
 
-.figma-count-ideal {
-  color: #059669;
-  font-weight: 800;
-}
-
-.figma-count-hint {
-  color: #DC2626;
-  font-size: 12px;
-  margin-left: 6px;
-}
-
-.figma-editor-actions {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* About tab & Reviews */
-.figma-section-title {
+.writing-counter-icon {
   font-size: 18px;
-  font-weight: 800;
-  color: var(--color-on-surface, #1B1B1B);
-  margin: 0 0 12px;
-}
-
-.figma-body-text {
-  font-size: 15px;
-  line-height: 1.6;
-  color: #4B5563;
-  margin: 0 0 12px;
-}
-
-.figma-reviews-list {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.figma-review-row {
-  display: flex;
-  gap: 14px;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--color-outline-variant, #F3F4F6);
-}
-
-.figma-reviewer-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
-}
-
-.figma-reviewer-body {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.figma-reviewer-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.figma-reviewer-name {
-  font-size: 14px;
-  font-weight: 700;
-  color: #3DCBB1;
-}
-
-.figma-review-date {
-  font-size: 12px;
   color: #9CA3AF;
 }
 
-.figma-review-stars {
-  color: #FFD130;
+.writing-counter-number {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.writing-counter-number--under {
+  color: #D97706;
+}
+
+.writing-counter-number--ideal {
+  color: #059669;
+}
+
+.writing-counter-number--over {
+  color: #DC2626;
+}
+
+.writing-counter-range {
+  color: #9CA3AF;
   font-size: 13px;
-  letter-spacing: 1px;
 }
 
-.figma-review-text {
-  font-size: 14px;
-  line-height: 1.5;
-  color: #374151;
-  margin: 4px 0 0;
+.writing-counter-tip {
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 4px;
 }
 
-.figma-load-more-center {
+.writing-counter-tip--under {
+  color: #D97706;
+}
+
+.writing-counter-tip--ideal {
+  color: #059669;
+}
+
+.writing-counter-tip--over {
+  color: #DC2626;
+}
+
+.writing-editor-actions {
   display: flex;
-  justify-content: center;
-  margin-top: 24px;
+  align-items: center;
+  gap: 12px;
 }
 
-/* ── RIGHT COLUMN: CURRICULUM PLAYLIST & WEBINAR ── */
-.figma-video-right {
+.writing-btn-back {
+  border-radius: var(--radius-full, 9999px) !important;
+  font-weight: 600 !important;
+}
+
+.writing-btn-submit {
+  border-radius: var(--radius-full, 9999px) !important;
+  font-weight: 700 !important;
+  padding: 10px 24px !important;
+  background: var(--color-primary, #3DCBB1) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(61, 203, 177, 0.35) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.writing-btn-submit:hover:not(:disabled) {
+  background: #32b59d !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(61, 203, 177, 0.45) !important;
+}
+
+.writing-btn-submit:disabled {
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ── RIGHT COLUMN (COMPANION SIDEBAR) ── */
+.writing-sidebar-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.writing-companion-card {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-outline-variant, #E5E7EB);
+  border-radius: var(--radius-xl, 18px);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+}
+
+.writing-companion-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.writing-companion-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-on-surface, #1B1B1B);
+}
+
+.writing-companion-title .material-symbols-outlined {
+  font-size: 19px;
+  color: var(--color-primary, #3DCBB1);
+}
+
+.writing-used-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #065F46;
+  background: #EBF9F6;
+  border: 1px solid rgba(61, 203, 177, 0.4);
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.writing-words-progress {
+  width: 100%;
+  height: 6px;
+  background: #F3F4F6;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.writing-words-progress__bar {
+  height: 100%;
+  background: linear-gradient(90deg, #3DCBB1 0%, #00DDC0 100%);
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.writing-words-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.writing-word-item {
+  border: 1px solid var(--color-outline-variant, #E5E7EB);
+  border-radius: var(--radius-lg, 12px);
+  padding: 12px 14px;
+  background: var(--color-surface, #ffffff);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.writing-word-item--used {
+  border-color: var(--color-primary, #3DCBB1);
+  background: #F3FBF9;
+}
+
+.writing-word-item__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.writing-word-status-icon {
+  font-size: 18px;
+  color: #9CA3AF;
+  flex-shrink: 0;
+}
+
+.writing-word-item--used .writing-word-status-icon {
+  color: #059669;
+}
+
+.writing-word-item__main {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+}
+
+.writing-word-item__text {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-on-surface, #1B1B1B);
+}
+
+.writing-word-item__ipa {
+  font-size: 12px;
+  color: #6B7280;
+  font-style: italic;
+}
+
+.writing-word-item__pos {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #4B5563;
+  background: #F3F4F6;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.writing-word-insert-btn {
+  background: none;
+  border: 1px solid var(--color-outline-variant, #E5E7EB);
+  color: var(--color-primary, #3DCBB1);
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.writing-word-insert-btn:hover {
+  background: var(--color-primary, #3DCBB1);
+  color: #ffffff;
+  border-color: var(--color-primary, #3DCBB1);
+  transform: scale(1.1);
+}
+
+.writing-word-insert-btn .material-symbols-outlined {
+  font-size: 16px;
+}
+
+.writing-word-item__meaning {
+  font-size: 13px;
+  color: #4B5563;
+  line-height: 1.4;
+  padding-left: 26px;
+}
+
+.writing-word-item__collocation {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #0D9488;
+  background: rgba(61, 203, 177, 0.1);
+  padding: 2px 8px;
+  border-radius: 6px;
+  width: fit-content;
+  margin-left: 26px;
+  font-weight: 500;
+}
+
+.writing-word-item__collocation .material-symbols-outlined {
+  font-size: 14px;
+}
+
+/* Connectors Helper */
+.writing-companion-hint {
+  font-size: 12px;
+  color: #6B7280;
+  margin: -4px 0 0;
+}
+
+.writing-connectors-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.writing-connector-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  padding: 5px 10px;
+  border-radius: var(--radius-full, 9999px);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.writing-connector-chip:hover {
+  background: #EBF9F6;
+  border-color: var(--color-primary, #3DCBB1);
+  color: #065F46;
+  transform: translateY(-1px);
+}
+
+.writing-connector-chip .material-symbols-outlined {
+  font-size: 14px;
+  color: var(--color-primary, #3DCBB1);
+}
+
+/* AI Rubric Guide */
+.writing-rubric-card {
+  border-color: rgba(61, 203, 177, 0.3);
+}
+
+.writing-rubric-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.writing-rubric-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #4B5563;
+}
+
+.writing-rubric-item strong {
+  color: var(--color-on-surface, #1B1B1B);
+  display: inline-block;
+  margin-right: 4px;
+}
+
+.writing-rubric-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 6px;
+}
+
+.writing-rubric-dot--mint {
+  background: #3DCBB1;
+  box-shadow: 0 0 0 3px rgba(61, 203, 177, 0.2);
+}
+
+.writing-rubric-dot--yellow {
+  background: #F59E0B;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.writing-rubric-dot--purple {
+  background: #9F49E3;
+  box-shadow: 0 0 0 3px rgba(159, 73, 227, 0.2);
+}
+
+.writing-rubric-dot--pink {
+  background: #FE416D;
+  box-shadow: 0 0 0 3px rgba(254, 65, 109, 0.2);
+}
+
+/* ── STEP 4: FEEDBACK AREA & HEATMAP ── */
+.writing-feedback-area {
   display: flex;
   flex-direction: column;
   gap: 24px;
 }
 
-.figma-curriculum-accordion {
+.writing-heatmap-box {
   background: var(--color-surface, #ffffff);
   border: 1px solid var(--color-outline-variant, #E5E7EB);
-  border-radius: var(--radius-xl, 16px);
-  overflow: hidden;
+  border-radius: var(--radius-xl, 18px);
+  padding: 24px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
 }
 
-.figma-accordion-header {
-  width: 100%;
+.writing-heatmap-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-on-surface, #1B1B1B);
+  margin: 0 0 16px;
+}
+
+.writing-heatmap-title .material-symbols-outlined {
+  color: var(--color-primary, #3DCBB1);
+}
+
+.writing-heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.writing-heatmap-item {
+  border: 1px solid var(--color-outline-variant, #E5E7EB);
+  border-radius: var(--radius-lg, 12px);
+  padding: 14px 16px;
+  background: #F9FAFB;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.writing-heatmap-item:hover,
+.writing-heatmap-item--active {
+  border-color: var(--color-primary, #3DCBB1);
+  background: #EBF9F6;
+  transform: translateY(-1px);
+}
+
+.writing-heatmap-item-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 20px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-align: left;
+  margin-bottom: 6px;
 }
 
-.figma-accordion-header strong {
-  display: block;
-  font-size: 14px;
+.writing-heatmap-item-top strong {
+  font-size: 15px;
   color: var(--color-on-surface, #1B1B1B);
 }
 
-.figma-accordion-meta {
-  display: block;
-  font-size: 12px;
-  color: #6B7280;
-  margin-top: 2px;
+.writing-rubric-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  text-transform: capitalize;
 }
 
-.figma-accordion-arrow {
-  color: #6B7280;
+.writing-rubric-badge--correct,
+.writing-rubric-badge--mastered,
+.writing-rubric-badge--proficient {
+  background: #DEF7EC;
+  color: #03543F;
+}
+
+.writing-rubric-badge--needs_work,
+.writing-rubric-badge--developing {
+  background: #FEF08A;
+  color: #713F12;
+}
+
+.writing-rubric-badge--incorrect,
+.writing-rubric-badge--missing {
+  background: #FEE2E2;
+  color: #991B1B;
+}
+
+.writing-heatmap-item p {
+  font-size: 13px;
+  color: #4B5563;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── AI GRADING PROGRESS LOADER ── */
+.ai-grading-loader {
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-outline-variant, #E5E7EB);
+  border-radius: var(--radius-2xl, 20px);
+  padding: 36px 32px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+.ai-grading-loader__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+}
+
+.ai-grading-loader__icon-wrap {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #EBF9F6;
+  border-radius: 50%;
+  margin-bottom: 4px;
+}
+
+.ai-grading-loader__icon {
+  font-size: 32px;
+  color: var(--color-primary, #3DCBB1);
+}
+
+.ai-grading-loader__sparkle {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 18px;
+  color: #F59E0B;
+}
+
+.ai-grading-loader__title {
   font-size: 22px;
+  font-weight: 800;
+  color: var(--color-on-surface, #1B1B1B);
+  margin: 0;
 }
 
-.figma-accordion-content {
-  border-top: 1px solid var(--color-outline-variant, #F3F4F6);
-  padding: 8px 12px;
+.ai-grading-loader__subtitle {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #6B7280;
+  max-width: 600px;
+  margin: 0;
+}
+
+.ai-grading-loader__timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #F3F4F6;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 13px;
+  color: #374151;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.ai-grading-loader__timer-icon {
+  font-size: 16px;
+  color: var(--color-primary, #3DCBB1);
+}
+
+.ai-grading-loader__timer-val {
+  font-weight: 800;
+  color: var(--color-on-surface, #1B1B1B);
+}
+
+.ai-grading-loader__timer-sec {
+  color: #9CA3AF;
+  font-size: 12px;
+}
+
+.ai-grading-loader__bar-container {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ai-grading-loader__bar-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4B5563;
+}
+
+.ai-grading-loader__bar-track {
+  width: 100%;
+  height: 8px;
+  background: #E5E7EB;
+  border-radius: 9999px;
+  overflow: hidden;
+}
+
+.ai-grading-loader__bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3DCBB1 0%, #00DDC0 100%);
+  border-radius: 9999px;
+  transition: width 0.4s ease;
+}
+
+.ai-grading-loader__steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ai-grading-loader__step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  border-radius: var(--radius-lg, 12px);
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  transition: all 0.2s ease;
+}
+
+.ai-grading-loader__step--current {
+  background: #EBF9F6;
+  border-color: var(--color-primary, #3DCBB1);
+  box-shadow: 0 4px 12px rgba(61, 203, 177, 0.15);
+}
+
+.ai-grading-loader__step--done {
+  background: #F0FDF4;
+  border-color: #86EFAC;
+}
+
+.ai-grading-loader__step-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.ai-grading-loader__step--done .ai-grading-loader__step-circle {
+  color: #059669;
+}
+
+.ai-grading-loader__step--current .ai-grading-loader__step-circle {
+  color: var(--color-primary, #3DCBB1);
+}
+
+.ai-grading-loader__step--pending .ai-grading-loader__step-circle {
+  color: #9CA3AF;
+}
+
+.ai-grading-loader__step-content {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.figma-lesson-item {
+.ai-grading-loader__step-title {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: var(--radius-md, 8px);
+  justify-content: space-between;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-on-surface, #1B1B1B);
+}
+
+.ai-grading-loader__badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.ai-grading-loader__badge--current {
+  background: #D1FAE5;
+  color: #065F46;
+}
+
+.ai-grading-loader__badge--done {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.ai-grading-loader__step-desc {
   font-size: 13px;
-  color: #374151;
-  cursor: pointer;
-  transition: background 0.15s ease;
+  color: #6B7280;
+  line-height: 1.4;
 }
 
-.figma-lesson-item:hover {
-  background: var(--color-surface-container, #F3F4F6);
+/* ── DARK MODE ENHANCEMENTS ── */
+[data-theme="dark"] .writing-hero-banner {
+  background: linear-gradient(135deg, rgba(61, 203, 177, 0.1) 0%, rgba(30, 41, 59, 0.6) 100%);
+  border-color: rgba(61, 203, 177, 0.2);
 }
 
-.figma-lesson-item .material-symbols-outlined {
-  font-size: 18px;
-  color: #9CA3AF;
+[data-theme="dark"] .writing-prompt-card {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.25);
 }
 
-.figma-lesson-dur {
-  margin-left: auto;
-  font-size: 12px;
-  color: #9CA3AF;
+[data-theme="dark"] .writing-prompt-text {
+  color: #F3F4F6;
 }
 
-.figma-badge-completed {
-  background: #3DCBB1;
-  color: #ffffff;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 9999px;
-  margin-left: 8px;
+[data-theme="dark"] .writing-prompt-hint {
+  background: rgba(245, 158, 11, 0.12);
+  color: #FDE68A;
 }
 
-.figma-badge-playing {
-  background: #FE416D;
-  color: #ffffff;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 9999px;
-  margin-left: 8px;
+[data-theme="dark"] .writing-word-item {
+  background: rgba(255, 255, 255, 0.02);
 }
 
-.figma-lesson-item--playing {
-  background: #FFF1F2 !important;
-  color: #BE123C;
-  font-weight: 700;
+[data-theme="dark"] .writing-word-item--used {
+  background: rgba(61, 203, 177, 0.08);
 }
 
-.figma-lesson-item--playing .material-symbols-outlined {
-  color: #FE416D;
+[data-theme="dark"] .writing-connector-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #E5E7EB;
 }
 
-.figma-lesson-item--done .material-symbols-outlined {
+[data-theme="dark"] .writing-connector-chip:hover {
+  background: rgba(61, 203, 177, 0.15);
   color: #3DCBB1;
 }
 
-/* Featured Webinar Card */
-.figma-webinar-card {
-  position: relative;
-  width: 100%;
-  height: 480px;
-  border-radius: var(--radius-2xl, 22px);
-  overflow: hidden;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
-}
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  .writing-workspace-page {
+    padding: 8px 12px 36px;
+    gap: 16px;
+  }
 
-.figma-webinar-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
+  .writing-hero-banner {
+    padding: 20px 16px;
+  }
 
-.figma-webinar-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 32px 24px;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.6) 60%, transparent 100%);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  color: #ffffff;
-}
+  .writing-editor-card {
+    padding: 16px;
+  }
 
-.figma-webinar-badge {
-  background: #00DDC0;
-  color: #064E3B;
-  font-size: 11px;
-  font-weight: 800;
-  padding: 3px 10px;
-  border-radius: 9999px;
-  width: fit-content;
-  letter-spacing: 0.05em;
-}
+  .writing-companion-card {
+    padding: 16px;
+  }
 
-.figma-webinar-speaker {
-  font-size: 14px;
-  color: #D1D5DB;
-  font-weight: 500;
-}
+  .writing-editor-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
 
-.figma-webinar-title {
-  font-size: 20px;
-  font-weight: 800;
-  line-height: 1.3;
-  margin: 0;
-  color: #ffffff;
-}
-
-.figma-webinar-btn {
-  margin-top: 10px;
-  align-self: flex-start;
+  .writing-editor-actions {
+    justify-content: flex-end;
+  }
 }
