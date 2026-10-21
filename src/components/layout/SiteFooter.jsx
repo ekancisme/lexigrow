@@ -18,35 +18,36 @@ export default function SiteFooter() {
             <span className="eduvia-footer__logo-text">LexiGrow</span>
           </Link>
           <p className="eduvia-footer__text">
-            Empowering students and creators worldwide with AI-driven learning and creative arts mastery.
+            Empowering students and educators worldwide with AI-driven English writing mastery and vocabulary growth.
           </p>
         </div>
 
         {/* Col 1 */}
         <div className="eduvia-footer__col">
           <ul className="eduvia-footer__links">
-            <li><Link to="/student/explore?q=web">Web Programming</Link></li>
-            <li><Link to="/student/explore?q=mobile">Mobile Programming</Link></li>
-            <li><Link to="/student/explore?q=java">Java Beginner</Link></li>
-            <li><Link to="/student/explore?q=php">PHP Beginner</Link></li>
+            <li><Link to="/student/explore">Smart Writing</Link></li>
+            <li><Link to="/student/my-words">Vocabulary Notebook</Link></li>
+            <li><Link to="/student/garden">Growth Garden</Link></li>
+            <li><Link to="/student/progress">Learning Progress</Link></li>
           </ul>
         </div>
 
         {/* Col 2 */}
         <div className="eduvia-footer__col">
           <ul className="eduvia-footer__links">
-            <li><Link to="/student/explore?q=illustrator">Adobe Illustrator</Link></li>
-            <li><Link to="/student/explore?q=photoshop">Adobe Photoshop</Link></li>
-            <li><Link to="/student/explore?q=design">Design Logo</Link></li>
+            <li><Link to="/student/explore?q=writing">Academic Writing</Link></li>
+            <li><Link to="/student/explore?q=ielts">IELTS Preparation</Link></li>
+            <li><Link to="/student/explore?q=grammar">Grammar & Structure</Link></li>
+            <li><Link to="/student/explore?q=vocabulary">Vocabulary Mastery</Link></li>
           </ul>
         </div>
 
         {/* Col 3 */}
         <div className="eduvia-footer__col">
           <ul className="eduvia-footer__links">
-            <li><Link to="/student/explore?q=writing">Writing Course</Link></li>
-            <li><Link to="/student/explore?q=photography">Photography</Link></li>
-            <li><Link to="/student/explore?q=video">Video Making</Link></li>
+            <li><Link to="/about">About LexiGrow</Link></li>
+            <li><Link to="/pricing">Subscription Plans</Link></li>
+            <li><Link to="/contact">Help & Contact</Link></li>
           </ul>
         </div>
       </div>
@@ -54,7 +55,7 @@ export default function SiteFooter() {
       <div className="eduvia-footer__bottom">
         <div className="eduvia-footer__bottom-inner">
           <p className="eduvia-footer__copy-text">
-            Copyright © MyCourse.io 2026. All Rights Reserved
+            Copyright © LexiGrow 2026. All Rights Reserved
           </p>
           <div className="eduvia-footer__socials">
             <a href="https://twitter.com" target="_blank" rel="noreferrer" aria-label="Twitter">

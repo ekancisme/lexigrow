@@ -68,11 +68,17 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
         : t('header.parent')
       : role === 'admin' ? t('headerNavigation.administrator') : `${t('header.student')} (${user?.englishLevel || '—'})`
 
+  const searchLabel = role === 'teacher' ? t('header.searchStudent') : t('header.searchEssay')
+
   const handleSearchSubmit = (e) => {
     e.preventDefault()
     const val = e.currentTarget.searchQuery?.value?.trim()
     if (val) {
-      navigate(`/student/explore?q=${encodeURIComponent(val)}`)
+      if (role === 'teacher') {
+        navigate(`/teacher/classes?q=${encodeURIComponent(val)}`)
+      } else {
+        navigate(`/student/explore?q=${encodeURIComponent(val)}`)
+      }
       closeNavigation()
     }
   }
@@ -101,84 +107,19 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
           <span className="topnav__brand-name">LexiGrow</span>
         </Link>
 
-        {/* 2. Browse Dropdown (Figma Design - single chevron from NavigationDisclosure) */}
-        <NavigationDisclosure
-          className="topnav__browse-disclosure"
-          triggerLabel={language === 'vi' ? 'Khám phá' : 'Browse'}
-          label={<span>{language === 'vi' ? 'Khám phá' : 'Browse'}</span>}
-          open={openId === 'browse'}
-          onOpen={() => setOpenId('browse')}
-          onClose={() => setOpenId(current => current === 'browse' ? null : current)}
-          onToggle={() => setOpenId(current => current === 'browse' ? null : 'browse')}
-        >
-          <ul className="header-navigation__links">
-            <li>
-              <Link to="/student/explore" className="header-navigation__link" onClick={closeNavigation}>
-                <span className="material-symbols-outlined">recommend</span>
-                <span>All Recommendation</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/student/explore?q=illustrator" className="header-navigation__link" onClick={closeNavigation}>
-                <span className="material-symbols-outlined">draw</span>
-                <span>Adobe Illustrator</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/student/explore?q=photoshop" className="header-navigation__link" onClick={closeNavigation}>
-                <span className="material-symbols-outlined">palette</span>
-                <span>Adobe Photoshop</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/student/explore?q=design" className="header-navigation__link" onClick={closeNavigation}>
-                <span className="material-symbols-outlined">design_services</span>
-                <span>UI Design</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/student/explore?q=web" className="header-navigation__link" onClick={closeNavigation}>
-                <span className="material-symbols-outlined">code</span>
-                <span>Web Programming & Vue JS</span>
-              </Link>
-            </li>
-            <li>
-              <Link to="/student/explore?q=writing" className="header-navigation__link" onClick={closeNavigation}>
-                <span className="material-symbols-outlined">history_edu</span>
-                <span>Academic Writing</span>
-              </Link>
-            </li>
-          </ul>
-        </NavigationDisclosure>
 
-        {/* 3. Center Search Input (Figma Design) */}
-        <div className="topnav__center-search">
-          <form className="topnav__search-field" onSubmit={handleSearchSubmit}>
-            <input
-              name="searchQuery"
-              type="search"
-              aria-label={t('header.searchEssay')}
-              placeholder={language === 'vi' ? 'Tìm kiếm khóa học...' : 'Search for course...'}
-            />
-            <button type="submit" className="topnav__search-submit" aria-label="Search">
-              <span className="material-symbols-outlined" aria-hidden="true">search</span>
-            </button>
-          </form>
-        </div>
-
-        {/* 4. Non-student desktop nav OR mobile slideout menu */}
+        {/* 2. Main Navigation (Desktop links + Mobile slideout drawer) */}
         <div id="topnav-main-navigation" className={`topnav__navigation ${menuOpen ? 'is-open' : ''}`}>
           <HeaderNavigation role={role} openId={openId} setOpenId={setOpenId} onNavigate={closeNavigation} />
           <div className="topnav__mobile-tools">
             <form className="topnav__search-field" onSubmit={handleSearchSubmit}>
+              <span className="material-symbols-outlined topnav__search-icon" aria-hidden="true">search</span>
               <input
                 name="searchQuery"
                 type="search"
-                placeholder={language === 'vi' ? 'Tìm kiếm khóa học...' : 'Search for course...'}
+                aria-label={searchLabel}
+                placeholder={searchLabel}
               />
-              <button type="submit" className="topnav__search-submit" aria-label="Search">
-                <span className="material-symbols-outlined">search</span>
-              </button>
             </form>
             {!user && (
               <div className="topnav__mobile-auth">
@@ -204,25 +145,34 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
           </div>
         </div>
 
-        {/* 5. Right Actions Bar (Figma Design) */}
-        <div className="topnav__actions">
-          <Link
-            to="/teacher/dashboard"
-            className="topnav__instructor-link"
-            title={language === 'vi' ? 'Trở thành Giảng viên' : 'Become Instructor'}
-          >
-            <span className="topnav__instructor-text">
-              {language === 'vi' ? 'Trở thành Giảng viên' : 'Become Instructor'}
-            </span>
-          </Link>
+        {/* 3. Center Search Input (Desktop) */}
+        <div className="topnav__center-search">
+          <form className="topnav__search-field" onSubmit={handleSearchSubmit}>
+            <span className="material-symbols-outlined topnav__search-icon" aria-hidden="true">search</span>
+            <input
+              name="searchQuery"
+              type="search"
+              aria-label={searchLabel}
+              placeholder={searchLabel}
+            />
+          </form>
+        </div>
 
-          <Link
-            to="/student/dashboard"
-            className="topnav__icon-btn topnav__cart-btn"
-            title={language === 'vi' ? 'Giỏ hàng' : 'Cart'}
+        {/* 4. Right Actions Bar */}
+        <div className="topnav__actions">
+          <LanguageSwitcher />
+
+          <button
+            type="button"
+            className="topnav__icon-btn topnav__theme-btn"
+            onClick={toggleTheme}
+            aria-label={theme === 'light' ? t('header.themeDark') : t('header.themeLight')}
+            title={theme === 'light' ? t('header.themeDark') : t('header.themeLight')}
           >
-            <span className="material-symbols-outlined" aria-hidden="true">shopping_cart</span>
-          </Link>
+            <span className="material-symbols-outlined" aria-hidden="true">
+              {theme === 'light' ? 'dark_mode' : 'light_mode'}
+            </span>
+          </button>
 
           {user ? (
             <>

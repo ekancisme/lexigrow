@@ -67,11 +67,14 @@ export default function HeaderNavigation({ role, openId, setOpenId, onNavigate }
           <NavLink to="/student/home" end className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
             {language === 'vi' ? 'Trang chủ' : 'Home'}
           </NavLink>
-          <NavLink to="/about" className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
-            {language === 'vi' ? 'Giới thiệu' : 'About Us'}
+          <NavLink to="/student/explore" className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
+            {language === 'vi' ? 'Khám phá' : 'Explore'}
           </NavLink>
           <NavLink to="/pricing" className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
             {language === 'vi' ? 'Bảng giá' : 'Pricing'}
+          </NavLink>
+          <NavLink to="/about" className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
+            {language === 'vi' ? 'Giới thiệu' : 'About Us'}
           </NavLink>
           <NavLink to="/contact" className={({ isActive }) => `header-navigation__home ${isActive ? 'is-active' : ''}`} onClick={onNavigate}>
             {language === 'vi' ? 'Liên hệ' : 'Contact Us'}

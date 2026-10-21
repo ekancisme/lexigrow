@@ -1,5 +1,5 @@
 /* ==========================================================================
-   LexiGrow Figma Redesign: TopNav Navigation (Matches Figma Lexi Desktop)
+   LexiGrow: TopNav Navigation (Modern System Header)
    ========================================================================== */
 
 .topnav {
@@ -66,56 +66,95 @@
   line-height: 1;
 }
 
-/* ── 2. Browse Dropdown (Figma Design) ── */
-.topnav__browse-disclosure .navigation-disclosure__trigger {
-  border: none !important;
-  background: transparent !important;
-  padding: 8px 12px !important;
-  font-size: 14px !important;
-  font-weight: 600 !important;
-  color: var(--color-on-surface, #1B1B1B) !important;
-  cursor: pointer;
-  display: inline-flex;
+/* ── 2. Primary Desktop Navigation ── */
+.topnav__navigation {
+  display: flex;
   align-items: center;
   gap: 4px;
-  border-radius: var(--radius-full, 9999px) !important;
-  transition: background 0.15s ease;
+  margin-left: 8px;
 }
 
-[data-theme="dark"] .topnav__browse-disclosure .navigation-disclosure__trigger {
-  color: #FFFFFF !important;
+.header-navigation {
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
-.topnav__browse-disclosure .navigation-disclosure__trigger:hover {
-  background: rgba(0, 0, 0, 0.04) !important;
+.header-navigation__home,
+.header-navigation .navigation-disclosure__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 38px;
+  padding: 0 14px;
+  border: none;
+  border-radius: var(--radius-full, 9999px);
+  background: transparent;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.18s ease;
 }
 
-[data-theme="dark"] .topnav__browse-disclosure .navigation-disclosure__trigger:hover {
-  background: rgba(255, 255, 255, 0.06) !important;
+[data-theme="dark"] .header-navigation__home,
+[data-theme="dark"] .header-navigation .navigation-disclosure__trigger {
+  color: #94A3B8;
 }
 
-.topnav__browse-disclosure .navigation-disclosure__chevron {
-  font-size: 19px !important;
-  color: #6B7280;
+.header-navigation__home:hover,
+.header-navigation .navigation-disclosure__trigger:hover,
+.header-navigation .navigation-disclosure.is-open > .navigation-disclosure__trigger {
+  color: var(--figma-primary, #3DCBB1);
+  background: rgba(61, 203, 177, 0.08);
+  text-decoration: none;
+}
+
+[data-theme="dark"] .header-navigation__home:hover,
+[data-theme="dark"] .header-navigation .navigation-disclosure__trigger:hover,
+[data-theme="dark"] .header-navigation .navigation-disclosure.is-open > .navigation-disclosure__trigger {
+  color: #FFFFFF;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.header-navigation__home.is-active,
+.header-navigation .navigation-disclosure.is-active > .navigation-disclosure__trigger {
+  color: var(--figma-primary, #3DCBB1);
+  font-weight: 700;
+  background: rgba(61, 203, 177, 0.12);
+}
+
+.header-navigation .navigation-disclosure__chevron {
+  font-size: 18px;
+  color: #94A3B8;
   margin-left: 2px;
+  transition: transform 0.2s ease;
 }
 
-/* ── 3. Center Search Input (Figma Design) ── */
+.header-navigation .navigation-disclosure.is-open .navigation-disclosure__chevron {
+  transform: rotate(180deg);
+  color: var(--figma-primary, #3DCBB1);
+}
+
+/* ── 3. Center/Compact Search Field ── */
 .topnav__center-search {
-  flex: 1;
-  max-width: 480px;
-  margin: 0 16px;
+  flex: 0 1 240px;
+  max-width: 260px;
+  margin-left: auto;
 }
 
 .topnav__search-field {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 14px 0 20px;
+  padding: 0 14px;
   background: #F4F7FA;
   border: 1px solid rgba(27, 27, 27, 0.08);
   border-radius: var(--radius-full, 9999px);
-  height: 44px;
+  height: 38px;
   box-sizing: border-box;
   transition: all 0.2s ease;
 }
@@ -131,13 +170,19 @@
   box-shadow: 0 0 0 3px rgba(61, 203, 177, 0.15);
 }
 
+.topnav__search-icon {
+  font-size: 18px;
+  color: #94A3B8;
+  flex-shrink: 0;
+}
+
 .topnav__search-field input {
   min-width: 0;
   width: 100%;
   background: transparent;
   border: none;
   color: var(--color-on-surface, #1B1B1B);
-  font-size: 14px;
+  font-size: 13.5px;
   font-family: inherit;
   outline: none;
 }
@@ -150,68 +195,22 @@
   color: #94A3B8;
 }
 
-.topnav__search-submit {
-  display: grid;
-  place-items: center;
-  background: transparent;
-  border: none;
-  padding: 4px;
-  cursor: pointer;
-  color: #94A3B8;
-  border-radius: var(--radius-full);
-}
-.topnav__search-submit:hover {
-  color: var(--figma-primary, #3DCBB1);
-}
-.topnav__search-submit .material-symbols-outlined {
-  font-size: 20px;
-}
-
-/* ── 4. Main Navigation (Hidden on desktop for student, shows on mobile drawer) ── */
-.topnav__navigation {
-  display: none !important;
-}
-
-/* ── 5. Mobile Tools (ALWAYS hidden on desktop) ── */
+/* ── 4. Mobile Tools (hidden on desktop) ── */
 .topnav__mobile-tools {
   display: none !important;
 }
 
-/* ── 6. Right Actions Bar ── */
+/* ── 5. Right Actions Bar ── */
 .topnav__actions {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-left: auto;
+  gap: 10px;
   flex-shrink: 0;
 }
 
-.topnav__instructor-link {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 14px;
-  color: var(--color-on-surface, #1B1B1B);
-  font-size: 14px;
-  font-weight: 600;
-  border-radius: var(--radius-full, 9999px);
-  text-decoration: none;
-  white-space: nowrap;
-  transition: all 0.18s ease;
-}
-
-[data-theme="dark"] .topnav__instructor-link {
-  color: #FFFFFF;
-}
-
-.topnav__instructor-link:hover {
-  color: var(--figma-primary, #3DCBB1);
-  background: rgba(61, 203, 177, 0.08);
-  text-decoration: none;
-}
-
 .topnav__icon-btn {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   padding: 0;
   display: grid;
   place-items: center;
@@ -237,7 +236,18 @@
 }
 
 .topnav__icon-btn .material-symbols-outlined {
-  font-size: 22px;
+  font-size: 20px;
+}
+
+/* Theme Toggle Button */
+.topnav__theme-btn {
+  border: 1px solid rgba(27, 27, 27, 0.08);
+}
+.topnav__theme-btn:hover {
+  border-color: var(--figma-primary, #3DCBB1);
+}
+[data-theme="dark"] .topnav__theme-btn {
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Avatar Button */
@@ -281,24 +291,24 @@
   color: #64748B;
 }
 
-/* Auth Buttons (Figma Design) */
+/* Auth Buttons (Guest state) */
 .topnav__auth-group {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .topnav__btn-outline {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 40px;
-  padding: 0 22px;
+  height: 38px;
+  padding: 0 18px;
   background: transparent;
   color: #1B1B1B !important;
   border: 1.5px solid rgba(27, 27, 27, 0.2);
   border-radius: var(--radius-full, 9999px);
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
@@ -321,13 +331,13 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  height: 40px;
-  padding: 0 24px;
+  height: 38px;
+  padding: 0 20px;
   background: var(--figma-primary, #3DCBB1);
   color: #FFFFFF !important;
   border: none;
   border-radius: var(--radius-full, 9999px);
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
@@ -356,7 +366,7 @@
   top: 100%;
   left: 0;
   padding-top: 8px;
-  width: 260px;
+  width: 250px;
   z-index: var(--z-dropdown, 200);
 }
 .navigation-disclosure__panel[hidden] {
@@ -419,27 +429,94 @@
   color: #64748B;
 }
 
-/* ── Mobile Queries (<= 1024px) ── */
+.header-navigation__link.is-disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.header-navigation__badge {
+  margin-left: auto;
+  background: #EF4444;
+  color: #FFFFFF;
+  min-width: 18px;
+  height: 18px;
+  line-height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-full, 9999px);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.header-navigation__child {
+  padding: 10px 12px 14px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(27, 27, 27, 0.08);
+}
+[data-theme="dark"] .header-navigation__child {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+.header-navigation__child label {
+  display: block;
+  font-size: 12px;
+  color: #64748B;
+  margin-bottom: 6px;
+}
+.header-navigation__child select {
+  width: 100%;
+  min-height: 38px;
+  padding: 6px 10px;
+  color: var(--color-on-surface, #1B1B1B);
+  background: #F4F7FA;
+  border: 1px solid rgba(27, 27, 27, 0.1);
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+}
+[data-theme="dark"] .header-navigation__child select {
+  background: #14181E;
+  color: #FFFFFF;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.header-navigation__child p {
+  font-size: 12px;
+  line-height: 1.4;
+  color: #64748B;
+  margin-top: 6px;
+}
+
+/* ── Responsive Breakpoints ── */
+@media (max-width: 1200px) {
+  .header-navigation__home,
+  .header-navigation .navigation-disclosure__trigger {
+    padding: 0 10px;
+    font-size: 13px;
+  }
+  .topnav__center-search {
+    max-width: 180px;
+  }
+}
+
 @media (max-width: 1024px) {
   .topnav__center-search {
-    display: none;
-  }
-  .topnav__instructor-link {
     display: none;
   }
   .topnav__menu-btn {
     display: grid !important;
   }
   .topnav__navigation {
+    display: none;
     position: absolute;
     top: 72px;
     left: 0;
     right: 0;
+    margin-left: 0;
     background: #FFFFFF;
     border-bottom: 1px solid rgba(27, 27, 27, 0.1);
     box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
     padding: 20px 24px;
     flex-direction: column;
+    align-items: stretch;
     gap: 16px;
     max-height: calc(100vh - 72px);
     overflow-y: auto;
@@ -451,6 +528,35 @@
   .topnav__navigation.is-open {
     display: flex !important;
   }
+  .header-navigation {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+  .header-navigation__home,
+  .header-navigation .navigation-disclosure__trigger {
+    width: 100%;
+    justify-content: space-between;
+    height: 42px;
+    padding: 0 16px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+  .header-navigation .navigation-disclosure__panel {
+    position: static;
+    width: 100%;
+    max-width: none;
+    padding: 0 0 8px;
+  }
+  .header-navigation .navigation-disclosure__surface {
+    box-shadow: none;
+    background: #F8FAFC;
+    border: 1px solid rgba(27, 27, 27, 0.06);
+  }
+  [data-theme="dark"] .header-navigation .navigation-disclosure__surface {
+    background: #1A2230;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
   .topnav__mobile-tools {
     display: flex !important;
     flex-direction: column;
@@ -458,9 +564,33 @@
     padding-top: 14px;
     border-top: 1px solid rgba(27, 27, 27, 0.08);
   }
+  [data-theme="dark"] .topnav__mobile-tools {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
   .topnav__mobile-row {
     display: flex;
     align-items: center;
     gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .topnav__bar {
+    padding: 0 16px;
+    gap: 8px;
+  }
+  .topnav__brand {
+    font-size: 18px;
+    gap: 8px;
+  }
+  .topnav__brand-mark {
+    width: 28px;
+    height: 28px;
+  }
+  .topnav__theme-btn {
+    display: none;
+  }
+  .topnav__actions {
+    gap: 6px;
   }
 }
