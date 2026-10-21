@@ -66,18 +66,18 @@
   line-height: 1;
 }
 
-/* ── 2. Primary Desktop Navigation ── */
+/* ── 2. Primary Desktop Navigation (Shifted to Right) ── */
 .topnav__navigation {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-left: 8px;
+  gap: 6px;
+  margin-left: auto;
 }
 
 .header-navigation {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
 }
 
 .header-navigation__home,
@@ -139,60 +139,10 @@
   color: var(--figma-primary, #3DCBB1);
 }
 
-/* ── 3. Center/Compact Search Field ── */
-.topnav__center-search {
-  flex: 0 1 240px;
-  max-width: 260px;
-  margin-left: auto;
-}
-
+/* ── 3. Search Field (Hidden per user request) ── */
+.topnav__center-search,
 .topnav__search-field {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 14px;
-  background: #F4F7FA;
-  border: 1px solid rgba(27, 27, 27, 0.08);
-  border-radius: var(--radius-full, 9999px);
-  height: 38px;
-  box-sizing: border-box;
-  transition: all 0.2s ease;
-}
-
-[data-theme="dark"] .topnav__search-field {
-  background: #1E293B;
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.topnav__search-field:focus-within {
-  background: #FFFFFF;
-  border-color: var(--figma-primary, #3DCBB1);
-  box-shadow: 0 0 0 3px rgba(61, 203, 177, 0.15);
-}
-
-.topnav__search-icon {
-  font-size: 18px;
-  color: #94A3B8;
-  flex-shrink: 0;
-}
-
-.topnav__search-field input {
-  min-width: 0;
-  width: 100%;
-  background: transparent;
-  border: none;
-  color: var(--color-on-surface, #1B1B1B);
-  font-size: 13.5px;
-  font-family: inherit;
-  outline: none;
-}
-
-[data-theme="dark"] .topnav__search-field input {
-  color: #FFFFFF;
-}
-
-.topnav__search-field input::placeholder {
-  color: #94A3B8;
+  display: none !important;
 }
 
 /* ── 4. Mobile Tools (hidden on desktop) ── */
@@ -512,15 +462,9 @@
     padding: 0 10px;
     font-size: 13px;
   }
-  .topnav__center-search {
-    max-width: 180px;
-  }
 }
 
 @media (max-width: 1024px) {
-  .topnav__center-search {
-    display: none;
-  }
   .topnav__menu-btn {
     display: grid !important;
   }

@@ -68,27 +68,12 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
         : t('header.parent')
       : role === 'admin' ? t('headerNavigation.administrator') : `${t('header.student')} (${user?.englishLevel || '—'})`
 
-  const searchLabel = role === 'teacher' ? t('header.searchStudent') : t('header.searchEssay')
-
-  const handleSearchSubmit = (e) => {
-    e.preventDefault()
-    const val = e.currentTarget.searchQuery?.value?.trim()
-    if (val) {
-      if (role === 'teacher') {
-        navigate(`/teacher/classes?q=${encodeURIComponent(val)}`)
-      } else {
-        navigate(`/student/explore?q=${encodeURIComponent(val)}`)
-      }
-      closeNavigation()
-    }
-  }
-
   const isHome = location.pathname === '/' || location.pathname === '/student/home'
 
   return (
     <header ref={headerRef} className={`topnav ${isHome ? 'topnav--home' : ''}`}>
       <div className="topnav__bar">
-        {/* 1. Brand Logo */}
+        {/* 1. Brand Logo (Left) */}
         <Link
           to={role === 'student' ? '/student/home' : `/${role}/dashboard`}
           className="topnav__brand"
@@ -107,20 +92,10 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
           <span className="topnav__brand-name">LexiGrow</span>
         </Link>
 
-
-        {/* 2. Main Navigation (Desktop links + Mobile slideout drawer) */}
+        {/* 2. Main Navigation (Moved to Right, search bar removed) */}
         <div id="topnav-main-navigation" className={`topnav__navigation ${menuOpen ? 'is-open' : ''}`}>
           <HeaderNavigation role={role} openId={openId} setOpenId={setOpenId} onNavigate={closeNavigation} />
           <div className="topnav__mobile-tools">
-            <form className="topnav__search-field" onSubmit={handleSearchSubmit}>
-              <span className="material-symbols-outlined topnav__search-icon" aria-hidden="true">search</span>
-              <input
-                name="searchQuery"
-                type="search"
-                aria-label={searchLabel}
-                placeholder={searchLabel}
-              />
-            </form>
             {!user && (
               <div className="topnav__mobile-auth">
                 <Link to="/login" className="header-navigation__link" onClick={closeNavigation}>
@@ -145,20 +120,7 @@ export default function TopNav({ role = 'student', menuOpen, onMenuToggle, onMen
           </div>
         </div>
 
-        {/* 3. Center Search Input (Desktop) */}
-        <div className="topnav__center-search">
-          <form className="topnav__search-field" onSubmit={handleSearchSubmit}>
-            <span className="material-symbols-outlined topnav__search-icon" aria-hidden="true">search</span>
-            <input
-              name="searchQuery"
-              type="search"
-              aria-label={searchLabel}
-              placeholder={searchLabel}
-            />
-          </form>
-        </div>
-
-        {/* 4. Right Actions Bar */}
+        {/* 3. Right Actions Bar */}
         <div className="topnav__actions">
           {user ? (
             <>
