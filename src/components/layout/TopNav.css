@@ -1,59 +1,51 @@
+/* ==========================================================================
+   LexiGrow Figma Redesign: TopNav Navigation (Matches Figma Lexi Desktop)
+   ========================================================================== */
+
 .topnav {
   position: sticky;
   top: 0;
-  z-index: var(--z-topnav);
+  z-index: var(--z-topnav, 100);
   flex-shrink: 0;
   background: #ffffff;
   border-bottom: 1px solid #F3F4F6;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+  width: 100%;
 }
+
 [data-theme="dark"] .topnav {
   background: #14181E !important;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
+
 .topnav__bar {
   display: flex;
   align-items: center;
-  min-height: 72px;
+  height: 72px;
   max-width: 1360px;
   margin-inline: auto;
   padding: 0 24px;
-  gap: 20px;
+  gap: 16px;
+  position: relative;
 }
 
-.topnav__browse-disclosure .navigation-disclosure__trigger {
-  border: none !important;
-  background: transparent !important;
-  padding: 6px 12px !important;
-  font-size: 14px !important;
-  font-weight: 600 !important;
-  color: var(--color-on-surface, #1B1B1B) !important;
-  cursor: pointer;
-}
-
-.topnav__browse-btn-text {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.topnav__chevron-icon {
-  font-size: 18px;
-  color: #6B7280;
-}
+/* ── 1. Brand Logo ── */
 .topnav__brand {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   flex-shrink: 0;
-  color: var(--color-on-surface);
-  font-family: var(--font-family);
+  color: var(--color-on-surface, #1B1B1B);
+  font-family: var(--font-family, 'Plus Jakarta Sans', sans-serif);
   font-size: 22px;
   font-weight: 800;
   letter-spacing: -0.02em;
   text-decoration: none;
 }
-.topnav__brand:hover { text-decoration: none; }
+.topnav__brand:hover {
+  text-decoration: none;
+}
+
 .topnav__brand-mark {
   display: grid;
   place-items: center;
@@ -73,64 +65,72 @@
   color: inherit;
   line-height: 1;
 }
-.topnav__navigation { flex: 0 1 auto; min-width: 0; margin-left: auto; }
-.header-navigation { display: flex; align-items: center; gap: 2px; }
-.header-navigation__home, .navigation-disclosure__trigger {
-  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
-  min-height: 42px; padding: 7px 10px; border: 0; border-bottom: 2px solid transparent; border-radius: 0;
-  background: transparent; color: var(--color-on-surface-variant); font-size: 13px; font-weight: 500; text-decoration: none; white-space: nowrap;
+
+/* ── 2. Browse Dropdown (Figma Design) ── */
+.topnav__browse-disclosure .navigation-disclosure__trigger {
+  border: none !important;
+  background: transparent !important;
+  padding: 8px 12px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: var(--color-on-surface, #1B1B1B) !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: var(--radius-full, 9999px) !important;
+  transition: background 0.15s ease;
 }
-.header-navigation__home:hover, .navigation-disclosure__trigger:hover, .navigation-disclosure.is-open > .navigation-disclosure__trigger { color: var(--color-primary); background: transparent; text-decoration: none; }
-.header-navigation__home.is-active, .navigation-disclosure.is-active > .navigation-disclosure__trigger { color: var(--color-primary); border-bottom-color: var(--color-primary); font-weight: 600; }
-.topnav :is(a, button, input, select):focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; }
-.topnav :is(a, button) { -webkit-tap-highlight-color: transparent; }
-.navigation-disclosure { position: relative; }
-.navigation-disclosure__chevron { font-size: 16px; }
-.navigation-disclosure__panel { position: absolute; top: 100%; left: 0; padding-top: 10px; width: 280px; max-width: calc(100vw - 24px); z-index: var(--z-dropdown); }
-.navigation-disclosure__panel[hidden] { display: none; }
-.navigation-disclosure__panel--end { left: auto; right: 0; }
-.navigation-disclosure__surface { padding: 8px; background: var(--color-surface-container-lowest); border: 1px solid var(--color-outline-variant); border-radius: var(--radius-lg); box-shadow: var(--shadow-md); }
-.header-navigation__links { margin: 0; padding: 0; list-style: none; }
-.header-navigation__link {
-  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 42px; padding: 10px 12px;
-  text-align: left; font-size: 14px; line-height: 1.45; color: var(--color-on-surface); border-radius: var(--radius-md); background: transparent; text-decoration: none;
+
+[data-theme="dark"] .topnav__browse-disclosure .navigation-disclosure__trigger {
+  color: #FFFFFF !important;
 }
-.header-navigation__link > .material-symbols-outlined { font-size: 19px; color: var(--color-on-surface-variant); flex-shrink: 0; }
-.header-navigation__link:hover, .header-navigation__link.is-active { color: var(--color-primary); background: var(--color-surface-container-low); text-decoration: none; }
-.header-navigation__link.is-disabled { opacity: 0.55; }
-.header-navigation__link small { display: block; color: var(--color-on-surface-variant); margin-top: 3px; }
-.header-navigation__badge { margin-left: auto; background: var(--color-error); color: var(--color-on-error); min-width: 20px; padding: 2px 5px; border-radius: var(--radius-full); font-size: 11px; text-align: center; }
-.header-navigation__child { padding: 10px 12px 14px; margin-bottom: 6px; border-bottom: 1px solid var(--color-outline-variant); }
-.header-navigation__child label { display: block; font-size: 12px; color: var(--color-on-surface-variant); margin-bottom: 8px; }
-.header-navigation__child select { width: 100%; min-height: 40px; padding: 8px; color: var(--color-on-surface); background: var(--color-surface-container-low); border: 1px solid var(--color-outline-variant); border-radius: var(--radius-md); }
-.header-navigation__child p { font-size: 12px; line-height: 1.5; color: var(--color-on-surface-variant); margin-top: 6px; }
-.topnav__actions { display: flex; align-items: center; gap: 5px; margin-left: 0; flex-shrink: 0; }
-.topnav__icon-btn { width: 36px; height: 36px; padding: 0; display: grid; place-items: center; background: transparent; border-radius: var(--radius-md); color: var(--color-on-surface-variant); }
-.topnav__icon-btn:hover { background: var(--color-surface-container-low); color: var(--color-on-surface); }
-.topnav__icon-btn .material-symbols-outlined { font-size: 21px; }
-.topnav__search-disclosure .navigation-disclosure__chevron { display: none; }
-.topnav__search-disclosure .navigation-disclosure__panel { width: 380px; }
-.topnav__search-label { display: block; font-size: 12px; color: var(--color-on-surface-variant); padding: 6px 4px 10px; }
+
+.topnav__browse-disclosure .navigation-disclosure__trigger:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="dark"] .topnav__browse-disclosure .navigation-disclosure__trigger:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.topnav__browse-disclosure .navigation-disclosure__chevron {
+  font-size: 19px !important;
+  color: #6B7280;
+  margin-left: 2px;
+}
+
+/* ── 3. Center Search Input (Figma Design) ── */
 .topnav__center-search {
-  flex: 0 1 420px;
-  min-width: 220px;
-  margin-left: 12px;
+  flex: 1;
+  max-width: 480px;
+  margin: 0 16px;
 }
+
 .topnav__search-field {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 14px 6px 18px;
-  background: var(--color-surface-container-low, #F4F7FA);
-  border: 1px solid var(--figma-border, rgba(27, 27, 27, 0.1));
+  padding: 0 14px 0 20px;
+  background: #F4F7FA;
+  border: 1px solid rgba(27, 27, 27, 0.08);
   border-radius: var(--radius-full, 9999px);
+  height: 44px;
+  box-sizing: border-box;
   transition: all 0.2s ease;
 }
+
+[data-theme="dark"] .topnav__search-field {
+  background: #1E293B;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
 .topnav__search-field:focus-within {
-  background: var(--color-surface, #FFFFFF);
+  background: #FFFFFF;
   border-color: var(--figma-primary, #3DCBB1);
   box-shadow: 0 0 0 3px rgba(61, 203, 177, 0.15);
 }
+
 .topnav__search-field input {
   min-width: 0;
   width: 100%;
@@ -141,9 +141,15 @@
   font-family: inherit;
   outline: none;
 }
-.topnav__search-field input::placeholder {
-  color: var(--color-on-surface-variant, #94A3B8);
+
+[data-theme="dark"] .topnav__search-field input {
+  color: #FFFFFF;
 }
+
+.topnav__search-field input::placeholder {
+  color: #94A3B8;
+}
+
 .topnav__search-submit {
   display: grid;
   place-items: center;
@@ -151,7 +157,7 @@
   border: none;
   padding: 4px;
   cursor: pointer;
-  color: var(--color-on-surface-variant, #94A3B8);
+  color: #94A3B8;
   border-radius: var(--radius-full);
 }
 .topnav__search-submit:hover {
@@ -161,52 +167,153 @@
   font-size: 20px;
 }
 
+/* ── 4. Main Navigation (Hidden on desktop for student, shows on mobile drawer) ── */
+.topnav__navigation {
+  display: none !important;
+}
+
+/* ── 5. Mobile Tools (ALWAYS hidden on desktop) ── */
+.topnav__mobile-tools {
+  display: none !important;
+}
+
+/* ── 6. Right Actions Bar ── */
+.topnav__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 .topnav__instructor-link {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
   padding: 8px 14px;
   color: var(--color-on-surface, #1B1B1B);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-full, 9999px);
   text-decoration: none;
-  transition: all 0.2s ease;
+  white-space: nowrap;
+  transition: all 0.18s ease;
 }
+
+[data-theme="dark"] .topnav__instructor-link {
+  color: #FFFFFF;
+}
+
 .topnav__instructor-link:hover {
-  background: var(--color-surface-container-low);
   color: var(--figma-primary, #3DCBB1);
+  background: rgba(61, 203, 177, 0.08);
   text-decoration: none;
 }
 
+.topnav__icon-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  color: #64748B;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.topnav__icon-btn:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--figma-primary, #3DCBB1);
+}
+
+[data-theme="dark"] .topnav__icon-btn {
+  color: #94A3B8;
+}
+[data-theme="dark"] .topnav__icon-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+}
+
+.topnav__icon-btn .material-symbols-outlined {
+  font-size: 22px;
+}
+
+/* Avatar Button */
+.topnav__avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border: 2px solid #FFFFFF;
+  cursor: pointer;
+}
+
+.topnav__account .navigation-disclosure__trigger {
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  display: flex !important;
+  align-items: center !important;
+  cursor: pointer;
+}
+.topnav__account .navigation-disclosure__chevron {
+  display: none !important;
+}
+
+.topnav__account-summary {
+  display: block;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--figma-border, rgba(27, 27, 27, 0.08));
+  text-decoration: none;
+}
+.topnav__account-summary strong {
+  display: block;
+  font-size: 14px;
+  color: var(--color-on-surface, #1B1B1B);
+}
+.topnav__account-summary p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #64748B;
+}
+
+/* Auth Buttons (Figma Design) */
 .topnav__auth-group {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .topnav__btn-outline {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 40px;
-  padding: 0 20px;
+  height: 40px;
+  padding: 0 22px;
   background: transparent;
-  color: var(--color-on-surface, #1B1B1B) !important;
-  border: 1.5px solid var(--figma-border, rgba(27, 27, 27, 0.2));
+  color: #1B1B1B !important;
+  border: 1.5px solid rgba(27, 27, 27, 0.2);
   border-radius: var(--radius-full, 9999px);
-  font-family: var(--font-family);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
-  transition: all 0.2s ease;
   white-space: nowrap;
+  transition: all 0.18s ease;
 }
+
+[data-theme="dark"] .topnav__btn-outline {
+  color: #FFFFFF !important;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
 .topnav__btn-outline:hover {
   border-color: var(--figma-primary, #3DCBB1);
   color: var(--figma-primary, #3DCBB1) !important;
   text-decoration: none;
-  transform: translateY(-1px);
 }
 
 .topnav__btn-primary {
@@ -214,62 +321,146 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  min-height: 40px;
-  padding: 0 22px;
+  height: 40px;
+  padding: 0 24px;
   background: var(--figma-primary, #3DCBB1);
   color: #FFFFFF !important;
   border: none;
   border-radius: var(--radius-full, 9999px);
-  font-family: var(--font-family);
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
-  transition: all 0.2s ease;
   white-space: nowrap;
-  box-shadow: 0 4px 14px rgba(61, 203, 177, 0.3);
+  box-shadow: 0 4px 14px rgba(61, 203, 177, 0.25);
+  transition: all 0.18s ease;
 }
+
 .topnav__btn-primary:hover {
   background: var(--figma-primary-hover, #32b59d);
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(61, 203, 177, 0.4);
+  box-shadow: 0 6px 18px rgba(61, 203, 177, 0.35);
   text-decoration: none;
-  color: #FFFFFF !important;
 }
 
-.topnav__mobile-auth {
-  display: grid;
-  gap: 6px;
-  margin-top: 8px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--color-outline-variant);
+/* Mobile Hamburger Menu button is HIDDEN on desktop */
+.topnav__menu-btn {
+  display: none !important;
 }
 
-@media (max-width: 1279px) {
-  .topnav__bar { gap: 10px; padding-inline: 18px; }
-  .header-navigation__home, .navigation-disclosure__trigger { padding-inline: 8px; font-size: 12px; }
-  .topnav__account-label { display: none; }
+/* ── Dropdown panel surface ── */
+.navigation-disclosure {
+  position: relative;
 }
-@media (max-width: 1099px) {
-  .topnav__center-search, .topnav__instructor-link { display: none; }
-  .topnav__bar { padding-inline: 16px; }
-  .topnav__navigation { display: none; position: absolute; top: 100%; left: 0; right: 0; margin-left: 0; background: var(--color-surface-container-lowest); border-bottom: 1px solid var(--color-outline-variant); max-height: calc(100dvh - var(--topnav-height)); overflow-y: auto; overscroll-behavior: contain; padding: 16px 16px calc(16px + env(safe-area-inset-bottom)); box-shadow: var(--shadow-md); }
-  .topnav__navigation.is-open { display: block; }
-  .header-navigation { flex-direction: column; align-items: stretch; gap: 4px; }
-  .header-navigation__home, .header-navigation .navigation-disclosure__trigger { width: 100%; justify-content: space-between; min-height: 44px; padding: 12px; border-bottom: 0; border-radius: var(--radius-md); font-size: 14px; }
-  .header-navigation__home.is-active, .header-navigation .navigation-disclosure.is-active > .navigation-disclosure__trigger { background: var(--color-surface-container-low); }
-  .header-navigation .navigation-disclosure__panel { position: static; width: 100%; max-width: none; padding: 0 0 8px; }
-  .header-navigation .navigation-disclosure__surface { box-shadow: none; background: var(--color-surface-container-low); }
-  .topnav__menu-btn { display: grid; }
-  .topnav__mobile-tools { display: grid; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--color-outline-variant); }
-  .topnav__search-disclosure { display: none; }
+.navigation-disclosure__panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  padding-top: 8px;
+  width: 260px;
+  z-index: var(--z-dropdown, 200);
 }
-@media (max-width: 480px) {
-  .topnav__bar { gap: 8px; padding-inline: 12px; }
-  .topnav__brand { font-size: 17px; gap: 7px; }
-  .topnav__brand-mark { width: 28px; height: 28px; }
-  .topnav__actions { gap: 3px; }
-  .topnav__theme-btn, .topnav__account .navigation-disclosure__chevron { display: none; }
-  .topnav__account .navigation-disclosure__trigger { padding: 3px; }
-  .topnav .lang-switcher__btn { padding: 6px 8px; gap: 4px; }
-  .topnav .notif-dropdown { position: fixed; top: calc(var(--topnav-height) + 8px); left: 12px; right: 12px; width: auto; max-width: none; }
+.navigation-disclosure__panel[hidden] {
+  display: none;
+}
+.navigation-disclosure__panel--end {
+  left: auto;
+  right: 0;
+}
+.navigation-disclosure__surface {
+  padding: 8px;
+  background: #FFFFFF;
+  border: 1px solid rgba(27, 27, 27, 0.08);
+  border-radius: 16px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+}
+[data-theme="dark"] .navigation-disclosure__surface {
+  background: #1E293B;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.header-navigation__links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.header-navigation__link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  text-align: left;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--color-on-surface, #1B1B1B);
+  border-radius: 10px;
+  background: transparent;
+  border: none;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+[data-theme="dark"] .header-navigation__link {
+  color: #F1F5F9;
+}
+.header-navigation__link:hover {
+  background: #F1F5F9;
+  color: var(--figma-primary, #3DCBB1);
+  text-decoration: none;
+}
+[data-theme="dark"] .header-navigation__link:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.header-navigation__link .material-symbols-outlined {
+  font-size: 18px;
+  color: #64748B;
+}
+
+/* ── Mobile Queries (<= 1024px) ── */
+@media (max-width: 1024px) {
+  .topnav__center-search {
+    display: none;
+  }
+  .topnav__instructor-link {
+    display: none;
+  }
+  .topnav__menu-btn {
+    display: grid !important;
+  }
+  .topnav__navigation {
+    position: absolute;
+    top: 72px;
+    left: 0;
+    right: 0;
+    background: #FFFFFF;
+    border-bottom: 1px solid rgba(27, 27, 27, 0.1);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
+    padding: 20px 24px;
+    flex-direction: column;
+    gap: 16px;
+    max-height: calc(100vh - 72px);
+    overflow-y: auto;
+  }
+  [data-theme="dark"] .topnav__navigation {
+    background: #14181E;
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  .topnav__navigation.is-open {
+    display: flex !important;
+  }
+  .topnav__mobile-tools {
+    display: flex !important;
+    flex-direction: column;
+    gap: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(27, 27, 27, 0.08);
+  }
+  .topnav__mobile-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
 }
