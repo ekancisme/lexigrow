@@ -1,5 +1,8 @@
 # Encrypt backend server source code and configs
 server/** filter=git-crypt diff=git-crypt
 
+# Encrypt frontend source code
+src/** filter=git-crypt diff=git-crypt
+
 # Do not encrypt git configuration
 .gitattributes !filter !diff
