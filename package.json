@@ -9,7 +9,7 @@
     "lint": "eslint src server/src server/tests",
     "lint:all": "eslint .",
     "preview": "vite preview",
-    "export:figma": "node scripts/export_screens_to_figma.mjs"
+    "export:figma": "node Tools/figma/export_screens_to_figma.mjs"
   },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
