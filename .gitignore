@@ -77,6 +77,8 @@ exports/
 # Non-system markdown files outside source code
 /*.md
 !/README.md
+!/AGENTS.md
+!/GEMINI.md
 server/*.md
 !/README.md
 server/scripts/seedRoleProAccounts.js
